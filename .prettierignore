@@ -1,8 +1,6 @@
 .next
 node_modules
 prisma/migrations
-prisma/schema.prisma
 coverage
 uploads
 public/uploads
-docs/prd.md

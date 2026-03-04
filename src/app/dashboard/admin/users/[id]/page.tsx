@@ -1,12 +1,10 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { RoleAssignmentManager } from '@/components/admin/RoleAssignmentManager';
 import { getUserById } from '@/server/queries/adminUsers';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 
 export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,12 +32,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
   return (
     <div className="space-y-6">
       <div className="mb-4">
-        <Button variant="ghost" size="sm" asChild className="mb-2">
-          <Link href="/dashboard/admin/users">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Users
-          </Link>
-        </Button>
+        <BackToParent href="/dashboard/admin/users" label="Back to Users" />
         <PageHeader
           title={`${user.staff.firstName} ${user.staff.lastName}`}
           description={user.staff.institutionalEmail}

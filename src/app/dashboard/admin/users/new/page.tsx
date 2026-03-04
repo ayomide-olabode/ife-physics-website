@@ -1,19 +1,15 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 import { CreateUserForm } from '@/components/dashboard/CreateUserForm';
 
 export default function CreateUserPage() {
   return (
     <div className="space-y-6">
       <div className="mb-4">
-        <Button variant="ghost" size="sm" asChild className="mb-2">
-          <Link href="/dashboard/admin/users">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Users
-          </Link>
-        </Button>
+        <BackToParent href="/dashboard/admin/users" label="Back to Users" />
         <PageHeader
           title="Create User"
           description="Provision a new user account linked to an existing staff record."

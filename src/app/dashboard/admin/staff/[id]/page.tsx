@@ -5,7 +5,8 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { getStaffById } from '@/server/queries/adminStaff';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 
 export default async function AdminStaffDetailPage({
   params,
@@ -40,17 +41,7 @@ export default async function AdminStaffDetailPage({
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div className="space-y-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            asChild
-            className="mb-2 -ml-2 text-muted-foreground hover:text-foreground"
-          >
-            <Link href="/dashboard/admin/staff">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Staff
-            </Link>
-          </Button>
+          <BackToParent href="/dashboard/admin/staff" label="Back to Staff" />
           <div className="flex items-center gap-3">
             <PageHeader
               title={hasName ? `${staff.firstName} ${staff.lastName}` : staff.institutionalEmail}

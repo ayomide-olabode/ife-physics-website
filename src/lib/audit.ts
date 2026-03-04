@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { Prisma } from '.prisma/client';
 
 export type AuditParams = {
   actorId?: string | null;
@@ -25,9 +26,9 @@ export async function logAudit(params: AuditParams): Promise<void> {
   const { actorId, action, entityType, entityId, snapshot } = params;
 
   // Ensure snapshot is JSON-serializable by round-tripping through stringify/parse.
-  let safeSnapshot: unknown;
+  let safeSnapshot: Prisma.InputJsonValue;
   try {
-    safeSnapshot = JSON.parse(JSON.stringify(snapshot));
+    safeSnapshot = JSON.parse(JSON.stringify(snapshot)) as Prisma.InputJsonValue;
   } catch {
     safeSnapshot = { _error: 'Snapshot was not JSON-serializable' };
   }
@@ -38,7 +39,7 @@ export async function logAudit(params: AuditParams): Promise<void> {
       action,
       entityType,
       entityId,
-      snapshot: safeSnapshot as object,
+      snapshot: safeSnapshot,
     },
   });
 }

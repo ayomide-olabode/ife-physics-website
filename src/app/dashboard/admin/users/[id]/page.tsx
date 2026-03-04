@@ -1,10 +1,130 @@
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { DataTable } from '@/components/dashboard/DataTable';
+import { EmptyState } from '@/components/dashboard/EmptyState';
+import { getUserById } from '@/server/queries/adminUsers';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+
+export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const user = await getUserById(id);
+
+  if (!user) {
+    notFound();
+  }
+
+  const roleRows = user.roleAssignments.map((ra) => [
+    <span key="role" className="font-medium text-sm">
+      {ra.role}
+    </span>,
+    <span key="scope" className="text-sm">
+      {ra.scopeType} {ra.scopeId ? `(${ra.scopeId})` : ''}
+    </span>,
+    <span key="status" className="text-sm">
+      {ra.deletedAt ? (
+        <span className="text-red-600">Deleted</span>
+      ) : ra.expiresAt && new Date(ra.expiresAt) < new Date() ? (
+        <span className="text-yellow-600">Expired</span>
+      ) : (
+        <span className="text-green-600">Active</span>
+      )}
+    </span>,
+    <span key="expires" className="text-sm text-muted-foreground">
+      {ra.expiresAt ? new Date(ra.expiresAt).toLocaleDateString() : 'Never'}
+    </span>,
+  ]);
+
+  const leadershipRows = user.staff.leadershipTerms.map((term) => [
+    <span key="role" className="font-medium text-sm">
+      {term.role}
+    </span>,
+    <span key="programme" className="text-sm">
+      {term.programmeCode || '-'}
+    </span>,
+    <span key="start" className="text-sm">
+      {new Date(term.startDate).toLocaleDateString()}
+    </span>,
+    <span key="end" className="text-sm">
+      {term.endDate ? new Date(term.endDate).toLocaleDateString() : 'Present'}
+    </span>,
+  ]);
 
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Edit User</h1>
-      <p className="text-muted-foreground mt-2">{id}</p>
-    </main>
+    <div className="space-y-6">
+      <div className="mb-4">
+        <Button variant="ghost" size="sm" asChild className="mb-2">
+          <Link href="/dashboard/admin/users">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Users
+          </Link>
+        </Button>
+        <PageHeader
+          title={`${user.staff.firstName} ${user.staff.lastName}`}
+          description={user.staff.institutionalEmail}
+          actions={
+            user.isSuperAdmin && (
+              <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">
+                Super Admin
+              </span>
+            )
+          }
+        />
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-lg border p-4">
+          <h3 className="text-sm font-medium text-muted-foreground">Account Details</h3>
+          <div className="mt-4 space-y-3">
+            <div className="flex justify-between">
+              <span className="text-sm">User ID:</span>
+              <span className="text-sm font-medium">{user.id}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm">Staff ID:</span>
+              <span className="text-sm font-medium">{user.staff.id}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm">Joined:</span>
+              <span className="text-sm font-medium">
+                {new Date(user.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm">Last Login:</span>
+              <span className="text-sm font-medium">
+                {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold tracking-tight">Role Assignments</h2>
+        <DataTable
+          headers={['Role', 'Scope', 'Status', 'Expires At']}
+          rows={roleRows}
+          emptyState={
+            <EmptyState title="No roles" description="This user has no mapped role assignments." />
+          }
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold tracking-tight">Leadership Terms</h2>
+        <DataTable
+          headers={['Role', 'Programme', 'Start Date', 'End Date']}
+          rows={leadershipRows}
+          emptyState={
+            <EmptyState
+              title="No leadership terms"
+              description="This user has no leadership terms recorded."
+            />
+          }
+        />
+      </div>
+    </div>
   );
 }

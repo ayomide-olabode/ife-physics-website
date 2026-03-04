@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcrypt';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
-
+import { getDelayMs, recordFailure, recordSuccess } from '@/lib/security/loginThrottle';
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
@@ -25,12 +25,20 @@ export const authOptions: NextAuthOptions = {
         }
 
         const { email, password } = parsedCredentials.data;
+        const normalizedEmail = email.toLowerCase().trim();
+        const delayMs = getDelayMs(normalizedEmail);
+
+        if (delayMs > 0) {
+          // Await exponential backoff
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
 
         const staff = await prisma.staff.findUnique({
-          where: { institutionalEmail: email },
+          where: { institutionalEmail: normalizedEmail },
         });
 
         if (!staff) {
+          recordFailure(normalizedEmail);
           return null;
         }
 
@@ -39,8 +47,11 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+          recordFailure(normalizedEmail);
           return null;
         }
+
+        recordSuccess(normalizedEmail);
 
         return {
           id: user.id, // NextAuth expects "id" conventionally

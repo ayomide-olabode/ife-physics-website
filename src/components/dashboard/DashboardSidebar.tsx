@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { LogoutButton } from '@/components/auth/LogoutButton';
+import { LogOut } from 'lucide-react';
 
 export type NavItem = {
   label: string;
@@ -12,7 +14,10 @@ export type NavItem = {
 };
 
 function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
-  const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+  const isActive =
+    item.href === '/dashboard'
+      ? pathname === '/dashboard'
+      : pathname === item.href || pathname.startsWith(item.href + '/');
   return (
     <Link
       href={item.href}
@@ -31,11 +36,22 @@ export function DashboardSidebar({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="hidden md:flex flex-col gap-1 w-64 shrink-0 py-6 pr-6 border-r min-h-[calc(100vh-4rem)]">
-      {items.map((item) => (
-        <NavLink key={item.href} item={item} pathname={pathname} />
-      ))}
-    </nav>
+    <aside className="hidden md:flex flex-col w-64 shrink-0 py-6 pr-6 border-r min-h-[calc(100vh-4rem)]">
+      <nav className="flex-1 flex flex-col gap-1">
+        {items.map((item) => (
+          <NavLink key={item.href} item={item} pathname={pathname} />
+        ))}
+      </nav>
+      <div className="mt-auto pt-6">
+        <LogoutButton
+          variant="ghost"
+          className="w-full justify-start text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Log Out
+        </LogoutButton>
+      </div>
+    </aside>
   );
 }
 
@@ -64,14 +80,23 @@ export function MobileSidebar({ items }: { items: NavItem[] }) {
           </svg>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 p-4">
-        <nav className="flex flex-col gap-1 mt-6">
+      <SheetContent side="left" className="w-64 p-4 flex flex-col">
+        <nav className="flex-1 flex flex-col gap-1 mt-6">
           {items.map((item) => (
             <div key={item.href} onClick={() => setOpen(false)}>
               <NavLink item={item} pathname={pathname} />
             </div>
           ))}
         </nav>
+        <div className="mt-auto pt-6">
+          <LogoutButton
+            variant="ghost"
+            className="w-full justify-start text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Log Out
+          </LogoutButton>
+        </div>
       </SheetContent>
     </Sheet>
   );

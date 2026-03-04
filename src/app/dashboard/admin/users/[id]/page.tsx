@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
+import { RoleAssignmentManager } from '@/components/admin/RoleAssignmentManager';
 import { getUserById } from '@/server/queries/adminUsers';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -14,27 +15,6 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
   if (!user) {
     notFound();
   }
-
-  const roleRows = user.roleAssignments.map((ra) => [
-    <span key="role" className="font-medium text-sm">
-      {ra.role}
-    </span>,
-    <span key="scope" className="text-sm">
-      {ra.scopeType} {ra.scopeId ? `(${ra.scopeId})` : ''}
-    </span>,
-    <span key="status" className="text-sm">
-      {ra.deletedAt ? (
-        <span className="text-red-600">Deleted</span>
-      ) : ra.expiresAt && new Date(ra.expiresAt) < new Date() ? (
-        <span className="text-yellow-600">Expired</span>
-      ) : (
-        <span className="text-green-600">Active</span>
-      )}
-    </span>,
-    <span key="expires" className="text-sm text-muted-foreground">
-      {ra.expiresAt ? new Date(ra.expiresAt).toLocaleDateString() : 'Never'}
-    </span>,
-  ]);
 
   const leadershipRows = user.staff.leadershipTerms.map((term) => [
     <span key="role" className="font-medium text-sm">
@@ -117,13 +97,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
 
       <div className="space-y-4">
         <h2 className="text-xl font-semibold tracking-tight">Role Assignments</h2>
-        <DataTable
-          headers={['Role', 'Scope', 'Status', 'Expires At']}
-          rows={roleRows}
-          emptyState={
-            <EmptyState title="No roles" description="This user has no mapped role assignments." />
-          }
-        />
+        <RoleAssignmentManager userId={user.id} assignments={user.roleAssignments} />
       </div>
 
       <div className="space-y-4">

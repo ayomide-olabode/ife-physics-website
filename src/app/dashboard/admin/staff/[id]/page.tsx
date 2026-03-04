@@ -6,7 +6,6 @@ import { EmptyState } from '@/components/dashboard/EmptyState';
 import { getStaffById } from '@/server/queries/adminStaff';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, UserPlus } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default async function AdminStaffDetailPage({
   params,
@@ -35,30 +34,46 @@ export default async function AdminStaffDetailPage({
     </span>,
   ]);
 
+  const hasName = staff.firstName && staff.lastName;
+
   return (
     <div className="space-y-6">
-      <div className="mb-4">
-        <Button variant="ghost" size="sm" asChild className="mb-4">
-          <Link href="/dashboard/admin/staff">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Staff
-          </Link>
-        </Button>
-        <PageHeader
-          title={`${staff.firstName} ${staff.lastName}`}
-          description={staff.institutionalEmail}
-          actions={
-            <span
-              className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
-                staff.staffStatus === 'ACTIVE'
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500'
-                  : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500'
-              }`}
-            >
-              {staff.staffStatus.replace(/_/g, ' ')}
-            </span>
-          }
-        />
+      <div className="flex items-start justify-between">
+        <div className="space-y-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="mb-2 -ml-2 text-muted-foreground hover:text-foreground"
+          >
+            <Link href="/dashboard/admin/staff">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Staff
+            </Link>
+          </Button>
+          <div className="flex items-center gap-3">
+            <PageHeader
+              title={hasName ? `${staff.firstName} ${staff.lastName}` : staff.institutionalEmail}
+              description={hasName ? staff.institutionalEmail : undefined}
+              actions={
+                <span
+                  className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                    staff.staffStatus === 'ACTIVE'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500'
+                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500'
+                  }`}
+                >
+                  {staff.staffStatus.replace(/_/g, ' ')}
+                </span>
+              }
+            />
+            {!hasName && (
+              <span className="inline-flex items-center rounded-sm bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive mt-1">
+                PROFILE INCOMPLETE
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

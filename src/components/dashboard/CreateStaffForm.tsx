@@ -16,8 +16,6 @@ export function CreateStaffForm() {
   const [error, setError] = useState('');
 
   // Form State
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [staffType, setStaffType] = useState<StaffType>('ACADEMIC');
   const [staffStatus, setStaffStatus] = useState<StaffStatus>('ACTIVE');
@@ -33,8 +31,6 @@ export function CreateStaffForm() {
 
     try {
       const result = await createStaff({
-        firstName,
-        lastName,
         institutionalEmail: email,
         staffType,
         staffStatus,
@@ -61,28 +57,10 @@ export function CreateStaffForm() {
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl">
       <div className="space-y-4">
         <h3 className="text-lg font-medium border-b pb-2">1. Identity Information</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              placeholder="e.g. John"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              placeholder="e.g. Doe"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-            />
-          </div>
-        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Personal identification attributes like names will be securely collected when the newly
+          added staff completes their profile.
+        </p>
 
         <div className="space-y-2">
           <Label htmlFor="email">Institutional Email</Label>

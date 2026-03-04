@@ -98,8 +98,8 @@ enum ThesisStatus {
 
 model Staff {
   id                 String      @id @default(cuid())
-  firstName          String
-  lastName           String
+  firstName          String?
+  lastName           String?
   institutionalEmail String      @unique
 
   staffType          StaffType

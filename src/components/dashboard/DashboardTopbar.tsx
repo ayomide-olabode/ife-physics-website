@@ -7,18 +7,26 @@ import { MobileSidebar, type NavItem } from './DashboardSidebar';
 export async function DashboardTopbar({ navItems }: { navItems: NavItem[] }) {
   const session = await auth();
 
-  let user: TopbarUser = { firstName: 'User', lastName: '', profileImageUrl: null };
+  let user: TopbarUser = {
+    firstName: null,
+    lastName: null,
+    profileImageUrl: null,
+    email: session?.user?.email,
+  };
 
   if (session?.user?.staffId) {
     const staff = await prisma.staff.findUnique({
       where: { id: session.user.staffId },
-      select: { firstName: true, lastName: true, profileImageUrl: true },
+      select: { firstName: true, lastName: true, profileImageUrl: true, institutionalEmail: true },
     });
     if (staff) {
       user = {
         firstName: staff.firstName,
         lastName: staff.lastName,
         profileImageUrl: staff.profileImageUrl,
+        email: session.user.email || staff.institutionalEmail,
+        name: staff.firstName && staff.lastName ? `${staff.firstName} ${staff.lastName}` : null,
+        image: staff.profileImageUrl,
       };
     }
   }

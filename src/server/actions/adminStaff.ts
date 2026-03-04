@@ -9,8 +9,6 @@ import { StaffType, StaffStatus } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 export async function createStaff({
-  firstName,
-  lastName,
   institutionalEmail,
   staffType,
   staffStatus,
@@ -19,8 +17,6 @@ export async function createStaff({
   createUserShell = true,
   isSuperAdminShell = false,
 }: {
-  firstName: string;
-  lastName: string;
   institutionalEmail: string;
   staffType: StaffType;
   staffStatus: StaffStatus;
@@ -51,8 +47,6 @@ export async function createStaff({
   const result = await prisma.$transaction(async (tx) => {
     const newStaff = await tx.staff.create({
       data: {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
         institutionalEmail: emailLower,
         staffType,
         staffStatus,

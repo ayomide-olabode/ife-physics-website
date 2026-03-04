@@ -22,8 +22,8 @@ export function CreateUserForm() {
   const [searchResults, setSearchResults] = useState<
     Array<{
       id: string;
-      firstName: string;
-      lastName: string;
+      firstName: string | null;
+      lastName: string | null;
       institutionalEmail: string;
     }>
   >([]);

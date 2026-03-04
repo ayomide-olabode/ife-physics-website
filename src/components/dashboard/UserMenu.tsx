@@ -9,37 +9,42 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 
 export type TopbarUser = {
-  firstName: string;
-  lastName: string;
+  firstName: string | null;
+  lastName: string | null;
   profileImageUrl: string | null;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
 };
 
-function getInitials(firstName: string, lastName: string) {
-  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-}
-
 export function UserMenu({ user }: { user: TopbarUser }) {
+  const avatarFallback = user.name
+    ? user.name[0]?.toUpperCase()
+    : user.email?.[0]?.toUpperCase() || 'U';
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative flex items-center gap-2 px-2">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            {user.profileImageUrl && (
-              <AvatarImage src={user.profileImageUrl} alt={user.firstName} />
-            )}
-            <AvatarFallback className="text-xs">
-              {getInitials(user.firstName, user.lastName)}
-            </AvatarFallback>
+            <AvatarImage src={user.image || ''} alt={user.name || user.email || 'Avatar'} />
+            <AvatarFallback>{avatarFallback}</AvatarFallback>
           </Avatar>
-          <span className="hidden sm:inline text-sm font-medium">
-            {user.firstName} {user.lastName}
-          </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">
+              {user.name ? user.name : 'Complete Profile'}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+          </div>
+        </DropdownMenuLabel>
         <DropdownMenuItem asChild>
           <Link href="/dashboard/profile">Profile</Link>
         </DropdownMenuItem>

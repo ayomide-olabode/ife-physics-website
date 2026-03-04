@@ -21,50 +21,75 @@ export default async function AdminUsersPage({
   const hasNextPage = page * pageSize < total;
   const hasPrevPage = page > 1;
 
-  const rows = users.map((user) => [
-    <span key="staffId" className="text-sm font-medium">
-      {user.staffId}
-    </span>,
-    <div key="name" className="text-sm">
-      {user.staff.firstName} {user.staff.lastName}
-    </div>,
-    <div key="email" className="text-sm text-muted-foreground">
-      {user.staff.institutionalEmail}
-    </div>,
-    <span key="status" className="text-sm">
-      {user.passwordHash === '' ? (
-        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
-          INVITED
-        </span>
-      ) : (
-        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-500">
-          ACTIVE
-        </span>
-      )}
-    </span>,
-    <span key="superadmin" className="text-sm">
-      {user.isSuperAdmin ? (
-        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">
-          Yes
-        </span>
-      ) : (
-        <span className="text-muted-foreground">No</span>
-      )}
-    </span>,
-    <span key="joined" className="text-sm">
-      {new Date(user.createdAt).toLocaleDateString()}
-    </span>,
-    <span key="lastLogin" className="text-sm">
-      {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
-    </span>,
-    <Link
-      key="actions"
-      href={`/dashboard/admin/users/${user.id}`}
-      className="text-sm font-medium text-primary hover:underline"
-    >
-      View Details
-    </Link>,
-  ]);
+  const rows = users.map((user) => {
+    const activeRoles = user.roleAssignments
+      ? user.roleAssignments
+          .filter((ra) => !ra.expiresAt || new Date(ra.expiresAt) > new Date())
+          .map((ra) => ra.role)
+      : [];
+    const uniqueRoles = Array.from(new Set(activeRoles));
+
+    return [
+      <span key="staffId" className="text-sm font-medium">
+        {user.staffId}
+      </span>,
+      <div key="name" className="text-sm">
+        {user.staff.firstName} {user.staff.lastName}
+      </div>,
+      <div key="email" className="text-sm text-muted-foreground">
+        {user.staff.institutionalEmail}
+      </div>,
+      <span key="account" className="text-sm">
+        {user.passwordHash === '' ? (
+          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
+            INVITED
+          </span>
+        ) : (
+          <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-500">
+            ACTIVE
+          </span>
+        )}
+      </span>,
+      <span key="roles" className="text-sm flex flex-wrap gap-1">
+        {user.isSuperAdmin && (
+          <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-500">
+            SUPER_ADMIN
+          </span>
+        )}
+        {uniqueRoles.includes('EDITOR') && (
+          <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">
+            EDITOR
+          </span>
+        )}
+        {uniqueRoles.includes('ACADEMIC_COORDINATOR') && (
+          <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-500">
+            ACADEMIC_COORDINATOR
+          </span>
+        )}
+        {uniqueRoles.includes('RESEARCH_LEAD') && (
+          <span className="inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-800 dark:bg-teal-900/30 dark:text-teal-500">
+            RESEARCH_LEAD
+          </span>
+        )}
+        {!user.isSuperAdmin && uniqueRoles.length === 0 && (
+          <span className="text-muted-foreground">-</span>
+        )}
+      </span>,
+      <span key="joined" className="text-sm">
+        {new Date(user.createdAt).toLocaleDateString()}
+      </span>,
+      <span key="lastLogin" className="text-sm">
+        {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
+      </span>,
+      <Link
+        key="actions"
+        href={`/dashboard/admin/users/${user.id}`}
+        className="text-sm font-medium text-primary hover:underline"
+      >
+        View Details
+      </Link>,
+    ];
+  });
 
   return (
     <div className="space-y-6">
@@ -94,8 +119,8 @@ export default async function AdminUsersPage({
           'Staff ID',
           'Name',
           'Email',
-          'Status',
-          'Super Admin',
+          'Account',
+          'Roles',
           'Joined',
           'Last Login',
           'Actions',

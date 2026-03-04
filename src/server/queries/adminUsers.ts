@@ -45,6 +45,12 @@ export async function listUsers({
             profileImageUrl: true,
           },
         },
+        roleAssignments: {
+          where: {
+            deletedAt: null,
+          },
+          select: { role: true, expiresAt: true },
+        },
       },
     }),
     prisma.user.count({ where }),

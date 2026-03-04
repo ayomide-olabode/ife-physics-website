@@ -2,3 +2,5 @@
 export function placeholderQuery() {
   return null;
 }
+
+export * from './health';

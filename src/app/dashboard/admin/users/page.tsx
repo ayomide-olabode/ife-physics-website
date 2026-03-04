@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { DataTable } from '@/components/dashboard/DataTable';
+import { AddNewButton } from '@/components/dashboard/AddNewButton';
 import { listUsers } from '@/server/queries/adminUsers';
 import { Button } from '@/components/ui/button';
 
@@ -71,18 +72,21 @@ export default async function AdminUsersPage({
         title="Users"
         description="Manage system users and their roles."
         actions={
-          <form method="GET" action="/dashboard/admin/users" className="flex items-center gap-2">
-            <input
-              type="text"
-              name="q"
-              defaultValue={q}
-              placeholder="Search users..."
-              className="h-9 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-            />
-            <Button type="submit" variant="secondary" size="sm">
-              Search
-            </Button>
-          </form>
+          <div className="flex items-center gap-4">
+            <form method="GET" action="/dashboard/admin/users" className="flex items-center gap-2">
+              <input
+                type="text"
+                name="q"
+                defaultValue={q}
+                placeholder="Search users..."
+                className="h-9 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              />
+              <Button type="submit" variant="secondary" size="sm">
+                Search
+              </Button>
+            </form>
+            <AddNewButton href="/dashboard/admin/users/new" />
+          </div>
         }
       />
       <DataTable

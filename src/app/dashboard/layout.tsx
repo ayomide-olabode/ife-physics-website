@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { isSuperAdmin, hasGlobalRole, getScopedResearchGroupIds } from '@/lib/rbac';
 import type { NavItem } from '@/components/dashboard/DashboardSidebar';
+import { Toaster } from '@/components/ui/sonner';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -41,5 +42,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
     navItems.push({ label: 'Admin', href: '/dashboard/admin' });
   }
 
-  return <DashboardShell navItems={navItems}>{children}</DashboardShell>;
+  return (
+    <>
+      <DashboardShell navItems={navItems}>{children}</DashboardShell>
+      <Toaster />
+    </>
+  );
 }

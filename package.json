@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f --tail=200",
+    "db:reset": "docker compose down -v && docker compose up -d"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

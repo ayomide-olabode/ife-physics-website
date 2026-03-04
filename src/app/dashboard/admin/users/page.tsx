@@ -30,6 +30,17 @@ export default async function AdminUsersPage({
     <div key="email" className="text-sm text-muted-foreground">
       {user.staff.institutionalEmail}
     </div>,
+    <span key="status" className="text-sm">
+      {user.passwordHash === '' ? (
+        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
+          INVITED
+        </span>
+      ) : (
+        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-500">
+          ACTIVE
+        </span>
+      )}
+    </span>,
     <span key="superadmin" className="text-sm">
       {user.isSuperAdmin ? (
         <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">
@@ -75,7 +86,16 @@ export default async function AdminUsersPage({
         }
       />
       <DataTable
-        headers={['Staff ID', 'Name', 'Email', 'Super Admin', 'Joined', 'Last Login', 'Actions']}
+        headers={[
+          'Staff ID',
+          'Name',
+          'Email',
+          'Status',
+          'Super Admin',
+          'Joined',
+          'Last Login',
+          'Actions',
+        ]}
         rows={rows}
         emptyState={
           <EmptyState

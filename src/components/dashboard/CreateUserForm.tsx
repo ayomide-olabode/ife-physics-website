@@ -15,8 +15,6 @@ export function CreateUserForm() {
 
   // Form state
   const [selectedStaffId, setSelectedStaffId] = useState<string>('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   // Search state
@@ -54,20 +52,11 @@ export function CreateUserForm() {
       toastError('Please select a staff member.');
       return;
     }
-    if (password.length < 8) {
-      toastError('Password must be at least 8 characters long.');
-      return;
-    }
-    if (password !== confirmPassword) {
-      toastError('Passwords do not match.');
-      return;
-    }
 
     setIsSubmitting(true);
     try {
       const res = await createUser({
         staffId: selectedStaffId,
-        password,
         isSuperAdmin,
       });
 
@@ -146,37 +135,7 @@ export function CreateUserForm() {
       </div>
 
       <div className="space-y-4 rounded-lg border p-4 bg-card text-card-foreground shadow-sm">
-        <h3 className="text-lg font-medium">2. Account Credentials</h3>
-
-        <div className="space-y-2">
-          <Label htmlFor="password">Temporary Password</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Min. 8 characters"
-            required
-            minLength={8}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Retype password"
-            required
-            minLength={8}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-4 rounded-lg border p-4 bg-card text-card-foreground shadow-sm">
-        <h3 className="text-lg font-medium">3. Global Permissions</h3>
+        <h3 className="text-lg font-medium">2. Global Permissions</h3>
 
         <div className="flex items-center space-x-2">
           <Checkbox

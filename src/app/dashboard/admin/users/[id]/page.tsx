@@ -86,6 +86,20 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
               <span className="text-sm font-medium">{user.staff.id}</span>
             </div>
             <div className="flex justify-between">
+              <span className="text-sm">Account Status:</span>
+              <span className="text-sm font-medium">
+                {user.passwordHash === '' ? (
+                  <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
+                    INVITED
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-500">
+                    ACTIVE
+                  </span>
+                )}
+              </span>
+            </div>
+            <div className="flex justify-between">
               <span className="text-sm">Joined:</span>
               <span className="text-sm font-medium">
                 {new Date(user.createdAt).toLocaleDateString()}

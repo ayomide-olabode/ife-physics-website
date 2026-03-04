@@ -8,11 +8,9 @@ import { revalidatePath } from 'next/cache';
 
 export async function createUser({
   staffId,
-  password,
   isSuperAdmin,
 }: {
   staffId: string;
-  password?: string; // Temporarily make it optional in the type, but enforce it explicitly in logic
   isSuperAdmin: boolean;
 }) {
   const session = await requireAuth();
@@ -20,9 +18,6 @@ export async function createUser({
 
   if (!staffId) {
     return { error: 'Staff ID is required.' };
-  }
-  if (!password || password.length < 8) {
-    return { error: 'Password must be at least 8 characters long.' };
   }
 
   try {
@@ -40,12 +35,10 @@ export async function createUser({
       return { error: 'A user account already exists for this staff member.' };
     }
 
-    const passwordHash = await bcrypt.hash(password, 12);
-
     const newUser = await prisma.user.create({
       data: {
         staffId,
-        passwordHash,
+        passwordHash: '',
         isSuperAdmin,
       },
     });

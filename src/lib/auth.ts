@@ -46,7 +46,12 @@ export const authOptions: NextAuthOptions = {
           where: { staffId: staff.id },
         });
 
-        if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+        if (!user || user.passwordHash === '') {
+          recordFailure(normalizedEmail);
+          throw new Error('Account not activated. Please register.');
+        }
+
+        if (!(await bcrypt.compare(password, user.passwordHash))) {
           recordFailure(normalizedEmail);
           return null;
         }

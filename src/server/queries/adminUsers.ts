@@ -34,6 +34,7 @@ export async function listUsers({
         id: true,
         staffId: true,
         isSuperAdmin: true,
+        passwordHash: true,
         lastLoginAt: true,
         createdAt: true,
         staff: {
@@ -59,6 +60,7 @@ export async function getUserById(userId: string) {
       id: true,
       staffId: true,
       isSuperAdmin: true,
+      passwordHash: true,
       lastLoginAt: true,
       createdAt: true,
       staff: {

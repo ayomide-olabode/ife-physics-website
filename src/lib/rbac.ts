@@ -1,12 +1,13 @@
 import prisma from '@/lib/prisma';
-import { ScopedRole, ScopeType } from '@prisma/client';
 import { Session } from 'next-auth';
+
+export type Role = 'EDITOR' | 'ACADEMIC_COORDINATOR' | 'RESEARCH_LEAD';
 
 export function isSuperAdmin(session: Session | null): boolean {
   return session?.user?.isSuperAdmin === true;
 }
 
-export async function hasGlobalRole(session: Session | null, role: ScopedRole): Promise<boolean> {
+export async function hasGlobalRole(session: Session | null, role: Role): Promise<boolean> {
   if (!session?.user?.userId) return false;
   if (isSuperAdmin(session)) return true;
 
@@ -16,7 +17,7 @@ export async function hasGlobalRole(session: Session | null, role: ScopedRole): 
     where: {
       userId: session.user.userId,
       role: role,
-      scopeType: ScopeType.GLOBAL,
+      scopeType: 'GLOBAL',
       deletedAt: null,
       OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
     },
@@ -29,14 +30,13 @@ export async function hasGlobalRole(session: Session | null, role: ScopedRole): 
 export async function getScopedResearchGroupIds(session: Session | null): Promise<string[]> {
   if (!session?.user?.userId) return [];
 
-  // Superadmins typically access everything, but this method returns explicit scopes.
   const now = new Date();
 
   const assignments = await prisma.roleAssignment.findMany({
     where: {
       userId: session.user.userId,
-      role: ScopedRole.RESEARCH_LEAD,
-      scopeType: ScopeType.RESEARCH_GROUP,
+      role: 'RESEARCH_LEAD',
+      scopeType: 'RESEARCH_GROUP',
       scopeId: { not: null },
       deletedAt: null,
       OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
@@ -44,7 +44,9 @@ export async function getScopedResearchGroupIds(session: Session | null): Promis
     select: { scopeId: true },
   });
 
-  return assignments.map((a) => a.scopeId).filter((id): id is string => id !== null);
+  return assignments
+    .map((a: { scopeId: string | null }) => a.scopeId)
+    .filter((id): id is string => id !== null);
 }
 
 export async function isResearchLeadForGroup(
@@ -59,8 +61,8 @@ export async function isResearchLeadForGroup(
   const assignment = await prisma.roleAssignment.findFirst({
     where: {
       userId: session.user.userId,
-      role: ScopedRole.RESEARCH_LEAD,
-      scopeType: ScopeType.RESEARCH_GROUP,
+      role: 'RESEARCH_LEAD',
+      scopeType: 'RESEARCH_GROUP',
       scopeId: researchGroupId,
       deletedAt: null,
       OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],

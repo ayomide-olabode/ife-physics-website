@@ -6,8 +6,8 @@ import {
   isResearchLeadForGroup,
   getScopedResearchGroupIds,
   canEditStaff,
+  type Role,
 } from '@/lib/rbac';
-import { ScopedRole } from '@prisma/client';
 import { Session } from 'next-auth';
 
 export async function requireAuth(): Promise<Session> {
@@ -24,7 +24,7 @@ export async function requireSuperAdmin(session: Session) {
   }
 }
 
-export async function requireGlobalRole(session: Session, role: ScopedRole) {
+export async function requireGlobalRole(session: Session, role: Role) {
   const hasRole = await hasGlobalRole(session, role);
   if (!hasRole) {
     notFound();

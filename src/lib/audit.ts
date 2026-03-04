@@ -38,7 +38,7 @@ export async function logAudit(params: AuditParams): Promise<void> {
       action,
       entityType,
       entityId,
-      snapshot: safeSnapshot as Parameters<typeof prisma.auditLog.create>[0]['data']['snapshot'],
+      snapshot: safeSnapshot as object,
     },
   });
 }

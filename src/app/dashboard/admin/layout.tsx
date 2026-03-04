@@ -10,6 +10,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <ModuleTabs
         tabs={[
           { label: 'Users', href: '/dashboard/admin/users' },
+          { label: 'Staff', href: '/dashboard/admin/staff' },
           { label: 'Audit Logs', href: '/dashboard/admin/audit-logs' },
         ]}
       />

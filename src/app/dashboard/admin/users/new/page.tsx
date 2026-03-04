@@ -1,7 +1,26 @@
-export default function Page() {
+import Link from 'next/link';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { CreateUserForm } from '@/components/dashboard/CreateUserForm';
+
+export default function CreateUserPage() {
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">New User</h1>
-    </main>
+    <div className="space-y-6">
+      <div className="mb-4">
+        <Button variant="ghost" size="sm" asChild className="mb-2">
+          <Link href="/dashboard/admin/users">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Users
+          </Link>
+        </Button>
+        <PageHeader
+          title="Create User"
+          description="Provision a new user account linked to an existing staff record."
+        />
+      </div>
+
+      <CreateUserForm />
+    </div>
   );
 }

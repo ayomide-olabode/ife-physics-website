@@ -1,6 +1,6 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,12 @@ export default function LoginPage() {
       setError('Invalid credentials. Please try again.');
       setIsLoading(false);
     } else {
-      router.push('/dashboard');
+      const session = await getSession();
+      if (session?.user?.firstLogin) {
+        router.push('/dashboard/profile?onboarding=1');
+      } else {
+        router.push('/dashboard');
+      }
       router.refresh();
     }
   }

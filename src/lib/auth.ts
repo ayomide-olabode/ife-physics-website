@@ -56,6 +56,13 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const firstLogin = user.lastLoginAt === null;
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        });
+
         recordSuccess(normalizedEmail);
 
         return {
@@ -63,6 +70,7 @@ export const authOptions: NextAuthOptions = {
           userId: user.id,
           staffId: staff.id,
           isSuperAdmin: user.isSuperAdmin,
+          firstLogin,
           email: staff.institutionalEmail,
         };
       },
@@ -74,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         token.userId = user.userId;
         token.staffId = user.staffId;
         token.isSuperAdmin = user.isSuperAdmin;
+        token.firstLogin = user.firstLogin;
       }
       return token;
     },
@@ -82,6 +91,7 @@ export const authOptions: NextAuthOptions = {
         session.user.userId = token.userId;
         session.user.staffId = token.staffId;
         session.user.isSuperAdmin = token.isSuperAdmin;
+        session.user.firstLogin = token.firstLogin;
       }
       return session;
     },

@@ -6,6 +6,7 @@ declare module 'next-auth' {
       userId: string;
       staffId: string;
       isSuperAdmin: boolean;
+      firstLogin?: boolean;
       email?: string | null;
     };
   }
@@ -14,6 +15,7 @@ declare module 'next-auth' {
     userId: string;
     staffId: string;
     isSuperAdmin: boolean;
+    firstLogin?: boolean;
     email?: string | null;
   }
 }
@@ -23,5 +25,6 @@ declare module 'next-auth/jwt' {
     userId: string;
     staffId: string;
     isSuperAdmin: boolean;
+    firstLogin?: boolean;
   }
 }

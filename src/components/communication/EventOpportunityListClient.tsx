@@ -39,7 +39,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 type ListItem = {
   id: string;
   title: string;
-  kind: string;
+  type: string;
   eventCategory: string | null;
   opportunityCategory: string | null;
   startDate: Date | null;
@@ -88,7 +88,7 @@ export function EventOpportunityListClient({
 
   const formatDate = (d: Date | null) => (d ? new Date(d).toLocaleDateString() : '—');
 
-  const headers = ['Title', 'Kind', 'Category', 'Dates', 'Deadline', 'Status', 'Actions'];
+  const headers = ['Title', 'Type', 'Category', 'Dates', 'Deadline', 'Status', 'Actions'];
   const rows = items.map((item) => [
     <Link
       key={`t-${item.id}`}
@@ -98,10 +98,10 @@ export function EventOpportunityListClient({
       {item.title}
     </Link>,
     <span
-      key={`k-${item.id}`}
+      key={`t-${item.id}`}
       className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
     >
-      {item.kind === 'EVENT' ? 'Event' : 'Opportunity'}
+      {item.type === 'EVENT' ? 'Event' : 'Opportunity'}
     </span>,
     <span key={`c-${item.id}`} className="text-sm">
       {categoryLabel(item)}

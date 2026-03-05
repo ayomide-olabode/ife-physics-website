@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import {
-  EventOpportunityKind,
+  EventOpportunityType,
   EventCategory,
   OpportunityCategory,
   PublishStatus,
@@ -10,7 +10,7 @@ export async function listEventsOpportunities({
   page = 1,
   pageSize = 20,
   status,
-  kind,
+  type,
   eventCategory,
   opportunityCategory,
   q,
@@ -18,7 +18,7 @@ export async function listEventsOpportunities({
   page?: number;
   pageSize?: number;
   status?: PublishStatus;
-  kind?: EventOpportunityKind;
+  type?: EventOpportunityType;
   eventCategory?: EventCategory;
   opportunityCategory?: OpportunityCategory;
   q?: string;
@@ -26,7 +26,7 @@ export async function listEventsOpportunities({
   const where: Record<string, unknown> = { deletedAt: null };
 
   if (status) where.status = status;
-  if (kind) where.kind = kind;
+  if (type) where.type = type;
   if (eventCategory) where.eventCategory = eventCategory;
   if (opportunityCategory) where.opportunityCategory = opportunityCategory;
 
@@ -43,7 +43,7 @@ export async function listEventsOpportunities({
       select: {
         id: true,
         title: true,
-        kind: true,
+        type: true,
         eventCategory: true,
         opportunityCategory: true,
         startDate: true,

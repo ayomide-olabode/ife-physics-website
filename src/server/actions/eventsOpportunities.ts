@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import {
   ScopedRole,
-  EventOpportunityKind,
+  EventOpportunityType,
   EventCategory,
   OpportunityCategory,
 } from '.prisma/client';
@@ -16,7 +16,7 @@ const EO_PATH = '/dashboard/communication/events-opportunities';
 
 const baseSchema = z.object({
   title: z.string().min(1, 'Title is required.').max(200),
-  kind: z.nativeEnum(EventOpportunityKind),
+  type: z.nativeEnum(EventOpportunityType),
   eventCategory: z.nativeEnum(EventCategory).nullable().optional(),
   opportunityCategory: z.nativeEnum(OpportunityCategory).nullable().optional(),
   description: z.string().max(4000).optional().or(z.literal('')),
@@ -28,7 +28,7 @@ const baseSchema = z.object({
 });
 
 const eoSchema = baseSchema.superRefine((data, ctx) => {
-  if (data.kind === 'EVENT') {
+  if (data.type === 'EVENT') {
     if (!data.eventCategory) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -37,7 +37,7 @@ const eoSchema = baseSchema.superRefine((data, ctx) => {
       });
     }
   }
-  if (data.kind === 'OPPORTUNITY') {
+  if (data.type === 'OPPORTUNITY') {
     if (!data.opportunityCategory) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -67,9 +67,9 @@ export async function createEventOpportunity(
     const item = await prisma.eventOpportunity.create({
       data: {
         title: v.title,
-        kind: v.kind,
-        eventCategory: v.kind === 'EVENT' ? (v.eventCategory ?? null) : null,
-        opportunityCategory: v.kind === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
+        type: v.type,
+        eventCategory: v.type === 'EVENT' ? (v.eventCategory ?? null) : null,
+        opportunityCategory: v.type === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
         description: v.description || null,
         startDate: v.startDate ? new Date(v.startDate) : null,
         endDate: v.endDate ? new Date(v.endDate) : null,
@@ -86,7 +86,7 @@ export async function createEventOpportunity(
       action: 'EVENT_OPPORTUNITY_CREATED',
       entityType: 'EventOpportunity',
       entityId: item.id,
-      snapshot: { title: v.title, kind: v.kind },
+      snapshot: { title: v.title, type: v.type },
     });
 
     revalidatePath(EO_PATH);
@@ -114,9 +114,9 @@ export async function updateEventOpportunity(
       where: { id },
       data: {
         title: v.title,
-        kind: v.kind,
-        eventCategory: v.kind === 'EVENT' ? (v.eventCategory ?? null) : null,
-        opportunityCategory: v.kind === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
+        type: v.type,
+        eventCategory: v.type === 'EVENT' ? (v.eventCategory ?? null) : null,
+        opportunityCategory: v.type === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
         description: v.description || null,
         startDate: v.startDate ? new Date(v.startDate) : null,
         endDate: v.endDate ? new Date(v.endDate) : null,
@@ -131,7 +131,7 @@ export async function updateEventOpportunity(
       action: 'EVENT_OPPORTUNITY_UPDATED',
       entityType: 'EventOpportunity',
       entityId: id,
-      snapshot: { title: v.title, kind: v.kind },
+      snapshot: { title: v.title, type: v.type },
     });
 
     revalidatePath(EO_PATH);

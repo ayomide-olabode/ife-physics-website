@@ -33,7 +33,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           initial={{
             id: item.id,
             title: item.title,
-            kind: item.kind,
+            type: item.type,
             eventCategory: item.eventCategory,
             opportunityCategory: item.opportunityCategory,
             description: item.description,

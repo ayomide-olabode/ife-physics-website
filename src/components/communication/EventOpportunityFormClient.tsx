@@ -49,7 +49,7 @@ const OPPORTUNITY_CATEGORIES = [
 type FormInitial = {
   id?: string;
   title?: string;
-  kind?: string;
+  type?: string;
   eventCategory?: string | null;
   opportunityCategory?: string | null;
   description?: string | null;
@@ -72,7 +72,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
   const isEditing = !!initial?.id;
 
   const [title, setTitle] = useState(initial?.title || '');
-  const [kind, setKind] = useState(initial?.kind || '');
+  const [type, setType] = useState(initial?.type || '');
   const [eventCategory, setEventCategory] = useState(initial?.eventCategory || '');
   const [opportunityCategory, setOpportunityCategory] = useState(
     initial?.opportunityCategory || '',
@@ -85,10 +85,10 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
   const [deadline, setDeadline] = useState(toDateInput(initial?.deadline));
 
   const categoryOptions =
-    kind === 'EVENT' ? EVENT_CATEGORIES : kind === 'OPPORTUNITY' ? OPPORTUNITY_CATEGORIES : [];
+    type === 'EVENT' ? EVENT_CATEGORIES : type === 'OPPORTUNITY' ? OPPORTUNITY_CATEGORIES : [];
 
-  const handleKindChange = (val: string) => {
-    setKind(val);
+  const handleTypeChange = (val: string) => {
+    setType(val);
     setEventCategory('');
     setOpportunityCategory('');
   };
@@ -99,10 +99,10 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
       try {
         const payload = {
           title,
-          kind: kind as 'EVENT' | 'OPPORTUNITY',
-          eventCategory: kind === 'EVENT' && eventCategory ? (eventCategory as never) : null,
+          type: type as 'EVENT' | 'OPPORTUNITY',
+          eventCategory: type === 'EVENT' && eventCategory ? (eventCategory as never) : null,
           opportunityCategory:
-            kind === 'OPPORTUNITY' && opportunityCategory ? (opportunityCategory as never) : null,
+            type === 'OPPORTUNITY' && opportunityCategory ? (opportunityCategory as never) : null,
           description: description || '',
           startDate: startDate || '',
           endDate: endDate || '',
@@ -151,10 +151,10 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="after:content-['*'] after:ml-0.5 after:text-red-500">Kind</Label>
-          <Select value={kind} onValueChange={handleKindChange}>
+          <Label className="after:content-['*'] after:ml-0.5 after:text-red-500">Type</Label>
+          <Select value={type} onValueChange={handleTypeChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Select kind" />
+              <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="EVENT">Event</SelectItem>
@@ -165,14 +165,14 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
         <div className="space-y-2">
           <Label className="after:content-['*'] after:ml-0.5 after:text-red-500">Category</Label>
           <Select
-            value={kind === 'EVENT' ? eventCategory : opportunityCategory}
+            value={type === 'EVENT' ? eventCategory : opportunityCategory}
             onValueChange={(val) =>
-              kind === 'EVENT' ? setEventCategory(val) : setOpportunityCategory(val)
+              type === 'EVENT' ? setEventCategory(val) : setOpportunityCategory(val)
             }
-            disabled={!kind}
+            disabled={!type}
           >
             <SelectTrigger>
-              <SelectValue placeholder={kind ? 'Select category' : 'Select kind first'} />
+              <SelectValue placeholder={type ? 'Select category' : 'Select type first'} />
             </SelectTrigger>
             <SelectContent>
               {categoryOptions.map((opt) => (

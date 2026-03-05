@@ -92,7 +92,7 @@ enum ThesisStatus {
   DISCONTINUED
 }
 
-enum EventOpportunityKind {
+enum EventOpportunityType {
   EVENT
   OPPORTUNITY
 }
@@ -529,7 +529,7 @@ model News {
 model EventOpportunity {
   id                   String               @id @default(cuid())
   title                String
-  kind                 EventOpportunityKind
+  type                 EventOpportunityType
   eventCategory        EventCategory?
   opportunityCategory  OpportunityCategory?
   description          String?
@@ -547,7 +547,7 @@ model EventOpportunity {
   updatedAt            DateTime @updatedAt
   deletedAt            DateTime?
 
-  @@index([kind, deadline])
+  @@index([type, deadline])
   @@index([status])
 }
 

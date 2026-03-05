@@ -92,3 +92,33 @@ export async function searchCourses({
     take,
   });
 }
+
+export async function getCourseForProgramme({
+  programmeCode,
+  id,
+}: {
+  programmeCode: ProgrammeCode;
+  id: string;
+}) {
+  return prisma.course.findFirst({
+    where: {
+      id,
+      program: {
+        programmeCode,
+        level: 'UNDERGRADUATE',
+      },
+    },
+    select: {
+      id: true,
+      code: true,
+      title: true,
+      description: true,
+      prerequisites: true,
+      L: true,
+      T: true,
+      P: true,
+      U: true,
+      status: true,
+    },
+  });
+}

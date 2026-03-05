@@ -1,10 +1,45 @@
-export default async function Page({ params }: { params: Promise<{ groupId: string }> }) {
-  const { groupId } = await params;
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { requireAuth } from '@/lib/guards';
+import { getResearchGroupByIdForUser } from '@/server/queries/researchGroups';
+import { ResearchGroupFormClient } from '@/components/research/ResearchGroupFormClient';
+
+interface PageProps {
+  params: Promise<{ groupId: string }>;
+}
+
+export default async function EditResearchGroupPage({ params }: PageProps) {
+  const session = await requireAuth();
+  const resolvedParams = await params;
+
+  // Access check is handled inside the query (superadmin or scoped lead)
+  const group = await getResearchGroupByIdForUser({
+    session,
+    groupId: resolvedParams.groupId,
+  });
+
+  if (!group) {
+    notFound();
+  }
 
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Research Group Detail</h1>
-      <p className="text-muted-foreground mt-2">{groupId}</p>
-    </main>
+    <div className="space-y-6">
+      <div className="text-sm border-b pb-2 mb-4">
+        <Link
+          href="/dashboard/research/groups"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center"
+        >
+          &larr; Back to Groups
+        </Link>
+      </div>
+
+      <PageHeader
+        title={`Edit Research Group — ${group.name}`}
+        description={`Update details for ${group.abbreviation}.`}
+      />
+
+      <ResearchGroupFormClient initialData={group} />
+    </div>
   );
 }

@@ -266,18 +266,20 @@ model Publication {
   title           String
   slug            String   @unique
   doi             String?  @unique
-  year            Int
+  year            Int?
   type            String?
   abstract        String?
   url             String?
+  authors         String?
+  venue           String?
 
   // Homepage rule: pick 1 featured publication per ResearchGroup
   isFeatured      Boolean  @default(false)
 
-  researchGroupId String?
-  researchGroup   ResearchGroup? @relation(fields: [researchGroupId], references: [id])
+  researchGroupId String
+  researchGroup   ResearchGroup @relation(fields: [researchGroupId], references: [id])
 
-  authors         PublicationAuthor[]
+  authorEntries   PublicationAuthor[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

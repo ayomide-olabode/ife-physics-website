@@ -1,16 +1,45 @@
-export default async function Page({
-  params,
-}: {
+import { notFound } from 'next/navigation';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { BackToParent } from '@/components/dashboard/BackToParent';
+import { PublicationFormClient } from '@/components/research/PublicationFormClient';
+import { getPublicationByIdForGroup } from '@/server/queries/publications';
+
+interface PageProps {
   params: Promise<{ groupId: string; id: string }>;
-}) {
+}
+
+export default async function EditPublicationPage({ params }: PageProps) {
   const { groupId, id } = await params;
 
+  const publication = await getPublicationByIdForGroup({ groupId, id });
+
+  if (!publication) {
+    notFound();
+  }
+
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Edit Publication</h1>
-      <p className="text-muted-foreground mt-2">
-        {groupId} / {id}
-      </p>
-    </main>
+    <div className="space-y-6">
+      <BackToParent
+        href={`/dashboard/research/groups/${groupId}/publications`}
+        label="Publications"
+      />
+
+      <PageHeader title="Edit Publication" />
+
+      <PublicationFormClient
+        groupId={groupId}
+        initialData={{
+          id: publication.id,
+          title: publication.title,
+          authors: publication.authors,
+          year: publication.year,
+          venue: publication.venue,
+          doi: publication.doi,
+          url: publication.url,
+          abstract: publication.abstract,
+          isFeatured: publication.isFeatured,
+        }}
+      />
+    </div>
   );
 }

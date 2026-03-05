@@ -1,10 +1,24 @@
-export default async function Page({ params }: { params: Promise<{ groupId: string }> }) {
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { BackToParent } from '@/components/dashboard/BackToParent';
+import { PublicationFormClient } from '@/components/research/PublicationFormClient';
+
+interface PageProps {
+  params: Promise<{ groupId: string }>;
+}
+
+export default async function NewPublicationPage({ params }: PageProps) {
   const { groupId } = await params;
 
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">New Publication</h1>
-      <p className="text-muted-foreground mt-2">{groupId}</p>
-    </main>
+    <div className="space-y-6">
+      <BackToParent
+        href={`/dashboard/research/groups/${groupId}/publications`}
+        label="Publications"
+      />
+
+      <PageHeader title="New Publication" />
+
+      <PublicationFormClient groupId={groupId} />
+    </div>
   );
 }

@@ -1,10 +1,54 @@
-export default async function Page({ params }: { params: Promise<{ groupId: string }> }) {
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { AddNewButton } from '@/components/dashboard/AddNewButton';
+import { BackToParent } from '@/components/dashboard/BackToParent';
+import { listPublicationsForGroup } from '@/server/queries/publications';
+import { PublicationsListClient } from '@/components/research/PublicationsListClient';
+
+interface PageProps {
+  params: Promise<{ groupId: string }>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}
+
+export default async function PublicationsIndexPage({ params, searchParams }: PageProps) {
   const { groupId } = await params;
+  const resolvedSearch = await searchParams;
+
+  const page = parseInt(resolvedSearch.page || '1', 10);
+  const q = resolvedSearch.q;
+  const year = resolvedSearch.year;
+
+  const { data, total, pageSize } = await listPublicationsForGroup({
+    groupId,
+    q,
+    year,
+    page,
+    pageSize: 20,
+  });
 
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Publications</h1>
-      <p className="text-muted-foreground mt-2">{groupId}</p>
-    </main>
+    <div className="space-y-6">
+      <BackToParent href={`/dashboard/research/groups/${groupId}`} label="Back to Group" />
+
+      <div className="flex items-center justify-between">
+        <PageHeader
+          title="Publications"
+          description="Manage research publications for this group."
+        />
+        <AddNewButton
+          href={`/dashboard/research/groups/${groupId}/publications/new`}
+          label="Add Publication"
+        />
+      </div>
+
+      <PublicationsListClient
+        groupId={groupId}
+        data={data}
+        total={total}
+        page={page}
+        pageSize={pageSize}
+        searchQuery={q}
+        yearQuery={year}
+      />
+    </div>
   );
 }

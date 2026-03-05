@@ -1,0 +1,283 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
+import { toastSuccess, toastError } from '@/lib/toast';
+import {
+  createPublication,
+  updatePublication,
+  deletePublication,
+} from '@/server/actions/publications';
+import { Loader2 } from 'lucide-react';
+
+const currentYear = new Date().getFullYear();
+
+const publicationFormSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(500),
+  authors: z.string().max(2000).optional().nullable(),
+  year: z.coerce
+    .number()
+    .int()
+    .min(1900)
+    .max(currentYear + 1)
+    .optional()
+    .nullable(),
+  venue: z.string().max(500).optional().nullable(),
+  doi: z.string().max(200).optional().nullable(),
+  url: z.string().url('Must be a valid URL').max(2000).optional().nullable().or(z.literal('')),
+  abstract: z.string().max(5000).optional().nullable(),
+  isFeatured: z.boolean().optional(),
+});
+
+export type PublicationFormData = {
+  id?: string;
+  title: string;
+  authors: string | null;
+  year: number | null;
+  venue: string | null;
+  doi: string | null;
+  url: string | null;
+  abstract: string | null;
+  isFeatured: boolean;
+};
+
+interface Props {
+  groupId: string;
+  initialData?: PublicationFormData;
+}
+
+export function PublicationFormClient({ groupId, initialData }: Props) {
+  const router = useRouter();
+  const isEditing = Boolean(initialData?.id);
+  const basePath = `/dashboard/research/groups/${groupId}/publications`;
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const [data, setData] = useState({
+    title: initialData?.title || '',
+    authors: initialData?.authors || '',
+    year: initialData?.year ?? '',
+    venue: initialData?.venue || '',
+    doi: initialData?.doi || '',
+    url: initialData?.url || '',
+    abstract: initialData?.abstract || '',
+    isFeatured: initialData?.isFeatured ?? false,
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        title: data.title,
+        authors: data.authors || null,
+        year: data.year ? Number(data.year) : null,
+        venue: data.venue || null,
+        doi: data.doi || null,
+        url: data.url || null,
+        abstract: data.abstract || null,
+        isFeatured: data.isFeatured,
+      };
+
+      // Validate client-side
+      publicationFormSchema.parse(payload);
+
+      const res = isEditing
+        ? await updatePublication(groupId, initialData!.id!, payload)
+        : await createPublication(groupId, payload);
+
+      if (res.success) {
+        toastSuccess(isEditing ? 'Publication updated.' : 'Publication created.');
+        if (!isEditing && 'publicationId' in res && res.publicationId) {
+          router.push(`${basePath}/${res.publicationId}`);
+        } else {
+          router.refresh();
+        }
+      } else {
+        toastError(res.error || 'Something went wrong.');
+      }
+    } catch (err: unknown) {
+      if (err instanceof z.ZodError) {
+        toastError(err.issues[0].message);
+      } else {
+        toastError(err instanceof Error ? err.message : 'An unexpected error occurred.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!initialData?.id) return;
+    try {
+      const res = await deletePublication(groupId, initialData.id);
+      if (res.success) {
+        toastSuccess('Publication deleted.');
+        router.push(basePath);
+      } else {
+        toastError(res.error || 'Failed to delete.');
+      }
+    } catch (err: unknown) {
+      toastError(err instanceof Error ? err.message : 'Failed to delete.');
+    }
+  };
+
+  return (
+    <>
+      <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl bg-card p-6 border rounded-lg">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">
+              Title <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="title"
+              value={data.title}
+              onChange={(e) => setData({ ...data, title: e.target.value })}
+              placeholder="Publication title"
+              disabled={isSubmitting}
+              required
+              maxLength={500}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="authors">Authors</Label>
+            <Input
+              id="authors"
+              value={data.authors}
+              onChange={(e) => setData({ ...data, authors: e.target.value })}
+              placeholder="e.g. A. Smith, B. Jones, C. Lee"
+              disabled={isSubmitting}
+              maxLength={2000}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="year">Year</Label>
+              <Input
+                id="year"
+                type="number"
+                value={data.year}
+                onChange={(e) =>
+                  setData({ ...data, year: e.target.value ? Number(e.target.value) : '' })
+                }
+                placeholder="e.g. 2024"
+                disabled={isSubmitting}
+                min={1900}
+                max={currentYear + 1}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="venue">Venue / Journal</Label>
+              <Input
+                id="venue"
+                value={data.venue}
+                onChange={(e) => setData({ ...data, venue: e.target.value })}
+                placeholder="e.g. Physical Review Letters"
+                disabled={isSubmitting}
+                maxLength={500}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="doi">DOI</Label>
+              <Input
+                id="doi"
+                value={data.doi}
+                onChange={(e) => setData({ ...data, doi: e.target.value })}
+                placeholder="e.g. 10.1234/example"
+                disabled={isSubmitting}
+                maxLength={200}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                value={data.url}
+                onChange={(e) => setData({ ...data, url: e.target.value })}
+                placeholder="https://..."
+                disabled={isSubmitting}
+                maxLength={2000}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="abstract">Abstract</Label>
+            <Textarea
+              id="abstract"
+              value={data.abstract}
+              onChange={(e) => setData({ ...data, abstract: e.target.value })}
+              placeholder="Publication abstract or summary..."
+              className="min-h-[150px]"
+              disabled={isSubmitting}
+              maxLength={5000}
+            />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isFeatured"
+              checked={data.isFeatured}
+              onCheckedChange={(checked) => setData({ ...data, isFeatured: checked === true })}
+              disabled={isSubmitting}
+            />
+            <Label htmlFor="isFeatured" className="cursor-pointer">
+              Featured publication
+            </Label>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push(basePath)}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {isEditing ? 'Save Changes' : 'Create Publication'}
+          </Button>
+          {isEditing && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={isSubmitting}
+            >
+              Delete
+            </Button>
+          )}
+        </div>
+      </form>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="Delete Publication"
+        description="Are you sure you want to delete this publication? This action will soft-delete it."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleDelete}
+        destructive={true}
+      />
+    </>
+  );
+}

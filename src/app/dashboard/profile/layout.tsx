@@ -5,18 +5,21 @@ import { ModuleTabs, type TabItem } from '@/components/dashboard/ModuleTabs';
 export default async function ProfileLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAuth();
   const staffId = session.user?.staffId;
+  const isSuperAdmin = session.user?.isSuperAdmin === true;
 
   if (!staffId) {
     return <>{children}</>;
   }
 
-  const isHod = await prisma.leadershipTerm.findFirst({
+  const activeHodTerm = await prisma.leadershipTerm.findFirst({
     where: {
-      staffId,
       role: 'HOD',
       endDate: null,
     },
+    select: { staffId: true },
   });
+
+  const isSessionHod = activeHodTerm?.staffId === staffId;
 
   const tabs: TabItem[] = [
     { label: 'Overview', href: '/dashboard/profile' },
@@ -26,7 +29,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
     { label: 'Theses', href: '/dashboard/profile/theses' },
   ];
 
-  if (isHod) {
+  if (isSuperAdmin || isSessionHod) {
     tabs.push({ label: 'HOD Address', href: '/dashboard/profile/hod-address' });
   }
 

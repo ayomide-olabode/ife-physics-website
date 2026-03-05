@@ -1,6 +1,6 @@
 'use server';
 
-import { requireAuth, requireStaffOwnership } from '@/lib/guards';
+import { requireAuth } from '@/lib/guards';
 import prisma from '@/lib/prisma';
 import { logAudit } from '@/lib/audit';
 import { revalidatePath } from 'next/cache';
@@ -26,35 +26,38 @@ export async function updateMyHodAddress(
   try {
     const validated = hodAddressSchema.parse(data);
 
-    const staffId = session.user.staffId;
-    if (!staffId) {
-      return { success: false, error: 'No associated staff record found.' };
-    }
+    const isSuperAdmin = session.user.isSuperAdmin === true;
+    const sessionStaffId = session.user.staffId;
 
-    // Must be the owner to edit their own profile block
-    await requireStaffOwnership(session, staffId);
-
-    // Enforce active HOD authorization strictly
+    // Find the current active HOD term
     const activeTerm = await prisma.leadershipTerm.findFirst({
       where: {
-        staffId,
         role: 'HOD',
         endDate: null,
       },
-      select: { id: true },
+      select: { id: true, staffId: true },
     });
 
     if (!activeTerm) {
+      return { success: false, error: 'No active HOD term exists.' };
+    }
+
+    const isSessionHod = sessionStaffId && activeTerm.staffId === sessionStaffId;
+
+    // Only SUPER_ADMIN or the active HOD may update
+    if (!isSuperAdmin && !isSessionHod) {
       return {
         success: false,
-        error: 'Unauthorized: You are not currently marked as an active HOD.',
+        error: 'Unauthorized: You are not the current HOD or a Super Admin.',
       };
     }
 
+    const targetStaffId = activeTerm.staffId;
+
     const updatedDoc = await prisma.hodAddress.upsert({
-      where: { staffId },
+      where: { staffId: targetStaffId },
       create: {
-        staffId,
+        staffId: targetStaffId,
         title: validated.title,
         body: validated.body,
       },
@@ -71,7 +74,9 @@ export async function updateMyHodAddress(
       entityType: 'HodAddress',
       entityId: updatedDoc.id,
       snapshot: {
-        staffId,
+        actorUserId: session.user.userId,
+        actorStaffId: sessionStaffId,
+        targetStaffId,
         termId: activeTerm.id,
         title: validated.title,
       },
@@ -84,6 +89,6 @@ export async function updateMyHodAddress(
       return { success: false, fieldErrors: error.flatten().fieldErrors };
     }
     console.error('Failed to update HOD address:', error);
-    return { success: false, error: 'Database mutation failed securely.' };
+    return { success: false, error: 'Database mutation failed.' };
   }
 }

@@ -1,7 +1,26 @@
-export default function Page() {
+import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { ScopedRole } from '.prisma/client';
+import { listNews } from '@/server/queries/news';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { AddNewButton } from '@/components/dashboard/AddNewButton';
+import { NewsListClient } from '@/components/communication/NewsListClient';
+
+export default async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const session = await requireAuth();
+  await requireGlobalRole(session, ScopedRole.EDITOR);
+
+  const params = await searchParams;
+  const page = Math.max(1, parseInt(params.page || '1', 10));
+
+  const { items, total, totalPages } = await listNews({ page, pageSize: 20 });
+
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">News Management</h1>
-    </main>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <PageHeader title="News" description="Manage news articles for the department website." />
+        <AddNewButton href="/dashboard/communication/news/new" label="New Article" />
+      </div>
+      <NewsListClient items={items} pagination={{ page, totalPages, total }} />
+    </div>
   );
 }

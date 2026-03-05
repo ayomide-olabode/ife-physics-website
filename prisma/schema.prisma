@@ -414,6 +414,8 @@ model AcademicProgram {
   courseRequirements    String?
   curriculum            String?
   programmeStructure    String?
+  studyOptionsText      String?
+  courseDescriptionsIntro String?
 
   // PG accordion blocks for admission/course requirements
   requirementBlocks RequirementBlock[]
@@ -626,13 +628,9 @@ model ResourceItem {
   id          String   @id @default(cuid())
   title       String
   description String?
-  linkUrl     String?
-  fileUrl     String?
+  link        String
+  imageUrl    String?
   category    String?  // e.g., "Apps", "Documents", "Forms"
-
-  status      PublishStatus @default(DRAFT)
-  publishedAt DateTime?
-  archivedAt  DateTime?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -2,30 +2,29 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireAuth } from '@/lib/guards';
+import { z } from 'zod';
 
-export async function updateStaffProfile(data: {
-  staffId: string;
-  firstName: string;
-  lastName: string;
-}) {
+const updateProfileSchema = z.object({
+  firstName: z.string().min(1, 'First name is strictly required.'),
+  lastName: z.string().min(1, 'Last name is strictly required.'),
+});
+
+export async function updateStaffProfile(data: { firstName: string; lastName: string }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.userId) {
-      return { error: 'Unauthorized.' };
+    const session = await requireAuth();
+    const staffId = session.user?.staffId;
+
+    if (!staffId) {
+      return { error: 'No associated staff record found for your account.' };
     }
 
-    // Ensure they own this staff record OR they are superadmin
-    if (session.user.staffId !== data.staffId && !session.user.isSuperAdmin) {
-      return { error: 'Permission denied.' };
+    const parsed = updateProfileSchema.safeParse(data);
+    if (!parsed.success) {
+      return { error: parsed.error.issues[0].message };
     }
 
-    const { staffId, firstName, lastName } = data;
-
-    if (!firstName?.trim() || !lastName?.trim()) {
-      return { error: 'First and last names are strictly required.' };
-    }
+    const { firstName, lastName } = parsed.data;
 
     await prisma.staff.update({
       where: { id: staffId },
@@ -40,7 +39,7 @@ export async function updateStaffProfile(data: {
 
     return { success: true };
   } catch (error) {
-    console.error('Update Profile ERror:', error);
+    console.error('Update Profile Error:', error);
     return { error: 'Failed to update profile.' };
   }
 }

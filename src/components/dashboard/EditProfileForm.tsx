@@ -9,11 +9,9 @@ import { updateStaffProfile } from '@/server/actions/profile/update';
 import { toastSuccess, toastError } from '@/lib/toast';
 
 export function EditProfileForm({
-  staffId,
   initialFirstName,
   initialLastName,
 }: {
-  staffId: string;
   initialFirstName?: string | null;
   initialLastName?: string | null;
 }) {
@@ -33,7 +31,6 @@ export function EditProfileForm({
     setIsSubmitting(true);
     try {
       const res = await updateStaffProfile({
-        staffId,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
       });

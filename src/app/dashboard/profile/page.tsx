@@ -1,27 +1,34 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireAuth } from '@/lib/guards';
 import prisma from '@/lib/prisma';
 import { EditProfileForm } from '@/components/dashboard/EditProfileForm';
-import { redirect } from 'next/navigation';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export default async function ProfilePage({
   searchParams,
 }: {
   searchParams: Promise<{ onboarding?: string }>;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await requireAuth();
 
-  if (!session?.user?.userId) {
-    redirect('/login');
+  const staffId = session.user?.staffId;
+
+  if (!staffId) {
+    return (
+      <main className="container mx-auto px-4 py-12">
+        <PageHeader title="My Profile" />
+        <p className="text-muted-foreground mt-4">
+          Error: No underlying staff record located for this account.
+        </p>
+      </main>
+    );
   }
 
-  // Find their user mapping, then jump into the Staff mapping
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.userId },
-    include: { staff: true },
+  const staff = await prisma.staff.findUnique({
+    where: { id: staffId },
+    select: { id: true, firstName: true, lastName: true },
   });
 
-  if (!user || !user.staff) {
+  if (!staff) {
     return (
       <main className="container mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-6">My Profile</h1>
@@ -32,7 +39,6 @@ export default async function ProfilePage({
     );
   }
 
-  const staff = user.staff;
   const params = await searchParams;
   const showOnboarding = params.onboarding === '1';
 
@@ -47,17 +53,12 @@ export default async function ProfilePage({
       )}
 
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
-        <p className="text-muted-foreground mt-2">Manage your foundational registry details.</p>
+        <PageHeader title="My Profile" description="Manage your foundational registry details." />
       </div>
 
       <div className="rounded-lg border bg-card p-6">
         <h2 className="text-xl font-semibold mb-6 border-b pb-2">Identity Details</h2>
-        <EditProfileForm
-          staffId={staff.id}
-          initialFirstName={staff.firstName}
-          initialLastName={staff.lastName}
-        />
+        <EditProfileForm initialFirstName={staff.firstName} initialLastName={staff.lastName} />
       </div>
     </main>
   );

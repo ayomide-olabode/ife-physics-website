@@ -45,6 +45,11 @@ enum DegreeType {
   PHD
 }
 
+enum RequirementType {
+  ADMISSION
+  COURSE
+}
+
 enum CourseStatus {
   CORE
   RESTRICTED
@@ -431,19 +436,21 @@ model AcademicProgram {
 }
 
 model RequirementBlock {
-  id         String     @id @default(cuid())
-  programId  String
-  program    AcademicProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  id              String          @id @default(cuid())
+  programId       String
+  program         AcademicProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
 
-  // "admissionRequirements" | "courseRequirements"
-  section    String
-  degreeType DegreeType
-  content    String
+  degreeType      DegreeType
+  requirementType RequirementType
+  title           String
+  contentHtml     String
+  orderIndex      Int             @default(0)
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
 
-  @@unique([programId, section, degreeType])
+  @@index([programId, degreeType, requirementType])
 }
 
 model StudyOption {

@@ -123,7 +123,7 @@ export function ResearchOutputEditor({
               </Label>
               <Select
                 value={formData.type}
-                onValueChange={(val) =>
+                onValueChange={(val: string) =>
                   setFormData((prev) => ({ ...prev, type: val as ResearchOutputType }))
                 }
                 required

@@ -1,0 +1,193 @@
+'use client';
+
+import { useState } from 'react';
+import { TeachingEditor } from './TeachingEditor';
+import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
+import { deleteMyTeaching } from '@/server/actions/profileTeaching';
+import { getMyTeachingById } from '@/server/queries/profileTeaching';
+import { toastSuccess, toastError } from '@/lib/toast';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { DataTable } from '@/components/dashboard/DataTable';
+import { EmptyState } from '@/components/dashboard/EmptyState';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+type TeachingFormData = {
+  title: string;
+  courseCode?: string;
+  sessionYear?: string;
+  semester?: string;
+};
+
+type TeachingEditorProps = {
+  id: string;
+} & TeachingFormData;
+
+type TeachingItem = {
+  id: string;
+  courseCode: string | null;
+  title: string;
+  sessionYear: number | null;
+  semester: string | null;
+  createdAt: Date;
+};
+
+type PaginatedData = {
+  items: TeachingItem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
+export function TeachingClientView({ data, staffId }: { data: PaginatedData; staffId: string }) {
+  const router = useRouter();
+
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editorData, setEditorData] = useState<TeachingEditorProps | undefined>();
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleAdd = () => {
+    setEditorData(undefined);
+    setEditorOpen(true);
+  };
+
+  const handleEdit = async (id: string) => {
+    try {
+      const fullDoc = await getMyTeachingById({ staffId, id });
+      if (!fullDoc) {
+        toastError('Record not found or inaccessible.');
+        return;
+      }
+      setEditorData({
+        id: fullDoc.id,
+        title: fullDoc.title,
+        courseCode: fullDoc.courseCode || '',
+        sessionYear: fullDoc.sessionYear ? String(fullDoc.sessionYear) : '',
+        semester: fullDoc.semester || '',
+      });
+      setEditorOpen(true);
+    } catch {
+      toastError('Error fetching details.');
+    }
+  };
+
+  const handleDeleteRequest = (id: string) => {
+    setDeleteId(id);
+    setDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+
+    try {
+      const res = await deleteMyTeaching(deleteId);
+      if (res.error) {
+        toastError(res.error);
+      } else {
+        toastSuccess('Teaching record deleted successfully.');
+        setDeleteOpen(false);
+        router.refresh();
+      }
+    } catch {
+      toastError('An unexpected error occurred.');
+    } finally {
+      setDeleteId(null);
+    }
+  };
+
+  return (
+    <>
+      <PageHeader
+        title="Teaching Responsibilities"
+        description="Log down academic courses and subjects you are actively managing."
+        actions={
+          <button
+            onClick={handleAdd}
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+          >
+            Add New Record
+          </button>
+        }
+      />
+
+      <DataTable
+        headers={['Course Code', 'Title', 'Session Year', 'Semester', 'Actions']}
+        rows={data.items.map((item) => [
+          <span key="code" className="text-sm font-medium">
+            {item.courseCode || '-'}
+          </span>,
+          <span key="title" className="text-sm text-muted-foreground block min-w-[200px]">
+            {item.title}
+          </span>,
+          <span key="year" className="text-sm text-center font-medium">
+            {item.sessionYear || '-'}
+          </span>,
+          <span key="semester" className="text-sm text-center">
+            {item.semester || '-'}
+          </span>,
+          <div key="actions" className="flex items-center gap-2">
+            <button
+              onClick={() => handleEdit(item.id)}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Edit
+            </button>
+            <span className="text-muted-foreground">|</span>
+            <button
+              onClick={() => handleDeleteRequest(item.id)}
+              className="text-sm text-destructive hover:text-red-800 font-medium"
+            >
+              Delete
+            </button>
+          </div>,
+        ])}
+        emptyState={
+          <EmptyState
+            title="No teaching responsibilities"
+            description="You haven't bound any courses or subject allocations to your profile yet."
+          />
+        }
+      />
+
+      {data.totalPages > 1 && (
+        <div className="flex justify-between items-center py-4 text-sm text-muted-foreground">
+          <p>
+            Showing page {data.page} of {data.totalPages} ({data.totalCount} total)
+          </p>
+          <div className="flex space-x-2">
+            {data.page > 1 && (
+              <Link
+                href={`/dashboard/profile/teaching?page=${data.page - 1}`}
+                className="px-3 py-1 border rounded hover:bg-muted"
+              >
+                Previous
+              </Link>
+            )}
+            {data.page < data.totalPages && (
+              <Link
+                href={`/dashboard/profile/teaching?page=${data.page + 1}`}
+                className="px-3 py-1 border rounded hover:bg-muted"
+              >
+                Next
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
+      <TeachingEditor open={editorOpen} onOpenChange={setEditorOpen} initialData={editorData} />
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete Record?"
+        description="Are you sure you want to remove this teaching responsibility? This action is permanent."
+        onConfirm={handleConfirmDelete}
+        destructive={true}
+      />
+    </>
+  );
+}

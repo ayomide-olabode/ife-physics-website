@@ -8,6 +8,7 @@ import { toastSuccess, toastError } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { NewsImageUploader } from '@/components/communication/NewsImageUploader';
 
 type NewsFormData = {
   id?: string;
@@ -139,16 +140,9 @@ export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
             required
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="imageUrl">Image URL</Label>
-          <Input
-            id="imageUrl"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://..."
-          />
-        </div>
       </div>
+
+      <NewsImageUploader value={imageUrl || null} onChange={(url) => setImageUrl(url || '')} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">

@@ -31,10 +31,11 @@ export default async function Page({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageHeader title="History" description="Manage department history timeline entries." />
-        <AddNewButton href="/dashboard/content/history/new" label="New Entry" />
-      </div>
+      <PageHeader
+        title="History"
+        description="Manage department history timeline entries."
+        actions={<AddNewButton href="/dashboard/content/history/new" label="New Entry" />}
+      />
       <HistoryListClient items={mappedData} pagination={meta} searchQ={q} searchStatus={status} />
     </div>
   );

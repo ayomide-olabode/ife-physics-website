@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Checkbox } from '@/components/ui/checkbox';
 import { searchStaff } from '@/server/queries/staffSearch';
 import { createUser } from '@/server/actions/adminUsers';
@@ -144,9 +144,9 @@ export function CreateUserForm() {
             onCheckedChange={(checked) => setIsSuperAdmin(checked as boolean)}
           />
           <div className="grid gap-1.5 leading-none">
-            <Label htmlFor="superadmin" className="font-medium">
+            <FieldLabel htmlFor="superadmin" className="font-medium">
               Grant Super Admin Access
-            </Label>
+            </FieldLabel>
             <p className="text-sm text-muted-foreground">
               Super Admins have unrestricted access to all dashboard modules and configurations.
             </p>

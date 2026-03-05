@@ -6,7 +6,7 @@ import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { updatePostgraduateProgram } from '@/server/actions/postgraduateProgram';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { ProgrammeCode } from '@prisma/client';
 
 type PostgraduateProgramData = {
@@ -63,22 +63,22 @@ export function PostgraduateProgramEditor({
   return (
     <form onSubmit={onSubmit} className="space-y-8 max-w-4xl pb-10">
       <div className="space-y-2">
-        <Label>Overview &amp; Prospects</Label>
+        <FieldLabel>Overview &amp; Prospects</FieldLabel>
         <RichTextEditor value={overviewProspects} onChange={setOverviewProspects} />
       </div>
 
       <div className="space-y-2">
-        <Label>Study Options (Text)</Label>
+        <FieldLabel>Study Options (Text)</FieldLabel>
         <RichTextEditor value={studyOptionsText} onChange={setStudyOptionsText} />
       </div>
 
       <div className="space-y-2">
-        <Label>Curriculum</Label>
+        <FieldLabel>Curriculum</FieldLabel>
         <RichTextEditor value={curriculum} onChange={setCurriculum} />
       </div>
 
       <div className="space-y-2">
-        <Label>Programme Structure</Label>
+        <FieldLabel>Programme Structure</FieldLabel>
         <RichTextEditor value={programmeStructure} onChange={setProgrammeStructure} />
       </div>
 

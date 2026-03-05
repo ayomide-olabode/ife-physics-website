@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
 import { toastSuccess, toastError } from '@/lib/toast';
 import {
@@ -62,7 +62,9 @@ export function PGStudyOptionFormClient({ programmeCode, initialData }: Props) {
   return (
     <form onSubmit={onSubmit} className="space-y-6 max-w-2xl pb-10">
       <div className="space-y-2">
-        <Label htmlFor="name">Name *</Label>
+        <FieldLabel required htmlFor="name">
+          Name
+        </FieldLabel>
         <Input
           id="name"
           value={name}
@@ -73,7 +75,7 @@ export function PGStudyOptionFormClient({ programmeCode, initialData }: Props) {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="about">About</Label>
+        <FieldLabel htmlFor="about">About</FieldLabel>
         <Textarea
           id="about"
           value={about}

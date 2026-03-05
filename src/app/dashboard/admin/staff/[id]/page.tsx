@@ -147,7 +147,7 @@ export default async function AdminStaffDetailPage({
           rows={leadershipRows}
           emptyState={
             <EmptyState
-              title="No leadership terms"
+              title="No leadership terms yet"
               description="This staff member has no leadership terms recorded."
             />
           }

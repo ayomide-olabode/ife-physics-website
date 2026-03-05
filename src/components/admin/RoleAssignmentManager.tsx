@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { assignRole, revokeRole } from '@/server/actions/roleAssignments';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
@@ -129,7 +129,7 @@ export function RoleAssignmentManager({
           <h3 className="text-lg font-semibold mb-4">Assign Role</h3>
           <form onSubmit={handleAssign} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
+              <FieldLabel htmlFor="role">Role</FieldLabel>
               <select
                 id="role"
                 value={role}
@@ -148,7 +148,7 @@ export function RoleAssignmentManager({
 
             {role === 'RESEARCH_LEAD' && (
               <div className="space-y-2">
-                <Label htmlFor="scopeId">Research Group ID</Label>
+                <FieldLabel htmlFor="scopeId">Research Group ID</FieldLabel>
                 <Input
                   id="scopeId"
                   value={scopeId}
@@ -175,8 +175,8 @@ export function RoleAssignmentManager({
             rows={roleRows}
             emptyState={
               <EmptyState
-                title="No roles"
-                description="This user has no mapped role assignments."
+                title="No role assignments yet"
+                description="Assign a role to this user to get started."
               />
             }
           />

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { createHistory, updateHistory } from '@/server/actions/history';
 import { toastSuccess, toastError } from '@/lib/toast';
 
@@ -81,9 +81,9 @@ export function HistoryFormClient({
     <div className="max-w-2xl bg-white p-6 rounded-lg border shadow-sm">
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+          <FieldLabel required htmlFor="title">
             Title
-          </Label>
+          </FieldLabel>
           <Input
             id="title"
             value={formData.title}
@@ -94,9 +94,9 @@ export function HistoryFormClient({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="date" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+          <FieldLabel required htmlFor="date">
             Date
-          </Label>
+          </FieldLabel>
           <Input
             id="date"
             type="date"
@@ -110,12 +110,9 @@ export function HistoryFormClient({
         </div>
 
         <div className="space-y-2">
-          <Label
-            htmlFor="shortDesc"
-            className="after:content-['*'] after:ml-0.5 after:text-red-500"
-          >
+          <FieldLabel required htmlFor="shortDesc">
             Short Description
-          </Label>
+          </FieldLabel>
           <Textarea
             id="shortDesc"
             value={formData.shortDesc}

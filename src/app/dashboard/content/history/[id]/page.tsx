@@ -1,13 +1,11 @@
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { getHistoryById } from '@/server/queries/history';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 import { HistoryFormClient } from '@/components/content/HistoryFormClient';
 import { HistoryStatusActions } from '@/components/content/HistoryStatusActions';
 import { ScopedRole } from '@prisma/client';
 import { notFound } from 'next/navigation';
-import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireAuth();
@@ -20,14 +18,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Link href="/dashboard/content/history">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <PageHeader title="Edit History Entry" />
-      </div>
+      <BackToParent href="/dashboard/content/history" label="Back to History" />
+      <PageHeader title="Edit History Entry" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">

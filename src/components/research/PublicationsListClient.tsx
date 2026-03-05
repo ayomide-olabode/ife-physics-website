@@ -193,7 +193,7 @@ export function PublicationsListClient({
 
       {data.length === 0 ? (
         <EmptyState
-          title="No Publications Found"
+          title="No publications yet"
           description={
             searchQuery || yearQuery
               ? 'Try adjusting your filters.'

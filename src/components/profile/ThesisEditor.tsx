@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { createMyThesis, updateMyThesis } from '@/server/actions/profileTheses';
 import { useRouter } from 'next/navigation';
@@ -113,9 +113,9 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
         <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="year" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+              <FieldLabel required htmlFor="year">
                 Year
-              </Label>
+              </FieldLabel>
               <Input
                 id="year"
                 type="number"
@@ -127,12 +127,9 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="status"
-                className="after:content-['*'] after:ml-0.5 after:text-red-500"
-              >
+              <FieldLabel required htmlFor="status">
                 Status
-              </Label>
+              </FieldLabel>
               <select
                 id="status"
                 value={formData.status}
@@ -150,9 +147,9 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+            <FieldLabel required htmlFor="title">
               Title
-            </Label>
+            </FieldLabel>
             <Input
               id="title"
               value={formData.title}
@@ -163,7 +160,7 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="studentName">Student Name</Label>
+            <FieldLabel htmlFor="studentName">Student Name</FieldLabel>
             <Input
               id="studentName"
               value={formData.studentName}
@@ -174,7 +171,7 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="programme">Programme</Label>
+              <FieldLabel htmlFor="programme">Programme</FieldLabel>
               <Input
                 id="programme"
                 value={formData.programme}
@@ -184,7 +181,7 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="degreeLevel">Degree Level</Label>
+              <FieldLabel htmlFor="degreeLevel">Degree Level</FieldLabel>
               <Input
                 id="degreeLevel"
                 value={formData.degreeLevel}

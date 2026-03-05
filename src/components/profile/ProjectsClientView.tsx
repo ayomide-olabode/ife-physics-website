@@ -153,8 +153,8 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
         ])}
         emptyState={
           <EmptyState
-            title="No projects mapped"
-            description="You haven't bound any custom active ongoing project statuses to your profile yet."
+            title="No projects yet"
+            description="Add your first project to get started."
           />
         }
       />

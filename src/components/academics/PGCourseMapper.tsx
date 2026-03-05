@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import {
   Table,
   TableBody,
@@ -140,7 +140,7 @@ export function PGCourseMapper({ programmeCode, studyOptionId, mappedCourses }: 
       </div>
 
       <div className="space-y-4 rounded-lg border bg-card p-4">
-        <Label>Add Course</Label>
+        <FieldLabel>Add Course</FieldLabel>
         <div className="flex gap-2">
           <Input
             value={searchQuery}

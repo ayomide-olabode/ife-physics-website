@@ -6,7 +6,7 @@ import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { updateUndergraduateProgram } from '@/server/actions/undergraduateProgram';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { ProgrammeCode } from '@prisma/client';
 
 type UndergraduateProgramData = {
@@ -78,37 +78,37 @@ export function UndergraduateProgramEditor({
   return (
     <form onSubmit={onSubmit} className="space-y-8 max-w-4xl pb-10">
       <div className="space-y-2">
-        <Label>Overview & Prospects</Label>
+        <FieldLabel>Overview & Prospects</FieldLabel>
         <RichTextEditor value={overviewProspects} onChange={setOverviewProspects} />
       </div>
 
       <div className="space-y-2">
-        <Label>Admission Requirements</Label>
+        <FieldLabel>Admission Requirements</FieldLabel>
         <RichTextEditor value={admissionRequirements} onChange={setAdmissionRequirements} />
       </div>
 
       <div className="space-y-2">
-        <Label>Course Requirements</Label>
+        <FieldLabel>Course Requirements</FieldLabel>
         <RichTextEditor value={courseRequirements} onChange={setCourseRequirements} />
       </div>
 
       <div className="space-y-2">
-        <Label>Curriculum</Label>
+        <FieldLabel>Curriculum</FieldLabel>
         <RichTextEditor value={curriculum} onChange={setCurriculum} />
       </div>
 
       <div className="space-y-2">
-        <Label>Programme Structure</Label>
+        <FieldLabel>Programme Structure</FieldLabel>
         <RichTextEditor value={programmeStructure} onChange={setProgrammeStructure} />
       </div>
 
       <div className="space-y-2">
-        <Label>Study Options (Text)</Label>
+        <FieldLabel>Study Options (Text)</FieldLabel>
         <RichTextEditor value={studyOptionsText} onChange={setStudyOptionsText} />
       </div>
 
       <div className="space-y-2">
-        <Label>Course Descriptions Intro</Label>
+        <FieldLabel>Course Descriptions Intro</FieldLabel>
         <RichTextEditor value={courseDescriptionsIntro} onChange={setCourseDescriptionsIntro} />
       </div>
 

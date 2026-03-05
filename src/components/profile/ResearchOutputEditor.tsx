@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import {
   Dialog,
   DialogContent,
@@ -118,9 +118,9 @@ export function ResearchOutputEditor({
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="type" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+              <FieldLabel required htmlFor="type">
                 Output Type
-              </Label>
+              </FieldLabel>
               <Select
                 value={formData.type}
                 onValueChange={(val: string) =>
@@ -142,12 +142,9 @@ export function ResearchOutputEditor({
             </div>
 
             <div className="grid gap-2">
-              <Label
-                htmlFor="title"
-                className="after:content-['*'] after:ml-0.5 after:text-red-500"
-              >
+              <FieldLabel required htmlFor="title">
                 Title
-              </Label>
+              </FieldLabel>
               <Input
                 id="title"
                 value={formData.title}
@@ -159,7 +156,7 @@ export function ResearchOutputEditor({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="year">Year</Label>
+                <FieldLabel htmlFor="year">Year</FieldLabel>
                 <Input
                   id="year"
                   type="number"
@@ -172,7 +169,7 @@ export function ResearchOutputEditor({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="venue">Venue / Journal</Label>
+                <FieldLabel htmlFor="venue">Venue / Journal</FieldLabel>
                 <Input
                   id="venue"
                   value={formData.venue}
@@ -183,7 +180,7 @@ export function ResearchOutputEditor({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="doi">DOI (optional)</Label>
+              <FieldLabel htmlFor="doi">DOI (optional)</FieldLabel>
               <Input
                 id="doi"
                 value={formData.doi}
@@ -193,7 +190,7 @@ export function ResearchOutputEditor({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="url">External Link (optional)</Label>
+              <FieldLabel htmlFor="url">External Link (optional)</FieldLabel>
               <Input
                 id="url"
                 type="url"

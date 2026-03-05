@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 import { requireAuth } from '@/lib/guards';
 import { getResearchGroupByIdForUser } from '@/server/queries/researchGroups';
 import { ResearchGroupFormClient } from '@/components/research/ResearchGroupFormClient';
@@ -25,14 +25,7 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="text-sm border-b pb-2 mb-4">
-        <Link
-          href="/dashboard/research/groups"
-          className="text-muted-foreground hover:text-foreground inline-flex items-center"
-        >
-          &larr; Back to Groups
-        </Link>
-      </div>
+      <BackToParent href="/dashboard/research/groups" label="Back to Groups" />
 
       <PageHeader
         title={`Edit Research Group — ${group.name}`}

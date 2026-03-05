@@ -157,8 +157,8 @@ export function ThesesClientView({ data, staffId }: { data: PaginatedData; staff
         ])}
         emptyState={
           <EmptyState
-            title="No theses mapped"
-            description="You haven't added any student theses to your profile yet."
+            title="No theses yet"
+            description="Add your first student thesis to get started."
           />
         }
       />

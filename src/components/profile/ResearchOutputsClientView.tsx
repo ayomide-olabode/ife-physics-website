@@ -159,8 +159,8 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
         ])}
         emptyState={
           <EmptyState
-            title="No research outputs"
-            description="You haven't added any research outputs to your profile yet."
+            title="No research outputs yet"
+            description="Add your first research output to get started."
           />
         }
       />

@@ -9,7 +9,7 @@ import {
 import { toastSuccess, toastError } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -137,9 +137,9 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
   return (
     <form onSubmit={onSubmit} className="space-y-6 max-w-3xl">
       <div className="space-y-2">
-        <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+        <FieldLabel required htmlFor="title">
           Title
-        </Label>
+        </FieldLabel>
         <Input
           id="title"
           value={title}
@@ -151,7 +151,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="after:content-['*'] after:ml-0.5 after:text-red-500">Type</Label>
+          <FieldLabel required>Type</FieldLabel>
           <Select value={type} onValueChange={handleTypeChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
@@ -163,7 +163,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
           </Select>
         </div>
         <div className="space-y-2">
-          <Label className="after:content-['*'] after:ml-0.5 after:text-red-500">Category</Label>
+          <FieldLabel required>Category</FieldLabel>
           <Select
             value={type === 'EVENT' ? eventCategory : opportunityCategory}
             onValueChange={(val) =>
@@ -186,7 +186,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <FieldLabel htmlFor="description">Description</FieldLabel>
         <Textarea
           id="description"
           value={description}
@@ -199,7 +199,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="startDate">Start Date</Label>
+          <FieldLabel htmlFor="startDate">Start Date</FieldLabel>
           <Input
             id="startDate"
             type="date"
@@ -208,7 +208,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="endDate">End Date</Label>
+          <FieldLabel htmlFor="endDate">End Date</FieldLabel>
           <Input
             id="endDate"
             type="date"
@@ -217,7 +217,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="deadline">Deadline</Label>
+          <FieldLabel htmlFor="deadline">Deadline</FieldLabel>
           <Input
             id="deadline"
             type="date"
@@ -229,7 +229,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="venue">Venue</Label>
+          <FieldLabel htmlFor="venue">Venue</FieldLabel>
           <Input
             id="venue"
             value={venue}
@@ -238,7 +238,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="linkUrl">Link URL</Label>
+          <FieldLabel htmlFor="linkUrl">Link URL</FieldLabel>
           <Input
             id="linkUrl"
             value={linkUrl}

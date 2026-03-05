@@ -6,7 +6,7 @@ import { createSpotlight, updateSpotlight } from '@/server/actions/spotlight';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
 import { SpotlightImageUploader } from '@/components/communication/SpotlightImageUploader';
 
@@ -71,9 +71,9 @@ export function SpotlightFormClient({ initial }: { initial?: FormInitial }) {
   return (
     <form onSubmit={onSubmit} className="space-y-6 max-w-3xl">
       <div className="space-y-2">
-        <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+        <FieldLabel required htmlFor="title">
           Title
-        </Label>
+        </FieldLabel>
         <Input
           id="title"
           value={title}
@@ -84,9 +84,9 @@ export function SpotlightFormClient({ initial }: { initial?: FormInitial }) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="date" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+        <FieldLabel required htmlFor="date">
           Display Date
-        </Label>
+        </FieldLabel>
         <Input
           id="date"
           type="date"
@@ -97,7 +97,7 @@ export function SpotlightFormClient({ initial }: { initial?: FormInitial }) {
       </div>
 
       <div className="space-y-2">
-        <Label className="after:content-['*'] after:ml-0.5 after:text-red-500">Image</Label>
+        <FieldLabel required>Image</FieldLabel>
         <SpotlightImageUploader
           value={imageUrl}
           onChange={setImageUrl}
@@ -106,9 +106,9 @@ export function SpotlightFormClient({ initial }: { initial?: FormInitial }) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="text" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+        <FieldLabel required htmlFor="text">
           Text / Summary
-        </Label>
+        </FieldLabel>
         <Textarea
           id="text"
           value={text}

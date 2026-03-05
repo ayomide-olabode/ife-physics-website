@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { createNews, updateNews } from '@/server/actions/news';
 import { toastSuccess, toastError } from '@/lib/toast';
+import { useSlugField } from '@/lib/useSlugField';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { NewsImageUploader } from '@/components/communication/NewsImageUploader';
+import { RefreshCw } from 'lucide-react';
 
 type NewsFormData = {
   id?: string;
@@ -21,20 +23,16 @@ type NewsFormData = {
   buttonLink?: string | null;
 };
 
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '');
-}
-
 export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!initial?.id;
 
   const [title, setTitle] = useState(initial?.title || '');
-  const [slug, setSlug] = useState(initial?.slug || '');
+  const { slug, isManual, handleTitleChange, handleSlugChange, resetSlug } = useSlugField({
+    initialSlug: initial?.slug,
+    isEditing,
+  });
   const [body, setBody] = useState(initial?.body || '');
   const [imageUrl, setImageUrl] = useState(initial?.imageUrl || '');
   const [date, setDate] = useState(
@@ -44,13 +42,9 @@ export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
   );
   const [buttonLabel, setButtonLabel] = useState(initial?.buttonLabel || '');
   const [buttonLink, setButtonLink] = useState(initial?.buttonLink || '');
-  const [slugManual, setSlugManual] = useState(isEditing);
-
-  const handleTitleChange = (val: string) => {
+  const onTitleChange = (val: string) => {
     setTitle(val);
-    if (!slugManual) {
-      setSlug(slugify(val));
-    }
+    handleTitleChange(val);
   };
 
   const handleBodyChange = useCallback((html: string) => {
@@ -99,39 +93,49 @@ export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
     <form onSubmit={onSubmit} className="space-y-6 max-w-4xl">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+          <FieldLabel required htmlFor="title">
             Title
-          </Label>
+          </FieldLabel>
           <Input
             id="title"
             value={title}
-            onChange={(e) => handleTitleChange(e.target.value)}
+            onChange={(e) => onTitleChange(e.target.value)}
             placeholder="Article title"
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="slug" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+          <FieldLabel required htmlFor="slug">
             Slug
-          </Label>
-          <Input
-            id="slug"
-            value={slug}
-            onChange={(e) => {
-              setSlugManual(true);
-              setSlug(e.target.value);
-            }}
-            placeholder="article-slug"
-            required
-          />
+          </FieldLabel>
+          <div className="flex gap-2">
+            <Input
+              id="slug"
+              value={slug}
+              onChange={(e) => handleSlugChange(e.target.value)}
+              placeholder="article-slug"
+              required
+            />
+            {isManual && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => resetSlug(title)}
+                title="Sync from title"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="date" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+          <FieldLabel required htmlFor="date">
             Date
-          </Label>
+          </FieldLabel>
           <Input
             id="date"
             type="date"
@@ -146,7 +150,7 @@ export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="buttonLabel">Button Label</Label>
+          <FieldLabel htmlFor="buttonLabel">Button Label</FieldLabel>
           <Input
             id="buttonLabel"
             value={buttonLabel}
@@ -155,7 +159,7 @@ export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="buttonLink">Button Link</Label>
+          <FieldLabel htmlFor="buttonLink">Button Link</FieldLabel>
           <Input
             id="buttonLink"
             value={buttonLink}
@@ -166,7 +170,7 @@ export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
       </div>
 
       <div className="space-y-2">
-        <Label className="after:content-['*'] after:ml-0.5 after:text-red-500">Body</Label>
+        <FieldLabel required>Body</FieldLabel>
         <RichTextEditor value={body} onChange={handleBodyChange} />
       </div>
 

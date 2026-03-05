@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { createLegacyItem, updateLegacyItem } from '@/server/actions/legacyGallery';
@@ -66,9 +66,7 @@ export function LegacyGalleryFormClient({
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl bg-card p-6 border rounded-lg">
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label>
-            Media Photo <span className="text-destructive">*</span>
-          </Label>
+          <FieldLabel required>Media Photo</FieldLabel>
           <LegacyMediaUploader
             value={data.mediaUrl}
             onChange={(url) => setData({ ...data, mediaUrl: url })}
@@ -77,9 +75,9 @@ export function LegacyGalleryFormClient({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="title">
-            Title <span className="text-destructive">*</span>
-          </Label>
+          <FieldLabel required htmlFor="title">
+            Title
+          </FieldLabel>
           <Input
             id="title"
             value={data.title}
@@ -91,7 +89,7 @@ export function LegacyGalleryFormClient({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="year">Timeline Year</Label>
+            <FieldLabel htmlFor="year">Timeline Year</FieldLabel>
             <Input
               id="year"
               type="number"
@@ -104,7 +102,7 @@ export function LegacyGalleryFormClient({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="datesText">Dates Text</Label>
+            <FieldLabel htmlFor="datesText">Dates Text</FieldLabel>
             <Input
               id="datesText"
               value={data.datesText || ''}
@@ -116,9 +114,9 @@ export function LegacyGalleryFormClient({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="bioText">
-            Biographical / Historical Text <span className="text-destructive">*</span>
-          </Label>
+          <FieldLabel required htmlFor="bioText">
+            Biographical / Historical Text
+          </FieldLabel>
           <Textarea
             id="bioText"
             value={data.bioText}

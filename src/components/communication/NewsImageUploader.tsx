@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { Upload, X, Loader2 } from 'lucide-react';
 
@@ -53,7 +53,7 @@ export function NewsImageUploader({ value, onChange }: NewsImageUploaderProps) {
 
   return (
     <div className="space-y-2">
-      <Label>Cover Image</Label>
+      <FieldLabel>Cover Image</FieldLabel>
 
       {value && (
         <div className="relative inline-block rounded-md border overflow-hidden">

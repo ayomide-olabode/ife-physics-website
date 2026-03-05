@@ -161,7 +161,7 @@ export function RollOfHonourListClient({
         rows={rows}
         emptyState={
           <EmptyState
-            title="No students found"
+            title="No Roll of Honour entries yet"
             description="Create your first Roll of Honour entry to get started."
           />
         }

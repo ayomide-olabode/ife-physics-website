@@ -31,13 +31,11 @@ export default async function Page({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageHeader
-          title="Legacy Gallery"
-          description="Manage historical milestones, legacy biographies, and department milestones."
-        />
-        <AddNewButton href="/dashboard/content/legacy-gallery/new" label="Add New Item" />
-      </div>
+      <PageHeader
+        title="Legacy Gallery"
+        description="Manage historical milestones, legacy biographies, and department milestones."
+        actions={<AddNewButton href="/dashboard/content/legacy-gallery/new" label="Add New Item" />}
+      />
 
       <LegacyGalleryListClient
         data={data}

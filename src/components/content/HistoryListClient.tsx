@@ -144,8 +144,8 @@ export function HistoryListClient({
         rows={rows}
         emptyState={
           <EmptyState
-            title="No history entries found"
-            description="Create your first timeline entry to get started."
+            title="No history entries yet"
+            description="Create your first history entry to get started."
           />
         }
         footer={

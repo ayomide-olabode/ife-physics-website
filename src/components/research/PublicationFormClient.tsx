@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
@@ -136,9 +136,9 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
       <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl bg-card p-6 border rounded-lg">
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">
-              Title <span className="text-destructive">*</span>
-            </Label>
+            <FieldLabel required htmlFor="title">
+              Title
+            </FieldLabel>
             <Input
               id="title"
               value={data.title}
@@ -151,7 +151,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="authors">Authors</Label>
+            <FieldLabel htmlFor="authors">Authors</FieldLabel>
             <Input
               id="authors"
               value={data.authors}
@@ -164,7 +164,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="year">Year</Label>
+              <FieldLabel htmlFor="year">Year</FieldLabel>
               <Input
                 id="year"
                 type="number"
@@ -179,7 +179,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="venue">Venue / Journal</Label>
+              <FieldLabel htmlFor="venue">Venue / Journal</FieldLabel>
               <Input
                 id="venue"
                 value={data.venue}
@@ -193,7 +193,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="doi">DOI</Label>
+              <FieldLabel htmlFor="doi">DOI</FieldLabel>
               <Input
                 id="doi"
                 value={data.doi}
@@ -204,7 +204,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="url">URL</Label>
+              <FieldLabel htmlFor="url">URL</FieldLabel>
               <Input
                 id="url"
                 value={data.url}
@@ -217,7 +217,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="abstract">Abstract</Label>
+            <FieldLabel htmlFor="abstract">Abstract</FieldLabel>
             <Textarea
               id="abstract"
               value={data.abstract}
@@ -236,9 +236,9 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
               onCheckedChange={(checked) => setData({ ...data, isFeatured: checked === true })}
               disabled={isSubmitting}
             />
-            <Label htmlFor="isFeatured" className="cursor-pointer">
+            <FieldLabel htmlFor="isFeatured" className="cursor-pointer">
               Featured publication
-            </Label>
+            </FieldLabel>
           </div>
         </div>
 

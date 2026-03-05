@@ -16,10 +16,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageHeader title="News" description="Manage news articles for the department website." />
-        <AddNewButton href="/dashboard/communication/news/new" label="New Article" />
-      </div>
+      <PageHeader
+        title="News"
+        description="Manage news articles for the department website."
+        actions={<AddNewButton href="/dashboard/communication/news/new" label="New Article" />}
+      />
       <NewsListClient items={items} pagination={{ page, totalPages, total }} />
     </div>
   );

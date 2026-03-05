@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { createMyTeaching, updateMyTeaching } from '@/server/actions/profileTeaching';
 import { useRouter } from 'next/navigation';
@@ -99,7 +99,7 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
 
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="courseCode">Course Code (Optional)</Label>
+            <FieldLabel htmlFor="courseCode">Course Code (Optional)</FieldLabel>
             <Input
               id="courseCode"
               value={formData.courseCode}
@@ -109,9 +109,9 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+            <FieldLabel required htmlFor="title">
               Course / Responsibility Title
-            </Label>
+            </FieldLabel>
             <Input
               id="title"
               value={formData.title}
@@ -123,7 +123,7 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="sessionYear">Session Year</Label>
+              <FieldLabel htmlFor="sessionYear">Session Year</FieldLabel>
               <Input
                 id="sessionYear"
                 type="number"
@@ -135,7 +135,7 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="semester">Semester</Label>
+              <FieldLabel htmlFor="semester">Semester</FieldLabel>
               <Input
                 id="semester"
                 value={formData.semester}

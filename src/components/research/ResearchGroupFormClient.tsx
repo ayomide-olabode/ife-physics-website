@@ -4,10 +4,12 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { toastSuccess, toastError } from '@/lib/toast';
+import { useSlugField } from '@/lib/useSlugField';
 import { createResearchGroup, updateResearchGroup } from '@/server/actions/researchGroups';
+import { RefreshCw } from 'lucide-react';
 
 export type ResearchGroupFormData = {
   id?: string;
@@ -29,7 +31,10 @@ export function ResearchGroupFormClient({ initialData }: Props) {
 
   const [name, setName] = useState(initialData?.name || '');
   const [abbreviation, setAbbreviation] = useState(initialData?.abbreviation || '');
-  const [slug, setSlug] = useState(initialData?.slug || '');
+  const { slug, isManual, handleTitleChange, handleSlugChange, resetSlug } = useSlugField({
+    initialSlug: initialData?.slug,
+    isEditing,
+  });
   const [overview, setOverview] = useState(initialData?.overview || '');
   const [focusAreas, setFocusAreas] = useState(initialData?.focusAreas || '');
 
@@ -69,18 +74,25 @@ export function ResearchGroupFormClient({ initialData }: Props) {
     <form onSubmit={onSubmit} className="space-y-6 max-w-3xl pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="name">Name *</Label>
+          <FieldLabel required htmlFor="name">
+            Name
+          </FieldLabel>
           <Input
             id="name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              handleTitleChange(e.target.value);
+            }}
             placeholder="e.g. Theoretical Physics Group"
             required
             maxLength={200}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="abbreviation">Abbreviation *</Label>
+          <FieldLabel required htmlFor="abbreviation">
+            Abbreviation
+          </FieldLabel>
           <Input
             id="abbreviation"
             value={abbreviation}
@@ -93,27 +105,42 @@ export function ResearchGroupFormClient({ initialData }: Props) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="slug">Slug *</Label>
-        <Input
-          id="slug"
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-          placeholder="e.g. theoretical-physics"
-          required
-          maxLength={100}
-        />
+        <FieldLabel required htmlFor="slug">
+          Slug
+        </FieldLabel>
+        <div className="flex gap-2">
+          <Input
+            id="slug"
+            value={slug}
+            onChange={(e) => handleSlugChange(e.target.value)}
+            placeholder="e.g. theoretical-physics"
+            required
+            maxLength={100}
+          />
+          {isManual && (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => resetSlug(name)}
+              title="Sync from name"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
         <p className="text-xs text-muted-foreground">
           URL-friendly identifier. Use lowercase letters, numbers, and hyphens only.
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label>Overview</Label>
+        <FieldLabel>Overview</FieldLabel>
         <RichTextEditor value={overview} onChange={setOverview} />
       </div>
 
       <div className="space-y-2">
-        <Label>Focus Areas</Label>
+        <FieldLabel>Focus Areas</FieldLabel>
         <RichTextEditor value={focusAreas} onChange={setFocusAreas} />
       </div>
 

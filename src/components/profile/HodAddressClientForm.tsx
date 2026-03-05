@@ -6,7 +6,7 @@ import { updateMyHodAddress } from '@/server/actions/profileHodAddress';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
 
 type HodAddressClientFormProps = {
@@ -47,9 +47,9 @@ export function HodAddressClientForm({ initialTitle, initialBody }: HodAddressCl
   return (
     <form onSubmit={onSubmit} className="max-w-3xl space-y-6 mt-8">
       <div className="space-y-2">
-        <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+        <FieldLabel required htmlFor="title">
           Title
-        </Label>
+        </FieldLabel>
         <Input
           id="title"
           value={title}
@@ -62,9 +62,9 @@ export function HodAddressClientForm({ initialTitle, initialBody }: HodAddressCl
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="body" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+        <FieldLabel required htmlFor="body">
           Message Body
-        </Label>
+        </FieldLabel>
         <Textarea
           id="body"
           value={body}

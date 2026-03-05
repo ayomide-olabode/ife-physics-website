@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { ProgrammeCode } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { getPostgraduateCourseForProgramme } from '@/server/queries/postgraduateCourses';
 import { PGCourseFormClient } from '@/components/academics/PGCourseFormClient';
@@ -32,14 +32,10 @@ export default async function EditPGCoursePage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="text-sm border-b pb-2 mb-4">
-        <Link
-          href={`/dashboard/postgraduate/${programmeCode.toLowerCase()}/courses`}
-          className="text-muted-foreground hover:text-foreground inline-flex items-center"
-        >
-          &larr; Back to Courses
-        </Link>
-      </div>
+      <BackToParent
+        href={`/dashboard/postgraduate/${programmeCode.toLowerCase()}/courses`}
+        label="Back to Courses"
+      />
 
       <PageHeader
         title={`Edit PG Course — ${course.code}`}

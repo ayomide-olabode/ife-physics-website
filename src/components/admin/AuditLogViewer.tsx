@@ -103,8 +103,8 @@ export function AuditLogViewer({ logs }: { logs: AuditLogRow[] }) {
         rows={rows}
         emptyState={
           <EmptyState
-            title="No audit logs found"
-            description="Adjust your filters or try a different search query."
+            title="No audit logs yet"
+            description="Audit logs will appear here when actions are taken."
           />
         }
       />

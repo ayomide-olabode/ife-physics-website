@@ -199,11 +199,11 @@ export function LegacyGalleryListClient({
 
       {data.length === 0 ? (
         <EmptyState
-          title="No Legacy Items Found"
+          title="No legacy items yet"
           description={
             searchQuery || yearQuery || statusQuery !== 'ALL'
-              ? 'Try adjusting your filters'
-              : 'Start building the Legacy Gallery by adding a new item.'
+              ? 'Try adjusting your filters.'
+              : 'Add your first legacy item to get started.'
           }
           action={
             <Button

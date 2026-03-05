@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { createLeadershipTerm } from '@/server/actions/leadershipTerms';
 import { searchStaff } from '@/server/queries/staffSearch';
 import { toastSuccess, toastError } from '@/lib/toast';
@@ -154,7 +154,7 @@ export function CreateLeadershipTermForm() {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
+            <FieldLabel htmlFor="role">Role</FieldLabel>
             <select
               id="role"
               value={role}
@@ -172,7 +172,7 @@ export function CreateLeadershipTermForm() {
 
           {role === 'ACADEMIC_COORDINATOR' && (
             <div className="space-y-2">
-              <Label htmlFor="programmeCode">Programme Code (Optional)</Label>
+              <FieldLabel htmlFor="programmeCode">Programme Code (Optional)</FieldLabel>
               <select
                 id="programmeCode"
                 value={programmeCode}
@@ -189,7 +189,7 @@ export function CreateLeadershipTermForm() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
+              <FieldLabel htmlFor="startDate">Start Date</FieldLabel>
               <Input
                 id="startDate"
                 type="date"
@@ -199,7 +199,7 @@ export function CreateLeadershipTermForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="endDate">End Date (Optional)</Label>
+              <FieldLabel htmlFor="endDate">End Date (Optional)</FieldLabel>
               <Input
                 id="endDate"
                 type="date"

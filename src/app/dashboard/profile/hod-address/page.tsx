@@ -37,7 +37,10 @@ export default async function Page() {
           title="HOD Address"
           description="Manage the Head of Department welcome address displayed on the homepage."
         />
-        <EmptyState title="No active HOD term exists. Assign an HOD via the admin panel first." />
+        <EmptyState
+          title="No active HOD yet"
+          description="Assign an HOD via the admin panel first."
+        />
       </div>
     );
   }

@@ -146,8 +146,8 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
         ])}
         emptyState={
           <EmptyState
-            title="No teaching responsibilities"
-            description="You haven't bound any courses or subject allocations to your profile yet."
+            title="No teaching responsibilities yet"
+            description="Add your first teaching responsibility to get started."
           />
         }
       />

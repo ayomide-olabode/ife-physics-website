@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ProgrammeCode, DegreeType, RequirementType } from '@prisma/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import {
   Select,
   SelectContent,
@@ -81,7 +81,9 @@ export function PgRequirementBlockEditor({
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="rb-title">Title *</Label>
+            <FieldLabel required htmlFor="rb-title">
+              Title
+            </FieldLabel>
             <Input
               id="rb-title"
               value={title}
@@ -92,7 +94,9 @@ export function PgRequirementBlockEditor({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="rb-type">Type *</Label>
+            <FieldLabel required htmlFor="rb-type">
+              Type
+            </FieldLabel>
             <Select
               value={requirementType}
               onValueChange={(v) => setRequirementType(v as RequirementType)}
@@ -107,7 +111,7 @@ export function PgRequirementBlockEditor({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="rb-order">Order</Label>
+            <FieldLabel htmlFor="rb-order">Order</FieldLabel>
             <Input
               id="rb-order"
               type="number"
@@ -120,7 +124,7 @@ export function PgRequirementBlockEditor({
         </div>
 
         <div className="space-y-2">
-          <Label>Content *</Label>
+          <FieldLabel required>Content</FieldLabel>
           <RichTextEditor value={contentHtml} onChange={setContentHtml} />
         </div>
 

@@ -21,13 +21,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageHeader
-          title="Events & Opportunities"
-          description="Manage events, seminars, grants, and other opportunities."
-        />
-        <AddNewButton href={`${BASE_PATH}/new`} label="New Item" />
-      </div>
+      <PageHeader
+        title="Events & Opportunities"
+        description="Manage events, seminars, grants, and other opportunities."
+        actions={<AddNewButton href={`${BASE_PATH}/new`} label="New Item" />}
+      />
       <EventOpportunityListClient
         items={items}
         pagination={{ page, totalPages, total }}

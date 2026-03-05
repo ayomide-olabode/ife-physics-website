@@ -29,13 +29,11 @@ export default async function Page({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageHeader
-          title="Roll of Honour"
-          description="Manage top-performing graduating students."
-        />
-        <AddNewButton href="/dashboard/content/roll-of-honour/new" label="New Entry" />
-      </div>
+      <PageHeader
+        title="Roll of Honour"
+        description="Manage top-performing graduating students."
+        actions={<AddNewButton href="/dashboard/content/roll-of-honour/new" label="New Entry" />}
+      />
       <RollOfHonourListClient
         items={data}
         pagination={meta}

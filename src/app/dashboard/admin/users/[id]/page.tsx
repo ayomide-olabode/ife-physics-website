@@ -100,7 +100,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
           rows={leadershipRows}
           emptyState={
             <EmptyState
-              title="No leadership terms"
+              title="No leadership terms yet"
               description="This user has no leadership terms recorded."
             />
           }

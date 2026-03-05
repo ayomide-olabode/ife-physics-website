@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { ProgrammeCode } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { StudyOptionFormClient } from '@/components/academics/StudyOptionFormClient';
 
@@ -22,14 +22,10 @@ export default async function NewStudyOptionPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="text-sm border-b pb-2 mb-4">
-        <Link
-          href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}/study-options`}
-          className="text-muted-foreground hover:text-foreground inline-flex items-center"
-        >
-          &larr; Back to Study Options
-        </Link>
-      </div>
+      <BackToParent
+        href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}/study-options`}
+        label="Back to Study Options"
+      />
 
       <PageHeader
         title={`New Study Option — ${programmeCode}`}

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { updateStaffProfile } from '@/server/actions/profile/update';
 import { toastSuccess, toastError } from '@/lib/toast';
 
@@ -52,7 +52,7 @@ export function EditProfileForm({
     <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="firstName">First Name</Label>
+          <FieldLabel htmlFor="firstName">First Name</FieldLabel>
           <Input
             id="firstName"
             value={firstName}
@@ -62,7 +62,7 @@ export function EditProfileForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name</Label>
+          <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
           <Input
             id="lastName"
             value={lastName}

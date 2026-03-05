@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -96,7 +96,9 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
     <form onSubmit={onSubmit} className="space-y-6 max-w-2xl pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="code">Course Code *</Label>
+          <FieldLabel required htmlFor="code">
+            Course Code
+          </FieldLabel>
           <Input
             id="code"
             value={code}
@@ -108,7 +110,9 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="status">Status *</Label>
+          <FieldLabel required htmlFor="status">
+            Status
+          </FieldLabel>
           <Select value={status} onValueChange={(v) => setStatus(v as 'CORE' | 'RESTRICTED')}>
             <SelectTrigger id="status">
               <SelectValue />
@@ -122,7 +126,9 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="title">Title *</Label>
+        <FieldLabel required htmlFor="title">
+          Title
+        </FieldLabel>
         <Input
           id="title"
           value={title}
@@ -134,7 +140,7 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <FieldLabel htmlFor="description">Description</FieldLabel>
         <Textarea
           id="description"
           value={description}
@@ -146,7 +152,7 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="prerequisites">Prerequisites</Label>
+        <FieldLabel htmlFor="prerequisites">Prerequisites</FieldLabel>
         <Input
           id="prerequisites"
           value={prerequisites}
@@ -158,7 +164,7 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="L">L (Lectures)</Label>
+          <FieldLabel htmlFor="L">L (Lectures)</FieldLabel>
           <Input
             id="L"
             type="number"
@@ -169,7 +175,7 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="T">T (Tutorials)</Label>
+          <FieldLabel htmlFor="T">T (Tutorials)</FieldLabel>
           <Input
             id="T"
             type="number"
@@ -180,7 +186,7 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="P">P (Practicals)</Label>
+          <FieldLabel htmlFor="P">P (Practicals)</FieldLabel>
           <Input
             id="P"
             type="number"
@@ -191,7 +197,7 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="U">U (Units)</Label>
+          <FieldLabel htmlFor="U">U (Units)</FieldLabel>
           <Input
             id="U"
             type="number"

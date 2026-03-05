@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ProgrammeCode } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 import { Button } from '@/components/ui/button';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { getPostgraduateStudyOptionById } from '@/server/queries/postgraduateStudyOptions';
@@ -38,23 +39,24 @@ export default async function EditPGStudyOptionPage({ params }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <div className="text-sm border-b pb-2 mb-4 flex items-center justify-between">
-        <Link
-          href={`/dashboard/postgraduate/${code}/study-options`}
-          className="text-muted-foreground hover:text-foreground inline-flex items-center"
-        >
-          &larr; Back to Study Options
-        </Link>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href={`/dashboard/postgraduate/${code}`}>Back to Programme</Link>
-        </Button>
-      </div>
+      <BackToParent
+        href={`/dashboard/postgraduate/${code}/study-options`}
+        label="Back to Study Options"
+      />
 
       <PageHeader
         title={`Edit PG Study Option — ${studyOption.name}`}
         description="Update the study option details and manage course mappings."
         actions={
-          <PGStudyOptionDeleteButton programmeCode={programmeCode} studyOptionId={studyOption.id} />
+          <>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/dashboard/postgraduate/${code}`}>Back to Programme</Link>
+            </Button>
+            <PGStudyOptionDeleteButton
+              programmeCode={programmeCode}
+              studyOptionId={studyOption.id}
+            />
+          </>
         }
       />
 

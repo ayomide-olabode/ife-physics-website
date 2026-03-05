@@ -27,13 +27,11 @@ export default async function Page({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageHeader
-          title="Spotlight"
-          description="Manage 'In the Spotlight' cards for the public homepage."
-        />
-        <AddNewButton href={`${BASE_PATH}/new`} label="New Spotlight" />
-      </div>
+      <PageHeader
+        title="Spotlight"
+        description="Manage 'In the Spotlight' cards for the public homepage."
+        actions={<AddNewButton href={`${BASE_PATH}/new`} label="New Spotlight" />}
+      />
       <SpotlightListClient
         items={items}
         pagination={{ page, totalPages, total }}

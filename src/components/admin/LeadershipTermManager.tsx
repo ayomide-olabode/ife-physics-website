@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { toastSuccess, toastError } from '@/lib/toast';
 
 type Staff = {
@@ -109,7 +109,9 @@ export function LeadershipTermManager({
       <DataTable
         headers={['Staff Member', 'Programme', 'Start Date', 'End Date', 'Actions']}
         rows={rows}
-        emptyState={<EmptyState title={emptyTitle} description="No records found." />}
+        emptyState={
+          <EmptyState title={emptyTitle} description="Leadership records will appear here." />
+        }
       />
     );
   };
@@ -154,9 +156,9 @@ export function LeadershipTermManager({
 
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="endDate" className="text-right">
+              <FieldLabel htmlFor="endDate" className="text-right">
                 End Date
-              </Label>
+              </FieldLabel>
               <Input
                 id="endDate"
                 type="date"

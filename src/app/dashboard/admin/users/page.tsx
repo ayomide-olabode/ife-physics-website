@@ -128,10 +128,8 @@ export default async function AdminUsersPage({
         rows={rows}
         emptyState={
           <EmptyState
-            title="No users found"
-            description={
-              q ? `No users matched "${q}".` : 'No users currently exist in the database.'
-            }
+            title="No users yet"
+            description={q ? `No users matched "${q}".` : 'Add a user to get started.'}
           />
         }
         footer={

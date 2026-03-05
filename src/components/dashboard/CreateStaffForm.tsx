@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Checkbox } from '@/components/ui/checkbox';
 import { createStaff } from '@/server/actions/adminStaff';
 import { StaffType, StaffStatus } from '@prisma/client';
@@ -63,7 +63,7 @@ export function CreateStaffForm() {
         </p>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Institutional Email</Label>
+          <FieldLabel htmlFor="email">Institutional Email</FieldLabel>
           <Input
             id="email"
             type="email"
@@ -79,7 +79,7 @@ export function CreateStaffForm() {
         <h3 className="text-lg font-medium border-b pb-2">2. Staff Classification</h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="staffType">Staff Type</Label>
+            <FieldLabel htmlFor="staffType">Staff Type</FieldLabel>
             <select
               id="staffType"
               value={staffType}
@@ -96,7 +96,7 @@ export function CreateStaffForm() {
             </select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="staffStatus">Initial Status</Label>
+            <FieldLabel htmlFor="staffStatus">Initial Status</FieldLabel>
             <select
               id="staffStatus"
               value={staffStatus}
@@ -114,7 +114,7 @@ export function CreateStaffForm() {
 
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="academicRank">Academic Rank (Optional)</Label>
+            <FieldLabel htmlFor="academicRank">Academic Rank (Optional)</FieldLabel>
             <Input
               id="academicRank"
               placeholder="e.g. Professor, Lecturer I"
@@ -123,7 +123,7 @@ export function CreateStaffForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="designation">Designation (Optional)</Label>
+            <FieldLabel htmlFor="designation">Designation (Optional)</FieldLabel>
             <Input
               id="designation"
               placeholder="e.g. Lab Technician"
@@ -148,9 +148,9 @@ export function CreateStaffForm() {
             onCheckedChange={(checked) => setCreateUserShell(checked as boolean)}
           />
           <div className="space-y-1 leading-none">
-            <Label htmlFor="createUserShell" className="font-medium cursor-pointer">
+            <FieldLabel htmlFor="createUserShell" className="font-medium cursor-pointer">
               Create user shell (invite)
-            </Label>
+            </FieldLabel>
             <p className="text-sm text-muted-foreground mt-1">
               Automatically provision an unactivated User account linked to this staff record. They
               can later activate it via email registration.
@@ -170,12 +170,12 @@ export function CreateStaffForm() {
             disabled={!createUserShell}
           />
           <div className="space-y-1 leading-none">
-            <Label
+            <FieldLabel
               htmlFor="isSuperAdminShell"
               className="font-medium text-destructive cursor-pointer"
             >
               Invite as SuperAdmin
-            </Label>
+            </FieldLabel>
             <p className="text-sm text-muted-foreground mt-1">
               Grants this user absolute system-wide permissions across all data modules. Use with
               extreme caution.

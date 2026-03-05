@@ -84,9 +84,9 @@ export default async function AdminStaffPage({
         rows={rows}
         emptyState={
           <EmptyState
-            title="No staff found"
+            title="No staff records yet"
             description={
-              q ? `No staff matched "${q}".` : 'No staff currently exist in the database.'
+              q ? `No staff matched "${q}".` : 'Add your first staff record to get started.'
             }
           />
         }

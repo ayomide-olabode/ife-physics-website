@@ -29,16 +29,16 @@ export default async function PublicationsIndexPage({ params, searchParams }: Pa
     <div className="space-y-6">
       <BackToParent href={`/dashboard/research/groups/${groupId}`} label="Back to Group" />
 
-      <div className="flex items-center justify-between">
-        <PageHeader
-          title="Publications"
-          description="Manage research publications for this group."
-        />
-        <AddNewButton
-          href={`/dashboard/research/groups/${groupId}/publications/new`}
-          label="Add Publication"
-        />
-      </div>
+      <PageHeader
+        title="Publications"
+        description="Manage research publications for this group."
+        actions={
+          <AddNewButton
+            href={`/dashboard/research/groups/${groupId}/publications/new`}
+            label="Add Publication"
+          />
+        }
+      />
 
       <PublicationsListClient
         groupId={groupId}

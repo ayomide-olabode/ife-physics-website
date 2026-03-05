@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { createMyProject, updateMyProject } from '@/server/actions/profileProjects';
@@ -97,9 +97,9 @@ export function ProjectEditor({ open, onOpenChange, initialData }: ProjectEditor
 
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+            <FieldLabel required htmlFor="title">
               Title
-            </Label>
+            </FieldLabel>
             <Input
               id="title"
               value={formData.title}
@@ -110,7 +110,7 @@ export function ProjectEditor({ open, onOpenChange, initialData }: ProjectEditor
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="url">URL Link (Optional)</Label>
+            <FieldLabel htmlFor="url">URL Link (Optional)</FieldLabel>
             <Input
               id="url"
               type="url"
@@ -121,7 +121,7 @@ export function ProjectEditor({ open, onOpenChange, initialData }: ProjectEditor
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
+            <FieldLabel htmlFor="description">Description (Optional)</FieldLabel>
             <Textarea
               id="description"
               value={formData.description}

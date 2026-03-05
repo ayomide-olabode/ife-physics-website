@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FieldLabel } from '@/components/forms/FieldLabel';
 import { createRollOfHonour, updateRollOfHonour } from '@/server/actions/rollOfHonour';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { RollOfHonourImageUploader } from './RollOfHonourImageUploader';
@@ -97,9 +97,9 @@ export function RollOfHonourFormClient({
       <div className="bg-white p-6 rounded-lg border shadow-sm h-fit">
         <form id="roh-form" onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="name" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+            <FieldLabel required htmlFor="name">
               Full Name
-            </Label>
+            </FieldLabel>
             <Input
               id="name"
               value={formData.name}
@@ -111,12 +111,9 @@ export function RollOfHonourFormClient({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="registrationNumber"
-                className="after:content-['*'] after:ml-0.5 after:text-red-500"
-              >
+              <FieldLabel required htmlFor="registrationNumber">
                 Registration Number
-              </Label>
+              </FieldLabel>
               <Input
                 id="registrationNumber"
                 value={formData.registrationNumber}
@@ -129,12 +126,9 @@ export function RollOfHonourFormClient({
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="programme"
-                className="after:content-['*'] after:ml-0.5 after:text-red-500"
-              >
+              <FieldLabel required htmlFor="programme">
                 Programme
-              </Label>
+              </FieldLabel>
               <Input
                 id="programme"
                 value={formData.programme}
@@ -147,9 +141,9 @@ export function RollOfHonourFormClient({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="cgpa" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+              <FieldLabel required htmlFor="cgpa">
                 CGPA
-              </Label>
+              </FieldLabel>
               <Input
                 id="cgpa"
                 type="number"
@@ -164,12 +158,9 @@ export function RollOfHonourFormClient({
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="graduatingYear"
-                className="after:content-['*'] after:ml-0.5 after:text-red-500"
-              >
+              <FieldLabel required htmlFor="graduatingYear">
                 Graduating Year
-              </Label>
+              </FieldLabel>
               <Input
                 id="graduatingYear"
                 type="number"

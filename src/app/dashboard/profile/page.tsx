@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma';
 import { EditProfileForm } from '@/components/dashboard/EditProfileForm';
 import { AvatarUpload } from '@/components/dashboard/AvatarUpload';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { getProfileCompleteness } from '@/server/queries/profileCompleteness';
+import { ProfileCompletenessCard } from '@/components/dashboard/ProfileCompletenessCard';
 
 export default async function ProfilePage({
   searchParams,
@@ -43,6 +45,8 @@ export default async function ProfilePage({
   const params = await searchParams;
   const showOnboarding = params.onboarding === '1';
 
+  const completeness = await getProfileCompleteness(staffId);
+
   return (
     <main className="container mx-auto px-4 py-12 space-y-8 max-w-4xl">
       {showOnboarding && (
@@ -51,6 +55,10 @@ export default async function ProfilePage({
             Welcome! Please take a moment to complete your profile identity to proceed securely.
           </p>
         </div>
+      )}
+
+      {!completeness.isComplete && (
+        <ProfileCompletenessCard completeness={completeness} emphasizeRequired={showOnboarding} />
       )}
 
       <div>

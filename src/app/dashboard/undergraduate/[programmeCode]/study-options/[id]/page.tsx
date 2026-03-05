@@ -55,10 +55,7 @@ export default async function EditStudyOptionPage({ params }: PageProps) {
         title={`Edit Study Option — ${studyOption.name}`}
         description="Update the study option details and manage course mappings."
         actions={
-          <StudyOptionDeleteButton
-            programmeCode={programmeCode}
-            studyOptionId={studyOption.id}
-          />
+          <StudyOptionDeleteButton programmeCode={programmeCode} studyOptionId={studyOption.id} />
         }
       />
 

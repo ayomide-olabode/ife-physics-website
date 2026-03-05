@@ -6,9 +6,9 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { Button } from '@/components/ui/button';
-import { deleteLegacyItem } from '@/server/actions/legacyGallery';
+import { deleteResource } from '@/server/actions/resources';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { Pencil, Trash2, Eye, Search } from 'lucide-react';
+import { Pencil, Trash2, Eye, Search, Link as LinkIcon, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { PublishStatus } from '@prisma/client';
@@ -19,40 +19,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { LegacyGalleryPreviewModal } from './LegacyGalleryPreviewModal';
+import { ResourcePreviewModal } from './ResourcePreviewModal';
 
-type LegacyItem = {
+type ResourceItem = {
   id: string;
   title: string;
-  year: number | null;
-  datesText: string | null;
-  mediaUrl: string;
+  description: string | null;
+  linkUrl: string | null;
+  fileUrl: string | null;
   status: PublishStatus;
   createdAt: Date;
 };
 
 interface Props {
-  data: LegacyItem[];
+  data: ResourceItem[];
   total: number;
   page: number;
   pageSize: number;
   searchQuery?: string;
-  yearQuery?: string;
   statusQuery?: string;
 }
 
-export function LegacyGalleryListClient({
+export function ResourceListClient({
   data,
   total,
   page,
   pageSize,
   searchQuery = '',
-  yearQuery = '',
   statusQuery = 'ALL',
 }: Props) {
   const router = useRouter();
   const [q, setQ] = useState(searchQuery);
-  const [year, setYear] = useState(yearQuery);
   const [status, setStatus] = useState<PublishStatus | 'ALL'>(
     (statusQuery as PublishStatus) || 'ALL',
   );
@@ -63,29 +60,27 @@ export function LegacyGalleryListClient({
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (q) params.set('q', q);
-    if (year) params.set('year', year);
     if (status && status !== 'ALL') params.set('status', status);
     params.set('page', '1');
-    router.push(`/dashboard/content/legacy-gallery?${params.toString()}`);
+    router.push(`/dashboard/content/resources?${params.toString()}`);
   };
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams();
     if (q) params.set('q', q);
-    if (year) params.set('year', year);
     if (status && status !== 'ALL') params.set('status', status);
     params.set('page', newPage.toString());
-    router.push(`/dashboard/content/legacy-gallery?${params.toString()}`);
+    router.push(`/dashboard/content/resources?${params.toString()}`);
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await deleteLegacyItem(deleteTarget);
-      toastSuccess('Legacy item deleted.');
+      await deleteResource(deleteTarget);
+      toastSuccess('Resource deleted.');
       router.refresh();
     } catch (err: unknown) {
-      toastError(err instanceof Error ? err.message : 'Failed to delete item.');
+      toastError(err instanceof Error ? err.message : 'Failed to delete resource.');
     } finally {
       setDeleteTarget(null);
     }
@@ -93,36 +88,39 @@ export function LegacyGalleryListClient({
 
   const columns = [
     {
-      header: 'Photo',
-      accessor: (row: LegacyItem) => (
-        <div className="w-12 h-12 rounded bg-muted overflow-hidden relative shadow-sm border">
-          {/* Using img tag to avoid heavy Next Image components in large lists */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={row.mediaUrl} alt={row.title} className="w-full h-full object-cover" />
+      header: 'Title',
+      accessor: (row: ResourceItem) => <span className="font-medium">{row.title}</span>,
+    },
+    {
+      header: 'Asset',
+      accessor: (row: ResourceItem) => (
+        <div className="flex gap-2">
+          {row.fileUrl && (
+            <span
+              title="Uploaded PDF Document"
+              className="inline-flex items-center justify-center p-1.5 rounded-full bg-blue-100 text-blue-600"
+            >
+              <FileText className="w-3.5 h-3.5" />
+            </span>
+          )}
+          {row.linkUrl && (
+            <span
+              title="External Link"
+              className="inline-flex items-center justify-center p-1.5 rounded-full bg-orange-100 text-orange-600"
+            >
+              <LinkIcon className="w-3.5 h-3.5" />
+            </span>
+          )}
         </div>
       ),
     },
     {
-      header: 'Title',
-      accessor: (row: LegacyItem) => <span className="font-medium">{row.title}</span>,
-    },
-    {
-      header: 'Year / Dates',
-      accessor: (row: LegacyItem) =>
-        row.datesText ||
-        (row.year ? (
-          row.year.toString()
-        ) : (
-          <span className="text-muted-foreground italic">N/A</span>
-        )),
-    },
-    {
       header: 'Status',
-      accessor: (row: LegacyItem) => <StatusBadge status={row.status} />,
+      accessor: (row: ResourceItem) => <StatusBadge status={row.status} />,
     },
     {
       header: 'Created',
-      accessor: (row: LegacyItem) => (
+      accessor: (row: ResourceItem) => (
         <span className="text-muted-foreground">
           {new Date(row.createdAt).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -134,7 +132,7 @@ export function LegacyGalleryListClient({
     },
     {
       header: 'Actions',
-      accessor: (row: LegacyItem) => (
+      accessor: (row: ResourceItem) => (
         <div className="flex items-center gap-2 justify-end">
           <Button
             variant="ghost"
@@ -147,7 +145,7 @@ export function LegacyGalleryListClient({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push(`/dashboard/content/legacy-gallery/${row.id}`)}
+            onClick={() => router.push(`/dashboard/content/resources/${row.id}`)}
           >
             <Pencil className="w-4 h-4 text-muted-foreground" />
           </Button>
@@ -165,19 +163,10 @@ export function LegacyGalleryListClient({
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search titles or text..."
+            placeholder="Search resources..."
             className="pl-9"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-        </div>
-        <div className="w-32">
-          <Input
-            placeholder="Year"
-            type="number"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
         </div>
@@ -199,23 +188,23 @@ export function LegacyGalleryListClient({
 
       {data.length === 0 ? (
         <EmptyState
-          title="No Legacy Items Found"
+          title="No Resources Found"
           description={
-            searchQuery || yearQuery || statusQuery !== 'ALL'
+            searchQuery || statusQuery !== 'ALL'
               ? 'Try adjusting your filters'
-              : 'Start building the Legacy Gallery by adding a new item.'
+              : 'Start adding resources like handbooks, timetables, and links.'
           }
           action={
             <Button
               onClick={() => {
-                if (searchQuery || yearQuery || statusQuery !== 'ALL') {
-                  router.push('/dashboard/content/legacy-gallery');
+                if (searchQuery || statusQuery !== 'ALL') {
+                  router.push('/dashboard/content/resources');
                 } else {
-                  router.push('/dashboard/content/legacy-gallery/new');
+                  router.push('/dashboard/content/resources/new');
                 }
               }}
             >
-              {searchQuery ? 'Clear Filters' : 'Add Your First Item'}
+              {searchQuery ? 'Clear Filters' : 'Add Your First Resource'}
             </Button>
           }
         />
@@ -253,14 +242,14 @@ export function LegacyGalleryListClient({
       )}
 
       {previewTarget && (
-        <LegacyGalleryPreviewModal itemId={previewTarget} onClose={() => setPreviewTarget(null)} />
+        <ResourcePreviewModal itemId={previewTarget} onClose={() => setPreviewTarget(null)} />
       )}
 
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete Legacy Item"
-        description="Are you sure you want to delete this legacy item? This action will hide it from the public."
+        title="Delete Resource Document"
+        description="Are you sure you want to delete this resource? This action cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
         onConfirm={handleDelete}

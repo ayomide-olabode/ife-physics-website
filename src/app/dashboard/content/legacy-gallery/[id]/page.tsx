@@ -20,10 +20,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
         <div>
-          <BackToParent
-            href="/dashboard/content/legacy-gallery"
-            label="Legacy Gallery"
-          />
+          <BackToParent href="/dashboard/content/legacy-gallery" label="Legacy Gallery" />
         </div>
 
         <div className="flex items-center justify-between">

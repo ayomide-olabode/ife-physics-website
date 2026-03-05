@@ -626,9 +626,13 @@ model ResourceItem {
   id          String   @id @default(cuid())
   title       String
   description String?
-  link        String
-  imageUrl    String?
+  linkUrl     String?
+  fileUrl     String?
   category    String?  // e.g., "Apps", "Documents", "Forms"
+
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+  archivedAt  DateTime?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

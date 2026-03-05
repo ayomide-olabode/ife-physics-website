@@ -591,9 +591,9 @@ model RollOfHonourEntry {
   id                String   @id @default(cuid())
   imageUrl           String?
   name               String
-  registrationNumber String?
+  registrationNumber String
   programme          String   // display string ("PHY", etc.)
-  cgpa               Float?
+  cgpa               Float
   graduatingYear     Int
 
   createdAt          DateTime @default(now())

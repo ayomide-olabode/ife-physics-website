@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { setHistoryStatus } from "@/server/actions/history";
-import { toastSuccess, toastError } from "@/lib/toast";
-import { StatusBadge, type PublishStatus } from "@/components/dashboard/StatusBadge";
-import { CheckCircle2, Archive, FileEdit } from "lucide-react";
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { setHistoryStatus } from '@/server/actions/history';
+import { toastSuccess, toastError } from '@/lib/toast';
+import { StatusBadge, type PublishStatus } from '@/components/dashboard/StatusBadge';
+import { CheckCircle2, Archive, FileEdit } from 'lucide-react';
 
 export function HistoryStatusActions({
   historyId,
@@ -26,8 +26,9 @@ export function HistoryStatusActions({
         setStatus(newStatus);
         toastSuccess(`Status changed to ${newStatus}`);
         router.refresh();
-      } catch (err: any) {
-        toastError(err.message || "Failed to change status");
+      } catch (err: unknown) {
+        toastError(err instanceof Error ? err.message : 'Failed to change status.');
+      } finally {
       }
     });
   };
@@ -40,23 +41,23 @@ export function HistoryStatusActions({
       </div>
 
       <div className="space-y-2 pt-4">
-        {status !== "PUBLISHED" && (
+        {status !== 'PUBLISHED' && (
           <Button
             className="w-full justify-start"
             variant="default"
-            onClick={() => handleStatusChange("PUBLISHED")}
+            onClick={() => handleStatusChange('PUBLISHED')}
             disabled={isPending}
           >
             <CheckCircle2 className="mr-2 h-4 w-4" />
             Publish Entry
           </Button>
         )}
-        
-        {status === "PUBLISHED" && (
+
+        {status === 'PUBLISHED' && (
           <Button
             className="w-full justify-start"
             variant="outline"
-            onClick={() => handleStatusChange("DRAFT")}
+            onClick={() => handleStatusChange('DRAFT')}
             disabled={isPending}
           >
             <FileEdit className="mr-2 h-4 w-4" />
@@ -64,11 +65,11 @@ export function HistoryStatusActions({
           </Button>
         )}
 
-        {status !== "ARCHIVED" && (
+        {status !== 'ARCHIVED' && (
           <Button
             className="w-full justify-start text-destructive"
             variant="outline"
-            onClick={() => handleStatusChange("ARCHIVED")}
+            onClick={() => handleStatusChange('ARCHIVED')}
             disabled={isPending}
           >
             <Archive className="mr-2 h-4 w-4" />

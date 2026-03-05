@@ -1,5 +1,5 @@
-import prisma from "@/lib/prisma";
-import { PublishStatus } from "@prisma/client";
+import prisma from '@/lib/prisma';
+import { PublishStatus } from '@prisma/client';
 
 export async function listHistory({
   q,
@@ -8,22 +8,22 @@ export async function listHistory({
   pageSize = 10,
 }: {
   q?: string;
-  status?: PublishStatus | "ALL";
+  status?: PublishStatus | 'ALL';
   page?: number;
   pageSize?: number;
 }) {
-  const where: import("@prisma/client").Prisma.HistoryEntryWhereInput = {
+  const where: import('@prisma/client').Prisma.HistoryEntryWhereInput = {
     deletedAt: null,
   };
 
   if (q) {
     where.OR = [
-      { title: { contains: q, mode: "insensitive" } },
-      { shortDesc: { contains: q, mode: "insensitive" } },
+      { title: { contains: q, mode: 'insensitive' } },
+      { shortDesc: { contains: q, mode: 'insensitive' } },
     ];
   }
 
-  if (status && status !== "ALL") {
+  if (status && status !== 'ALL') {
     where.status = status;
   }
 
@@ -37,7 +37,7 @@ export async function listHistory({
         status: true,
         createdAt: true,
       },
-      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

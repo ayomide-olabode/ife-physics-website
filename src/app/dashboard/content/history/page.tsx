@@ -1,9 +1,9 @@
-import { requireAuth, requireGlobalRole } from "@/lib/guards";
-import { listHistory } from "@/server/queries/history";
-import { PageHeader } from "@/components/dashboard/PageHeader";
-import { AddNewButton } from "@/components/dashboard/AddNewButton";
-import { HistoryListClient } from "@/components/content/HistoryListClient";
-import { PublishStatus, ScopedRole } from "@prisma/client";
+import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { listHistory } from '@/server/queries/history';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { AddNewButton } from '@/components/dashboard/AddNewButton';
+import { HistoryListClient } from '@/components/content/HistoryListClient';
+import { PublishStatus, ScopedRole } from '@prisma/client';
 
 export default async function Page({
   searchParams,
@@ -14,7 +14,7 @@ export default async function Page({
   await requireGlobalRole(session, ScopedRole.EDITOR);
 
   const params = await searchParams;
-  const page = Math.max(1, parseInt(params.page || "1", 10));
+  const page = Math.max(1, parseInt(params.page || '1', 10));
   const q = params.q;
   const status = (params.status || undefined) as PublishStatus | undefined;
 

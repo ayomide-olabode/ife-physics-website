@@ -3,29 +3,24 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { StatusBadge, type PublishStatus } from '@/components/dashboard/StatusBadge';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { Button } from '@/components/ui/button';
-import { deleteHistory } from '@/server/actions/history';
-import { toastSuccess } from '@/lib/toast';
+import { deleteRollOfHonour } from '@/server/actions/rollOfHonour';
+import { toastSuccess, toastError } from '@/lib/toast';
 import { Pencil, Trash2, Eye, Search } from 'lucide-react';
-import { HistoryPreviewModal } from './HistoryPreviewModal';
+import { RollOfHonourPreviewModal } from './RollOfHonourPreviewModal';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
-type HistoryItem = {
+type RollOfHonourItem = {
   id: string;
-  title: string;
-  status: PublishStatus;
-  date: Date;
+  name: string;
+  registrationNumber: string;
+  programme: string;
+  cgpa: number;
+  graduatingYear: number;
+  imageUrl: string | null;
   createdAt: Date;
 };
 
@@ -36,16 +31,18 @@ type PaginationInfo = {
   totalPages: number;
 };
 
-export function HistoryListClient({
+export function RollOfHonourListClient({
   items,
   pagination,
   searchQ,
-  searchStatus,
+  searchYear,
+  searchProg,
 }: {
-  items: HistoryItem[];
+  items: RollOfHonourItem[];
   pagination: PaginationInfo;
   searchQ?: string;
-  searchStatus?: PublishStatus;
+  searchYear?: number;
+  searchProg?: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -54,35 +51,50 @@ export function HistoryListClient({
 
   // Filters state
   const [q, setQ] = useState(searchQ || '');
-  const [status, setStatus] = useState<PublishStatus | 'ALL'>(searchStatus || 'ALL');
+  const [year, setYear] = useState(searchYear ? String(searchYear) : '');
+  const [prog, setProg] = useState(searchProg || '');
 
   const handleApplyFilters = () => {
     const params = new URLSearchParams();
     if (q) params.set('q', q);
-    if (status && status !== 'ALL') params.set('status', status);
+    if (year) params.set('graduatingYear', year);
+    if (prog) params.set('programme', prog);
 
     startTransition(() => {
-      router.push(`/dashboard/content/history?${params.toString()}`);
+      router.push(`/dashboard/content/roll-of-honour?${params.toString()}`);
     });
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    const res = await deleteHistory(deleteTarget);
-    toastSuccess('History entry archived/deleted.');
-    router.refresh();
-    setDeleteTarget(null);
+    try {
+      await deleteRollOfHonour(deleteTarget);
+      toastSuccess('Roll of Honour entry archived/deleted.');
+      router.refresh();
+    } catch {
+      toastError('Failed to delete entry');
+    } finally {
+      setDeleteTarget(null);
+    }
   };
 
-  const headers = ['Year / Date', 'Title', 'Status', 'Actions'];
+  const headers = ['Year', 'Name', 'Reg No.', 'Programme', 'CGPA', 'Actions'];
   const rows = items.map((item) => [
-    <span key={`d-${item.id}`} className="text-sm font-medium">
-      {item.date.getFullYear()}
+    <span key={`y-${item.id}`} className="text-sm font-medium">
+      {item.graduatingYear}
     </span>,
-    <span key={`t-${item.id}`} className="font-medium text-primary">
-      {item.title}
+    <span key={`n-${item.id}`} className="font-medium text-primary">
+      {item.name}
     </span>,
-    <StatusBadge key={`s-${item.id}`} status={item.status} />,
+    <span key={`r-${item.id}`} className="text-sm">
+      {item.registrationNumber}
+    </span>,
+    <span key={`p-${item.id}`} className="text-sm text-muted-foreground whitespace-nowrap">
+      {item.programme}
+    </span>,
+    <span key={`c-${item.id}`} className="text-sm font-medium">
+      {item.cgpa}
+    </span>,
     <div key={`a-${item.id}`} className="flex items-center gap-2">
       <Button
         variant="ghost"
@@ -92,7 +104,7 @@ export function HistoryListClient({
       >
         <Eye className="h-4 w-4" />
       </Button>
-      <Link href={`/dashboard/content/history/${item.id}`}>
+      <Link href={`/dashboard/content/roll-of-honour/${item.id}`}>
         <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
           <Pencil className="h-4 w-4" />
         </Button>
@@ -110,33 +122,38 @@ export function HistoryListClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4 bg-white p-4 rounded-lg border shadow-sm">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-lg border shadow-sm">
+        <div className="relative flex-1 w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search title or description..."
+            placeholder="Search name, reg no..."
             className="pl-8"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()}
           />
         </div>
-        <div className="w-48">
-          <Select value={status} onValueChange={(val: PublishStatus | 'ALL') => setStatus(val)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Statuses</SelectItem>
-              <SelectItem value="DRAFT">Draft</SelectItem>
-              <SelectItem value="PUBLISHED">Published</SelectItem>
-              <SelectItem value="ARCHIVED">Archived</SelectItem>
-            </SelectContent>
-          </Select>
+
+        <div className="flex flex-1 gap-4 w-full md:w-auto">
+          <Input
+            placeholder="Year (e.g. 2024)"
+            type="number"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()}
+            className="w-32"
+          />
+          <Input
+            placeholder="Programme filter..."
+            value={prog}
+            onChange={(e) => setProg(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()}
+            className="flex-1 max-w-[200px]"
+          />
+          <Button onClick={handleApplyFilters} disabled={isPending}>
+            Apply
+          </Button>
         </div>
-        <Button onClick={handleApplyFilters} disabled={isPending}>
-          Apply
-        </Button>
       </div>
 
       <DataTable
@@ -144,8 +161,8 @@ export function HistoryListClient({
         rows={rows}
         emptyState={
           <EmptyState
-            title="No history entries found"
-            description="Create your first timeline entry to get started."
+            title="No students found"
+            description="Create your first Roll of Honour entry to get started."
           />
         }
         footer={
@@ -162,7 +179,7 @@ export function HistoryListClient({
                     onClick={() => {
                       const params = new URLSearchParams(window.location.search);
                       params.set('page', String(pagination.page - 1));
-                      router.push(`/dashboard/content/history?${params.toString()}`);
+                      router.push(`/dashboard/content/roll-of-honour?${params.toString()}`);
                     }}
                   >
                     Previous
@@ -175,7 +192,7 @@ export function HistoryListClient({
                     onClick={() => {
                       const params = new URLSearchParams(window.location.search);
                       params.set('page', String(pagination.page + 1));
-                      router.push(`/dashboard/content/history?${params.toString()}`);
+                      router.push(`/dashboard/content/roll-of-honour?${params.toString()}`);
                     }}
                   >
                     Next
@@ -190,15 +207,15 @@ export function HistoryListClient({
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete History Entry"
-        description="Are you sure you want to delete this timeline entry? It will be archived and no longer visible."
+        title="Delete Roll of Honour Entry"
+        description="Are you sure you want to delete this student from the Roll of Honour? This action cannot be undone."
         confirmText="Delete"
         onConfirm={handleDelete}
         destructive
       />
 
       {previewTarget && (
-        <HistoryPreviewModal historyId={previewTarget} onClose={() => setPreviewTarget(null)} />
+        <RollOfHonourPreviewModal entryId={previewTarget} onClose={() => setPreviewTarget(null)} />
       )}
     </div>
   );

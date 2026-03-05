@@ -1,10 +1,10 @@
-import { requireAuth, requireGlobalRole } from "@/lib/guards";
-import { PageHeader } from "@/components/dashboard/PageHeader";
-import { HistoryFormClient } from "@/components/content/HistoryFormClient";
-import { ScopedRole } from "@prisma/client";
-import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { HistoryFormClient } from '@/components/content/HistoryFormClient';
+import { ScopedRole } from '@prisma/client';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default async function Page() {
   const session = await requireAuth();

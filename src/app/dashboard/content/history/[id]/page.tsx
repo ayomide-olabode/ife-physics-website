@@ -1,13 +1,13 @@
-import { requireAuth, requireGlobalRole } from "@/lib/guards";
-import { getHistoryById } from "@/server/queries/history";
-import { PageHeader } from "@/components/dashboard/PageHeader";
-import { HistoryFormClient } from "@/components/content/HistoryFormClient";
-import { HistoryStatusActions } from "@/components/content/HistoryStatusActions";
-import { ScopedRole } from "@prisma/client";
-import { notFound } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { getHistoryById } from '@/server/queries/history';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { HistoryFormClient } from '@/components/content/HistoryFormClient';
+import { HistoryStatusActions } from '@/components/content/HistoryStatusActions';
+import { ScopedRole } from '@prisma/client';
+import { notFound } from 'next/navigation';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireAuth();
@@ -33,13 +33,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <div className="lg:col-span-2">
           <HistoryFormClient initialData={data} />
         </div>
-        
+
         <div className="lg:col-span-1 border rounded-lg p-6 bg-white shadow-sm h-fit space-y-4">
           <h3 className="font-semibold text-lg pb-2 border-b">Publishing Workflow</h3>
-          <HistoryStatusActions 
-            historyId={data.id} 
-            currentStatus={data.status} 
-          />
+          <HistoryStatusActions historyId={data.id} currentStatus={data.status} />
         </div>
       </div>
     </div>

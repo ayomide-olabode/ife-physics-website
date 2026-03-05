@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { createHistory, updateHistory } from "@/server/actions/history";
-import { toastSuccess, toastError } from "@/lib/toast";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { createHistory, updateHistory } from '@/server/actions/history';
+import { toastSuccess, toastError } from '@/lib/toast';
 
 type FormDataState = {
   title: string;
@@ -26,27 +26,27 @@ export function HistoryFormClient({
   const isEdit = !!initialData?.id;
 
   const [formData, setFormData] = useState<FormDataState>(() => ({
-    title: initialData?.title || "",
-    date: initialData?.date ? new Date(initialData.date).toISOString().split("T")[0] : "",
-    shortDesc: initialData?.shortDesc || "",
+    title: initialData?.title || '',
+    date: initialData?.date ? new Date(initialData.date).toISOString().split('T')[0] : '',
+    shortDesc: initialData?.shortDesc || '',
   }));
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim()) {
-      toastError("Title is required");
+      toastError('Title is required');
       return;
     }
     if (!formData.date.trim()) {
-      toastError("Date is required");
+      toastError('Date is required');
       return;
     }
     if (!formData.shortDesc.trim()) {
-      toastError("Description is required");
+      toastError('Description is required');
       return;
     }
     if (formData.shortDesc.length > 2000) {
-      toastError("Description must be under 2000 characters");
+      toastError('Description must be under 2000 characters');
       return;
     }
 
@@ -60,18 +60,18 @@ export function HistoryFormClient({
     try {
       if (isEdit && initialData?.id) {
         await updateHistory(initialData.id, payload);
-        toastSuccess("History entry updated successfully.");
+        toastSuccess('History entry updated successfully.');
       } else {
         const res = await createHistory(payload);
-        toastSuccess("History entry created as Draft.");
+        toastSuccess('History entry created as Draft.');
         router.push(`/dashboard/content/history/${res.id}`);
         return; // Avoid push to index during redirect
       }
 
-      router.push("/dashboard/content/history");
+      router.push('/dashboard/content/history');
       router.refresh();
-    } catch (err: any) {
-      toastError(err.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      toastError(err instanceof Error ? err.message : 'An unexpected error occurred.');
     } finally {
       setIsSubmitting(false);
     }
@@ -110,7 +110,10 @@ export function HistoryFormClient({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="shortDesc" className="after:content-['*'] after:ml-0.5 after:text-red-500">
+          <Label
+            htmlFor="shortDesc"
+            className="after:content-['*'] after:ml-0.5 after:text-red-500"
+          >
             Short Description
           </Label>
           <Textarea
@@ -128,13 +131,13 @@ export function HistoryFormClient({
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/dashboard/content/history")}
+            onClick={() => router.push('/dashboard/content/history')}
             disabled={isSubmitting}
           >
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : isEdit ? "Save Changes" : "Create Draft"}
+            {isSubmitting ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Draft'}
           </Button>
         </div>
       </form>

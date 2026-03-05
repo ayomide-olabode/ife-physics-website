@@ -13,7 +13,13 @@ import {
 } from '@/server/actions/eventsOpportunities';
 import { toastSuccess, toastError } from '@/lib/toast';
 
-export function EOStatusActions({ id, status }: { id: string; status: PublishStatus }) {
+export function EventOpportunityStatusActions({
+  id,
+  status,
+}: {
+  id: string;
+  status: PublishStatus;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [confirmAction, setConfirmAction] = useState<{
@@ -36,7 +42,7 @@ export function EOStatusActions({ id, status }: { id: string; status: PublishSta
       onClick: () =>
         setConfirmAction({
           title: 'Publish?',
-          description: 'This will make the item publicly visible.',
+          description: 'This will make it publicly visible.',
           confirmText: 'Publish',
           destructive: false,
           action: () => publishEventOpportunity(id),
@@ -49,7 +55,7 @@ export function EOStatusActions({ id, status }: { id: string; status: PublishSta
       onClick: () =>
         setConfirmAction({
           title: 'Unpublish?',
-          description: 'This will revert the item to draft status.',
+          description: 'This will revert it to draft.',
           confirmText: 'Unpublish',
           destructive: false,
           action: () => unpublishEventOpportunity(id),
@@ -62,7 +68,7 @@ export function EOStatusActions({ id, status }: { id: string; status: PublishSta
       onClick: () =>
         setConfirmAction({
           title: 'Archive?',
-          description: 'Archived items are hidden from all public pages.',
+          description: 'Archived items are hidden from public pages.',
           confirmText: 'Archive',
           destructive: false,
           action: () => archiveEventOpportunity(id),
@@ -75,7 +81,7 @@ export function EOStatusActions({ id, status }: { id: string; status: PublishSta
       onClick: () =>
         setConfirmAction({
           title: 'Delete?',
-          description: 'This will soft-delete the item.',
+          description: 'This will soft-delete this item.',
           confirmText: 'Delete',
           destructive: true,
           action: () => deleteEventOpportunity(id),

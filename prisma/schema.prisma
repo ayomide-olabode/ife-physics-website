@@ -92,6 +92,38 @@ enum ThesisStatus {
   DISCONTINUED
 }
 
+enum EventOpportunityKind {
+  EVENT
+  OPPORTUNITY
+}
+
+enum EventCategory {
+  SEMINAR
+  LECTURE
+  COLLOQUIUM
+  WORKSHOP
+  TRAINING
+  THESIS_DEFENSE
+  CONFERENCE
+  SYMPOSIUM
+  SCHOOL
+  MEETING
+  SOCIAL
+  OUTREACH
+  COMPETITION
+}
+
+enum OpportunityCategory {
+  GRANT
+  FUNDING
+  FELLOWSHIP
+  SCHOLARSHIP
+  JOBS
+  INTERNSHIPS
+  EXCHANGE
+  COLLABORATION
+}
+
 //////////////////////////////////////////////////////
 // STAFF & AUTHENTICATION
 //////////////////////////////////////////////////////
@@ -495,24 +527,27 @@ model News {
 }
 
 model EventOpportunity {
-  id          String        @id @default(cuid())
-  title       String
-  type        String        // "EVENT" | "OPPORTUNITY" (kept flexible)
-  startDate   DateTime?
-  endDate     DateTime?
-  venue       String?
-  link        String?
-  deadline    DateTime?
+  id                   String               @id @default(cuid())
+  title                String
+  kind                 EventOpportunityKind
+  eventCategory        EventCategory?
+  opportunityCategory  OpportunityCategory?
+  description          String?
+  startDate            DateTime?
+  endDate              DateTime?
+  venue                String?
+  linkUrl              String?
+  deadline             DateTime?
 
-  status      PublishStatus @default(DRAFT)
-  publishedAt DateTime?
-  archivedAt  DateTime?
+  status               PublishStatus        @default(DRAFT)
+  publishedAt          DateTime?
+  archivedAt           DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  deletedAt            DateTime?
 
-  @@index([type, deadline])
+  @@index([kind, deadline])
   @@index([status])
 }
 

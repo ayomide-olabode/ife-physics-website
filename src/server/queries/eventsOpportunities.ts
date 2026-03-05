@@ -1,39 +1,41 @@
 import prisma from '@/lib/prisma';
-import { PublishStatus, Prisma } from '.prisma/client';
+import {
+  EventOpportunityKind,
+  EventCategory,
+  OpportunityCategory,
+  PublishStatus,
+} from '.prisma/client';
 
 export async function listEventsOpportunities({
   page = 1,
   pageSize = 20,
   status,
   kind,
+  eventCategory,
+  opportunityCategory,
   q,
-  upcomingOnly,
 }: {
   page?: number;
   pageSize?: number;
   status?: PublishStatus;
-  kind?: string;
+  kind?: EventOpportunityKind;
+  eventCategory?: EventCategory;
+  opportunityCategory?: OpportunityCategory;
   q?: string;
-  upcomingOnly?: boolean;
 } = {}) {
-  const where: Prisma.EventOpportunityWhereInput = {
-    deletedAt: null,
-    ...(status ? { status } : {}),
-    ...(kind ? { type: kind } : {}),
-    ...(q
-      ? {
-          OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { venue: { contains: q, mode: 'insensitive' } },
-          ],
-        }
-      : {}),
-    ...(upcomingOnly
-      ? {
-          OR: [{ startDate: { gte: new Date() } }, { deadline: { gte: new Date() } }],
-        }
-      : {}),
-  };
+  const where: Record<string, unknown> = { deletedAt: null };
+
+  if (status) where.status = status;
+  if (kind) where.kind = kind;
+  if (eventCategory) where.eventCategory = eventCategory;
+  if (opportunityCategory) where.opportunityCategory = opportunityCategory;
+
+  if (q) {
+    where.OR = [
+      { title: { contains: q, mode: 'insensitive' } },
+      { venue: { contains: q, mode: 'insensitive' } },
+    ];
+  }
 
   const [items, total] = await Promise.all([
     prisma.eventOpportunity.findMany({
@@ -41,7 +43,9 @@ export async function listEventsOpportunities({
       select: {
         id: true,
         title: true,
-        type: true,
+        kind: true,
+        eventCategory: true,
+        opportunityCategory: true,
         startDate: true,
         endDate: true,
         venue: true,
@@ -49,7 +53,7 @@ export async function listEventsOpportunities({
         status: true,
         createdAt: true,
       },
-      orderBy: [{ deadline: { sort: 'asc', nulls: 'last' } }, { createdAt: 'desc' }],
+      orderBy: { createdAt: 'desc' },
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

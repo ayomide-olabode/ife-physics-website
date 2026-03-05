@@ -5,29 +5,48 @@ import prisma from '@/lib/prisma';
 import { logAudit } from '@/lib/audit';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { ScopedRole } from '.prisma/client';
+import {
+  ScopedRole,
+  EventOpportunityKind,
+  EventCategory,
+  OpportunityCategory,
+} from '.prisma/client';
 
-const BASE_PATH = '/dashboard/communication/events-opportunities';
+const EO_PATH = '/dashboard/communication/events-opportunities';
 
-const eoSchema = z
-  .object({
-    title: z.string().min(1, 'Title is required.').max(200),
-    type: z.enum(['EVENT', 'OPPORTUNITY']),
-    startDate: z.string().optional().or(z.literal('')),
-    endDate: z.string().optional().or(z.literal('')),
-    venue: z.string().max(200).optional().or(z.literal('')),
-    link: z.string().url().optional().or(z.literal('')),
-    deadline: z.string().optional().or(z.literal('')),
-  })
-  .refine(
-    (d) => {
-      if (d.startDate && d.endDate) {
-        return new Date(d.startDate) <= new Date(d.endDate);
-      }
-      return true;
-    },
-    { message: 'Start date must be before or equal to end date.', path: ['endDate'] },
-  );
+const baseSchema = z.object({
+  title: z.string().min(1, 'Title is required.').max(200),
+  kind: z.nativeEnum(EventOpportunityKind),
+  eventCategory: z.nativeEnum(EventCategory).nullable().optional(),
+  opportunityCategory: z.nativeEnum(OpportunityCategory).nullable().optional(),
+  description: z.string().max(4000).optional().or(z.literal('')),
+  startDate: z.string().optional().or(z.literal('')),
+  endDate: z.string().optional().or(z.literal('')),
+  venue: z.string().max(200).optional().or(z.literal('')),
+  linkUrl: z.string().url().optional().or(z.literal('')),
+  deadline: z.string().optional().or(z.literal('')),
+});
+
+const eoSchema = baseSchema.superRefine((data, ctx) => {
+  if (data.kind === 'EVENT') {
+    if (!data.eventCategory) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Category is required for Events.',
+        path: ['eventCategory'],
+      });
+    }
+  }
+  if (data.kind === 'OPPORTUNITY') {
+    if (!data.opportunityCategory) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Category is required for Opportunities.',
+        path: ['opportunityCategory'],
+      });
+    }
+  }
+});
 
 type ActionResponse = {
   success: boolean;
@@ -37,7 +56,7 @@ type ActionResponse = {
 };
 
 export async function createEventOpportunity(
-  data: z.infer<typeof eoSchema>,
+  data: z.infer<typeof baseSchema>,
 ): Promise<ActionResponse> {
   const session = await requireAuth();
   await requireGlobalRole(session, ScopedRole.EDITOR);
@@ -48,11 +67,14 @@ export async function createEventOpportunity(
     const item = await prisma.eventOpportunity.create({
       data: {
         title: v.title,
-        type: v.type,
+        kind: v.kind,
+        eventCategory: v.kind === 'EVENT' ? (v.eventCategory ?? null) : null,
+        opportunityCategory: v.kind === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
+        description: v.description || null,
         startDate: v.startDate ? new Date(v.startDate) : null,
         endDate: v.endDate ? new Date(v.endDate) : null,
         venue: v.venue || null,
-        link: v.link || null,
+        linkUrl: v.linkUrl || null,
         deadline: v.deadline ? new Date(v.deadline) : null,
         status: 'DRAFT',
       },
@@ -64,10 +86,10 @@ export async function createEventOpportunity(
       action: 'EVENT_OPPORTUNITY_CREATED',
       entityType: 'EventOpportunity',
       entityId: item.id,
-      snapshot: { title: v.title, type: v.type },
+      snapshot: { title: v.title, kind: v.kind },
     });
 
-    revalidatePath(BASE_PATH);
+    revalidatePath(EO_PATH);
     return { success: true, data: { id: item.id } };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -80,7 +102,7 @@ export async function createEventOpportunity(
 
 export async function updateEventOpportunity(
   id: string,
-  data: z.infer<typeof eoSchema>,
+  data: z.infer<typeof baseSchema>,
 ): Promise<ActionResponse> {
   const session = await requireAuth();
   await requireGlobalRole(session, ScopedRole.EDITOR);
@@ -92,11 +114,14 @@ export async function updateEventOpportunity(
       where: { id },
       data: {
         title: v.title,
-        type: v.type,
+        kind: v.kind,
+        eventCategory: v.kind === 'EVENT' ? (v.eventCategory ?? null) : null,
+        opportunityCategory: v.kind === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
+        description: v.description || null,
         startDate: v.startDate ? new Date(v.startDate) : null,
         endDate: v.endDate ? new Date(v.endDate) : null,
         venue: v.venue || null,
-        link: v.link || null,
+        linkUrl: v.linkUrl || null,
         deadline: v.deadline ? new Date(v.deadline) : null,
       },
     });
@@ -106,11 +131,11 @@ export async function updateEventOpportunity(
       action: 'EVENT_OPPORTUNITY_UPDATED',
       entityType: 'EventOpportunity',
       entityId: id,
-      snapshot: { title: v.title, type: v.type },
+      snapshot: { title: v.title, kind: v.kind },
     });
 
-    revalidatePath(BASE_PATH);
-    revalidatePath(`${BASE_PATH}/${id}`);
+    revalidatePath(EO_PATH);
+    revalidatePath(`${EO_PATH}/${id}`);
     return { success: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -130,7 +155,6 @@ export async function deleteEventOpportunity(id: string): Promise<ActionResponse
       where: { id },
       data: { deletedAt: new Date() },
     });
-
     await logAudit({
       actorId: session.user.userId,
       action: 'EVENT_OPPORTUNITY_DELETED',
@@ -138,8 +162,7 @@ export async function deleteEventOpportunity(id: string): Promise<ActionResponse
       entityId: id,
       snapshot: {},
     });
-
-    revalidatePath(BASE_PATH);
+    revalidatePath(EO_PATH);
     return { success: true };
   } catch (error) {
     console.error('Failed to delete:', error);
@@ -156,7 +179,6 @@ export async function publishEventOpportunity(id: string): Promise<ActionRespons
       where: { id },
       data: { status: 'PUBLISHED', publishedAt: new Date() },
     });
-
     await logAudit({
       actorId: session.user.userId,
       action: 'EVENT_OPPORTUNITY_PUBLISHED',
@@ -164,9 +186,8 @@ export async function publishEventOpportunity(id: string): Promise<ActionRespons
       entityId: id,
       snapshot: {},
     });
-
-    revalidatePath(BASE_PATH);
-    revalidatePath(`${BASE_PATH}/${id}`);
+    revalidatePath(EO_PATH);
+    revalidatePath(`${EO_PATH}/${id}`);
     return { success: true };
   } catch (error) {
     console.error('Failed to publish:', error);
@@ -183,7 +204,6 @@ export async function unpublishEventOpportunity(id: string): Promise<ActionRespo
       where: { id },
       data: { status: 'DRAFT', publishedAt: null },
     });
-
     await logAudit({
       actorId: session.user.userId,
       action: 'EVENT_OPPORTUNITY_UNPUBLISHED',
@@ -191,9 +211,8 @@ export async function unpublishEventOpportunity(id: string): Promise<ActionRespo
       entityId: id,
       snapshot: {},
     });
-
-    revalidatePath(BASE_PATH);
-    revalidatePath(`${BASE_PATH}/${id}`);
+    revalidatePath(EO_PATH);
+    revalidatePath(`${EO_PATH}/${id}`);
     return { success: true };
   } catch (error) {
     console.error('Failed to unpublish:', error);
@@ -210,7 +229,6 @@ export async function archiveEventOpportunity(id: string): Promise<ActionRespons
       where: { id },
       data: { status: 'ARCHIVED', archivedAt: new Date() },
     });
-
     await logAudit({
       actorId: session.user.userId,
       action: 'EVENT_OPPORTUNITY_ARCHIVED',
@@ -218,9 +236,8 @@ export async function archiveEventOpportunity(id: string): Promise<ActionRespons
       entityId: id,
       snapshot: {},
     });
-
-    revalidatePath(BASE_PATH);
-    revalidatePath(`${BASE_PATH}/${id}`);
+    revalidatePath(EO_PATH);
+    revalidatePath(`${EO_PATH}/${id}`);
     return { success: true };
   } catch (error) {
     console.error('Failed to archive:', error);

@@ -4,8 +4,8 @@ import { notFound } from 'next/navigation';
 import { getEventOpportunityById } from '@/server/queries/eventsOpportunities';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { PageHeader } from '@/components/dashboard/PageHeader';
-import { EOFormClient } from '@/components/communication/EOFormClient';
-import { EOStatusActions } from '@/components/communication/EOStatusActions';
+import { EventOpportunityFormClient } from '@/components/communication/EventOpportunityFormClient';
+import { EventOpportunityStatusActions } from '@/components/communication/EventOpportunityStatusActions';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireAuth();
@@ -26,18 +26,21 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       />
       <div className="flex items-start justify-between flex-wrap gap-4">
         <PageHeader title="Edit Event / Opportunity" description={`Editing "${item.title}"`} />
-        <EOStatusActions id={item.id} status={item.status} />
+        <EventOpportunityStatusActions id={item.id} status={item.status} />
       </div>
       <div className="rounded-lg border bg-card p-6">
-        <EOFormClient
+        <EventOpportunityFormClient
           initial={{
             id: item.id,
             title: item.title,
-            type: item.type,
+            kind: item.kind,
+            eventCategory: item.eventCategory,
+            opportunityCategory: item.opportunityCategory,
+            description: item.description,
             startDate: item.startDate?.toISOString() ?? null,
             endDate: item.endDate?.toISOString() ?? null,
             venue: item.venue,
-            link: item.link,
+            linkUrl: item.linkUrl,
             deadline: item.deadline?.toISOString() ?? null,
           }}
         />

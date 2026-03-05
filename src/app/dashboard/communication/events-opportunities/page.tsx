@@ -3,7 +3,9 @@ import { ScopedRole } from '.prisma/client';
 import { listEventsOpportunities } from '@/server/queries/eventsOpportunities';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { AddNewButton } from '@/components/dashboard/AddNewButton';
-import { EOListClient } from '@/components/communication/EOListClient';
+import { EventOpportunityListClient } from '@/components/communication/EventOpportunityListClient';
+
+const BASE_PATH = '/dashboard/communication/events-opportunities';
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const session = await requireAuth();
@@ -22,11 +24,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
       <div className="flex items-center justify-between">
         <PageHeader
           title="Events & Opportunities"
-          description="Manage events, conferences, workshops, and opportunities."
+          description="Manage events, seminars, grants, and other opportunities."
         />
-        <AddNewButton href="/dashboard/communication/events-opportunities/new" label="New Item" />
+        <AddNewButton href={`${BASE_PATH}/new`} label="New Item" />
       </div>
-      <EOListClient items={items} pagination={{ page, totalPages, total }} />
+      <EventOpportunityListClient
+        items={items}
+        pagination={{ page, totalPages, total }}
+        basePath={BASE_PATH}
+      />
     </div>
   );
 }

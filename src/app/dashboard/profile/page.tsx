@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/guards';
 import prisma from '@/lib/prisma';
 import { EditProfileForm } from '@/components/dashboard/EditProfileForm';
+import { AvatarUpload } from '@/components/dashboard/AvatarUpload';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export default async function ProfilePage({
@@ -25,7 +26,7 @@ export default async function ProfilePage({
 
   const staff = await prisma.staff.findUnique({
     where: { id: staffId },
-    select: { id: true, firstName: true, lastName: true },
+    select: { id: true, firstName: true, lastName: true, profileImageUrl: true },
   });
 
   if (!staff) {
@@ -54,6 +55,14 @@ export default async function ProfilePage({
 
       <div>
         <PageHeader title="My Profile" description="Manage your foundational registry details." />
+      </div>
+
+      <div className="rounded-lg border bg-card p-6">
+        <h2 className="text-xl font-semibold mb-6 border-b pb-2">Profile Image</h2>
+        <AvatarUpload
+          currentImageUrl={staff.profileImageUrl}
+          fallbackText={staff.firstName?.[0] || 'S'}
+        />
       </div>
 
       <div className="rounded-lg border bg-card p-6">

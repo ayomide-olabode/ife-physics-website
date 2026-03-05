@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { ProgrammeCode } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { Button } from '@/components/ui/button';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { getUndergraduateProgram } from '@/server/queries/undergraduateProgram';
 import { UndergraduateProgramEditor } from '@/components/academics/UndergraduateProgramEditor';
@@ -32,6 +34,32 @@ export default async function UndergraduateProgrammeEditorPage({ params }: PageP
       />
 
       <UndergraduateProgramEditor programmeCode={programmeCode} initialData={programData} />
+
+      {/* Related Pages */}
+      <section className="rounded-lg border bg-card p-6 space-y-4">
+        <h2 className="text-lg font-semibold">Course &amp; Study Options Management</h2>
+        <p className="text-sm text-muted-foreground">
+          Courses and study options are managed separately. Add or edit details using the links
+          below.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}/courses`}>
+              Manage Courses
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}/courses/new`}>
+              Create New Course
+            </Link>
+          </Button>
+          <Button variant="secondary" asChild>
+            <Link href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}/study-options`}>
+              Manage Study Options
+            </Link>
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }

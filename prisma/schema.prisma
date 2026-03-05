@@ -320,6 +320,9 @@ model StudentThesis {
 
   year      Int
   title     String
+  studentName String?
+  programme   String?
+  degreeLevel String?
   status    ThesisStatus
 
   createdAt DateTime @default(now())

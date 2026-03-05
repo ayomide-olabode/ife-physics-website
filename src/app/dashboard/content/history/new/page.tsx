@@ -1,7 +1,27 @@
-export default function Page() {
+import { requireAuth, requireGlobalRole } from "@/lib/guards";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { HistoryFormClient } from "@/components/content/HistoryFormClient";
+import { ScopedRole } from "@prisma/client";
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
+export default async function Page() {
+  const session = await requireAuth();
+  await requireGlobalRole(session, ScopedRole.EDITOR);
+
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">New History Entry</h1>
-    </main>
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        <Link href="/dashboard/content/history">
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        </Link>
+        <PageHeader title="New History Entry" />
+      </div>
+
+      <HistoryFormClient />
+    </div>
   );
 }

@@ -1,7 +1,22 @@
-export default function Page() {
+import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { ScopedRole } from '.prisma/client';
+import { BackToParent } from '@/components/dashboard/BackToParent';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { SpotlightFormClient } from '@/components/communication/SpotlightFormClient';
+
+const BASE_PATH = '/dashboard/communication/spotlight';
+
+export default async function Page() {
+  const session = await requireAuth();
+  await requireGlobalRole(session, ScopedRole.EDITOR);
+
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">New Spotlight</h1>
-    </main>
+    <div className="space-y-6">
+      <BackToParent href={BASE_PATH} label="Back to Spotlight" />
+      <PageHeader title="New Spotlight Item" description="Create a new feature for the homepage." />
+      <div className="rounded-lg border bg-card p-6">
+        <SpotlightFormClient />
+      </div>
+    </div>
   );
 }

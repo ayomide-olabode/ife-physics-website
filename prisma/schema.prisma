@@ -570,16 +570,21 @@ model Spotlight {
 }
 
 model HistoryEntry {
-  id        String   @id @default(cuid())
-  date      DateTime
-  title     String
-  shortDesc String
+  id          String   @id @default(cuid())
+  date        DateTime
+  title       String
+  shortDesc   String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+  archivedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
 
   @@index([date])
+  @@index([status])
 }
 
 model RollOfHonourEntry {

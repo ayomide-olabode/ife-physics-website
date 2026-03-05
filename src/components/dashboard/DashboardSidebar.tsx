@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import { LogOut } from 'lucide-react';
+import { useDashboardShortcuts } from './useDashboardShortcuts';
 
 export type NavItem = {
   label: string;
@@ -42,7 +43,8 @@ export function DashboardSidebar({ items }: { items: NavItem[] }) {
           <NavLink key={item.href} item={item} pathname={pathname} />
         ))}
       </nav>
-      <div className="mt-auto pt-6">
+      <div className="mt-auto pt-6 flex flex-col gap-2">
+        <p className="px-3 text-xs text-muted-foreground font-mono">Shortcut: Ctrl+Alt+M</p>
         <LogoutButton
           variant="ghost"
           className="w-full justify-start text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -58,6 +60,8 @@ export function DashboardSidebar({ items }: { items: NavItem[] }) {
 export function MobileSidebar({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  useDashboardShortcuts(() => setOpen((prev) => !prev));
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -88,7 +92,8 @@ export function MobileSidebar({ items }: { items: NavItem[] }) {
             </div>
           ))}
         </nav>
-        <div className="mt-auto pt-6">
+        <div className="mt-auto pt-6 flex flex-col gap-2">
+          <p className="px-3 text-xs text-muted-foreground font-mono">Shortcut: Ctrl+Alt+M</p>
           <LogoutButton
             variant="ghost"
             className="w-full justify-start text-muted-foreground hover:bg-muted hover:text-foreground"

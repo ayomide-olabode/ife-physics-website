@@ -1,7 +1,24 @@
-export default function Page() {
+import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { LegacyGalleryFormClient } from '@/components/content/LegacyGalleryFormClient';
+import { ScopedRole } from '@prisma/client';
+import { BackToParent } from '@/components/dashboard/BackToParent';
+
+export default async function Page() {
+  const session = await requireAuth();
+  await requireGlobalRole(session, ScopedRole.EDITOR);
+
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">New Gallery Entry</h1>
-    </main>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-2">
+        <BackToParent href="/dashboard/content/legacy-gallery" label="Legacy Gallery" />
+        <PageHeader
+          title="New Legacy Item"
+          description="Add a new historical item or distinguished leader biography to the gallery."
+        />
+      </div>
+
+      <LegacyGalleryFormClient />
+    </div>
   );
 }

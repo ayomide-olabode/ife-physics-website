@@ -609,6 +609,10 @@ model LegacyGalleryItem {
   datesText String?  // e.g., "1978–2004"
   year      Int?
 
+  status    PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+  archivedAt  DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?

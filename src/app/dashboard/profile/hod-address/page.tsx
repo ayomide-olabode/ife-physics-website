@@ -1,6 +1,10 @@
 import { requireAuth } from '@/lib/guards';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { getMyHodAddress } from '@/server/queries/profileHodAddress';
+import { HodAddressClientForm } from '@/components/profile/HodAddressClientForm';
+import { BackToParent } from '@/components/dashboard/BackToParent';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export default async function Page() {
   const session = await requireAuth();
@@ -22,12 +26,18 @@ export default async function Page() {
     notFound();
   }
 
+  const existingData = await getMyHodAddress(staffId);
+
   return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">HOD Address</h1>
-      <p className="text-muted-foreground">
-        Manage the HOD welcome address displayed on the homepage.
-      </p>
-    </main>
+    <div className="space-y-6">
+      <BackToParent href="/dashboard/profile" label="Back to Profile" />
+      <PageHeader
+        title="HOD Address"
+        description="Manage the Head of Department welcome address displayed on the homepage securely."
+      />
+      <div className="rounded-lg border bg-card p-6">
+        <HodAddressClientForm initialTitle={existingData?.title} initialBody={existingData?.body} />
+      </div>
+    </div>
   );
 }

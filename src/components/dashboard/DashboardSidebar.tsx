@@ -6,12 +6,13 @@ import { usePathname } from 'next/navigation';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { LogoutButton } from '@/components/auth/LogoutButton';
-import { LogOut } from 'lucide-react';
+import { LogOut, ChevronDown } from 'lucide-react';
 import { useDashboardShortcuts } from './useDashboardShortcuts';
 
 export type NavItem = {
   label: string;
   href: string;
+  children?: { label: string; href: string }[];
 };
 
 function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
@@ -33,15 +34,63 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   );
 }
 
+function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
+  const isGroupActive = pathname.startsWith(item.href);
+  const [isOpen, setIsOpen] = useState(isGroupActive);
+
+  return (
+    <div className="flex flex-col gap-1">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+          isGroupActive
+            ? 'text-foreground'
+            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+        }`}
+      >
+        <span>{item.label}</span>
+        <ChevronDown
+          className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && item.children && (
+        <div className="ml-4 flex flex-col gap-1 border-l pl-2">
+          {item.children.map((child) => {
+            const isChildActive = pathname.startsWith(child.href.replace('/overview', ''));
+            return (
+              <Link
+                key={child.href}
+                href={child.href}
+                className={`block rounded-md border border-transparent px-3 py-1.5 text-sm transition-colors ${
+                  isChildActive
+                    ? 'bg-primary/10 text-primary font-medium'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+              >
+                {child.label}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function DashboardSidebar({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
     <aside className="hidden md:flex flex-col w-64 shrink-0 py-6 pr-6 border-r min-h-[calc(100vh-4rem)]">
       <nav className="flex-1 flex flex-col gap-1">
-        {items.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} />
-        ))}
+        {items.map((item) =>
+          item.children?.length ? (
+            <NavGroup key={item.href} item={item} pathname={pathname} />
+          ) : (
+            <NavLink key={item.href} item={item} pathname={pathname} />
+          ),
+        )}
       </nav>
       <div className="mt-auto pt-6 flex flex-col gap-2">
         <p className="px-3 text-xs text-muted-foreground font-mono">Shortcut: Ctrl+Alt+M</p>
@@ -89,7 +138,10 @@ export function MobileSidebar({ items }: { items: NavItem[] }) {
         <nav className="flex-1 flex flex-col gap-1 mt-6">
           {items.map((item) => (
             <div key={item.href} onClick={() => setOpen(false)}>
-              <NavLink item={item} pathname={pathname} />
+              item.children?.length ? (
+              <NavGroup item={item} pathname={pathname} />
+              ) : (
+              <NavLink item={item} pathname={pathname} />)
             </div>
           ))}
         </nav>

@@ -16,7 +16,7 @@ import {
   PgReqBlockDeleteButton,
   type ReqBlockFormData,
 } from './PgRequirementBlockEditor';
-import { getRequirementBlockById } from '@/server/queries/pgRequirementBlocks';
+import { getRequirementBlockAction } from '@/server/actions/pgRequirementBlocks';
 
 type ListItem = {
   id: string;
@@ -38,14 +38,13 @@ export function PgReqBlockListClient({ programmeCode, degreeType, items }: Props
   const [creating, setCreating] = useState(false);
 
   const handleEdit = async (id: string) => {
-    const block = await getRequirementBlockById({
-      programmeCode,
-      degreeType,
-      id,
-    });
-    if (block) {
-      setEditing(block);
+    const res = await getRequirementBlockAction(programmeCode, degreeType, id);
+    if (res.success && res.block) {
+      setEditing(res.block);
       setCreating(false);
+    } else {
+      // Could add toastError here, but silently failing an edit click is okay if block went missing
+      console.error(res.error || 'Failed to fetch block');
     }
   };
 

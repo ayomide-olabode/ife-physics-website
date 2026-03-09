@@ -183,3 +183,44 @@ export async function deleteRequirementBlock(
     return { success: false, error: 'Failed to delete block' };
   }
 }
+
+export async function getRequirementBlockAction(
+  programmeCode: ProgrammeCode,
+  degreeType: DegreeType,
+  id: string,
+) {
+  try {
+    const session = await requireAuth();
+    await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
+
+    const block = await prisma.requirementBlock.findFirst({
+      where: {
+        id,
+        degreeType,
+        deletedAt: null,
+        program: {
+          programmeCode,
+          level: 'POSTGRADUATE',
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        requirementType: true,
+        orderIndex: true,
+        contentHtml: true,
+      },
+    });
+
+    if (!block) {
+      return { success: false, error: 'Block not found' };
+    }
+
+    return { success: true, block };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: 'Failed to fetch block' };
+  }
+}

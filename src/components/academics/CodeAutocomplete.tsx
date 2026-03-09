@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-import { lookupCourseByCode } from '@/server/queries/postgraduateCourses';
+import { lookupCourseByCode } from '@/server/actions/postgraduateCourses';
 import { useDebounce } from '@/hooks/useDebounce';
 
 interface CodeAutocompleteProps {

@@ -19,7 +19,7 @@ import {
   createPostgraduateCourseForProgramme,
   updatePostgraduateCourseForProgramme,
 } from '@/server/actions/postgraduateCourses';
-import { getCourseByExactCode } from '@/server/queries/postgraduateCourses';
+import { getCourseByExactCode } from '@/server/actions/postgraduateCourses';
 import { CodeAutocomplete } from './CodeAutocomplete';
 
 export type PGCourseFormData = {

@@ -35,14 +35,22 @@ export async function updatePostgraduateProgram(
       programmeStructure: normalize(validatedData.programmeStructure),
     };
 
-    const program = await prisma.academicProgram.update({
+    const normalizedCode = programmeCode.toUpperCase() as ProgrammeCode;
+
+    const program = await prisma.academicProgram.upsert({
       where: {
         programmeCode_level: {
-          programmeCode,
+          programmeCode: normalizedCode,
           level: 'POSTGRADUATE',
         },
       },
-      data: updateData,
+      update: updateData,
+      create: {
+        programmeCode: normalizedCode,
+        level: 'POSTGRADUATE',
+        slug: `pg-${programmeCode.toLowerCase()}`,
+        ...updateData,
+      },
     });
 
     await logAudit({

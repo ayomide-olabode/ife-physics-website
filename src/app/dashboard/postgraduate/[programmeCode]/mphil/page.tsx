@@ -1,26 +1,41 @@
-import { PageHeader } from '@/components/dashboard/PageHeader';
-import { ProgrammeCode } from '@prisma/client';
 import { notFound } from 'next/navigation';
+import { ProgrammeCode } from '@prisma/client';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { getPgDegreeContent } from '@/server/queries/pgDegreeContent';
+import { PgDegreeContentEditor } from '@/components/academics/PgDegreeContentEditor';
 
 interface PageProps {
   params: Promise<{ programmeCode: string }>;
 }
 
-export default async function MPhilPage({ params }: PageProps) {
+export default async function MphilDegreePage({ params }: PageProps) {
+  const session = await requireAuth();
+  await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
+
   const resolvedParams = await params;
   const codeStr = resolvedParams.programmeCode.toUpperCase();
   if (!['PHY', 'EPH', 'SLT'].includes(codeStr)) {
     notFound();
   }
+
   const programmeCode = codeStr as ProgrammeCode;
+  const content = await getPgDegreeContent(programmeCode, 'MPHIL');
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`M.Phil. Programme — ${programmeCode}`}
-        description={`Manage the M.Phil. requirements and details for ${programmeCode}.`}
+        title={`Postgraduate — ${programmeCode} / M.Phil.`}
+        description="Manage the academic requirements and content for the Master of Philosophy programme."
       />
-      {/* TODO: Add M.Phil. specific content and requirement block editor */}
+
+      <div className="rounded-lg border bg-card p-6">
+        <PgDegreeContentEditor
+          programmeCode={programmeCode}
+          degreeType="MPHIL"
+          initialData={content}
+        />
+      </div>
     </div>
   );
 }

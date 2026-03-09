@@ -5,10 +5,10 @@ import { PageHeader } from '@/components/dashboard/PageHeader';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { Button } from '@/components/ui/button';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
-import { getStudyOptionByIdForProgramme } from '@/server/queries/undergraduateStudyOptions';
+import { getProgramStudyOptionById } from '@/server/queries/programStudyOptions';
 import { StudyOptionFormClient } from '@/components/academics/StudyOptionFormClient';
 import { CourseMapper } from '@/components/academics/CourseMapper';
-import { StudyOptionDeleteButton } from '@/components/academics/StudyOptionDeleteButton';
+import { ProgramStudyOptionUnlinkButton } from '@/components/academics/ProgramStudyOptionUnlinkButton';
 
 interface PageProps {
   params: Promise<{ programmeCode: string; id: string }>;
@@ -25,15 +25,17 @@ export default async function EditStudyOptionPage({ params }: PageProps) {
   }
   const programmeCode = codeStr as ProgrammeCode;
 
-  const studyOption = await getStudyOptionByIdForProgramme({
+  const programStudyOption = await getProgramStudyOptionById({
     programmeCode,
-    id: resolvedParams.id,
+    id: resolvedParams.id, // This is the ProgramStudyOption ID
+    level: 'UNDERGRADUATE',
   });
 
-  if (!studyOption) {
+  if (!programStudyOption || !programStudyOption.studyOption) {
     notFound();
   }
 
+  const studyOption = programStudyOption.studyOption;
   const mappedCourses = studyOption.courses.map((c) => c.course);
 
   return (
@@ -53,7 +55,11 @@ export default async function EditStudyOptionPage({ params }: PageProps) {
                 Back to Programme
               </Link>
             </Button>
-            <StudyOptionDeleteButton programmeCode={programmeCode} studyOptionId={studyOption.id} />
+            <ProgramStudyOptionUnlinkButton
+              programmeCode={programmeCode}
+              level="UNDERGRADUATE"
+              programStudyOptionId={programStudyOption.id}
+            />
           </>
         }
       />

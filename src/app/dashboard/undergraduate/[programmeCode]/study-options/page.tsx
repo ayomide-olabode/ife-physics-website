@@ -13,7 +13,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
-import { listStudyOptions } from '@/server/queries/undergraduateStudyOptions';
+import { listProgramStudyOptions } from '@/server/queries/programStudyOptions';
+import { StudyOptionLinkModal } from '@/components/academics/StudyOptionLinkModal';
 
 interface PageProps {
   params: Promise<{ programmeCode: string }>;
@@ -36,7 +37,7 @@ export default async function StudyOptionsIndexPage({ params, searchParams }: Pa
   const page = parseInt(resolvedSearchParams.page || '1', 10);
   const pageSize = 10;
 
-  const { items, total } = await listStudyOptions({ programmeCode, q, page, pageSize });
+  const { items, total } = await listProgramStudyOptions({ programmeCode, q, page, pageSize });
   const totalPages = Math.ceil(total / pageSize);
 
   return (
@@ -53,15 +54,7 @@ export default async function StudyOptionsIndexPage({ params, searchParams }: Pa
       <PageHeader
         title={`Study Options — ${programmeCode}`}
         description={`Manage study options for the ${programmeCode} undergraduate programme.`}
-        actions={
-          <Button asChild>
-            <Link
-              href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}/study-options/new`}
-            >
-              Add New
-            </Link>
-          </Button>
-        }
+        actions={<StudyOptionLinkModal programmeCode={programmeCode} level="UNDERGRADUATE" />}
       />
 
       {/* Filter */}
@@ -96,7 +89,7 @@ export default async function StudyOptionsIndexPage({ params, searchParams }: Pa
             ) : (
               items.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell className="font-medium">{item.studyOption.name}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" asChild>
                       <Link

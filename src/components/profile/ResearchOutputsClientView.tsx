@@ -77,7 +77,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
         toastSuccess('Output deleted successfully.');
         setDeleteOpen(false);
       }
-    } catch (e) {
+    } catch {
       toastError('An unexpected error occurrred.');
     } finally {
       setDeleteId(null);

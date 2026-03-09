@@ -41,7 +41,7 @@ export function EditProfileForm({
         toastSuccess('Profile updated successfully!');
         router.refresh();
       }
-    } catch (error) {
+    } catch {
       toastError('An unexpected error occurred while saving.');
     } finally {
       setIsSubmitting(false);

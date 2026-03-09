@@ -8,10 +8,7 @@ import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
 import { toastSuccess, toastError } from '@/lib/toast';
-import {
-  createPostgraduateStudyOption,
-  updatePostgraduateStudyOption,
-} from '@/server/actions/postgraduateStudyOptions';
+import { updatePostgraduateStudyOption } from '@/server/actions/postgraduateStudyOptions';
 
 export type PGStudyOptionFormData = {
   id?: string;
@@ -21,35 +18,26 @@ export type PGStudyOptionFormData = {
 
 interface Props {
   programmeCode: ProgrammeCode;
-  initialData?: PGStudyOptionFormData;
+  initialData: PGStudyOptionFormData;
 }
 
 export function PGStudyOptionFormClient({ programmeCode, initialData }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const isEditing = Boolean(initialData?.id);
 
-  const [name, setName] = useState(initialData?.name || '');
-  const [about, setAbout] = useState(initialData?.about || '');
+  const [name, setName] = useState(initialData.name || '');
+  const [about, setAbout] = useState(initialData.about || '');
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
       try {
         const payload = { name, about: about || undefined };
-        const res = isEditing
-          ? await updatePostgraduateStudyOption(programmeCode, initialData!.id!, payload)
-          : await createPostgraduateStudyOption(programmeCode, payload);
+        const res = await updatePostgraduateStudyOption(programmeCode, initialData.id!, payload);
 
         if (res.success) {
-          toastSuccess(isEditing ? 'Study option updated.' : 'Study option created.');
-          if (!isEditing && 'studyOptionId' in res && res.studyOptionId) {
-            router.push(
-              `/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options/${res.studyOptionId}`,
-            );
-          } else {
-            router.refresh();
-          }
+          toastSuccess('Study option updated.');
+          router.refresh();
         } else {
           toastError(res.error || 'Something went wrong.');
         }
@@ -87,7 +75,7 @@ export function PGStudyOptionFormClient({ programmeCode, initialData }: Props) {
       </div>
       <div className="pt-4 border-t">
         <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : isEditing ? 'Update Study Option' : 'Create Study Option'}
+          {isPending ? 'Saving…' : 'Update Study Option'}
         </Button>
       </div>
     </form>

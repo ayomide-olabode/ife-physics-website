@@ -14,59 +14,6 @@ const studyOptionSchema = z.object({
 
 type StudyOptionInput = z.infer<typeof studyOptionSchema>;
 
-export async function createPostgraduateStudyOption(
-  programmeCode: ProgrammeCode,
-  data: StudyOptionInput,
-) {
-  try {
-    const session = await requireAuth();
-    await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
-
-    const validated = studyOptionSchema.parse(data);
-
-    const program = await prisma.academicProgram.findUnique({
-      where: {
-        programmeCode_level: { programmeCode, level: 'POSTGRADUATE' },
-      },
-      select: { id: true },
-    });
-
-    if (!program) {
-      return { success: false, error: 'Programme not found' };
-    }
-
-    const normalize = (val?: string) => (val && val.trim() !== '' ? val : '');
-
-    const studyOption = await prisma.studyOption.create({
-      data: {
-        name: validated.name,
-        about: normalize(validated.about),
-        programs: { create: { programmeCode, level: 'POSTGRADUATE' } },
-      },
-    });
-
-    await logAudit({
-      actorId: session.user?.userId || '',
-      action: 'PG_STUDY_OPTION_CREATED',
-      entityType: 'StudyOption',
-      entityId: studyOption.id,
-      snapshot: { programmeCode, ...validated },
-    });
-
-    revalidatePath(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options`);
-
-    return { success: true, studyOptionId: studyOption.id };
-  } catch (error: unknown) {
-    if (error instanceof z.ZodError) {
-      return { success: false, error: error.issues[0].message };
-    }
-    if (error instanceof Error) {
-      return { success: false, error: error.message };
-    }
-    return { success: false, error: 'Failed to create study option' };
-  }
-}
-
 export async function updatePostgraduateStudyOption(
   programmeCode: ProgrammeCode,
   id: string,
@@ -120,47 +67,5 @@ export async function updatePostgraduateStudyOption(
       return { success: false, error: error.message };
     }
     return { success: false, error: 'Failed to update study option' };
-  }
-}
-
-export async function deletePostgraduateStudyOption(programmeCode: ProgrammeCode, id: string) {
-  try {
-    const session = await requireAuth();
-    await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
-
-    const existing = await prisma.studyOption.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-        programs: { some: { programmeCode, level: 'POSTGRADUATE' } },
-      },
-      select: { id: true },
-    });
-
-    if (!existing) {
-      return { success: false, error: 'Study option not found' };
-    }
-
-    await prisma.studyOption.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-
-    await logAudit({
-      actorId: session.user?.userId || '',
-      action: 'PG_STUDY_OPTION_DELETED',
-      entityType: 'StudyOption',
-      entityId: id,
-      snapshot: { programmeCode },
-    });
-
-    revalidatePath(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options`);
-
-    return { success: true };
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return { success: false, error: error.message };
-    }
-    return { success: false, error: 'Failed to delete study option' };
   }
 }

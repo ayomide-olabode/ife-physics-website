@@ -13,7 +13,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
-import { listPostgraduateStudyOptions } from '@/server/queries/postgraduateStudyOptions';
+import { listProgramStudyOptions } from '@/server/queries/programStudyOptions';
+import { StudyOptionLinkModal } from '@/components/academics/StudyOptionLinkModal';
 
 interface PageProps {
   params: Promise<{ programmeCode: string }>;
@@ -37,8 +38,9 @@ export default async function PGStudyOptionsIndexPage({ params, searchParams }: 
   const page = parseInt(resolvedSearchParams.page || '1', 10);
   const pageSize = 10;
 
-  const { items, total } = await listPostgraduateStudyOptions({
+  const { items, total } = await listProgramStudyOptions({
     programmeCode,
+    level: 'POSTGRADUATE',
     q,
     page,
     pageSize,
@@ -59,11 +61,7 @@ export default async function PGStudyOptionsIndexPage({ params, searchParams }: 
       <PageHeader
         title={`PG Study Options — ${programmeCode}`}
         description={`Manage study options for the ${programmeCode} postgraduate programme.`}
-        actions={
-          <Button asChild>
-            <Link href={`/dashboard/postgraduate/${code}/study-options/new`}>Add New</Link>
-          </Button>
-        }
+        actions={<StudyOptionLinkModal programmeCode={programmeCode} level="POSTGRADUATE" />}
       />
 
       <form className="flex flex-col sm:flex-row gap-4 items-end">
@@ -96,7 +94,7 @@ export default async function PGStudyOptionsIndexPage({ params, searchParams }: 
             ) : (
               items.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell className="font-medium">{item.studyOption.name}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" asChild>
                       <Link href={`/dashboard/postgraduate/${code}/study-options/${item.id}`}>

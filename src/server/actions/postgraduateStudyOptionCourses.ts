@@ -15,16 +15,17 @@ export async function addCourseToPostgraduateStudyOption(
     const session = await requireAuth();
     await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
 
-    const studyOption = await prisma.studyOption.findFirst({
+    const programStudyOption = await prisma.programStudyOption.findFirst({
       where: {
-        id: studyOptionId,
-        deletedAt: null,
-        programs: { some: { programmeCode, level: 'POSTGRADUATE' } },
+        programmeCode,
+        level: 'POSTGRADUATE',
+        studyOptionId,
+        studyOption: { deletedAt: null },
       },
       select: { id: true },
     });
 
-    if (!studyOption) {
+    if (!programStudyOption) {
       return { success: false, error: 'Study option not found in this programme' };
     }
 
@@ -53,7 +54,7 @@ export async function addCourseToPostgraduateStudyOption(
     });
 
     revalidatePath(
-      `/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options/${studyOptionId}`,
+      `/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options/${programStudyOption.id}`,
     );
 
     return { success: true };
@@ -80,16 +81,17 @@ export async function removeCourseFromPostgraduateStudyOption(
     const session = await requireAuth();
     await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
 
-    const studyOption = await prisma.studyOption.findFirst({
+    const programStudyOption = await prisma.programStudyOption.findFirst({
       where: {
-        id: studyOptionId,
-        deletedAt: null,
-        programs: { some: { programmeCode, level: 'POSTGRADUATE' } },
+        programmeCode,
+        level: 'POSTGRADUATE',
+        studyOptionId,
+        studyOption: { deletedAt: null },
       },
       select: { id: true },
     });
 
-    if (!studyOption) {
+    if (!programStudyOption) {
       return { success: false, error: 'Study option not found in this programme' };
     }
 
@@ -108,7 +110,7 @@ export async function removeCourseFromPostgraduateStudyOption(
     });
 
     revalidatePath(
-      `/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options/${studyOptionId}`,
+      `/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options/${programStudyOption.id}`,
     );
 
     return { success: true };

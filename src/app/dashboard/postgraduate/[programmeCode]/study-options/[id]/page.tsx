@@ -5,10 +5,10 @@ import { PageHeader } from '@/components/dashboard/PageHeader';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { Button } from '@/components/ui/button';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
-import { getPostgraduateStudyOptionById } from '@/server/queries/postgraduateStudyOptions';
+import { getProgramStudyOptionById } from '@/server/queries/programStudyOptions';
 import { PGStudyOptionFormClient } from '@/components/academics/PGStudyOptionFormClient';
 import { PGCourseMapper } from '@/components/academics/PGCourseMapper';
-import { PGStudyOptionDeleteButton } from '@/components/academics/PGStudyOptionDeleteButton';
+import { ProgramStudyOptionUnlinkButton } from '@/components/academics/ProgramStudyOptionUnlinkButton';
 
 interface PageProps {
   params: Promise<{ programmeCode: string; id: string }>;
@@ -26,15 +26,17 @@ export default async function EditPGStudyOptionPage({ params }: PageProps) {
   const programmeCode = codeStr as ProgrammeCode;
   const code = programmeCode.toLowerCase();
 
-  const studyOption = await getPostgraduateStudyOptionById({
+  const programStudyOption = await getProgramStudyOptionById({
     programmeCode,
     id: resolvedParams.id,
+    level: 'POSTGRADUATE',
   });
 
-  if (!studyOption) {
+  if (!programStudyOption || !programStudyOption.studyOption) {
     notFound();
   }
 
+  const studyOption = programStudyOption.studyOption;
   const mappedCourses = studyOption.courses.map((c) => c.course);
 
   return (
@@ -52,9 +54,10 @@ export default async function EditPGStudyOptionPage({ params }: PageProps) {
             <Button variant="outline" size="sm" asChild>
               <Link href={`/dashboard/postgraduate/${code}`}>Back to Programme</Link>
             </Button>
-            <PGStudyOptionDeleteButton
+            <ProgramStudyOptionUnlinkButton
               programmeCode={programmeCode}
-              studyOptionId={studyOption.id}
+              level="POSTGRADUATE"
+              programStudyOptionId={programStudyOption.id}
             />
           </>
         }

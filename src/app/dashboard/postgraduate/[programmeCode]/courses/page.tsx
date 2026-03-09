@@ -22,6 +22,7 @@ import {
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { listPostgraduateCourses } from '@/server/queries/postgraduateCourses';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 
 interface PageProps {
   params: Promise<{ programmeCode: string }>;
@@ -59,14 +60,10 @@ export default async function PostgraduateCoursesPage({ params, searchParams }: 
 
   return (
     <div className="space-y-6">
-      <div className="text-sm border-b pb-2 mb-4">
-        <Link
-          href={`/dashboard/postgraduate/${code}`}
-          className="text-muted-foreground hover:text-foreground inline-flex items-center"
-        >
-          &larr; Back to Programme
-        </Link>
-      </div>
+      <BackToParent
+        href={`/dashboard/postgraduate/${code}/overview`}
+        label="Back to Programme Overview"
+      />
 
       <PageHeader
         title={`PG Courses — ${programmeCode}`}

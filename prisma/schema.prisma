@@ -427,7 +427,6 @@ model AcademicProgram {
   // PG accordion blocks for admission/course requirements
   requirementBlocks RequirementBlock[]
 
-  studyOptions   StudyOption[]
   courses        Course[]
 
   createdAt      DateTime @default(now())
@@ -457,17 +456,29 @@ model RequirementBlock {
 
 model StudyOption {
   id        String   @id @default(cuid())
-  programId String
-  program   AcademicProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
-
   name      String
   about     String
+  slug      String?  @unique
 
+  programs  ProgramStudyOption[]
   courses   CourseOnStudyOption[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
+}
+
+model ProgramStudyOption {
+  id            String        @id @default(cuid())
+  programmeCode ProgrammeCode
+  level         ProgramLevel
+  studyOptionId String
+
+  studyOption   StudyOption   @relation(fields: [studyOptionId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime      @default(now())
+
+  @@unique([programmeCode, level, studyOptionId])
 }
 
 model Course {

@@ -15,9 +15,11 @@ export async function listPostgraduateStudyOptions({
   pageSize = 10,
 }: ListPgStudyOptionsParams) {
   const where: Prisma.StudyOptionWhereInput = {
-    program: {
-      programmeCode,
-      level: 'POSTGRADUATE',
+    programs: {
+      some: {
+        programmeCode,
+        level: 'POSTGRADUATE',
+      },
     },
     deletedAt: null,
   };
@@ -55,9 +57,11 @@ export async function getPostgraduateStudyOptionById({
     where: {
       id,
       deletedAt: null,
-      program: {
-        programmeCode,
-        level: 'POSTGRADUATE',
+      programs: {
+        some: {
+          programmeCode,
+          level: 'POSTGRADUATE',
+        },
       },
     },
     select: {

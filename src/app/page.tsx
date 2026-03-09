@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -17,6 +18,9 @@ export default function Home() {
       <p className="mt-4 text-lg text-gray-700 dark:text-gray-300">
         This is a minimal verification page.
       </p>
+      <Link href="/login">Login</Link>
+
+      <Link href="/register">Register</Link>
 
       <Dialog>
         <DialogTrigger asChild>

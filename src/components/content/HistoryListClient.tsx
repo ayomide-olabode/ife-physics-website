@@ -68,7 +68,7 @@ export function HistoryListClient({
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    const res = await deleteHistory(deleteTarget);
+    await deleteHistory(deleteTarget);
     toastSuccess('History entry archived/deleted.');
     router.refresh();
     setDeleteTarget(null);

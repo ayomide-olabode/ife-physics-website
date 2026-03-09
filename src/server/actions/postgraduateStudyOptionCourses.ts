@@ -19,7 +19,7 @@ export async function addCourseToPostgraduateStudyOption(
       where: {
         id: studyOptionId,
         deletedAt: null,
-        program: { programmeCode, level: 'POSTGRADUATE' },
+        programs: { some: { programmeCode, level: 'POSTGRADUATE' } },
       },
       select: { id: true },
     });
@@ -84,7 +84,7 @@ export async function removeCourseFromPostgraduateStudyOption(
       where: {
         id: studyOptionId,
         deletedAt: null,
-        program: { programmeCode, level: 'POSTGRADUATE' },
+        programs: { some: { programmeCode, level: 'POSTGRADUATE' } },
       },
       select: { id: true },
     });

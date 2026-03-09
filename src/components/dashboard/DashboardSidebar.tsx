@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import { LogOut } from 'lucide-react';
@@ -85,6 +85,7 @@ export function MobileSidebar({ items }: { items: NavItem[] }) {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-4 flex flex-col">
+        <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
         <nav className="flex-1 flex flex-col gap-1 mt-6">
           {items.map((item) => (
             <div key={item.href} onClick={() => setOpen(false)}>

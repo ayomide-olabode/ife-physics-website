@@ -20,7 +20,7 @@ export async function addCourseToStudyOption(
       where: {
         id: studyOptionId,
         deletedAt: null,
-        program: { programmeCode, level: 'UNDERGRADUATE' },
+        programs: { some: { programmeCode, level: 'UNDERGRADUATE' } },
       },
       select: { id: true },
     });
@@ -87,7 +87,7 @@ export async function removeCourseFromStudyOption(
       where: {
         id: studyOptionId,
         deletedAt: null,
-        program: { programmeCode, level: 'UNDERGRADUATE' },
+        programs: { some: { programmeCode, level: 'UNDERGRADUATE' } },
       },
       select: { id: true },
     });

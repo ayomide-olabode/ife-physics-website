@@ -41,7 +41,7 @@ export async function createPostgraduateStudyOption(
       data: {
         name: validated.name,
         about: normalize(validated.about),
-        programId: program.id,
+        programs: { create: { programmeCode, level: 'POSTGRADUATE' } },
       },
     });
 
@@ -82,7 +82,7 @@ export async function updatePostgraduateStudyOption(
       where: {
         id,
         deletedAt: null,
-        program: { programmeCode, level: 'POSTGRADUATE' },
+        programs: { some: { programmeCode, level: 'POSTGRADUATE' } },
       },
       select: { id: true },
     });
@@ -132,7 +132,7 @@ export async function deletePostgraduateStudyOption(programmeCode: ProgrammeCode
       where: {
         id,
         deletedAt: null,
-        program: { programmeCode, level: 'POSTGRADUATE' },
+        programs: { some: { programmeCode, level: 'POSTGRADUATE' } },
       },
       select: { id: true },
     });

@@ -38,7 +38,7 @@ export function CreateUserForm() {
     try {
       const results = await searchStaff({ q: searchQuery });
       setSearchResults(results);
-    } catch (error) {
+    } catch {
       toastError('Failed to search staff.');
     } finally {
       setIsSearching(false);
@@ -67,7 +67,7 @@ export function CreateUserForm() {
         toastSuccess('User created successfully.');
         router.push(`/dashboard/admin/users/${res.userId}`);
       }
-    } catch (error) {
+    } catch {
       toastError('An unexpected error occurred.');
       setIsSubmitting(false);
     }

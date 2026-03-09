@@ -41,7 +41,7 @@ export async function createStudyOption(programmeCode: ProgrammeCode, data: Stud
       data: {
         name: validated.name,
         about: normalize(validated.about),
-        programId: program.id,
+        programs: { create: { programmeCode, level: 'UNDERGRADUATE' } },
       },
     });
 
@@ -82,7 +82,7 @@ export async function updateStudyOption(
       where: {
         id,
         deletedAt: null,
-        program: { programmeCode, level: 'UNDERGRADUATE' },
+        programs: { some: { programmeCode, level: 'UNDERGRADUATE' } },
       },
       select: { id: true },
     });
@@ -132,7 +132,7 @@ export async function deleteStudyOption(programmeCode: ProgrammeCode, id: string
       where: {
         id,
         deletedAt: null,
-        program: { programmeCode, level: 'UNDERGRADUATE' },
+        programs: { some: { programmeCode, level: 'UNDERGRADUATE' } },
       },
       select: { id: true },
     });

@@ -122,3 +122,47 @@ export async function getPostgraduateCourseForProgramme({
     },
   });
 }
+
+export async function lookupCourseByCode({
+  programmeCode,
+  codePrefix,
+}: {
+  programmeCode: ProgrammeCode;
+  codePrefix: string;
+}) {
+  return prisma.course.findMany({
+    where: {
+      code: { startsWith: codePrefix, mode: 'insensitive' },
+      program: {
+        programmeCode,
+        level: 'POSTGRADUATE',
+      },
+    },
+    select: {
+      id: true,
+      code: true,
+      title: true,
+    },
+    orderBy: { code: 'asc' },
+    take: 10,
+  });
+}
+
+export async function getCourseByExactCode({ code }: { code: string }) {
+  return prisma.course.findUnique({
+    where: { code },
+    select: {
+      id: true,
+      code: true,
+      title: true,
+      description: true,
+      prerequisites: true,
+      L: true,
+      T: true,
+      P: true,
+      U: true,
+      status: true,
+      programId: true,
+    },
+  });
+}

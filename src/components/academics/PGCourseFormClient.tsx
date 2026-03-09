@@ -19,6 +19,8 @@ import {
   createPostgraduateCourseForProgramme,
   updatePostgraduateCourseForProgramme,
 } from '@/server/actions/postgraduateCourses';
+import { getCourseByExactCode } from '@/server/queries/postgraduateCourses';
+import { CodeAutocomplete } from './CodeAutocomplete';
 
 export type PGCourseFormData = {
   id?: string;
@@ -92,6 +94,26 @@ export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormC
     });
   };
 
+  const onSelectExactCourse = async (selectedCode: string) => {
+    try {
+      const course = await getCourseByExactCode({ code: selectedCode });
+      if (course) {
+        setTitle(course.title);
+        setDescription(course.description || '');
+        setPrerequisites(course.prerequisites || '');
+        setL(course.L ?? 0);
+        setT(course.T ?? 0);
+        setP(course.P ?? 0);
+        setU(course.U ?? 0);
+        setStatus(course.status as 'CORE' | 'RESTRICTED');
+        // We do NOT set isEditing because we are merely pre-filling a form on the /new route,
+        // and our server action handles the upsert automatically.
+      }
+    } catch {
+      toastError('Failed to fetch course details.');
+    }
+  };
+
   return (
     <form onSubmit={onSubmit} className="space-y-6 max-w-2xl pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -99,13 +121,12 @@ export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormC
           <FieldLabel required htmlFor="code">
             Course Code
           </FieldLabel>
-          <Input
-            id="code"
+          <CodeAutocomplete
+            programmeCode={programmeCode}
             value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="e.g. PHY701"
-            required
-            maxLength={12}
+            onChange={setCode}
+            onSelectExact={onSelectExactCourse}
+            disabled={isEditing}
           />
         </div>
 

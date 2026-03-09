@@ -52,24 +52,32 @@ export async function createPostgraduateCourseForProgramme(
 
     const normalize = (val?: string) => (val && val.trim() !== '' ? val : null);
 
-    const course = await prisma.course.create({
-      data: {
+    const dataPayload = {
+      title: validated.title,
+      description: normalize(validated.description),
+      prerequisites: normalize(validated.prerequisites),
+      L: validated.L,
+      T: validated.T,
+      P: validated.P,
+      U: validated.U,
+      status: validated.status,
+      programId: program.id,
+    };
+
+    const course = await prisma.course.upsert({
+      where: { code: validated.code },
+      create: {
         code: validated.code,
-        title: validated.title,
-        description: normalize(validated.description),
-        prerequisites: normalize(validated.prerequisites),
-        L: validated.L,
-        T: validated.T,
-        P: validated.P,
-        U: validated.U,
-        status: validated.status,
-        programId: program.id,
+        ...dataPayload,
+      },
+      update: {
+        ...dataPayload,
       },
     });
 
     await logAudit({
       actorId: session.user?.userId || '',
-      action: 'PG_COURSE_CREATED',
+      action: 'PG_COURSE_UPSERTED',
       entityType: 'Course',
       entityId: course.id,
       snapshot: { programmeCode, ...validated },
@@ -84,16 +92,10 @@ export async function createPostgraduateCourseForProgramme(
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0].message };
     }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return {
-        success: false,
-        error: 'A course with this code already exists.',
-      };
-    }
     if (error instanceof Error) {
       return { success: false, error: error.message };
     }
-    return { success: false, error: 'Failed to create course' };
+    return { success: false, error: 'Failed to create or update course' };
   }
 }
 

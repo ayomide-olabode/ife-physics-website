@@ -22,7 +22,6 @@ import {
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { listPostgraduateCourses } from '@/server/queries/postgraduateCourses';
-import { BackToParent } from '@/components/dashboard/BackToParent';
 
 interface PageProps {
   params: Promise<{ programmeCode: string }>;

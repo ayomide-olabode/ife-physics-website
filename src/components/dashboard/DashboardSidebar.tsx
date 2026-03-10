@@ -138,10 +138,11 @@ export function MobileSidebar({ items }: { items: NavItem[] }) {
         <nav className="flex-1 flex flex-col gap-1 mt-6">
           {items.map((item) => (
             <div key={item.href} onClick={() => setOpen(false)}>
-              item.children?.length ? (
-              <NavGroup item={item} pathname={pathname} />
+              {item.children?.length ? (
+                <NavGroup item={item} pathname={pathname} />
               ) : (
-              <NavLink item={item} pathname={pathname} />)
+                <NavLink item={item} pathname={pathname} />
+              )}
             </div>
           ))}
         </nav>

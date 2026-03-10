@@ -4,9 +4,5 @@ export default async function UndergraduateLayout({ children }: { children: Reac
   const session = await requireAuth();
   await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
 
-  return (
-    <>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

@@ -1,26 +1,36 @@
-import { PageHeader } from '@/components/dashboard/PageHeader';
+import { notFound } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { getUndergraduateProgram } from '@/server/queries/undergraduateProgram';
+import { UndergraduateRequirementsEditor } from '@/components/academics/ug/UndergraduateRequirementsEditor';
 
 interface PageProps {
-  params: Promise<{
-    programmeCode: string;
-  }>;
+  params: Promise<{ programmeCode: string }>;
 }
 
 export default async function UndergraduateRequirementsPage({ params }: PageProps) {
+  const session = await requireAuth();
+  await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
+
   const resolvedParams = await params;
-  const programmeCode = resolvedParams.programmeCode.toUpperCase() as ProgrammeCode;
+  const codeStr = resolvedParams.programmeCode.toUpperCase();
+  if (!['PHY', 'EPH', 'SLT'].includes(codeStr)) {
+    notFound();
+  }
+
+  const programmeCode = codeStr as ProgrammeCode;
+  const programData = await getUndergraduateProgram(programmeCode);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title={`${programmeCode} / Requirements`}
-        description={`Manage admission and graduation requirements for the ${programmeCode} undergraduate programme.`}
+        description={`Manage admission and course requirements for the ${programmeCode} undergraduate programme.`}
       />
+
       <div className="rounded-lg border bg-card p-6">
-        <p className="text-muted-foreground text-sm">
-          Requirements editor will be implemented here.
-        </p>
+        <UndergraduateRequirementsEditor programmeCode={programmeCode} initialData={programData} />
       </div>
     </div>
   );

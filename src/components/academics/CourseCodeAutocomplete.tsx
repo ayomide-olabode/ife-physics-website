@@ -15,11 +15,13 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-import { lookupCourseByCode } from '@/server/actions/postgraduateCourses';
+import { lookupCourseByCode as lookupPgCourseByCode } from '@/server/actions/postgraduateCourses';
+import { lookupCourseByCode as lookupUgCourseByCode } from '@/server/actions/undergraduateCourses';
 import { useDebounce } from '@/hooks/useDebounce';
 
-interface PgCourseCodeAutocompleteProps {
+interface CourseCodeAutocompleteProps {
   programmeCode: ProgrammeCode;
+  level: 'UNDERGRADUATE' | 'POSTGRADUATE';
   onSelect: (course: { id: string; code: string; title: string }) => void;
   excludeIds?: string[];
   placeholder?: string;
@@ -28,15 +30,16 @@ interface PgCourseCodeAutocompleteProps {
   onChange?: (val: string) => void;
 }
 
-export function PgCourseCodeAutocomplete({
+export function CourseCodeAutocomplete({
   programmeCode,
+  level,
   onSelect,
   excludeIds = [],
   placeholder = 'Select or type a course code...',
   disabled,
   value,
   onChange,
-}: PgCourseCodeAutocompleteProps) {
+}: CourseCodeAutocompleteProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const debouncedSearch = useDebounce(search, 300);
@@ -56,7 +59,13 @@ export function PgCourseCodeAutocomplete({
     }
 
     setLoading(true);
-    lookupCourseByCode({ programmeCode, codePrefix: debouncedSearch })
+
+    const lookupPromise =
+      level === 'UNDERGRADUATE'
+        ? lookupUgCourseByCode({ programmeCode, codePrefix: debouncedSearch })
+        : lookupPgCourseByCode({ programmeCode, codePrefix: debouncedSearch });
+
+    lookupPromise
       .then((res) => {
         if (active) {
           // Filter out already selected courses for the dropdown if needed
@@ -72,7 +81,7 @@ export function PgCourseCodeAutocomplete({
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, programmeCode, excludeIdsKey]);
+  }, [debouncedSearch, programmeCode, level, excludeIdsKey]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

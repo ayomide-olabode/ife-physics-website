@@ -162,3 +162,28 @@ export async function updateCourseForProgramme(
     return { success: false, error: 'Failed to update course' };
   }
 }
+
+export async function lookupCourseByCode({
+  programmeCode,
+  codePrefix,
+}: {
+  programmeCode: ProgrammeCode;
+  codePrefix: string;
+}) {
+  return prisma.course.findMany({
+    where: {
+      code: { startsWith: codePrefix, mode: 'insensitive' },
+      program: {
+        programmeCode,
+        level: 'UNDERGRADUATE',
+      },
+    },
+    select: {
+      id: true,
+      code: true,
+      title: true,
+    },
+    take: 10,
+    orderBy: { code: 'asc' },
+  });
+}

@@ -31,7 +31,6 @@ export function UndergraduateProgramEditor({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [overviewProspects, setOverviewProspects] = useState(initialData?.overviewProspects || '');
   const [admissionRequirements, setAdmissionRequirements] = useState(
     initialData?.admissionRequirements || '',
   );
@@ -53,7 +52,7 @@ export function UndergraduateProgramEditor({
     startTransition(async () => {
       try {
         const payload = {
-          overviewProspects,
+          overviewProspects: initialData?.overviewProspects || '', // Preserve the existing data without mutating
           admissionRequirements,
           courseRequirements,
           curriculum,
@@ -77,11 +76,6 @@ export function UndergraduateProgramEditor({
 
   return (
     <form onSubmit={onSubmit} className="space-y-8 max-w-4xl pb-10">
-      <div className="space-y-2">
-        <FieldLabel>Overview & Prospects</FieldLabel>
-        <RichTextEditor value={overviewProspects} onChange={setOverviewProspects} />
-      </div>
-
       <div className="space-y-2">
         <FieldLabel>Admission Requirements</FieldLabel>
         <RichTextEditor value={admissionRequirements} onChange={setAdmissionRequirements} />

@@ -5,7 +5,7 @@ import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { getPostgraduateProgram } from '@/server/queries/postgraduateProgram';
 import { PostgraduateProgramEditor } from '@/components/academics/PostgraduateProgramEditor';
 import { listPostgraduateStudyOptions } from '@/server/queries/postgraduateStudyOptions';
-import { PgStudyOptionsInlineEditor } from '@/components/academics/pg/PgStudyOptionsInlineEditor';
+import { StudyOptionsInlineEditor } from '@/components/academics/study-options/StudyOptionsInlineEditor';
 
 interface PageProps {
   params: Promise<{ programmeCode: string }>;
@@ -51,7 +51,11 @@ export default async function PostgraduateProgrammeOverviewPage({
       </div>
 
       <div className="rounded-lg border bg-card p-6">
-        <PgStudyOptionsInlineEditor programmeCode={programmeCode} initialOptions={initialOptions} />
+        <StudyOptionsInlineEditor
+          programmeCode={programmeCode}
+          level="POSTGRADUATE"
+          initialOptions={initialOptions}
+        />
       </div>
     </div>
   );

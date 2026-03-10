@@ -13,13 +13,23 @@ import {
   createPostgraduateStudyOption,
   updatePostgraduateStudyOption,
   deletePostgraduateStudyOption,
-  fetchStudyOptionDetails,
+  fetchStudyOptionDetails as fetchPgStudyOptionDetails,
 } from '@/server/actions/postgraduateStudyOptions';
 import {
   addCourseToPostgraduateStudyOption,
   removeCourseFromPostgraduateStudyOption,
 } from '@/server/actions/postgraduateStudyOptionCourses';
-import { PgCourseCodeAutocomplete } from './PgCourseCodeAutocomplete';
+import {
+  createStudyOption as createUndergraduateStudyOption,
+  updateStudyOption as updateUndergraduateStudyOption,
+  deleteStudyOption as deleteUndergraduateStudyOption,
+  fetchStudyOptionDetails as fetchUgStudyOptionDetails,
+} from '@/server/actions/undergraduateStudyOptions';
+import {
+  addCourseToStudyOption as addCourseToUndergraduateStudyOption,
+  removeCourseFromStudyOption as removeCourseFromUndergraduateStudyOption,
+} from '@/server/actions/undergraduateStudyOptionCourses';
+import { CourseCodeAutocomplete } from '../CourseCodeAutocomplete';
 
 type MappedCourse = { id: string; code: string; title: string };
 
@@ -28,15 +38,17 @@ type StudyOptionPreview = {
   name: string;
 };
 
-interface PgStudyOptionsInlineEditorProps {
+interface StudyOptionsInlineEditorProps {
   programmeCode: ProgrammeCode;
+  level: 'UNDERGRADUATE' | 'POSTGRADUATE';
   initialOptions: StudyOptionPreview[];
 }
 
-export function PgStudyOptionsInlineEditor({
+export function StudyOptionsInlineEditor({
   programmeCode,
+  level,
   initialOptions,
-}: PgStudyOptionsInlineEditorProps) {
+}: StudyOptionsInlineEditorProps) {
   const [options, setOptions] = React.useState<StudyOptionPreview[]>(initialOptions);
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -64,7 +76,12 @@ export function PgStudyOptionsInlineEditor({
 
     setIsLoadingDetails(true);
     try {
-      const res = await fetchStudyOptionDetails(programmeCode, id);
+      const fetchReq =
+        level === 'UNDERGRADUATE'
+          ? fetchUgStudyOptionDetails(programmeCode, id)
+          : fetchPgStudyOptionDetails(programmeCode, id);
+      const res = await fetchReq;
+
       if (res.success && res.data) {
         setTitle(res.data.name);
         setDescription(res.data.about || '');
@@ -90,10 +107,12 @@ export function PgStudyOptionsInlineEditor({
     setIsSaving(true);
     try {
       if (selectedId === 'new') {
-        const res = await createPostgraduateStudyOption(programmeCode, {
-          name: title,
-          about: description,
-        });
+        const createReq =
+          level === 'UNDERGRADUATE'
+            ? createUndergraduateStudyOption(programmeCode, { name: title, about: description })
+            : createPostgraduateStudyOption(programmeCode, { name: title, about: description });
+
+        const res = await createReq;
         if (res.success && res.studyOptionId) {
           toastSuccess('Study option created!');
           setOptions((prev) =>
@@ -106,10 +125,18 @@ export function PgStudyOptionsInlineEditor({
           toastError(res.error || 'Creation failed');
         }
       } else {
-        const res = await updatePostgraduateStudyOption(programmeCode, selectedId!, {
-          name: title,
-          about: description,
-        });
+        const updateReq =
+          level === 'UNDERGRADUATE'
+            ? updateUndergraduateStudyOption(programmeCode, selectedId!, {
+                name: title,
+                about: description,
+              })
+            : updatePostgraduateStudyOption(programmeCode, selectedId!, {
+                name: title,
+                about: description,
+              });
+
+        const res = await updateReq;
         if (res.success) {
           toastSuccess('Study option updated!');
           setOptions((prev) =>
@@ -134,7 +161,12 @@ export function PgStudyOptionsInlineEditor({
 
     setIsSaving(true);
     try {
-      const res = await deletePostgraduateStudyOption(programmeCode, selectedId);
+      const delReq =
+        level === 'UNDERGRADUATE'
+          ? deleteUndergraduateStudyOption(programmeCode, selectedId)
+          : deletePostgraduateStudyOption(programmeCode, selectedId);
+
+      const res = await delReq;
       if (res.success) {
         toastSuccess('Study option deleted');
         setOptions((prev) => prev.filter((o) => o.id !== selectedId));
@@ -153,7 +185,12 @@ export function PgStudyOptionsInlineEditor({
     if (!selectedId || selectedId === 'new') return; // Cannot map unless saved
 
     try {
-      const res = await addCourseToPostgraduateStudyOption(programmeCode, selectedId, course.id);
+      const mapReq =
+        level === 'UNDERGRADUATE'
+          ? addCourseToUndergraduateStudyOption(programmeCode, selectedId, course.id)
+          : addCourseToPostgraduateStudyOption(programmeCode, selectedId, course.id);
+
+      const res = await mapReq;
       if (res.success) {
         toastSuccess('Course mapped');
         setMappedCourses((prev) => [...prev, course].sort((a, b) => a.code.localeCompare(b.code)));
@@ -169,11 +206,12 @@ export function PgStudyOptionsInlineEditor({
     if (!selectedId || selectedId === 'new') return;
 
     try {
-      const res = await removeCourseFromPostgraduateStudyOption(
-        programmeCode,
-        selectedId,
-        courseId,
-      );
+      const unmapReq =
+        level === 'UNDERGRADUATE'
+          ? removeCourseFromUndergraduateStudyOption(programmeCode, selectedId, courseId)
+          : removeCourseFromPostgraduateStudyOption(programmeCode, selectedId, courseId);
+
+      const res = await unmapReq;
       if (res.success) {
         toastSuccess('Course removed');
         setMappedCourses((prev) => prev.filter((c) => c.id !== courseId));
@@ -314,8 +352,9 @@ export function PgStudyOptionsInlineEditor({
                 ) : (
                   <div className="space-y-4">
                     <div className="max-w-md">
-                      <PgCourseCodeAutocomplete
+                      <CourseCodeAutocomplete
                         programmeCode={programmeCode}
+                        level={level}
                         excludeIds={mappedCourses.map((c) => c.id)}
                         onSelect={handleAddCourse}
                         placeholder="Type to search and add a course..."

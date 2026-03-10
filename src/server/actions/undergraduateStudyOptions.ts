@@ -164,3 +164,59 @@ export async function deleteStudyOption(programmeCode: ProgrammeCode, id: string
     return { success: false, error: 'Failed to delete study option' };
   }
 }
+
+export async function fetchStudyOptionDetails(programmeCode: ProgrammeCode, id: string) {
+  try {
+    const session = await requireAuth();
+    await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
+
+    const result = await prisma.studyOption.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        programs: {
+          some: {
+            programmeCode,
+            level: 'UNDERGRADUATE',
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        about: true,
+        courses: {
+          select: {
+            course: {
+              select: {
+                id: true,
+                code: true,
+                title: true,
+              },
+            },
+          },
+          orderBy: {
+            course: { code: 'asc' },
+          },
+        },
+      },
+    });
+
+    if (!result) return { success: false, error: 'Study option not found' };
+
+    return {
+      success: true,
+      data: {
+        id: result.id,
+        name: result.name,
+        about: result.about,
+        mappedCourses: result.courses.map((c) => c.course),
+      },
+    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: 'Failed to fetch details' };
+  }
+}

@@ -118,6 +118,16 @@ export function ResearchOutputEditor({
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
+              <FieldLabel htmlFor="doi">DOI</FieldLabel>
+              <Input
+                id="doi"
+                value={formData.doi}
+                onChange={(e) => setFormData((prev) => ({ ...prev, doi: e.target.value }))}
+                placeholder="e.g. 10.1038/s41567-024-0..."
+              />
+            </div>
+
+            <div className="grid gap-2">
               <FieldLabel required htmlFor="type">
                 Output Type
               </FieldLabel>
@@ -177,16 +187,6 @@ export function ResearchOutputEditor({
                   placeholder="e.g. Nature Physics"
                 />
               </div>
-            </div>
-
-            <div className="grid gap-2">
-              <FieldLabel htmlFor="doi">DOI (optional)</FieldLabel>
-              <Input
-                id="doi"
-                value={formData.doi}
-                onChange={(e) => setFormData((prev) => ({ ...prev, doi: e.target.value }))}
-                placeholder="e.g. 10.1038/s41567-024-0..."
-              />
             </div>
 
             <div className="grid gap-2">

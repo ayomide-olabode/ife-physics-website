@@ -4,9 +4,8 @@ import { PageHeader } from '@/components/dashboard/PageHeader';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { getPostgraduateProgram } from '@/server/queries/postgraduateProgram';
 import { PostgraduateProgramEditor } from '@/components/academics/PostgraduateProgramEditor';
-import { PGStudyOptionsPanel } from '@/components/academics/PGStudyOptionsPanel';
 import { listPostgraduateStudyOptions } from '@/server/queries/postgraduateStudyOptions';
-import { getProgramStudyOptionById } from '@/server/queries/programStudyOptions';
+import { PgStudyOptionsInlineEditor } from '@/components/academics/pg/PgStudyOptionsInlineEditor';
 
 interface PageProps {
   params: Promise<{ programmeCode: string }>;
@@ -31,32 +30,14 @@ export default async function PostgraduateProgrammeOverviewPage({
   const resolvedSearchParams = await searchParams;
   const q = resolvedSearchParams.q || '';
   const page = parseInt(resolvedSearchParams.page || '1', 10);
-  const studyOptionId = resolvedSearchParams.studyOptionId;
 
-  // Concurrent data fetching
+  // Initial fetch for the left sidebar purely: 50 should be enough for any programme realistically
   const [programData, studyOptionsList] = await Promise.all([
     getPostgraduateProgram(programmeCode),
-    listPostgraduateStudyOptions({ programmeCode, q, page, pageSize: 10 }),
+    listPostgraduateStudyOptions({ programmeCode, q, page, pageSize: 50 }),
   ]);
 
-  let selectedOptionData = null;
-  if (studyOptionId) {
-    const programStudyOption = await getProgramStudyOptionById({
-      programmeCode,
-      id: studyOptionId,
-      level: 'POSTGRADUATE',
-    });
-
-    if (programStudyOption && programStudyOption.studyOption) {
-      selectedOptionData = {
-        programStudyOptionId: programStudyOption.id,
-        id: programStudyOption.studyOption.id,
-        name: programStudyOption.studyOption.name,
-        about: programStudyOption.studyOption.about,
-        mappedCourses: programStudyOption.studyOption.courses.map((c) => c.course),
-      };
-    }
-  }
+  const initialOptions = studyOptionsList.items.map((i) => ({ id: i.id, name: i.name }));
 
   return (
     <div className="space-y-6">
@@ -70,12 +51,7 @@ export default async function PostgraduateProgrammeOverviewPage({
       </div>
 
       <div className="rounded-lg border bg-card p-6">
-        <PGStudyOptionsPanel
-          programmeCode={programmeCode}
-          listData={studyOptionsList}
-          selectedOptionData={selectedOptionData}
-          q={q}
-        />
+        <PgStudyOptionsInlineEditor programmeCode={programmeCode} initialOptions={initialOptions} />
       </div>
     </div>
   );

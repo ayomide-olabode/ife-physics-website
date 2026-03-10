@@ -18,26 +18,32 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { lookupCourseByCode } from '@/server/actions/postgraduateCourses';
 import { useDebounce } from '@/hooks/useDebounce';
 
-interface CodeAutocompleteProps {
+interface PgCourseCodeAutocompleteProps {
   programmeCode: ProgrammeCode;
-  value: string;
-  onChange: (value: string) => void;
-  onSelectExact: (code: string) => void;
+  onSelect: (course: { id: string; code: string; title: string }) => void;
+  excludeIds?: string[];
+  placeholder?: string;
   disabled?: boolean;
+  value?: string;
+  onChange?: (val: string) => void;
 }
 
-export function CodeAutocomplete({
+export function PgCourseCodeAutocomplete({
   programmeCode,
+  onSelect,
+  excludeIds = [],
+  placeholder = 'Select or type a course code...',
+  disabled,
   value,
   onChange,
-  onSelectExact,
-  disabled,
-}: CodeAutocompleteProps) {
+}: PgCourseCodeAutocompleteProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const debouncedSearch = useDebounce(search, 300);
 
-  const [results, setResults] = React.useState<Array<{ code: string; title: string }>>([]);
+  const [results, setResults] = React.useState<Array<{ id: string; code: string; title: string }>>(
+    [],
+  );
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
@@ -51,7 +57,9 @@ export function CodeAutocomplete({
     lookupCourseByCode({ programmeCode, codePrefix: debouncedSearch })
       .then((res) => {
         if (active) {
-          setResults(res);
+          // Filter out already selected courses for the dropdown if needed
+          const filtered = res.filter((r) => !excludeIds.includes(r.id));
+          setResults(filtered);
         }
       })
       .finally(() => {
@@ -61,7 +69,7 @@ export function CodeAutocomplete({
     return () => {
       active = false;
     };
-  }, [debouncedSearch, programmeCode]);
+  }, [debouncedSearch, programmeCode, excludeIds]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -73,7 +81,7 @@ export function CodeAutocomplete({
           disabled={disabled}
           className="w-full justify-between"
         >
-          {value || 'Select or type a course code...'}
+          {value || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -84,7 +92,7 @@ export function CodeAutocomplete({
             value={search}
             onValueChange={(val) => {
               setSearch(val);
-              onChange(val.toUpperCase()); // update the actual form value as they type
+              if (onChange) onChange(val.toUpperCase());
             }}
           />
           <CommandList>
@@ -98,12 +106,14 @@ export function CodeAutocomplete({
             <CommandGroup>
               {results.map((course) => (
                 <CommandItem
-                  key={course.code}
+                  key={course.id}
                   value={course.code}
                   onSelect={(currentValue) => {
-                    onChange(currentValue.toUpperCase());
-                    onSelectExact(currentValue.toUpperCase());
+                    const upperVal = currentValue.toUpperCase();
+                    if (onChange) onChange(upperVal);
+                    onSelect(course);
                     setOpen(false);
+                    setSearch(''); // clear search on select for continuous adding
                   }}
                 >
                   <Check

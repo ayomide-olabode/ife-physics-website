@@ -20,7 +20,7 @@ import {
   updatePostgraduateCourseForProgramme,
 } from '@/server/actions/postgraduateCourses';
 import { getCourseByExactCode } from '@/server/actions/postgraduateCourses';
-import { CodeAutocomplete } from './CodeAutocomplete';
+import { PgCourseCodeAutocomplete } from './pg/PgCourseCodeAutocomplete';
 
 export type PGCourseFormData = {
   id?: string;
@@ -121,11 +121,11 @@ export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormC
           <FieldLabel required htmlFor="code">
             Course Code
           </FieldLabel>
-          <CodeAutocomplete
+          <PgCourseCodeAutocomplete
             programmeCode={programmeCode}
             value={code}
             onChange={setCode}
-            onSelectExact={onSelectExactCourse}
+            onSelect={(course) => onSelectExactCourse(course.code)}
             disabled={isEditing}
           />
         </div>

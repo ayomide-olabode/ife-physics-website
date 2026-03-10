@@ -28,7 +28,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // Undergraduate + Postgraduate: ACADEMIC_COORDINATOR or superadmin
   if (isAdmin || (await hasGlobalRole(session, 'ACADEMIC_COORDINATOR'))) {
-    navItems.push({ label: 'Undergraduate', href: '/dashboard/undergraduate' });
+    navItems.push({
+      label: 'Undergraduate',
+      href: '/dashboard/undergraduate',
+      children: [
+        { label: 'Physics', href: '/dashboard/undergraduate/phy/overview' },
+        { label: 'Engineering Physics', href: '/dashboard/undergraduate/eph/overview' },
+        { label: 'Science Laboratory Technology', href: '/dashboard/undergraduate/slt/overview' },
+      ],
+    });
     navItems.push({
       label: 'Postgraduate',
       href: '/dashboard/postgraduate',

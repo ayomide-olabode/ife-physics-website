@@ -42,7 +42,11 @@ export function ProgramStudyOptionUnlinkButton({
       toastSuccess('Study option unlinked from programme successfully.');
       setOpen(false);
       router.refresh();
-      router.push(`/dashboard/${level.toLowerCase()}/${programmeCode.toLowerCase()}/study-options`);
+      if (level === 'POSTGRADUATE') {
+        router.push(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/overview`);
+      } else {
+        router.push(`/dashboard/undergraduate/${programmeCode.toLowerCase()}/study-options`);
+      }
     } else {
       toastError(res.error || 'Failed to unlink study option.');
       setIsDeleting(false);

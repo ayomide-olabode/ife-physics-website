@@ -60,13 +60,8 @@ export default async function PostgraduateCoursesPage({ params, searchParams }: 
 
   return (
     <div className="space-y-6">
-      <BackToParent
-        href={`/dashboard/postgraduate/${code}/overview`}
-        label="Back to Programme Overview"
-      />
-
       <PageHeader
-        title={`PG Courses — ${programmeCode}`}
+        title={`${programmeCode} / Courses`}
         description={`Manage the list of courses offered for the ${programmeCode} postgraduate programme.`}
         actions={
           <Button asChild>

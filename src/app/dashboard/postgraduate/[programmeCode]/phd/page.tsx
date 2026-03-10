@@ -25,7 +25,7 @@ export default async function PhdDegreePage({ params }: PageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Postgraduate — ${programmeCode} / Ph.D.`}
+        title={`${programmeCode} / Ph.D.`}
         description="Manage the academic requirements and content for the Doctor of Philosophy programme."
       />
 

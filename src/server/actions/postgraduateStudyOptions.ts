@@ -56,7 +56,7 @@ export async function updatePostgraduateStudyOption(
       snapshot: { programmeCode, ...validated },
     });
 
-    revalidatePath(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options`);
+    revalidatePath(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/overview`);
 
     return { success: true };
   } catch (error: unknown) {

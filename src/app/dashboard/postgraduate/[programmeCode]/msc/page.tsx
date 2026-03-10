@@ -25,7 +25,7 @@ export default async function MscDegreePage({ params }: PageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Postgraduate — ${programmeCode} / M.Sc.`}
+        title={`${programmeCode} / M.Sc.`}
         description="Manage the academic requirements and content for the Master of Science programme."
       />
 

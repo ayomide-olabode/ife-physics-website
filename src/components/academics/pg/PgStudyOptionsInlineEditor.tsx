@@ -186,7 +186,7 @@ export function PgStudyOptionsInlineEditor({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 h-[700px]">
+    <div className="flex flex-col md:flex-row gap-6 h-[400px]">
       {/* Sidebar List */}
       <div className="w-full md:w-1/3 flex flex-col border rounded-md bg-muted/20">
         <div className="p-4 border-b space-y-3">
@@ -216,8 +216,8 @@ export function PgStudyOptionsInlineEditor({
                 onClick={() => handleSelect(opt.id)}
                 className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
                   selectedId === opt.id
-                    ? 'bg-primary text-primary-foreground font-medium'
-                    : 'hover:bg-accent hover:text-accent-foreground'
+                    ? 'bg-primary/10 text-accent-foreground font-medium'
+                    : 'hover:bg-primary/5 hover:text-accent-foreground'
                 }`}
               >
                 {opt.name}
@@ -225,8 +225,8 @@ export function PgStudyOptionsInlineEditor({
             ))
           )}
           {selectedId === 'new' && (
-            <button className="w-full text-left px-3 py-2 text-sm rounded-md bg-primary text-primary-foreground font-medium">
-              New Study Option...
+            <button className="w-full text-left px-3 py-2 text-sm rounded-md bg-primary/10 text-accent-foreground font-medium">
+              New Study Option
             </button>
           )}
         </div>

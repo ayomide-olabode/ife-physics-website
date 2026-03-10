@@ -67,9 +67,13 @@ export function StudyOptionLinkModal({ programmeCode, level }: Props) {
       setOpen(false);
       router.refresh();
       // Redirect to edit page
-      router.push(
-        `/dashboard/${level.toLowerCase()}/${programmeCode.toLowerCase()}/study-options/${res.programStudyOptionId}`,
-      );
+      if (level === 'POSTGRADUATE') {
+        router.push(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/overview`);
+      } else {
+        router.push(
+          `/dashboard/undergraduate/${programmeCode.toLowerCase()}/study-options/${res.programStudyOptionId}`,
+        );
+      }
     } else {
       toastError(res.error || 'Failed to link option');
     }
@@ -102,9 +106,13 @@ export function StudyOptionLinkModal({ programmeCode, level }: Props) {
       toastSuccess('Created and linked study option successfully');
       setOpen(false);
       router.refresh();
-      router.push(
-        `/dashboard/${level.toLowerCase()}/${programmeCode.toLowerCase()}/study-options/${linkRes.programStudyOptionId}`,
-      );
+      if (level === 'POSTGRADUATE') {
+        router.push(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/overview`);
+      } else {
+        router.push(
+          `/dashboard/undergraduate/${programmeCode.toLowerCase()}/study-options/${linkRes.programStudyOptionId}`,
+        );
+      }
     } else {
       toastError(linkRes.error || 'Study option created but linking failed');
     }

@@ -87,9 +87,11 @@ export async function linkStudyOptionToProgram({
       snapshot: { programmeCode, level, studyOptionId },
     });
 
-    revalidatePath(
-      `/dashboard/${level.toLowerCase()}/${programmeCode.toLowerCase()}/study-options`,
-    );
+    if (level === 'POSTGRADUATE') {
+      revalidatePath(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/overview`);
+    } else {
+      revalidatePath(`/dashboard/undergraduate/${programmeCode.toLowerCase()}/study-options`);
+    }
 
     return { success: true, programStudyOptionId: linked.id };
   } catch (error: unknown) {
@@ -137,9 +139,11 @@ export async function unlinkStudyOptionFromProgram({
       snapshot: { programmeCode, level, studyOptionId: existing.studyOptionId },
     });
 
-    revalidatePath(
-      `/dashboard/${level.toLowerCase()}/${programmeCode.toLowerCase()}/study-options`,
-    );
+    if (level === 'POSTGRADUATE') {
+      revalidatePath(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/overview`);
+    } else {
+      revalidatePath(`/dashboard/undergraduate/${programmeCode.toLowerCase()}/study-options`);
+    }
 
     return { success: true };
   } catch (error: unknown) {

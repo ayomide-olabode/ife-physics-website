@@ -53,9 +53,7 @@ export async function addCourseToPostgraduateStudyOption(
       snapshot: { programmeCode, studyOptionId, courseId, courseCode: course.code },
     });
 
-    revalidatePath(
-      `/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options/${programStudyOption.id}`,
-    );
+    revalidatePath(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/overview`);
 
     return { success: true };
   } catch (error: unknown) {
@@ -109,9 +107,7 @@ export async function removeCourseFromPostgraduateStudyOption(
       snapshot: { programmeCode, studyOptionId, courseId },
     });
 
-    revalidatePath(
-      `/dashboard/postgraduate/${programmeCode.toLowerCase()}/study-options/${programStudyOption.id}`,
-    );
+    revalidatePath(`/dashboard/postgraduate/${programmeCode.toLowerCase()}/overview`);
 
     return { success: true };
   } catch (error: unknown) {

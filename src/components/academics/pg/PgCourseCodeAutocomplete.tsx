@@ -46,10 +46,12 @@ export function PgCourseCodeAutocomplete({
   );
   const [loading, setLoading] = React.useState(false);
 
+  const excludeIdsKey = excludeIds.join(',');
+
   React.useEffect(() => {
     let active = true;
     if (!debouncedSearch || debouncedSearch.length < 2) {
-      setResults([]);
+      setResults((prev) => (prev.length === 0 ? prev : []));
       return;
     }
 
@@ -69,7 +71,8 @@ export function PgCourseCodeAutocomplete({
     return () => {
       active = false;
     };
-  }, [debouncedSearch, programmeCode, excludeIds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, programmeCode, excludeIdsKey]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

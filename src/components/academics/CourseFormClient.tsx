@@ -18,7 +18,9 @@ import { toastSuccess, toastError } from '@/lib/toast';
 import {
   createCourseForProgramme,
   updateCourseForProgramme,
+  getCourseByExactCode,
 } from '@/server/actions/undergraduateCourses';
+import { CourseCodeAutocomplete } from './CourseCodeAutocomplete';
 
 export type CourseFormData = {
   id?: string;
@@ -92,6 +94,24 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
     });
   };
 
+  const onSelectExactCourse = async (selectedCode: string) => {
+    try {
+      const course = await getCourseByExactCode({ code: selectedCode });
+      if (course) {
+        setTitle(course.title);
+        setDescription(course.description || '');
+        setPrerequisites(course.prerequisites || '');
+        setL(course.L ?? 0);
+        setT(course.T ?? 0);
+        setP(course.P ?? 0);
+        setU(course.U ?? 0);
+        setStatus(course.status as 'CORE' | 'RESTRICTED');
+      }
+    } catch {
+      toastError('Failed to fetch course details.');
+    }
+  };
+
   return (
     <form onSubmit={onSubmit} className="space-y-6 max-w-2xl pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -99,13 +119,13 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
           <FieldLabel required htmlFor="code">
             Course Code
           </FieldLabel>
-          <Input
-            id="code"
+          <CourseCodeAutocomplete
+            programmeCode={programmeCode}
+            level="UNDERGRADUATE"
             value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="e.g. PHY101"
-            required
-            maxLength={12}
+            onChange={setCode}
+            onSelect={(course) => onSelectExactCourse(course.code)}
+            disabled={isEditing}
           />
         </div>
 

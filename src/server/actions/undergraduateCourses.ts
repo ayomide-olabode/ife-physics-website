@@ -50,24 +50,56 @@ export async function createCourseForProgramme(programmeCode: ProgrammeCode, dat
 
     const normalize = (val?: string) => (val && val.trim() !== '' ? val : null);
 
-    const course = await prisma.course.create({
-      data: {
-        code: validated.code,
-        title: validated.title,
-        description: normalize(validated.description),
-        prerequisites: normalize(validated.prerequisites),
-        L: validated.L,
-        T: validated.T,
-        P: validated.P,
-        U: validated.U,
-        status: validated.status,
-        programId: program.id,
-      },
+    // Upsert: if the code already exists in the same programme scope, update instead
+    const existing = await prisma.course.findUnique({
+      where: { code: validated.code },
+      select: { id: true, programId: true },
     });
+
+    let course;
+    if (existing) {
+      // Conflict: course exists but belongs to a different programme
+      if (existing.programId !== program.id) {
+        return {
+          success: false,
+          error: `Course ${validated.code} already exists under a different programme.`,
+        };
+      }
+
+      // Same programme scope → update
+      course = await prisma.course.update({
+        where: { id: existing.id },
+        data: {
+          title: validated.title,
+          description: normalize(validated.description),
+          prerequisites: normalize(validated.prerequisites),
+          L: validated.L,
+          T: validated.T,
+          P: validated.P,
+          U: validated.U,
+          status: validated.status,
+        },
+      });
+    } else {
+      course = await prisma.course.create({
+        data: {
+          code: validated.code,
+          title: validated.title,
+          description: normalize(validated.description),
+          prerequisites: normalize(validated.prerequisites),
+          L: validated.L,
+          T: validated.T,
+          P: validated.P,
+          U: validated.U,
+          status: validated.status,
+          programId: program.id,
+        },
+      });
+    }
 
     await logAudit({
       actorId: session.user?.userId || '',
-      action: 'COURSE_CREATED',
+      action: existing ? 'COURSE_UPDATED' : 'COURSE_CREATED',
       entityType: 'Course',
       entityId: course.id,
       snapshot: { programmeCode, ...validated },
@@ -81,9 +113,6 @@ export async function createCourseForProgramme(programmeCode: ProgrammeCode, dat
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0].message };
-    }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return { success: false, error: 'A course with this code already exists.' };
     }
     if (error instanceof Error) {
       return { success: false, error: error.message };
@@ -185,5 +214,24 @@ export async function lookupCourseByCode({
     },
     take: 10,
     orderBy: { code: 'asc' },
+  });
+}
+
+export async function getCourseByExactCode({ code }: { code: string }) {
+  return prisma.course.findUnique({
+    where: { code },
+    select: {
+      id: true,
+      code: true,
+      title: true,
+      description: true,
+      prerequisites: true,
+      L: true,
+      T: true,
+      P: true,
+      U: true,
+      status: true,
+      programId: true,
+    },
   });
 }

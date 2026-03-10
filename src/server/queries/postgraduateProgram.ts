@@ -11,9 +11,6 @@ export async function getPostgraduateProgram(programmeCode: ProgrammeCode) {
     },
     select: {
       overviewProspects: true,
-      studyOptionsText: true,
-      curriculum: true,
-      programmeStructure: true,
     },
   });
 }

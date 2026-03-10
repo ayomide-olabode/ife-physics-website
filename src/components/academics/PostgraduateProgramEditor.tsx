@@ -11,9 +11,6 @@ import { ProgrammeCode } from '@prisma/client';
 
 type PostgraduateProgramData = {
   overviewProspects: string | null;
-  studyOptionsText: string | null;
-  curriculum: string | null;
-  programmeStructure: string | null;
 };
 
 interface PostgraduateProgramEditorProps {
@@ -29,11 +26,6 @@ export function PostgraduateProgramEditor({
   const [isPending, startTransition] = useTransition();
 
   const [overviewProspects, setOverviewProspects] = useState(initialData?.overviewProspects || '');
-  const [studyOptionsText, setStudyOptionsText] = useState(initialData?.studyOptionsText || '');
-  const [curriculum, setCurriculum] = useState(initialData?.curriculum || '');
-  const [programmeStructure, setProgrammeStructure] = useState(
-    initialData?.programmeStructure || '',
-  );
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,9 +34,6 @@ export function PostgraduateProgramEditor({
       try {
         const payload = {
           overviewProspects,
-          studyOptionsText,
-          curriculum,
-          programmeStructure,
         };
 
         const res = await updatePostgraduateProgram(programmeCode, payload);
@@ -65,21 +54,6 @@ export function PostgraduateProgramEditor({
       <div className="space-y-2">
         <FieldLabel>Overview &amp; Prospects</FieldLabel>
         <RichTextEditor value={overviewProspects} onChange={setOverviewProspects} />
-      </div>
-
-      <div className="space-y-2">
-        <FieldLabel>Study Options (Text)</FieldLabel>
-        <RichTextEditor value={studyOptionsText} onChange={setStudyOptionsText} />
-      </div>
-
-      <div className="space-y-2">
-        <FieldLabel>Curriculum</FieldLabel>
-        <RichTextEditor value={curriculum} onChange={setCurriculum} />
-      </div>
-
-      <div className="space-y-2">
-        <FieldLabel>Programme Structure</FieldLabel>
-        <RichTextEditor value={programmeStructure} onChange={setProgrammeStructure} />
       </div>
 
       <div className="pt-4 border-t">

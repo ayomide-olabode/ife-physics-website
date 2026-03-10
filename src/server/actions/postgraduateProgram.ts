@@ -9,9 +9,6 @@ import { logAudit } from '@/lib/audit';
 
 const updatePgSectionsSchema = z.object({
   overviewProspects: z.string().max(50000).optional(),
-  studyOptionsText: z.string().max(50000).optional(),
-  curriculum: z.string().max(50000).optional(),
-  programmeStructure: z.string().max(50000).optional(),
 });
 
 type UpdatePgSectionsInput = z.infer<typeof updatePgSectionsSchema>;
@@ -30,9 +27,6 @@ export async function updatePostgraduateProgram(
 
     const updateData = {
       overviewProspects: normalize(validatedData.overviewProspects),
-      studyOptionsText: normalize(validatedData.studyOptionsText),
-      curriculum: normalize(validatedData.curriculum),
-      programmeStructure: normalize(validatedData.programmeStructure),
     };
 
     const normalizedCode = programmeCode.toUpperCase() as ProgrammeCode;

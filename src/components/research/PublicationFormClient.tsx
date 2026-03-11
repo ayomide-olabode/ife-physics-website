@@ -16,6 +16,7 @@ import {
   deletePublication,
 } from '@/server/actions/publications';
 import { Loader2 } from 'lucide-react';
+import { YearSelect } from '@/components/forms/YearSelect';
 
 const currentYear = new Date().getFullYear();
 
@@ -64,7 +65,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
   const [data, setData] = useState({
     title: initialData?.title || '',
     authors: initialData?.authors || '',
-    year: initialData?.year ?? '',
+    year: initialData?.year ?? null,
     venue: initialData?.venue || '',
     doi: initialData?.doi || '',
     url: initialData?.url || '',
@@ -165,17 +166,10 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <FieldLabel htmlFor="year">Year</FieldLabel>
-              <Input
-                id="year"
-                type="number"
-                value={data.year}
-                onChange={(e) =>
-                  setData({ ...data, year: e.target.value ? Number(e.target.value) : '' })
-                }
-                placeholder="e.g. 2024"
+              <YearSelect
+                value={data.year ?? null}
+                onChange={(val) => setData({ ...data, year: val })}
                 disabled={isSubmitting}
-                min={1900}
-                max={currentYear + 1}
               />
             </div>
             <div className="space-y-2">

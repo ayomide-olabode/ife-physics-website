@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
+import { YearSelect } from '@/components/forms/YearSelect';
 import {
   Dialog,
   DialogContent,
@@ -167,14 +168,11 @@ export function ResearchOutputEditor({
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <FieldLabel htmlFor="year">Year</FieldLabel>
-                <Input
-                  id="year"
-                  type="number"
-                  min="1900"
-                  max={new Date().getFullYear() + 1}
+                <YearSelect
                   value={formData.year}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, year: e.target.value }))}
-                  placeholder="e.g. 2024"
+                  onChange={(val) =>
+                    setFormData((prev) => ({ ...prev, year: val ? String(val) : '' }))
+                  }
                 />
               </div>
 

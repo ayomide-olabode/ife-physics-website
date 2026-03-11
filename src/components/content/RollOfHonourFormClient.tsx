@@ -8,6 +8,7 @@ import { FieldLabel } from '@/components/forms/FieldLabel';
 import { createRollOfHonour, updateRollOfHonour } from '@/server/actions/rollOfHonour';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { RollOfHonourImageUploader } from './RollOfHonourImageUploader';
+import { YearSelect } from '@/components/forms/YearSelect';
 
 type FormDataState = {
   name: string;
@@ -161,17 +162,11 @@ export function RollOfHonourFormClient({
               <FieldLabel required htmlFor="graduatingYear">
                 Graduating Year
               </FieldLabel>
-              <Input
-                id="graduatingYear"
-                type="number"
-                min="1900"
-                max={new Date().getFullYear() + 1}
+              <YearSelect
                 value={formData.graduatingYear}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, graduatingYear: e.target.value }))
+                onChange={(val) =>
+                  setFormData((prev) => ({ ...prev, graduatingYear: val ? String(val) : '' }))
                 }
-                placeholder="e.g. 2024"
-                required
               />
             </div>
           </div>

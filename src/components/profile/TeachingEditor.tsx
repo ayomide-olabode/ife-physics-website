@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
+import { YearSelect } from '@/components/forms/YearSelect';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { createMyTeaching, updateMyTeaching } from '@/server/actions/profileTeaching';
 import { useRouter } from 'next/navigation';
@@ -124,14 +125,11 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <FieldLabel htmlFor="sessionYear">Session Year</FieldLabel>
-              <Input
-                id="sessionYear"
-                type="number"
-                min="1900"
-                max={new Date().getFullYear() + 1}
+              <YearSelect
                 value={formData.sessionYear}
-                onChange={(e) => setFormData((prev) => ({ ...prev, sessionYear: e.target.value }))}
-                placeholder="e.g. 2024"
+                onChange={(val) =>
+                  setFormData((prev) => ({ ...prev, sessionYear: val ? String(val) : '' }))
+                }
               />
             </div>
             <div className="space-y-2">

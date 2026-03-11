@@ -11,6 +11,7 @@ import { toastSuccess, toastError } from '@/lib/toast';
 import { createLegacyItem, updateLegacyItem } from '@/server/actions/legacyGallery';
 import { Loader2 } from 'lucide-react';
 import { LegacyMediaUploader } from './LegacyMediaUploader';
+import { YearSelect } from '@/components/forms/YearSelect';
 
 const legacyGallerySchema = z.object({
   title: z.string().min(1, 'Title is required').max(300),
@@ -90,14 +91,9 @@ export function LegacyGalleryFormClient({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <FieldLabel htmlFor="year">Timeline Year</FieldLabel>
-            <Input
-              id="year"
-              type="number"
-              value={data.year || ''}
-              onChange={(e) =>
-                setData({ ...data, year: e.target.value ? Number(e.target.value) : null })
-              }
-              placeholder="e.g. 1999"
+            <YearSelect
+              value={data.year ?? null}
+              onChange={(val) => setData({ ...data, year: val })}
               disabled={isSubmitting}
             />
           </div>

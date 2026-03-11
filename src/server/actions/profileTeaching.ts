@@ -16,7 +16,7 @@ const teachingSchema = z.object({
     .optional()
     .or(z.literal(''))
     .transform((val) => (val ? val.toUpperCase() : undefined)),
-  sessionYear: z
+  sessionYear: z.coerce
     .number()
     .int()
     .min(1900, 'Year must be 1900 or later.')

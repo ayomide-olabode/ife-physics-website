@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
+import { YearSelect } from '@/components/forms/YearSelect';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { createMyThesis, updateMyThesis } from '@/server/actions/profileTheses';
 import { useRouter } from 'next/navigation';
@@ -116,13 +117,11 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
               <FieldLabel required htmlFor="year">
                 Year
               </FieldLabel>
-              <Input
-                id="year"
-                type="number"
+              <YearSelect
                 value={formData.year}
-                onChange={(e) => setFormData((prev) => ({ ...prev, year: e.target.value }))}
-                placeholder="YYYY"
-                required
+                onChange={(val) =>
+                  setFormData((prev) => ({ ...prev, year: val ? String(val) : '' }))
+                }
               />
             </div>
 

@@ -9,7 +9,7 @@ import { ResearchOutputType } from '@prisma/client';
 const researchOutputSchema = z.object({
   type: z.nativeEnum(ResearchOutputType, { message: 'Invalid output type' }),
   title: z.string().min(1, 'Title is strictly required.'),
-  year: z
+  year: z.coerce
     .number()
     .int()
     .min(1900, 'Year must be 1900 or later.')

@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { ThesisStatus } from '@prisma/client';
 
 const thesisSchema = z.object({
-  year: z
+  year: z.coerce
     .number()
     .int()
     .min(1900)

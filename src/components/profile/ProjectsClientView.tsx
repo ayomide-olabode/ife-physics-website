@@ -15,8 +15,13 @@ import { useRouter } from 'next/navigation';
 
 type ProjectFormData = {
   title: string;
-  description?: string;
-  url?: string;
+  acronym: string;
+  descriptionHtml: string;
+  url: string;
+  status: string;
+  isFunded: boolean;
+  startYear: string;
+  endYear: string;
 };
 
 type ProjectEditorProps = {
@@ -26,6 +31,11 @@ type ProjectEditorProps = {
 type ProjectItem = {
   id: string;
   title: string;
+  acronym: string | null;
+  status: string;
+  isFunded: boolean;
+  startYear: number;
+  endYear: number | null;
   url: string | null;
   createdAt: Date;
 };
@@ -63,8 +73,13 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
       setEditorData({
         id: fullDoc.id,
         title: fullDoc.title,
-        description: fullDoc.description || '',
+        acronym: fullDoc.acronym || '',
+        descriptionHtml: fullDoc.descriptionHtml || '',
         url: fullDoc.url || '',
+        status: fullDoc.status,
+        isFunded: fullDoc.isFunded,
+        startYear: fullDoc.startYear.toString(),
+        endYear: fullDoc.endYear ? fullDoc.endYear.toString() : '',
       });
       setEditorOpen(true);
     } catch {
@@ -112,10 +127,22 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
       />
 
       <DataTable
-        headers={['Title', 'Link', 'Created', 'Actions']}
+        headers={['Title', 'Status', 'Years', 'Link', 'Actions']}
         rows={data.items.map((item) => [
-          <span key="title" className="text-sm block min-w-[300px] font-medium">
-            {item.title}
+          <div key="title" className="text-sm block min-w-[300px]">
+            <span className="font-medium">{item.title}</span>
+            {item.acronym && <span className="text-muted-foreground ml-2">({item.acronym})</span>}
+            {item.isFunded && (
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-800">
+                Funded
+              </span>
+            )}
+          </div>,
+          <span key="status" className="text-sm text-muted-foreground capitalize">
+            {item.status.toLowerCase()}
+          </span>,
+          <span key="years" className="text-sm text-muted-foreground">
+            {item.startYear} - {item.endYear || 'Ongoing'}
           </span>,
           <div key="links" className="flex flex-col gap-1">
             {item.url ? (
@@ -132,9 +159,7 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
               <span className="text-xs text-muted-foreground">-</span>
             )}
           </div>,
-          <span key="createdAt" className="text-sm text-muted-foreground">
-            {new Date(item.createdAt).toLocaleDateString()}
-          </span>,
+
           <div key="actions" className="flex items-center gap-2">
             <button
               onClick={() => handleEdit(item.id)}

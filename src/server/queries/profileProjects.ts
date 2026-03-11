@@ -5,6 +5,11 @@ import prisma from '@/lib/prisma';
 export type ProjectRow = {
   id: string;
   title: string;
+  acronym: string | null;
+  status: string;
+  isFunded: boolean;
+  startYear: number;
+  endYear: number | null;
   url: string | null;
   createdAt: Date;
 };
@@ -29,6 +34,11 @@ export async function listMyProjects({
       select: {
         id: true,
         title: true,
+        acronym: true,
+        status: true,
+        isFunded: true,
+        startYear: true,
+        endYear: true,
         url: true,
         createdAt: true,
       },
@@ -63,7 +73,12 @@ export async function getMyProjectById({ staffId, id }: { staffId: string; id: s
     select: {
       id: true,
       title: true,
-      description: true,
+      acronym: true,
+      descriptionHtml: true,
+      status: true,
+      isFunded: true,
+      startYear: true,
+      endYear: true,
       url: true,
     },
   });

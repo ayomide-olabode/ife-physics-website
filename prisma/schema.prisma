@@ -102,6 +102,12 @@ enum ThesisStatus {
   DISCONTINUED
 }
 
+enum ProjectStatus {
+  COMPLETED
+  DISCONTINUED
+  ONGOING
+}
+
 enum EventOpportunityType {
   EVENT
   OPPORTUNITY
@@ -333,11 +339,17 @@ model Project {
   staffId     String
   staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  title       String
-  description String?
-  url         String?
+  title           String
+  acronym         String?
+  descriptionHtml String?
+  url             String?
+  
+  status          ProjectStatus @default(ONGOING)
+  isFunded        Boolean       @default(false)
+  startYear       Int           @default(2025)
+  endYear         Int?
 
-  createdAt   DateTime @default(now())
+  createdAt       DateTime      @default(now())
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime?
 }

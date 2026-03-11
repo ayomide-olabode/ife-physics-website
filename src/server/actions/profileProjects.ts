@@ -5,11 +5,29 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
-const projectSchema = z.object({
-  title: z.string().min(1, 'Title is required.'),
-  description: z.string().max(2000, 'Description heavily limited up to 2000 chars.').optional(),
-  url: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
-});
+import { ProjectStatus } from '@prisma/client';
+
+const currentYear = new Date().getFullYear();
+
+const projectSchema = z
+  .object({
+    title: z.string().min(1, 'Title is required.'),
+    acronym: z.string().max(30, 'Acronym max 30 characters.').optional().or(z.literal('')),
+    descriptionHtml: z
+      .string()
+      .max(50000, 'Description heavily limited.')
+      .optional()
+      .or(z.literal('')),
+    url: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
+    status: z.nativeEnum(ProjectStatus),
+    isFunded: z.boolean().default(false),
+    startYear: z.coerce.number().int().min(1960).max(currentYear),
+    endYear: z.coerce.number().int().nullable().optional(),
+  })
+  .refine((data) => !data.endYear || data.endYear >= data.startYear, {
+    message: 'End year cannot be before start year.',
+    path: ['endYear'],
+  });
 
 type ActionResponse = {
   success: boolean;
@@ -37,8 +55,13 @@ export async function createMyProject(
       data: {
         staffId,
         title: validated.title,
-        description: validated.description || null,
+        acronym: validated.acronym || null,
+        descriptionHtml: validated.descriptionHtml || null,
         url: validated.url || null,
+        status: validated.status,
+        isFunded: validated.isFunded,
+        startYear: validated.startYear,
+        endYear: validated.endYear || null,
       },
       select: { id: true },
     });
@@ -91,8 +114,13 @@ export async function updateMyProject(
       where: { id },
       data: {
         title: validated.title,
-        description: validated.description || null,
+        acronym: validated.acronym || null,
+        descriptionHtml: validated.descriptionHtml || null,
         url: validated.url || null,
+        status: validated.status,
+        isFunded: validated.isFunded,
+        startYear: validated.startYear,
+        endYear: validated.endYear || null,
       },
     });
 

@@ -4,7 +4,7 @@ import { BackToParent } from '@/components/dashboard/BackToParent';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { ResearchOutputFormClient } from '@/components/profile/ResearchOutputFormClient';
 import { notFound } from 'next/navigation';
-import type { AuthorObject } from '@/lib/researchOutputTypes';
+import { mapLegacyToApa } from '@/lib/legacyResearchOutputCompat';
 
 export default async function EditResearchOutputPage({
   params,
@@ -25,6 +25,19 @@ export default async function EditResearchOutputPage({
 
   if (!data) return notFound();
 
+  // Map legacy fields → APA shape (safe — only fills in blanks)
+  const compat = mapLegacyToApa({
+    type: data.type,
+    authors: data.authors,
+    venue: data.venue,
+    authorsJson: data.authorsJson,
+    keywordsJson: data.keywordsJson,
+    metaJson: data.metaJson,
+    sourceTitle: data.sourceTitle,
+    publisher: data.publisher,
+    groupAuthor: data.groupAuthor,
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
@@ -42,20 +55,20 @@ export default async function EditResearchOutputPage({
           title: data.title,
           subtitle: data.subtitle || '',
           authors: data.authors || '',
-          groupAuthor: data.groupAuthor || '',
+          groupAuthor: compat.groupAuthor,
           year: data.year?.toString() || '',
           fullDate: data.fullDate ? data.fullDate.toISOString().split('T')[0] : '',
           venue: data.venue || '',
-          sourceTitle: data.sourceTitle || '',
-          publisher: data.publisher || '',
+          sourceTitle: compat.sourceTitle,
+          publisher: compat.publisher,
           url: data.url || '',
           doi: data.doi || '',
           language: data.language || '',
           abstract: data.abstract || '',
           notes: data.notes || '',
-          metaJson: (data.metaJson || {}) as Record<string, unknown>,
-          authorsJson: (data.authorsJson || []) as AuthorObject[],
-          keywordsJson: (data.keywordsJson || []) as string[],
+          metaJson: compat.metaJson,
+          authorsJson: compat.authorsJson,
+          keywordsJson: compat.keywordsJson,
         }}
       />
     </div>

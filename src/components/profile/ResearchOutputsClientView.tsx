@@ -18,6 +18,7 @@ type ResearchOutputItem = {
   year: number | null;
   sourceTitle: string | null;
   publisher: string | null;
+  venue: string | null;
   url: string | null;
   doi: string | null;
   createdAt: Date;
@@ -76,7 +77,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
       <DataTable
         headers={['Year', 'Type', 'Title', 'Source', 'DOI / URL', 'Actions']}
         rows={data.items.map((item) => {
-          const source = item.sourceTitle || item.publisher || '—';
+          const source = item.sourceTitle || item.publisher || item.venue || '—';
 
           return [
             <span key="year" className="text-sm tabular-nums">

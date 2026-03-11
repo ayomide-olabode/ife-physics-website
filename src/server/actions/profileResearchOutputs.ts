@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { requireAuth, requireStaffOwnership } from '@/lib/guards';
 import { z } from 'zod';
 import { Prisma, ResearchOutputType } from '@prisma/client';
+import { mergeMetaJson, deriveAuthorsString } from '@/lib/legacyResearchOutputCompat';
 
 /* ── sub-schemas ── */
 
@@ -199,15 +200,11 @@ export const researchOutputSchema = z
 /* ── Helpers ── */
 
 function buildPersistData(validData: z.infer<typeof researchOutputSchema>) {
-  // Auto-sync flat authors string from authorsJson
+  // Derive flat authors string from structured data
   const flatAuthors =
-    validData.authors && validData.authors.trim().length > 0
-      ? validData.authors.trim()
-      : validData.authorsJson && validData.authorsJson.length > 0
-        ? validData.authorsJson
-            .map((a) => [a.family_name, a.given_name].filter(Boolean).join(' '))
-            .join(', ')
-        : validData.groupAuthor?.trim() || '';
+    deriveAuthorsString(validData.authorsJson, validData.groupAuthor) ||
+    validData.authors?.trim() ||
+    '';
 
   return {
     type: validData.type,
@@ -275,7 +272,7 @@ export async function updateMyResearchOutput(
 
     const existing = await prisma.researchOutput.findUnique({
       where: { id },
-      select: { staffId: true },
+      select: { staffId: true, metaJson: true },
     });
 
     if (!existing || existing.staffId !== staffId) {
@@ -287,9 +284,30 @@ export async function updateMyResearchOutput(
       return { error: parsed.error.issues[0].message };
     }
 
+    const persistData = buildPersistData(parsed.data);
+
+    // Merge metaJson: preserve unknown keys from existing record
+    const existingMeta =
+      existing.metaJson &&
+      typeof existing.metaJson === 'object' &&
+      !Array.isArray(existing.metaJson)
+        ? (existing.metaJson as Record<string, unknown>)
+        : {};
+    const incomingMeta =
+      persistData.metaJson && typeof persistData.metaJson === 'object'
+        ? (persistData.metaJson as Record<string, unknown>)
+        : {};
+    const mergedMeta = mergeMetaJson(existingMeta, incomingMeta);
+
     await prisma.researchOutput.update({
       where: { id },
-      data: buildPersistData(parsed.data),
+      data: {
+        ...persistData,
+        metaJson:
+          Object.keys(mergedMeta).length > 0
+            ? (mergedMeta as Prisma.InputJsonValue)
+            : Prisma.DbNull,
+      },
     });
 
     revalidatePath('/dashboard/profile/research-outputs');

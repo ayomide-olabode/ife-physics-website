@@ -10,6 +10,7 @@ export type ResearchOutputRow = {
   year: number | null;
   sourceTitle: string | null;
   publisher: string | null;
+  venue: string | null;
   url: string | null;
   doi: string | null;
   createdAt: Date;
@@ -39,6 +40,7 @@ export async function listMyResearchOutputs({
         year: true,
         sourceTitle: true,
         publisher: true,
+        venue: true,
         url: true,
         doi: true,
         createdAt: true,

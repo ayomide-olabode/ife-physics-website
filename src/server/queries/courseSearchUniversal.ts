@@ -1,3 +1,5 @@
+'use server';
+
 import prisma from '@/lib/prisma';
 
 export async function searchCoursesUniversal(q: string, take = 10) {

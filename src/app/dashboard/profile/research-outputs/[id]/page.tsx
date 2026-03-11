@@ -4,6 +4,7 @@ import { BackToParent } from '@/components/dashboard/BackToParent';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { ResearchOutputFormClient } from '@/components/profile/ResearchOutputFormClient';
 import { notFound } from 'next/navigation';
+import type { AuthorObject } from '@/lib/researchOutputTypes';
 
 export default async function EditResearchOutputPage({
   params,
@@ -39,17 +40,22 @@ export default async function EditResearchOutputPage({
           id: data.id,
           type: data.type,
           title: data.title,
-          authors: data.authors,
+          subtitle: data.subtitle || '',
+          authors: data.authors || '',
+          groupAuthor: data.groupAuthor || '',
           year: data.year?.toString() || '',
+          fullDate: data.fullDate ? data.fullDate.toISOString().split('T')[0] : '',
           venue: data.venue || '',
+          sourceTitle: data.sourceTitle || '',
+          publisher: data.publisher || '',
           url: data.url || '',
           doi: data.doi || '',
-          metaJson: (data.metaJson || {}) as Record<string, string>,
-          authorsJson: (data.authorsJson || []) as Array<{
-            staffId?: string | null;
-            given_name: string;
-            family_name: string;
-          }>,
+          language: data.language || '',
+          abstract: data.abstract || '',
+          notes: data.notes || '',
+          metaJson: (data.metaJson || {}) as Record<string, unknown>,
+          authorsJson: (data.authorsJson || []) as AuthorObject[],
+          keywordsJson: (data.keywordsJson || []) as string[],
         }}
       />
     </div>

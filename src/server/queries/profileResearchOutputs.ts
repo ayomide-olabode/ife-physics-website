@@ -1,16 +1,17 @@
 import prisma from '@/lib/prisma';
-import { Prisma, ResearchOutputType } from '@prisma/client';
+import { ResearchOutputType } from '@prisma/client';
+
+/* ── List query (lean — no metaJson) ── */
 
 export type ResearchOutputRow = {
   id: string;
   type: ResearchOutputType;
   title: string;
-  authors: string;
   year: number | null;
-  venue: string | null;
+  sourceTitle: string | null;
+  publisher: string | null;
   url: string | null;
   doi: string | null;
-  metaJson: Prisma.JsonValue;
   createdAt: Date;
 };
 
@@ -35,12 +36,11 @@ export async function listMyResearchOutputs({
         id: true,
         type: true,
         title: true,
-        authors: true,
         year: true,
-        venue: true,
+        sourceTitle: true,
+        publisher: true,
         url: true,
         doi: true,
-        metaJson: true,
         createdAt: true,
       },
       orderBy: [{ year: 'desc' }, { createdAt: 'desc' }],
@@ -64,6 +64,8 @@ export async function listMyResearchOutputs({
   };
 }
 
+/* ── Detail query (full record) ── */
+
 export async function getMyResearchOutputById({ staffId, id }: { staffId: string; id: string }) {
   return prisma.researchOutput
     .findFirst({
@@ -74,7 +76,6 @@ export async function getMyResearchOutputById({ staffId, id }: { staffId: string
       },
     })
     .catch(() => {
-      // Fallback if no composite unique constraint exists
       return null;
     });
 }

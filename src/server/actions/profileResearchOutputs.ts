@@ -6,9 +6,11 @@ import { requireAuth, requireStaffOwnership } from '@/lib/guards';
 import { z } from 'zod';
 import { Prisma, ResearchOutputType } from '@prisma/client';
 
+/* ── sub-schemas ── */
+
 const authorObjectSchema = z.object({
   staffId: z.string().nullable().optional(),
-  given_name: z.string().min(1, 'Given name is required.'),
+  given_name: z.string().min(1, 'First name is required.'),
   middle_name: z.string().nullable().optional(),
   family_name: z.string(),
   suffix: z.string().nullable().optional(),
@@ -16,92 +18,221 @@ const authorObjectSchema = z.object({
   is_group: z.boolean().nullable().optional(),
 });
 
-const researchOutputSchema = z
+/* ── main schema ── */
+
+export const researchOutputSchema = z
   .object({
     type: z.nativeEnum(ResearchOutputType, { message: 'Invalid output type' }),
     title: z.string().min(1, 'Title is required.'),
-    authors: z.string().min(1, 'Authors are required.'),
+
+    // legacy flat string — kept for backward compat / list display
+    authors: z.string().optional().default(''),
+
+    // structured
+    authorsJson: z.array(authorObjectSchema).optional().nullable(),
+    groupAuthor: z.string().optional().nullable(),
+
+    // date
     year: z.coerce
       .number()
       .int()
       .min(1900, 'Year must be 1900 or later.')
-      .max(new Date().getFullYear() + 1, 'Year is too far in the future.'),
-    venue: z.string().nullable().optional(),
-    url: z.string().url('Must be a valid URL').nullable().optional().or(z.literal('')),
-    doi: z.string().nullable().optional(),
+      .max(new Date().getFullYear() + 1, 'Year is too far in the future.')
+      .optional()
+      .nullable(),
+    fullDate: z.string().optional().nullable(), // ISO date string
+
+    // common text
+    subtitle: z.string().optional().nullable(),
+    sourceTitle: z.string().optional().nullable(),
+    publisher: z.string().optional().nullable(),
+    doi: z.string().optional().nullable(),
+    url: z.string().url('Must be a valid URL').optional().nullable().or(z.literal('')),
+    language: z.string().optional().nullable(),
+    abstract: z.string().optional().nullable(),
+    notes: z.string().optional().nullable(),
+
+    // json
+    keywordsJson: z.array(z.string()).optional().nullable(),
     metaJson: z.record(z.string(), z.unknown()).optional().nullable(),
-    authorsJson: z.array(authorObjectSchema).optional().nullable(),
+
+    // kept but unused if empty
+    venue: z.string().optional().nullable(),
   })
   .superRefine((data, ctx) => {
+    /* ── At least one date ── */
+    if (!data.year && !data.fullDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Year or full date is required.',
+        path: ['year'],
+      });
+    }
+
+    /* ── At least one author or group author ── */
+    const hasAuthors =
+      (data.authorsJson && data.authorsJson.length > 0) ||
+      (data.authors && data.authors.trim().length > 0);
+    const hasGroup = data.groupAuthor && data.groupAuthor.trim().length > 0;
+    if (!hasAuthors && !hasGroup) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'At least one author or group author is required.',
+        path: ['authors'],
+      });
+    }
+
+    /* ── Type-specific validation ── */
     const meta = (data.metaJson || {}) as Record<string, string>;
     const chk = (val: unknown) => typeof val === 'string' && val.trim().length > 0;
 
     if (data.type === 'JOURNAL_ARTICLE') {
-      if (!chk(meta.journalName)) {
+      if (!chk(meta.journal_title)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Journal name is required.',
-          path: ['journalName'],
+          message: 'Journal title is required.',
+          path: ['metaJson'],
         });
       }
-    } else if (data.type === 'CONFERENCE_PAPER') {
-      if (!chk(meta.conferenceName)) {
+      if (!chk(meta.volume)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Conference name is required.',
-          path: ['conferenceName'],
+          message: 'Volume is required.',
+          path: ['metaJson'],
+        });
+      }
+      if (!chk(meta.pages) && !chk(meta.article_number)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Pages or article number is required.',
+          path: ['metaJson'],
         });
       }
     } else if (data.type === 'BOOK') {
-      if (!chk(meta.publisher)) {
+      if (!chk(data.publisher) && !chk(meta.publisher)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Publisher is required for books.',
+          path: ['publisher'],
+        });
+      }
+    } else if (data.type === 'BOOK_CHAPTER') {
+      if (!chk(meta.book_title)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Book title is required.',
+          path: ['metaJson'],
+        });
+      }
+      if (!chk(data.publisher) && !chk(meta.publisher)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Publisher is required.',
           path: ['publisher'],
         });
       }
-    } else if (data.type === 'BOOK_CHAPTER') {
-      if (!chk(meta.bookTitle)) {
+    } else if (data.type === 'CONFERENCE_PAPER') {
+      if (!chk(meta.conference_name)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Book title is required.',
-          path: ['bookTitle'],
+          message: 'Conference name is required.',
+          path: ['metaJson'],
         });
       }
-    } else if (data.type === 'PATENT') {
-      if (!chk(meta.patentNumber)) {
+    } else if (data.type === 'SOFTWARE') {
+      if (!chk(meta.software_title)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Patent number is required.',
-          path: ['patentNumber'],
+          message: 'Software title is required.',
+          path: ['metaJson'],
         });
       }
-    } else if (data.type === 'DATA' || data.type === 'SOFTWARE') {
+    } else if (data.type === 'DATA') {
       if (!chk(meta.repository)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Repository is required.',
-          path: ['repository'],
+          message: 'Repository is required for datasets.',
+          path: ['metaJson'],
+        });
+      }
+    } else if (data.type === 'PATENT') {
+      if (!chk(meta.patent_number)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Patent number is required.',
+          path: ['metaJson'],
+        });
+      }
+      if (!chk(meta.patent_office)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Patent office is required.',
+          path: ['metaJson'],
         });
       }
     } else if (data.type === 'REPORT') {
-      if (!chk(meta.institution) && !chk(meta.publisher)) {
+      if (!chk(meta.issuing_organization) && !chk(data.publisher)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Institution or publisher is required.',
-          path: ['institution'],
+          message: 'Issuing organization or publisher is required.',
+          path: ['metaJson'],
         });
       }
     } else if (data.type === 'THESIS') {
-      if (!chk(meta.awardingInstitution)) {
+      if (!chk(meta.degree_type)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Awarding institution is required.',
-          path: ['awardingInstitution'],
+          message: 'Degree type is required.',
+          path: ['metaJson'],
+        });
+      }
+      if (!chk(meta.institution)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Institution is required.',
+          path: ['metaJson'],
         });
       }
     }
   });
+
+/* ── Helpers ── */
+
+function buildPersistData(validData: z.infer<typeof researchOutputSchema>) {
+  // Auto-sync flat authors string from authorsJson
+  const flatAuthors =
+    validData.authors && validData.authors.trim().length > 0
+      ? validData.authors.trim()
+      : validData.authorsJson && validData.authorsJson.length > 0
+        ? validData.authorsJson
+            .map((a) => [a.family_name, a.given_name].filter(Boolean).join(' '))
+            .join(', ')
+        : validData.groupAuthor?.trim() || '';
+
+  return {
+    type: validData.type,
+    title: validData.title.trim(),
+    authors: flatAuthors,
+    year:
+      validData.year ?? (validData.fullDate ? new Date(validData.fullDate).getFullYear() : null),
+    venue: validData.venue?.trim() || null,
+    url: validData.url?.trim() || null,
+    doi: validData.doi?.trim() || null,
+    groupAuthor: validData.groupAuthor?.trim() || null,
+    fullDate: validData.fullDate ? new Date(validData.fullDate) : null,
+    subtitle: validData.subtitle?.trim() || null,
+    sourceTitle: validData.sourceTitle?.trim() || null,
+    publisher: validData.publisher?.trim() || null,
+    language: validData.language?.trim() || null,
+    abstract: validData.abstract?.trim() || null,
+    notes: validData.notes?.trim() || null,
+    authorsJson: (validData.authorsJson || undefined) as Prisma.InputJsonValue | undefined,
+    keywordsJson: (validData.keywordsJson || undefined) as Prisma.InputJsonValue | undefined,
+    metaJson: (validData.metaJson || undefined) as Prisma.InputJsonValue | undefined,
+  };
+}
+
+/* ── Actions ── */
 
 export async function createMyResearchOutput(data: z.infer<typeof researchOutputSchema>) {
   try {
@@ -116,20 +247,10 @@ export async function createMyResearchOutput(data: z.infer<typeof researchOutput
       return { error: parsed.error.issues[0].message };
     }
 
-    const validData = parsed.data;
-
     await prisma.researchOutput.create({
       data: {
         staffId,
-        type: validData.type,
-        title: validData.title.trim(),
-        authors: validData.authors.trim(),
-        year: validData.year,
-        venue: validData.venue?.trim() || null,
-        url: validData.url?.trim() || null,
-        doi: validData.doi?.trim() || null,
-        metaJson: (validData.metaJson || undefined) as Prisma.InputJsonValue | undefined,
-        authorsJson: (validData.authorsJson || undefined) as Prisma.InputJsonValue | undefined,
+        ...buildPersistData(parsed.data),
       },
     });
 
@@ -152,7 +273,6 @@ export async function updateMyResearchOutput(
 
     requireStaffOwnership(session, staffId);
 
-    // Verify ownership of the item
     const existing = await prisma.researchOutput.findUnique({
       where: { id },
       select: { staffId: true },
@@ -167,21 +287,9 @@ export async function updateMyResearchOutput(
       return { error: parsed.error.issues[0].message };
     }
 
-    const validData = parsed.data;
-
     await prisma.researchOutput.update({
       where: { id },
-      data: {
-        type: validData.type,
-        title: validData.title.trim(),
-        authors: validData.authors.trim(),
-        year: validData.year,
-        venue: validData.venue?.trim() || null,
-        url: validData.url?.trim() || null,
-        doi: validData.doi?.trim() || null,
-        metaJson: (validData.metaJson || undefined) as Prisma.InputJsonValue | undefined,
-        authorsJson: (validData.authorsJson || undefined) as Prisma.InputJsonValue | undefined,
-      },
+      data: buildPersistData(parsed.data),
     });
 
     revalidatePath('/dashboard/profile/research-outputs');
@@ -200,7 +308,6 @@ export async function deleteMyResearchOutput(id: string) {
 
     requireStaffOwnership(session, staffId);
 
-    // Verify ownership of the item
     const existing = await prisma.researchOutput.findUnique({
       where: { id },
       select: { staffId: true },
@@ -210,7 +317,6 @@ export async function deleteMyResearchOutput(id: string) {
       return { error: 'Record not found or access denied.' };
     }
 
-    // Soft delete
     await prisma.researchOutput.update({
       where: { id },
       data: { deletedAt: new Date() },

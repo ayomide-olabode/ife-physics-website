@@ -25,7 +25,7 @@ export function HodAddressClientForm({ initialTitle, initialBody }: HodAddressCl
     e.preventDefault();
 
     if (!title.trim() || !body.trim()) {
-      toastError('Both title and body are strictly required.');
+      toastError('Both title and body are required.');
       return;
     }
 
@@ -33,7 +33,7 @@ export function HodAddressClientForm({ initialTitle, initialBody }: HodAddressCl
       try {
         const res = await updateMyHodAddress({ title, body });
         if (res.success) {
-          toastSuccess('HOD Address updated intelligently online.');
+          toastSuccess('HOD Address updated.');
           router.refresh();
         } else {
           toastError(res.error || 'Validation payload checks failed structurally.');

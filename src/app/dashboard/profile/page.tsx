@@ -5,6 +5,8 @@ import { AvatarUpload } from '@/components/dashboard/AvatarUpload';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { getProfileCompleteness } from '@/server/queries/profileCompleteness';
 import { ProfileCompletenessCard } from '@/components/dashboard/ProfileCompletenessCard';
+import { ResearchGroupMembershipForm } from '@/components/profile/ResearchGroupMembershipForm';
+import { listResearchGroupOptions } from '@/server/queries/researchGroupOptions';
 
 export default async function ProfilePage({
   searchParams,
@@ -28,7 +30,18 @@ export default async function ProfilePage({
 
   const staff = await prisma.staff.findUnique({
     where: { id: staffId },
-    select: { id: true, firstName: true, lastName: true, profileImageUrl: true },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      profileImageUrl: true,
+      researchMemberships: {
+        select: {
+          researchGroupId: true,
+        },
+        take: 1,
+      },
+    },
   });
 
   if (!staff) {
@@ -46,6 +59,8 @@ export default async function ProfilePage({
   const showOnboarding = params.onboarding === '1';
 
   const completeness = await getProfileCompleteness(staffId);
+  const options = await listResearchGroupOptions();
+  const currentGroupId = staff.researchMemberships[0]?.researchGroupId || null;
 
   return (
     <main className="container mx-auto px-4 py-12 space-y-8 max-w-4xl">
@@ -77,6 +92,8 @@ export default async function ProfilePage({
         <h2 className="text-xl font-semibold mb-6 border-b pb-2">Identity Details</h2>
         <EditProfileForm initialFirstName={staff.firstName} initialLastName={staff.lastName} />
       </div>
+
+      <ResearchGroupMembershipForm initialGroupId={currentGroupId} options={options} />
     </main>
   );
 }

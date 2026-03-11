@@ -37,7 +37,8 @@ export function ThesesClientView({ data, staffId }: { data: PaginatedData; staff
 
   const handleEdit = async (id: string) => {
     try {
-      const fullDoc = await getMyThesisById({ staffId, id });
+      const dbDoc = await getMyThesisById({ staffId, id });
+      const fullDoc = dbDoc as typeof dbDoc & { externalUrl: string | null };
       if (!fullDoc) {
         toastError('Thesis not found or inaccessible.');
         return;

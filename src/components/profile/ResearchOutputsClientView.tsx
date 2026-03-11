@@ -5,7 +5,7 @@ import { ResearchOutputEditor } from './ResearchOutputEditor';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { deleteMyResearchOutput } from '@/server/actions/profileResearchOutputs';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { ResearchOutputType } from '@prisma/client';
+import { Prisma, ResearchOutputType } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
@@ -15,10 +15,12 @@ import Link from 'next/link';
 type OutputFormData = {
   type?: ResearchOutputType;
   title: string;
+  authors: string;
   year: string;
   venue: string;
   url: string;
   doi: string;
+  metaJson: Record<string, string>;
 };
 
 type OutputEditorProps = {
@@ -29,10 +31,12 @@ type ResearchOutputItem = {
   id: string;
   type: ResearchOutputType;
   title: string;
+  authors: string;
   year: number | null;
   venue: string | null;
   url: string | null;
   doi: string | null;
+  metaJson: Prisma.JsonValue;
   createdAt: Date;
 };
 
@@ -100,63 +104,93 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
       />
 
       <DataTable
-        headers={['Type', 'Title', 'Year', 'Venue', 'Links', 'Actions']}
-        rows={data.items.map((item) => [
-          <span key="type" className="text-sm font-medium">
-            {item.type.replace(/_/g, ' ')}
-          </span>,
-          <span key="title" className="text-sm block min-w-[300px] font-medium">
-            {item.title}
-          </span>,
-          <span key="year" className="text-sm">
-            {item.year || '-'}
-          </span>,
-          <span key="venue" className="text-sm">
-            {item.venue || '-'}
-          </span>,
-          <div key="links" className="flex flex-col gap-1">
-            {item.url && (
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-xs text-blue-600 hover:underline"
+        headers={['Type', 'Authors / Title', 'Year', 'Venue/Journal', 'Links', 'Actions']}
+        rows={data.items.map((item) => {
+          let derivedVenue = item.venue || '—';
+          if (item.metaJson) {
+            const m = item.metaJson as Record<string, string>;
+            if ((item.type as string) === 'JOURNAL_ARTICLE' && m.journalName) {
+              derivedVenue = `${m.journalName} ${m.volume ? `Vol. ${m.volume}` : ''}`;
+            } else if ((item.type as string) === 'CONFERENCE_PAPER' && m.conferenceName) {
+              derivedVenue = m.conferenceName;
+            } else if ((item.type as string) === 'BOOK' && m.publisher) {
+              derivedVenue = m.publisher;
+            } else if ((item.type as string) === 'BOOK_CHAPTER' && m.bookTitle) {
+              derivedVenue = m.bookTitle;
+            } else if ((item.type as string) === 'PATENT' && m.issuer) {
+              derivedVenue = m.issuer;
+            } else if (
+              ((item.type as string) === 'DATA' || (item.type as string) === 'SOFTWARE') &&
+              m.repository
+            ) {
+              derivedVenue = m.repository;
+            } else if ((item.type as string) === 'REPORT' && (m.institution || m.publisher)) {
+              derivedVenue = m.institution || m.publisher;
+            } else if ((item.type as string) === 'THESIS' && m.awardingInstitution) {
+              derivedVenue = m.awardingInstitution;
+            }
+          }
+
+          return [
+            <span key="type" className="text-sm font-medium">
+              {item.type.replace(/_/g, ' ')}
+            </span>,
+            <div key="title" className="min-w-[300px]">
+              <span className="text-sm font-semibold block">{item.title}</span>
+              <span className="text-xs text-muted-foreground block truncate">{item.authors}</span>
+            </div>,
+            <span key="year" className="text-sm">
+              {item.year || '—'}
+            </span>,
+            <span key="venue" className="text-sm items-center line-clamp-2 max-w-[200px]">
+              {derivedVenue}
+            </span>,
+            <div key="links" className="flex flex-col gap-1">
+              {item.url && (
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-xs text-blue-600 hover:underline"
+                >
+                  <ExternalLink className="mr-1 h-3 w-3" />
+                  Link
+                </a>
+              )}
+              {item.doi && (
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  DOI: {item.doi}
+                </span>
+              )}
+            </div>,
+            <div key="actions" className="flex items-center gap-2">
+              <button
+                onClick={() =>
+                  handleEdit(item.id, {
+                    type: item.type,
+                    title: item.title,
+                    authors: item.authors,
+                    year: item.year?.toString() || '',
+                    venue: item.venue || '',
+                    url: item.url || '',
+                    doi: item.doi || '',
+                    metaJson: (item.metaJson || {}) as Record<string, string>,
+                  })
+                }
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
               >
-                <ExternalLink className="mr-1 h-3 w-3" />
-                Link
-              </a>
-            )}
-            {item.doi && (
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                DOI: {item.doi}
-              </span>
-            )}
-          </div>,
-          <div key="actions" className="flex items-center gap-2">
-            <button
-              onClick={() =>
-                handleEdit(item.id, {
-                  type: item.type,
-                  title: item.title,
-                  year: item.year?.toString() || '',
-                  venue: item.venue || '',
-                  url: item.url || '',
-                  doi: item.doi || '',
-                })
-              }
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Edit
-            </button>
-            <span className="text-muted-foreground">|</span>
-            <button
-              onClick={() => handleDeleteRequest(item.id)}
-              className="text-sm text-destructive hover:text-red-800 font-medium"
-            >
-              Delete
-            </button>
-          </div>,
-        ])}
+                Edit
+              </button>
+              <span className="text-muted-foreground">|</span>
+              <button
+                onClick={() => handleDeleteRequest(item.id)}
+                className="text-sm text-destructive hover:text-red-800 font-medium"
+              >
+                Delete
+              </button>
+            </div>,
+          ];
+        })}
         emptyState={
           <EmptyState
             title="No research outputs yet"

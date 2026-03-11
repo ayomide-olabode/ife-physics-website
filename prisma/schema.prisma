@@ -324,10 +324,12 @@ model ResearchOutput {
 
   type      ResearchOutputType
   title     String
+  authors   String
   year      Int?
   venue     String?
   url       String?
   doi       String?
+  metaJson  Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

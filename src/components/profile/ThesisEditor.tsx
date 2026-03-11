@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { YearSelect } from '@/components/forms/YearSelect';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { THESIS_STATUS_OPTIONS } from '@/lib/options';
+import { THESIS_STATUS_OPTIONS, PROGRAMME_OPTIONS, DEGREE_OPTIONS } from '@/lib/options';
 import { createMyThesis, updateMyThesis } from '@/server/actions/profileTheses';
 import { useRouter } from 'next/navigation';
 import { ThesisStatus } from '@prisma/client';
@@ -25,6 +25,7 @@ type FormDataState = {
   studentName: string;
   programme: string;
   degreeLevel: string;
+  externalUrl: string;
   status: ThesisStatus;
 };
 
@@ -34,6 +35,7 @@ const defaultValues: FormDataState = {
   studentName: '',
   programme: '',
   degreeLevel: '',
+  externalUrl: '',
   status: 'ONGOING',
 };
 
@@ -68,12 +70,22 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
       return;
     }
 
+    if (!formData.programme) {
+      toastError('Programme is required.');
+      return;
+    }
+    if (!formData.degreeLevel) {
+      toastError('Degree Level is required.');
+      return;
+    }
+
     const payload = {
       year: yearNum,
       title: formData.title,
       studentName: formData.studentName || undefined,
-      programme: formData.programme || undefined,
-      degreeLevel: formData.degreeLevel || undefined,
+      programme: formData.programme,
+      degreeLevel: formData.degreeLevel,
+      externalUrl: formData.externalUrl || undefined,
       status: formData.status,
     };
 
@@ -173,24 +185,59 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <FieldLabel htmlFor="programme">Programme</FieldLabel>
-              <Input
+              <FieldLabel required htmlFor="programme">
+                Programme
+              </FieldLabel>
+              <select
                 id="programme"
                 value={formData.programme}
                 onChange={(e) => setFormData((prev) => ({ ...prev, programme: e.target.value }))}
-                placeholder="e.g. Physics"
-              />
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
+              >
+                <option value="" disabled>
+                  Select Programme
+                </option>
+                {PROGRAMME_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">
-              <FieldLabel htmlFor="degreeLevel">Degree Level</FieldLabel>
-              <Input
+              <FieldLabel required htmlFor="degreeLevel">
+                Degree Level
+              </FieldLabel>
+              <select
                 id="degreeLevel"
                 value={formData.degreeLevel}
                 onChange={(e) => setFormData((prev) => ({ ...prev, degreeLevel: e.target.value }))}
-                placeholder="e.g. BSc, MSc, PhD"
-              />
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
+              >
+                <option value="" disabled>
+                  Select Degree
+                </option>
+                {DEGREE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <FieldLabel htmlFor="externalUrl">External URL</FieldLabel>
+            <Input
+              id="externalUrl"
+              type="url"
+              value={formData.externalUrl}
+              onChange={(e) => setFormData((prev) => ({ ...prev, externalUrl: e.target.value }))}
+              placeholder="e.g. https://repository.example.edu/thesis/..."
+            />
           </div>
 
           <DialogFooter className="pt-4 border-t sticky bottom-0 bg-background">

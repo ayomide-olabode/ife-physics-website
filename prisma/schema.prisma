@@ -367,6 +367,7 @@ model StudentThesis {
   studentName String?
   programme   String?
   degreeLevel String?
+  externalUrl String?
   status    ThesisStatus
 
   createdAt DateTime @default(now())

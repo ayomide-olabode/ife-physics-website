@@ -71,6 +71,7 @@ export async function getMyThesisById({ staffId, id }: { staffId: string; id: st
       studentName: true,
       programme: true,
       degreeLevel: true,
+      externalUrl: true,
       status: true,
     },
   });

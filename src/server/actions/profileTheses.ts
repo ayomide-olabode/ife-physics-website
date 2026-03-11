@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { ThesisStatus } from '@prisma/client';
+import { PROGRAMME_OPTIONS, DEGREE_OPTIONS } from '@/lib/options';
 
 const thesisSchema = z.object({
   year: z.coerce
@@ -14,8 +15,19 @@ const thesisSchema = z.object({
     .max(new Date().getFullYear() + 1),
   title: z.string().min(1, 'Title is required.'),
   studentName: z.string().max(200, 'Student name too long.').optional().or(z.literal('')),
-  programme: z.string().max(100, 'Programme name too long.').optional().or(z.literal('')),
-  degreeLevel: z.string().max(50, 'Degree level too long.').optional().or(z.literal('')),
+  programme: z
+    .string()
+    .min(1, 'Programme is required.')
+    .refine((val) => PROGRAMME_OPTIONS.some((opt) => opt.value === val), {
+      message: 'Invalid programme selected.',
+    }),
+  degreeLevel: z
+    .string()
+    .min(1, 'Degree level is required')
+    .refine((val) => DEGREE_OPTIONS.some((opt) => opt.value === val), {
+      message: 'Invalid degree level selected.',
+    }),
+  externalUrl: z.string().url('Must be a valid URL.').optional().or(z.literal('')),
   status: z.nativeEnum(ThesisStatus),
 });
 
@@ -45,8 +57,9 @@ export async function createMyThesis(data: z.infer<typeof thesisSchema>): Promis
         year: validated.year,
         title: validated.title,
         studentName: validated.studentName || null,
-        programme: validated.programme || null,
-        degreeLevel: validated.degreeLevel || null,
+        programme: validated.programme,
+        degreeLevel: validated.degreeLevel,
+        externalUrl: validated.externalUrl || null,
         status: validated.status,
       },
       select: { id: true },
@@ -101,8 +114,9 @@ export async function updateMyThesis(
         year: validated.year,
         title: validated.title,
         studentName: validated.studentName || null,
-        programme: validated.programme || null,
-        degreeLevel: validated.degreeLevel || null,
+        programme: validated.programme,
+        degreeLevel: validated.degreeLevel,
+        externalUrl: validated.externalUrl || null,
         status: validated.status,
       },
     });

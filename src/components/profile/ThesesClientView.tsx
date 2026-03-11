@@ -49,6 +49,7 @@ export function ThesesClientView({ data, staffId }: { data: PaginatedData; staff
         studentName: fullDoc.studentName || '',
         programme: fullDoc.programme || '',
         degreeLevel: fullDoc.degreeLevel || '',
+        externalUrl: fullDoc.externalUrl || '',
         status: fullDoc.status,
       });
       setEditorOpen(true);

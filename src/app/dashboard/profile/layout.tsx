@@ -26,7 +26,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
     { label: 'Research Outputs', href: '/dashboard/profile/research-outputs' },
     { label: 'Projects', href: '/dashboard/profile/projects' },
     { label: 'Teaching', href: '/dashboard/profile/teaching' },
-    { label: 'Theses', href: '/dashboard/profile/theses' },
+    { label: 'Thesis Supervision', href: '/dashboard/profile/thesis-supervision' },
   ];
 
   if (isSuperAdmin || isSessionHod) {

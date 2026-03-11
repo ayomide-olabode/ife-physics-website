@@ -4,11 +4,12 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { RoleAssignmentManager } from '@/components/admin/RoleAssignmentManager';
 import { getUserById } from '@/server/queries/adminUsers';
+import { listResearchGroupOptions } from '@/server/queries/researchGroupOptions';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 
 export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await getUserById(id);
+  const [user, researchGroups] = await Promise.all([getUserById(id), listResearchGroupOptions()]);
 
   if (!user) {
     notFound();
@@ -90,7 +91,11 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
 
       <div className="space-y-4">
         <h2 className="text-xl font-semibold tracking-tight">Role Assignments</h2>
-        <RoleAssignmentManager userId={user.id} assignments={user.roleAssignments} />
+        <RoleAssignmentManager
+          userId={user.id}
+          assignments={user.roleAssignments}
+          researchGroups={researchGroups}
+        />
       </div>
 
       <div className="space-y-4">

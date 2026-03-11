@@ -4,13 +4,13 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { assignRole, revokeRole } from '@/server/actions/roleAssignments';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { ScopedRole } from '@prisma/client';
+import { SCOPED_ROLE_OPTIONS } from '@/lib/options';
 
 type Assignment = {
   id: string;
@@ -21,12 +21,20 @@ type Assignment = {
   deletedAt: Date | null;
 };
 
+type ResearchGroupOption = {
+  id: string;
+  name: string;
+  abbreviation: string | null;
+};
+
 export function RoleAssignmentManager({
   userId,
   assignments,
+  researchGroups,
 }: {
   userId: string;
   assignments: Assignment[];
+  researchGroups: ResearchGroupOption[];
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -43,6 +51,11 @@ export function RoleAssignmentManager({
     e.preventDefault();
     if (!role) {
       toastError('Please select a role.');
+      return;
+    }
+
+    if (role === 'RESEARCH_LEAD' && !scopeId) {
+      toastError('Please select a research group.');
       return;
     }
 
@@ -88,12 +101,15 @@ export function RoleAssignmentManager({
     }
   };
 
+  // Build a lookup map for research group names to display in the table
+  const groupLookup = new Map(researchGroups.map((g) => [g.id, g]));
+
   const roleRows = assignments.map((ra) => [
     <span key="role" className="font-medium text-sm">
       {ra.role}
     </span>,
     <span key="scope" className="text-sm">
-      {ra.scopeType} {ra.scopeId ? `(${ra.scopeId})` : ''}
+      {ra.scopeType} {ra.scopeId ? `(${groupLookup.get(ra.scopeId)?.name ?? ra.scopeId})` : ''}
     </span>,
     <span key="status" className="text-sm">
       {ra.deletedAt ? (
@@ -133,36 +149,62 @@ export function RoleAssignmentManager({
               <select
                 id="role"
                 value={role}
-                onChange={(e) => setRole(e.target.value as ScopedRole)}
+                onChange={(e) => {
+                  setRole(e.target.value as ScopedRole);
+                  setScopeId('');
+                }}
                 className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 required
               >
                 <option value="" disabled>
                   Select a role...
                 </option>
-                <option value="EDITOR">EDITOR (Global)</option>
-                <option value="ACADEMIC_COORDINATOR">ACADEMIC_COORDINATOR (Global)</option>
-                <option value="RESEARCH_LEAD">RESEARCH_LEAD (Scoped)</option>
+                {SCOPED_ROLE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
 
             {role === 'RESEARCH_LEAD' && (
               <div className="space-y-2">
-                <FieldLabel htmlFor="scopeId">Research Group ID</FieldLabel>
-                <Input
-                  id="scopeId"
-                  value={scopeId}
-                  onChange={(e) => setScopeId(e.target.value)}
-                  placeholder="Paste ResearchGroup.id"
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  Paste ResearchGroup.id (will be selectable later in Research module)
-                </p>
+                <FieldLabel htmlFor="scopeId">Research Group</FieldLabel>
+                {researchGroups.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2">
+                    No research groups yet. Create one in the Research module first.
+                  </p>
+                ) : (
+                  <select
+                    id="scopeId"
+                    value={scopeId}
+                    onChange={(e) => setScopeId(e.target.value)}
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    required
+                  >
+                    <option value="" disabled>
+                      Select a research group...
+                    </option>
+                    {researchGroups.map((group) => (
+                      <option key={group.id} value={group.id}>
+                        {group.name}
+                        {group.abbreviation ? ` (${group.abbreviation})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             )}
 
-            <Button type="submit" disabled={isSubmitting || isPending} className="w-full">
+            <Button
+              type="submit"
+              disabled={
+                isSubmitting ||
+                isPending ||
+                (role === 'RESEARCH_LEAD' && researchGroups.length === 0)
+              }
+              className="w-full"
+            >
               {isSubmitting ? 'Assigning...' : 'Assign Role'}
             </Button>
           </form>

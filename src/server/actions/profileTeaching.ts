@@ -5,25 +5,8 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
-const currentYear = new Date().getFullYear();
-
 const teachingSchema = z.object({
-  title: z.string().min(1, 'Title is required.'),
-  courseCode: z
-    .string()
-    .regex(/^[a-zA-Z0-9]+$/, 'Course code must only contain letters and numbers.')
-    .max(20, 'Course code is too long.')
-    .optional()
-    .or(z.literal(''))
-    .transform((val) => (val ? val.toUpperCase() : undefined)),
-  sessionYear: z.coerce
-    .number()
-    .int()
-    .min(1900, 'Year must be 1900 or later.')
-    .max(currentYear + 1, 'Year is too far in the future.')
-    .nullable()
-    .optional(),
-  semester: z.string().max(50, 'Semester name is too long.').optional().or(z.literal('')),
+  courseCode: z.string().min(1, 'Course is required.'),
 });
 
 type ActionResponse = {
@@ -48,13 +31,23 @@ export async function createMyTeaching(
 
     await requireStaffOwnership(session, staffId);
 
+    const course = await prisma.course.findFirst({
+      where: { code: validated.courseCode, deletedAt: null },
+      select: { code: true, title: true },
+    });
+
+    if (!course) {
+      return {
+        success: false,
+        error: 'Course not found. Please contact an administrator to add it.',
+      };
+    }
+
     const newDoc = await prisma.teachingResponsibility.create({
       data: {
         staffId,
-        title: validated.title,
-        courseCode: validated.courseCode || null,
-        sessionYear: validated.sessionYear,
-        semester: validated.semester || null,
+        title: course.title,
+        courseCode: course.code,
       },
       select: { id: true },
     });
@@ -99,13 +92,23 @@ export async function updateMyTeaching(
       return { success: false, error: 'Record not found or access denied.' };
     }
 
+    const course = await prisma.course.findFirst({
+      where: { code: validated.courseCode, deletedAt: null },
+      select: { code: true, title: true },
+    });
+
+    if (!course) {
+      return {
+        success: false,
+        error: 'Course not found. Please contact an administrator to add it.',
+      };
+    }
+
     await prisma.teachingResponsibility.update({
       where: { id },
       data: {
-        title: validated.title,
-        courseCode: validated.courseCode || null,
-        sessionYear: validated.sessionYear,
-        semester: validated.semester || null,
+        title: course.title,
+        courseCode: course.code,
       },
     });
 

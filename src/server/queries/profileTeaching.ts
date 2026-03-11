@@ -23,11 +23,9 @@ export async function listMyTeaching({
         id: true,
         courseCode: true,
         title: true,
-        sessionYear: true,
-        semester: true,
         createdAt: true,
       },
-      orderBy: [{ sessionYear: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
+      orderBy: [{ createdAt: 'desc' }],
       skip,
       take: pageSize,
     }),
@@ -59,8 +57,6 @@ export async function getMyTeachingById({ staffId, id }: { staffId: string; id: 
       id: true,
       courseCode: true,
       title: true,
-      sessionYear: true,
-      semester: true,
     },
   });
 }

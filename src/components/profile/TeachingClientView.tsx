@@ -15,8 +15,6 @@ import { useRouter } from 'next/navigation';
 type TeachingFormData = {
   title: string;
   courseCode?: string;
-  sessionYear?: string;
-  semester?: string;
 };
 
 type TeachingEditorProps = {
@@ -27,8 +25,6 @@ type TeachingItem = {
   id: string;
   courseCode: string | null;
   title: string;
-  sessionYear: number | null;
-  semester: string | null;
   createdAt: Date;
 };
 
@@ -65,8 +61,6 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
         id: fullDoc.id,
         title: fullDoc.title,
         courseCode: fullDoc.courseCode || '',
-        sessionYear: fullDoc.sessionYear ? String(fullDoc.sessionYear) : '',
-        semester: fullDoc.semester || '',
       });
       setEditorOpen(true);
     } catch {
@@ -114,19 +108,13 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
       />
 
       <DataTable
-        headers={['Course Code', 'Title', 'Session Year', 'Semester', 'Actions']}
+        headers={['Course Code', 'Title', 'Actions']}
         rows={data.items.map((item) => [
           <span key="code" className="text-sm font-medium">
             {item.courseCode || '-'}
           </span>,
           <span key="title" className="text-sm text-muted-foreground block min-w-[200px]">
             {item.title}
-          </span>,
-          <span key="year" className="text-sm text-center font-medium">
-            {item.sessionYear || '-'}
-          </span>,
-          <span key="semester" className="text-sm text-center">
-            {item.semester || '-'}
           </span>,
           <div key="actions" className="flex items-center gap-2">
             <button

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
-import { YearSelect } from '@/components/forms/YearSelect';
+import { UniversalCourseAutocomplete } from '@/components/academics/UniversalCourseAutocomplete';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { createMyTeaching, updateMyTeaching } from '@/server/actions/profileTeaching';
 import { useRouter } from 'next/navigation';
@@ -20,15 +20,11 @@ import { useRouter } from 'next/navigation';
 type FormDataState = {
   title: string;
   courseCode: string;
-  sessionYear: string;
-  semester: string;
 };
 
 const defaultValues: FormDataState = {
   title: '',
   courseCode: '',
-  sessionYear: '',
-  semester: '',
 };
 
 type TeachingEditorProps = {
@@ -41,6 +37,9 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
+  // Selection state logic tracking
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+
   const isEdit = !!initialData?.id;
 
   const [formData, setFormData] = useState<FormDataState>(() => ({
@@ -48,19 +47,38 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
     ...initialData,
   }));
 
+  // Setup form states properly when initialized
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        ...defaultValues,
+        ...initialData,
+      });
+      // Try to assume we matched if we have a title & code coming in from DB
+      if (initialData?.courseCode && initialData?.title) {
+        setSelectedCourseId('matched-initially');
+      } else {
+        setSelectedCourseId(null);
+      }
+    }
+  }, [open, initialData]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title.trim()) {
-      toastError('Title is required');
+    if (!selectedCourseId) {
+      toastError('Course not found. Please contact an administrator to add it.');
+      return;
+    }
+
+    if (!formData.title.trim() || !formData.courseCode.trim()) {
+      toastError('Course Code and Title must be populated correctly.');
       return;
     }
 
     const payload = {
+      courseCode: formData.courseCode,
       title: formData.title,
-      courseCode: formData.courseCode || undefined,
-      sessionYear: formData.sessionYear ? parseInt(formData.sessionYear, 10) : undefined,
-      semester: formData.semester || undefined,
     };
 
     setIsSubmitting(true);
@@ -100,47 +118,45 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
 
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <FieldLabel htmlFor="courseCode">Course Code (Optional)</FieldLabel>
-            <Input
-              id="courseCode"
+            <FieldLabel required htmlFor="courseCode">
+              Course
+            </FieldLabel>
+            <UniversalCourseAutocomplete
+              onSelect={(course) => {
+                setSelectedCourseId(course.id);
+                setFormData((prev) => ({
+                  ...prev,
+                  courseCode: course.code,
+                  title: course.title,
+                }));
+              }}
+              onChange={(val) => {
+                // If user starts typing manually after selecting, invalidate selection
+                if (val !== formData.courseCode) {
+                  setSelectedCourseId(null);
+                  setFormData((prev) => ({
+                    ...prev,
+                    courseCode: val,
+                  }));
+                }
+              }}
               value={formData.courseCode}
-              onChange={(e) => setFormData((prev) => ({ ...prev, courseCode: e.target.value }))}
-              placeholder="e.g. PHY101"
+              placeholder="Search by course code or title..."
             />
           </div>
 
           <div className="space-y-2">
-            <FieldLabel required htmlFor="title">
-              Course / Responsibility Title
-            </FieldLabel>
+            <FieldLabel htmlFor="title">Course Title</FieldLabel>
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
-              placeholder="e.g. Introduction to Physics"
-              required
+              readOnly
+              className="bg-gray-50"
+              placeholder="Auto-filled when course is selected..."
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <FieldLabel htmlFor="sessionYear">Session Year</FieldLabel>
-              <YearSelect
-                value={formData.sessionYear}
-                onChange={(val) =>
-                  setFormData((prev) => ({ ...prev, sessionYear: val ? String(val) : '' }))
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <FieldLabel htmlFor="semester">Semester</FieldLabel>
-              <Input
-                id="semester"
-                value={formData.semester}
-                onChange={(e) => setFormData((prev) => ({ ...prev, semester: e.target.value }))}
-                placeholder="e.g. Harmattan"
-              />
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Title is tied directly to the selected course.
+            </p>
           </div>
 
           <DialogFooter className="pt-4 border-t">

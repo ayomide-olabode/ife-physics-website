@@ -4,6 +4,8 @@ import { BackToParent } from '@/components/dashboard/BackToParent';
 import { requireAuth } from '@/lib/guards';
 import { getResearchGroupByIdForUser } from '@/server/queries/researchGroups';
 import { ResearchGroupFormClient } from '@/components/research/ResearchGroupFormClient';
+import { listRecentPublicationsForGroupMembers } from '@/server/queries/researchGroupPublicationsFromMembers';
+import { ResearchGroupFeaturedPublicationClient } from '@/components/research/ResearchGroupFeaturedPublicationClient';
 
 interface PageProps {
   params: Promise<{ groupId: string }>;
@@ -23,6 +25,10 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
     notFound();
   }
 
+  const eligiblePublications = await listRecentPublicationsForGroupMembers({
+    groupId: resolvedParams.groupId,
+  });
+
   return (
     <div className="space-y-6">
       <BackToParent href="/dashboard/research/groups" label="Back to Groups" />
@@ -33,6 +39,12 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
       />
 
       <ResearchGroupFormClient initialData={group} />
+
+      <ResearchGroupFeaturedPublicationClient
+        groupId={group.id}
+        initialFeaturedId={group.featuredPublicationId}
+        eligiblePublications={eligiblePublications}
+      />
     </div>
   );
 }

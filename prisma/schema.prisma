@@ -253,6 +253,9 @@ model ResearchGroup {
   memberships  ResearchGroupMembership[]
   publications Publication[]
 
+  featuredPublicationId String?
+  featuredPublication   ResearchOutput? @relation("GroupFeatured", fields: [featuredPublicationId], references: [id])
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   deletedAt    DateTime?
@@ -344,6 +347,8 @@ model ResearchOutput {
   authorsJson  Json?   // array of author objects [{given_name, family_name, …}]
   keywordsJson Json?   // array of strings
   metaJson     Json?   // type-specific fields (volume, issue, pages, etc.)
+
+  featuredByGroups ResearchGroup[] @relation("GroupFeatured")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -82,6 +82,7 @@ export async function getResearchGroupByIdForUser({
       imageUrl: true,
       overview: true,
       focusAreas: true,
+      featuredPublicationId: true,
     },
   });
 }

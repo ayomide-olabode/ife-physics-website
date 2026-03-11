@@ -21,7 +21,7 @@ const authorObjectSchema = z.object({
 
 /* ── main schema ── */
 
-export const researchOutputSchema = z
+const researchOutputSchema = z
   .object({
     type: z.nativeEnum(ResearchOutputType, { message: 'Invalid output type' }),
     title: z.string().min(1, 'Title is required.'),

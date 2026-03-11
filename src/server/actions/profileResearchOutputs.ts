@@ -6,6 +6,16 @@ import { requireAuth, requireStaffOwnership } from '@/lib/guards';
 import { z } from 'zod';
 import { Prisma, ResearchOutputType } from '@prisma/client';
 
+const authorObjectSchema = z.object({
+  staffId: z.string().nullable().optional(),
+  given_name: z.string().min(1, 'Given name is required.'),
+  middle_name: z.string().nullable().optional(),
+  family_name: z.string(),
+  suffix: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  is_group: z.boolean().nullable().optional(),
+});
+
 const researchOutputSchema = z
   .object({
     type: z.nativeEnum(ResearchOutputType, { message: 'Invalid output type' }),
@@ -20,6 +30,7 @@ const researchOutputSchema = z
     url: z.string().url('Must be a valid URL').nullable().optional().or(z.literal('')),
     doi: z.string().nullable().optional(),
     metaJson: z.record(z.string(), z.unknown()).optional().nullable(),
+    authorsJson: z.array(authorObjectSchema).optional().nullable(),
   })
   .superRefine((data, ctx) => {
     const meta = (data.metaJson || {}) as Record<string, string>;
@@ -118,6 +129,7 @@ export async function createMyResearchOutput(data: z.infer<typeof researchOutput
         url: validData.url?.trim() || null,
         doi: validData.doi?.trim() || null,
         metaJson: (validData.metaJson || undefined) as Prisma.InputJsonValue | undefined,
+        authorsJson: (validData.authorsJson || undefined) as Prisma.InputJsonValue | undefined,
       },
     });
 
@@ -168,6 +180,7 @@ export async function updateMyResearchOutput(
         url: validData.url?.trim() || null,
         doi: validData.doi?.trim() || null,
         metaJson: (validData.metaJson || undefined) as Prisma.InputJsonValue | undefined,
+        authorsJson: (validData.authorsJson || undefined) as Prisma.InputJsonValue | undefined,
       },
     });
 

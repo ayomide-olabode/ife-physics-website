@@ -20,7 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X, UserPlus, Plus } from 'lucide-react';
+import { StaffAuthorAutocomplete } from '@/components/forms/StaffAuthorAutocomplete';
+import type { AuthorObject } from '@/lib/researchOutputTypes';
 
 type FormDataState = {
   type?: ResearchOutputType;
@@ -31,6 +33,7 @@ type FormDataState = {
   url: string;
   doi: string;
   metaJson: Record<string, string>;
+  authorsJson: AuthorObject[];
 };
 
 const defaultValues: FormDataState = {
@@ -42,6 +45,7 @@ const defaultValues: FormDataState = {
   url: '',
   doi: '',
   metaJson: {},
+  authorsJson: [],
 };
 
 export function ResearchOutputFormClient({
@@ -56,8 +60,62 @@ export function ResearchOutputFormClient({
     ...defaultValues,
     ...initialData,
     year: initialData?.year ? String(initialData.year) : '',
+    authorsJson: initialData?.authorsJson || [],
   }));
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [manualGiven, setManualGiven] = useState('');
+  const [manualFamily, setManualFamily] = useState('');
+
+  // Sync authorsJson → flat authors string for backward compatibility
+  function syncAuthorsString(authors: AuthorObject[]): string {
+    if (authors.length === 0) return formData.authors;
+    return authors.map((a) => [a.family_name, a.given_name].filter(Boolean).join(' ')).join(', ');
+  }
+
+  function handleAddStaffAuthor(author: AuthorObject) {
+    // Prevent duplicates by staffId
+    if (author.staffId && formData.authorsJson.some((a) => a.staffId === author.staffId)) {
+      toastError('This staff member is already added.');
+      return;
+    }
+    const updated = [...formData.authorsJson, author];
+    setFormData((prev) => ({
+      ...prev,
+      authorsJson: updated,
+      authors: syncAuthorsString(updated),
+    }));
+  }
+
+  function handleAddManualAuthor() {
+    if (!manualGiven.trim()) {
+      toastError('Given name is required.');
+      return;
+    }
+    const author: AuthorObject = {
+      staffId: null,
+      given_name: manualGiven.trim(),
+      family_name: manualFamily.trim(),
+    };
+    const updated = [...formData.authorsJson, author];
+    setFormData((prev) => ({
+      ...prev,
+      authorsJson: updated,
+      authors: syncAuthorsString(updated),
+    }));
+    setManualGiven('');
+    setManualFamily('');
+    setShowManualEntry(false);
+  }
+
+  function handleRemoveAuthor(index: number) {
+    const updated = formData.authorsJson.filter((_, i) => i !== index);
+    setFormData((prev) => ({
+      ...prev,
+      authorsJson: updated,
+      authors: updated.length > 0 ? syncAuthorsString(updated) : prev.authors,
+    }));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -86,6 +144,7 @@ export function ResearchOutputFormClient({
       url: formData.url || undefined,
       doi: formData.doi || undefined,
       metaJson: formData.metaJson,
+      authorsJson: formData.authorsJson.length > 0 ? formData.authorsJson : undefined,
     };
 
     setIsSubmitting(true);
@@ -168,18 +227,130 @@ export function ResearchOutputFormClient({
           />
         </div>
 
-        <div className="grid gap-2">
-          <FieldLabel required htmlFor="authors">
-            Authors
-          </FieldLabel>
-          <Input
-            id="authors"
-            value={formData.authors}
-            onChange={(e) => setFormData((prev) => ({ ...prev, authors: e.target.value }))}
-            required
-            placeholder="e.g. Smith J., Doe A."
-            disabled={isSubmitting}
-          />
+        {/* ── Structured Authors Editor ── */}
+        <div className="grid gap-3">
+          <FieldLabel required>Authors</FieldLabel>
+
+          {/* Author chips */}
+          {formData.authorsJson.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {formData.authorsJson.map((author, idx) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1.5 rounded-full border bg-muted/50 px-3 py-1 text-sm"
+                >
+                  {author.staffId && (
+                    <span
+                      className="h-2 w-2 rounded-full bg-green-500 shrink-0"
+                      title="Staff member"
+                    />
+                  )}
+                  <span>{[author.given_name, author.family_name].filter(Boolean).join(' ')}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAuthor(idx)}
+                    className="ml-0.5 rounded-full p-0.5 hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
+                    disabled={isSubmitting}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Staff autocomplete */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <UserPlus className="h-3.5 w-3.5" />
+              <span>Add from staff directory</span>
+            </div>
+            <StaffAuthorAutocomplete onSelect={handleAddStaffAuthor} disabled={isSubmitting} />
+          </div>
+
+          {/* Manual author entry */}
+          {showManualEntry ? (
+            <div className="rounded-md border bg-muted/30 p-3 space-y-3">
+              <p className="text-xs font-medium text-muted-foreground">Add external author</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-1">
+                  <FieldLabel required htmlFor="manual-given" className="text-xs">
+                    Given Name
+                  </FieldLabel>
+                  <Input
+                    id="manual-given"
+                    value={manualGiven}
+                    onChange={(e) => setManualGiven(e.target.value)}
+                    placeholder="e.g. Jane"
+                    disabled={isSubmitting}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="grid gap-1">
+                  <FieldLabel htmlFor="manual-family" className="text-xs">
+                    Family Name
+                  </FieldLabel>
+                  <Input
+                    id="manual-family"
+                    value={manualFamily}
+                    onChange={(e) => setManualFamily(e.target.value)}
+                    placeholder="e.g. Doe"
+                    disabled={isSubmitting}
+                    className="h-8 text-sm"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleAddManualAuthor}
+                  disabled={isSubmitting}
+                >
+                  Add
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setShowManualEntry(false);
+                    setManualGiven('');
+                    setManualFamily('');
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowManualEntry(true)}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add external author manually
+            </button>
+          )}
+
+          {/* Fallback flat authors field */}
+          <div className="grid gap-1">
+            <FieldLabel htmlFor="authors" className="text-xs">
+              Authors (flat text — auto-synced)
+            </FieldLabel>
+            <Input
+              id="authors"
+              value={formData.authors}
+              onChange={(e) => setFormData((prev) => ({ ...prev, authors: e.target.value }))}
+              required
+              placeholder="e.g. Smith J., Doe A."
+              disabled={isSubmitting}
+              className="text-sm"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

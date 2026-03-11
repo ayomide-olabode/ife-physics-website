@@ -45,6 +45,11 @@ export default async function EditResearchOutputPage({
           url: data.url || '',
           doi: data.doi || '',
           metaJson: (data.metaJson || {}) as Record<string, string>,
+          authorsJson: (data.authorsJson || []) as Array<{
+            staffId?: string | null;
+            given_name: string;
+            family_name: string;
+          }>,
         }}
       />
     </div>

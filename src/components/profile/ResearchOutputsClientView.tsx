@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { ResearchOutputEditor } from './ResearchOutputEditor';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { deleteMyResearchOutput } from '@/server/actions/profileResearchOutputs';
 import { toastSuccess, toastError } from '@/lib/toast';
@@ -11,21 +10,6 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-
-type OutputFormData = {
-  type?: ResearchOutputType;
-  title: string;
-  authors: string;
-  year: string;
-  venue: string;
-  url: string;
-  doi: string;
-  metaJson: Record<string, string>;
-};
-
-type OutputEditorProps = {
-  id: string;
-} & Partial<OutputFormData>;
 
 type ResearchOutputItem = {
   id: string;
@@ -49,21 +33,8 @@ type PaginatedData = {
 };
 
 export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [editorData, setEditorData] = useState<OutputEditorProps | undefined>();
-
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-
-  const handleAdd = () => {
-    setEditorData(undefined);
-    setEditorOpen(true);
-  };
-
-  const handleEdit = (id: string, formData: OutputFormData) => {
-    setEditorData({ id, ...formData });
-    setEditorOpen(true);
-  };
 
   const handleDeleteRequest = (id: string) => {
     setDeleteId(id);
@@ -94,12 +65,12 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
         title="Research Outputs"
         description="Manage your publications, reports, and conference proceedings securely."
         actions={
-          <button
-            onClick={handleAdd}
+          <Link
+            href="/dashboard/profile/research-outputs/new"
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
           >
             Add New Output
-          </button>
+          </Link>
         }
       />
 
@@ -164,23 +135,12 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
               )}
             </div>,
             <div key="actions" className="flex items-center gap-2">
-              <button
-                onClick={() =>
-                  handleEdit(item.id, {
-                    type: item.type,
-                    title: item.title,
-                    authors: item.authors,
-                    year: item.year?.toString() || '',
-                    venue: item.venue || '',
-                    url: item.url || '',
-                    doi: item.doi || '',
-                    metaJson: (item.metaJson || {}) as Record<string, string>,
-                  })
-                }
+              <Link
+                href={`/dashboard/profile/research-outputs/${item.id}`}
                 className="text-sm text-blue-600 hover:text-blue-800 font-medium"
               >
                 Edit
-              </button>
+              </Link>
               <span className="text-muted-foreground">|</span>
               <button
                 onClick={() => handleDeleteRequest(item.id)}
@@ -224,12 +184,6 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
           </div>
         </div>
       )}
-
-      <ResearchOutputEditor
-        open={editorOpen}
-        onOpenChange={setEditorOpen}
-        initialData={editorData}
-      />
 
       <ConfirmDialog
         open={deleteOpen}

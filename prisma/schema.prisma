@@ -329,7 +329,21 @@ model ResearchOutput {
   venue     String?
   url       String?
   doi       String?
-  metaJson  Json?
+
+  // APA common fields
+  groupAuthor  String?
+  fullDate     DateTime?
+  subtitle     String?
+  sourceTitle  String?
+  publisher    String?
+  language     String?
+  abstract     String?
+  notes        String?
+
+  // Structured JSON
+  authorsJson  Json?   // array of author objects [{given_name, family_name, …}]
+  keywordsJson Json?   // array of strings
+  metaJson     Json?   // type-specific fields (volume, issue, pages, etc.)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

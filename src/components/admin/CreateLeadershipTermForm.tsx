@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
-import { Plus, X } from 'lucide-react';
+
 import { LEADERSHIP_ROLE_OPTIONS, PROGRAMME_OPTIONS } from '@/lib/options';
 import { createLeadershipTerm } from '@/server/actions/leadershipTerms';
 import { searchStaff } from '@/server/queries/staffSearch';
@@ -26,6 +26,7 @@ export function CreateLeadershipTermForm() {
     }>
   >([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Form state
   const [selectedStaffId, setSelectedStaffId] = useState<string>('');
@@ -41,9 +42,11 @@ export function CreateLeadershipTermForm() {
     if (!searchQuery || searchQuery.length < 2) return;
 
     setIsSearching(true);
+    setHasSearched(false);
     try {
       const results = await searchStaff({ q: searchQuery });
       setSearchResults(results);
+      setHasSearched(true);
     } catch {
       toastError('Failed to search staff.');
     } finally {
@@ -117,6 +120,14 @@ export function CreateLeadershipTermForm() {
             {isSearching ? 'Searching...' : 'Search'}
           </Button>
         </div>
+
+        {!hasSearched && !isSearching && (
+          <p className="mt-2 text-sm text-muted-foreground">Type to search by name or email.</p>
+        )}
+
+        {hasSearched && searchResults.length === 0 && (
+          <p className="mt-2 text-sm text-muted-foreground">No staff found.</p>
+        )}
 
         {searchResults.length > 0 && (
           <div className="mt-4 space-y-2 border rounded-md p-2 max-h-60 overflow-y-auto">

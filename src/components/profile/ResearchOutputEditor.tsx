@@ -100,7 +100,7 @@ export function ResearchOutputEditor({
         toastSuccess(isEditing ? 'Output updated!' : 'Output created!');
         onOpenChange(false);
       }
-    } catch (_err: unknown) {
+    } catch {
       toastError('An unexpected error occurred.');
     } finally {
       setIsSubmitting(false);

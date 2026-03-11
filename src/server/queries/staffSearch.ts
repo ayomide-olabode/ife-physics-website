@@ -1,3 +1,5 @@
+'use server';
+
 import prisma from '@/lib/prisma';
 
 export async function searchStaff({ q, take = 20 }: { q: string; take?: number }) {
@@ -5,6 +7,7 @@ export async function searchStaff({ q, take = 20 }: { q: string; take?: number }
 
   return prisma.staff.findMany({
     where: {
+      deletedAt: null,
       OR: [
         { firstName: { contains: q, mode: 'insensitive' } },
         { lastName: { contains: q, mode: 'insensitive' } },
@@ -16,6 +19,8 @@ export async function searchStaff({ q, take = 20 }: { q: string; take?: number }
       firstName: true,
       lastName: true,
       institutionalEmail: true,
+      staffType: true,
+      staffStatus: true,
       profileImageUrl: true,
     },
     orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],

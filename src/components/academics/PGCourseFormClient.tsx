@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
 import { Button } from '@/components/ui/button';
+import { COURSE_STATUS_OPTIONS } from '@/lib/options';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
@@ -140,8 +141,11 @@ export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormC
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="CORE">CORE</SelectItem>
-              <SelectItem value="RESTRICTED">RESTRICTED</SelectItem>
+              {COURSE_STATUS_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

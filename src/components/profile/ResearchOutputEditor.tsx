@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { YearSelect } from '@/components/forms/YearSelect';
+import { RESEARCH_OUTPUT_TYPE_OPTIONS } from '@/lib/options';
 import {
   Dialog,
   DialogContent,
@@ -99,7 +100,7 @@ export function ResearchOutputEditor({
         toastSuccess(isEditing ? 'Output updated!' : 'Output created!');
         onOpenChange(false);
       }
-    } catch (err: unknown) {
+    } catch (_err: unknown) {
       toastError('An unexpected error occurred.');
     } finally {
       setIsSubmitting(false);
@@ -143,9 +144,9 @@ export function ResearchOutputEditor({
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.values(ResearchOutputType).map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t.replace(/_/g, ' ')}
+                  {RESEARCH_OUTPUT_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

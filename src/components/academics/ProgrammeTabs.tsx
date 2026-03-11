@@ -11,7 +11,7 @@ interface ProgrammeTabsProps {
   basePath: string;
 }
 
-export function ProgrammeTabs({ programmeCode, basePath }: ProgrammeTabsProps) {
+export function ProgrammeTabs({ programmeCode: _programmeCode, basePath }: ProgrammeTabsProps) {
   const pathname = usePathname();
 
   const tabs = [

@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { toastSuccess, toastError } from '@/lib/toast';
+import { REQUIREMENT_TYPE_OPTIONS } from '@/lib/options';
 import {
   createRequirementBlock,
   updateRequirementBlock,
@@ -105,8 +106,11 @@ export function PgRequirementBlockEditor({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ADMISSION">Admission</SelectItem>
-                <SelectItem value="COURSE">Course</SelectItem>
+                {REQUIREMENT_TYPE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

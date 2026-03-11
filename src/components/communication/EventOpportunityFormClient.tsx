@@ -18,33 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-const EVENT_CATEGORIES = [
-  { value: 'SEMINAR', label: 'Seminar' },
-  { value: 'LECTURE', label: 'Lecture' },
-  { value: 'COLLOQUIUM', label: 'Colloquium' },
-  { value: 'WORKSHOP', label: 'Workshop' },
-  { value: 'TRAINING', label: 'Training' },
-  { value: 'THESIS_DEFENSE', label: 'Thesis Defense' },
-  { value: 'CONFERENCE', label: 'Conference' },
-  { value: 'SYMPOSIUM', label: 'Symposium' },
-  { value: 'SCHOOL', label: 'School' },
-  { value: 'MEETING', label: 'Meeting' },
-  { value: 'SOCIAL', label: 'Social' },
-  { value: 'OUTREACH', label: 'Outreach' },
-  { value: 'COMPETITION', label: 'Competition' },
-];
-
-const OPPORTUNITY_CATEGORIES = [
-  { value: 'GRANT', label: 'Grant' },
-  { value: 'FUNDING', label: 'Funding' },
-  { value: 'FELLOWSHIP', label: 'Fellowship' },
-  { value: 'SCHOLARSHIP', label: 'Scholarship' },
-  { value: 'JOBS', label: 'Jobs' },
-  { value: 'INTERNSHIPS', label: 'Internships' },
-  { value: 'EXCHANGE', label: 'Exchange' },
-  { value: 'COLLABORATION', label: 'Collaboration' },
-];
+import { EVENT_CATEGORY_OPTIONS, OPPORTUNITY_CATEGORY_OPTIONS } from '@/lib/options';
 
 type FormInitial = {
   id?: string;
@@ -85,7 +59,11 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
   const [deadline, setDeadline] = useState(toDateInput(initial?.deadline));
 
   const categoryOptions =
-    type === 'EVENT' ? EVENT_CATEGORIES : type === 'OPPORTUNITY' ? OPPORTUNITY_CATEGORIES : [];
+    type === 'EVENT'
+      ? EVENT_CATEGORY_OPTIONS
+      : type === 'OPPORTUNITY'
+        ? OPPORTUNITY_CATEGORY_OPTIONS
+        : [];
 
   const handleTypeChange = (val: string) => {
     setType(val);

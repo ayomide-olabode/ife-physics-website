@@ -1,6 +1,5 @@
 'use server';
 
-import bcrypt from 'bcrypt';
 import prisma from '@/lib/prisma';
 import { requireAuth, requireSuperAdmin } from '@/lib/guards';
 import { logAudit } from '@/lib/audit';

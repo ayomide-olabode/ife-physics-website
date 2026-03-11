@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Checkbox } from '@/components/ui/checkbox';
 import { createStaff } from '@/server/actions/adminStaff';
+import { STAFF_TYPE_OPTIONS, STAFF_STATUS_OPTIONS } from '@/lib/options';
 import { StaffType, StaffStatus } from '@prisma/client';
 import { toast } from 'sonner';
 
@@ -87,12 +88,11 @@ export function CreateStaffForm() {
               className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               required
             >
-              <option value="ACADEMIC">Academic</option>
-              <option value="COGNATE">Cognate</option>
-              <option value="VISITING">Visiting</option>
-              <option value="EMERITUS">Emeritus</option>
-              <option value="TECHNICAL">Technical</option>
-              <option value="SUPPORT">Support</option>
+              {STAFF_TYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
           <div className="space-y-2">
@@ -104,10 +104,11 @@ export function CreateStaffForm() {
               className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               required
             >
-              <option value="ACTIVE">Active</option>
-              <option value="RESIGNED">Resigned</option>
-              <option value="RETIRED">Retired</option>
-              <option value="IN_MEMORIAM">In Memoriam</option>
+              {STAFF_STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>

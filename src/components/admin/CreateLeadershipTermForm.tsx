@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
+import { Plus, X } from 'lucide-react';
+import { LEADERSHIP_ROLE_OPTIONS, PROGRAMME_OPTIONS } from '@/lib/options';
 import { createLeadershipTerm } from '@/server/actions/leadershipTerms';
 import { searchStaff } from '@/server/queries/staffSearch';
 import { toastSuccess, toastError } from '@/lib/toast';
@@ -165,8 +167,11 @@ export function CreateLeadershipTermForm() {
               <option value="" disabled>
                 Select a role...
               </option>
-              <option value="HOD">Head of Department (HOD)</option>
-              <option value="ACADEMIC_COORDINATOR">Academic Coordinator</option>
+              {LEADERSHIP_ROLE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -180,9 +185,11 @@ export function CreateLeadershipTermForm() {
                 className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <option value="">None / General</option>
-                <option value="PHY">PHY (Physics)</option>
-                <option value="EPH">EPH (Engineering Physics)</option>
-                <option value="SLT">SLT (Science Laboratory Technology)</option>
+                {PROGRAMME_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.value} ({opt.label})
+                  </option>
+                ))}
               </select>
             </div>
           )}

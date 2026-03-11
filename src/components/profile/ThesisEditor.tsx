@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { YearSelect } from '@/components/forms/YearSelect';
 import { toastSuccess, toastError } from '@/lib/toast';
+import { THESIS_STATUS_OPTIONS } from '@/lib/options';
 import { createMyThesis, updateMyThesis } from '@/server/actions/profileTheses';
 import { useRouter } from 'next/navigation';
 import { ThesisStatus } from '@prisma/client';
@@ -138,9 +139,11 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 required
               >
-                <option value="ONGOING">Ongoing</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="DISCONTINUED">Discontinued</option>
+                {THESIS_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

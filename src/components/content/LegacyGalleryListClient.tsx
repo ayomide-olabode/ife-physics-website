@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PUBLISH_STATUS_OPTIONS_WITH_ALL } from '@/lib/options';
 import { LegacyGalleryPreviewModal } from './LegacyGalleryPreviewModal';
 
 type LegacyItem = {
@@ -187,10 +188,11 @@ export function LegacyGalleryListClient({
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">All Status</SelectItem>
-              <SelectItem value={PublishStatus.DRAFT}>Draft</SelectItem>
-              <SelectItem value={PublishStatus.PUBLISHED}>Published</SelectItem>
-              <SelectItem value={PublishStatus.ARCHIVED}>Archived</SelectItem>
+              {PUBLISH_STATUS_OPTIONS_WITH_ALL.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

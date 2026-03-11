@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { slugify } from '@/lib/slug';
 
 export function useSlugField({

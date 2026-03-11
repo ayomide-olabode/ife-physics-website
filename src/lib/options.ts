@@ -21,6 +21,15 @@ export const PROGRAMME_OPTIONS = [
   { value: ProgrammeCode.SLT, label: 'Science Laboratory Technology' },
 ];
 
+/** Roll-of-Honour programme options – stored as display strings, not enum codes */
+export const ROH_PROGRAMME_OPTIONS = [
+  { value: 'Engineering Physics', label: 'Engineering Physics' },
+  { value: 'Physics', label: 'Physics' },
+  { value: 'Science Laboratory Technology', label: 'Science Laboratory Technology' },
+] as const;
+
+export const ROH_PROGRAMME_VALUES = ROH_PROGRAMME_OPTIONS.map((o) => o.value);
+
 export const DEGREE_OPTIONS = [
   { value: DegreeType.BSC, label: 'B.Sc.' },
   { value: DegreeType.MPHIL, label: 'M.Phil.' },

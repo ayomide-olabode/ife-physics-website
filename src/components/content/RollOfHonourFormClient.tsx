@@ -9,6 +9,7 @@ import { createRollOfHonour, updateRollOfHonour } from '@/server/actions/rollOfH
 import { toastSuccess, toastError } from '@/lib/toast';
 import { RollOfHonourImageUploader } from './RollOfHonourImageUploader';
 import { YearSelect } from '@/components/forms/YearSelect';
+import { ROH_PROGRAMME_OPTIONS } from '@/lib/options';
 
 type FormDataState = {
   name: string;
@@ -130,13 +131,22 @@ export function RollOfHonourFormClient({
               <FieldLabel required htmlFor="programme">
                 Programme
               </FieldLabel>
-              <Input
+              <select
                 id="programme"
                 value={formData.programme}
                 onChange={(e) => setFormData((prev) => ({ ...prev, programme: e.target.value }))}
-                placeholder="e.g. Physics (B.Sc)"
+                className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select a programme...
+                </option>
+                {ROH_PROGRAMME_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

@@ -6,11 +6,17 @@ import { revalidateTag, revalidatePath } from 'next/cache';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { logAudit } from '@/lib/audit';
 import { ScopedRole, Prisma } from '@prisma/client';
+import { ROH_PROGRAMME_VALUES } from '@/lib/options';
 
 const rollOfHonourSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
   registrationNumber: z.string().min(1, 'Registration number is required').max(100),
-  programme: z.string().min(1, 'Programme is required').max(100),
+  programme: z
+    .string()
+    .min(1, 'Programme is required')
+    .refine((val) => ROH_PROGRAMME_VALUES.includes(val as (typeof ROH_PROGRAMME_VALUES)[number]), {
+      message: 'Invalid programme',
+    }),
   cgpa: z.coerce.number().min(0).max(5),
   graduatingYear: z.coerce
     .number()

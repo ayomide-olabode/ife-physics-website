@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/forms/PasswordInput';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,6 +42,14 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-muted/30">
+      <div className="absolute top-6 left-6">
+        <Link
+          href="/"
+          className="bg-brand-navy py-2 px-4 rounded-lg text-brand-white hover:text-brand-yellow transition-colors"
+        >
+          Back to home
+        </Link>
+      </div>
       <div className="w-full max-w-sm rounded-lg border bg-card text-card-foreground shadow-sm p-6">
         <div className="flex flex-col space-y-1.5 pb-6">
           <h3 className="font-semibold tracking-tight text-2xl">Sign In</h3>

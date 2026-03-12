@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { UserMenu, type TopbarUser } from './UserMenu';
 import { MobileSidebar, type NavItem } from './DashboardSidebar';
+import Image from 'next/image';
 
 export async function DashboardTopbar({ navItems }: { navItems: NavItem[] }) {
   const session = await auth();
@@ -37,7 +38,14 @@ export async function DashboardTopbar({ navItems }: { navItems: NavItem[] }) {
         <div className="flex items-center gap-3">
           <MobileSidebar items={navItems} />
           <Link href="/dashboard" className="font-semibold text-lg tracking-tight">
-            OAUIFE Physics
+            <Image
+              src="/assets/logoPrimary.svg"
+              alt="Department of Physics and Engineering Physics"
+              width={360}
+              height={64}
+              className="h-10 sm:h-12 w-auto"
+              priority
+            />
           </Link>
         </div>
         <UserMenu user={user} />

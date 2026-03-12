@@ -329,9 +329,12 @@ export function StudyOptionsInlineEditor({
                 />
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 flex items-center gap-3">
                 <Button onClick={handleSave} disabled={isSaving}>
                   {isSaving ? 'Saving...' : 'Save Details'}
+                </Button>
+                <Button variant="outline" onClick={() => setSelectedId(null)} disabled={isSaving}>
+                  Cancel
                 </Button>
               </div>
             </div>

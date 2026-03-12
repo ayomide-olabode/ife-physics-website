@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { LogoutButton } from '@/components/auth/LogoutButton';
-import { LogOut, ChevronDown } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 export type NavItem = {
   label: string;
@@ -35,12 +35,11 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
 
 function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
   const isGroupActive = pathname.startsWith(item.href);
-  const [isOpen, setIsOpen] = useState(isGroupActive);
+  const isOpen = true;
 
   return (
     <div className="flex flex-col gap-1">
       <button
-        onClick={() => setIsOpen(!isOpen)}
         className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
           isGroupActive
             ? 'text-foreground'
@@ -48,9 +47,6 @@ function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
         }`}
       >
         <span>{item.label}</span>
-        <ChevronDown
-          className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-        />
       </button>
 
       {isOpen && item.children && (

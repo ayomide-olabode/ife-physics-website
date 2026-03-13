@@ -1,9 +1,12 @@
 import { listPublicHistoryEntries } from '@/server/public/queries/historyPublic';
 import { PageHero } from '@/components/public/PageHero';
-import { Timeline } from '@/components/public/about/Timeline';
+import { HistoryDecadeRail } from '@/components/public/about/HistoryDecadeRail';
+import { HistoryTimeline, groupByDecade } from '@/components/public/about/HistoryTimeline';
 
 export default async function HistoryPage() {
   const entries = await listPublicHistoryEntries();
+  const groups = groupByDecade(entries);
+  const decades = groups.map((g) => g.decade);
 
   return (
     <>
@@ -11,7 +14,7 @@ export default async function HistoryPage() {
 
       <div className="py-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <p className="text-gray-600 mb-10 max-w-2xl">
+          <p className="text-gray-600 mb-12 max-w-2xl">
             A timeline of key milestones in the Department of Physics and Engineering Physics.
           </p>
 
@@ -22,7 +25,17 @@ export default async function HistoryPage() {
               </p>
             </div>
           ) : (
-            <Timeline entries={entries} />
+            <div className="flex gap-12">
+              {/* Decade rail – hidden on small screens */}
+              <aside className="hidden lg:block w-36 flex-shrink-0">
+                <HistoryDecadeRail decades={decades} />
+              </aside>
+
+              {/* Timeline content */}
+              <div className="flex-1 min-w-0">
+                <HistoryTimeline groups={groups} />
+              </div>
+            </div>
           )}
         </div>
       </div>

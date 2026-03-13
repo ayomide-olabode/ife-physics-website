@@ -37,3 +37,14 @@ export async function listPublicRollOfHonour(params: RollOfHonourParams = {}) {
 
   return paginatedResult(items, total, page, pageSize);
 }
+
+/** Distinct programmes for filter dropdown. */
+export async function listDistinctProgrammes() {
+  const rows = await prisma.rollOfHonourEntry.findMany({
+    where: whereNotDeleted(),
+    distinct: ['programme'],
+    select: { programme: true },
+    orderBy: { programme: 'asc' },
+  });
+  return rows.map((r) => r.programme);
+}

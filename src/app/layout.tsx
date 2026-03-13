@@ -1,14 +1,9 @@
 import type { Metadata } from 'next';
-import { Inter, Source_Serif_4 } from 'next/font/google';
+import { Nunito_Sans } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({
+const nunitoSans = Nunito_Sans({
   variable: '--font-sans',
-  subsets: ['latin'],
-});
-
-const sourceSerif4 = Source_Serif_4({
-  variable: '--font-serif',
   subsets: ['latin'],
 });
 
@@ -42,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${sourceSerif4.variable}`}>
+    <html lang="en" className={nunitoSans.variable}>
       <body className="font-sans antialiased">{children}</body>
     </html>
   );

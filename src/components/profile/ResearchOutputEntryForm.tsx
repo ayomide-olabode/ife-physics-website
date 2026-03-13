@@ -14,6 +14,7 @@ import {
   createMyResearchOutput,
   updateMyResearchOutput,
 } from '@/server/actions/profileResearchOutputs';
+import { lookupCrossrefByDoi } from '@/server/actions/crossrefLookup';
 import { ResearchOutputType } from '@prisma/client';
 import {
   Select,
@@ -81,6 +82,7 @@ export function ResearchOutputEntryForm({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [identifierQuery, setIdentifierQuery] = useState('');
+  const [isLookingUp, setIsLookingUp] = useState(false);
 
   // Author manual entry state
   const [showManualAuthor, setShowManualAuthor] = useState(false);
@@ -97,6 +99,60 @@ export function ResearchOutputEntryForm({
   const fields = mapConfig?.fields || [];
   const hasPages = fields.some((f) => f.key === 'pagesFrom' || f.key === 'pagesTo');
   const normalFields = fields.filter((f) => f.key !== 'pagesFrom' && f.key !== 'pagesTo');
+
+  const looksLikeDoi = identifierQuery.trim().includes('10.');
+
+  /* ── Crossref ── */
+  async function handleDoiLookup() {
+    if (!identifierQuery) return;
+    setIsLookingUp(true);
+    try {
+      const res = await lookupCrossrefByDoi(identifierQuery);
+      if (res.error) {
+        toastError(res.error);
+        return;
+      }
+
+      const data = res.data;
+      if (!data) return;
+
+      toastSuccess('Metadata loaded');
+
+      setFormData((prev) => {
+        const next = { ...prev };
+        const metaJson = { ...next.metaJson };
+
+        if (!next.title && data.title) next.title = data.title;
+        if (!next.year && data.year) next.year = String(data.year);
+
+        if (next.type === 'JOURNAL_ARTICLE') {
+          if (data.journalName) metaJson.journalName = data.journalName;
+          if (data.volume) metaJson.volume = data.volume;
+          if (data.issue) metaJson.issue = data.issue;
+          if (data.pagesFrom) metaJson.pagesFrom = data.pagesFrom;
+          if (data.pagesTo) metaJson.pagesTo = data.pagesTo;
+          if (data.month) metaJson.month = data.month;
+          if (data.day) metaJson.day = data.day;
+        }
+
+        if (next.authorsJson.length === 0 && data.authors && data.authors.length > 0) {
+          next.authorsJson = data.authors.map((a) => ({
+            staffId: null,
+            given_name: a.given_name,
+            family_name: a.family_name,
+          }));
+          next.authors = syncAuthorsString(next.authorsJson);
+        }
+
+        next.metaJson = metaJson;
+        return next;
+      });
+    } catch {
+      toastError('Failed to lookup DOI');
+    } finally {
+      setIsLookingUp(false);
+    }
+  }
 
   /* ── Author helpers ── */
   function syncAuthorsString(authors: AuthorObject[]): string {
@@ -329,18 +385,23 @@ export function ResearchOutputEntryForm({
             value={identifierQuery}
             onChange={(e) => setIdentifierQuery(e.target.value)}
             placeholder="e.g. 10.1038/s41586-020-2649-2"
-            disabled={dis}
+            disabled={dis || isLookingUp}
             className="rounded-none"
           />
         </div>
         <Button
           type="button"
           variant="outline"
-          disabled
-          title="Lookup enabled when DOI is provided"
+          disabled={dis || isLookingUp || !looksLikeDoi}
+          onClick={handleDoiLookup}
+          title={!looksLikeDoi ? 'Lookup enabled when DOI is provided' : 'Lookup Metadata'}
           className="rounded-none"
         >
-          <Search className="w-4 h-4 mr-2" />
+          {isLookingUp ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <Search className="w-4 h-4 mr-2" />
+          )}
           Search
         </Button>
       </div>

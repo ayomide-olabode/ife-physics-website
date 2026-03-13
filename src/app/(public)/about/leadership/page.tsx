@@ -5,7 +5,8 @@ import {
   listPublicPastHods,
 } from '@/server/public/queries/leadershipPublic';
 import { PageHero } from '@/components/public/PageHero';
-import { LeadershipModal } from '@/components/public/about/LeadershipModal';
+import { CurrentHodSection } from '@/components/public/about/CurrentHodSection';
+import { PastHodsGrid } from '@/components/public/about/PastHodsGrid';
 
 export default async function LeadershipPage() {
   const [currentHod, coordinators, pastHods] = await Promise.all([
@@ -20,75 +21,28 @@ export default async function LeadershipPage() {
 
       <div className="py-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <p className="text-gray-600 mb-12 max-w-2xl">
-            Meet the leaders driving excellence in the Department of Physics and Engineering
-            Physics.
-          </p>
-
           {/* ─── Current HOD ─── */}
-          {currentHod && (
-            <section className="mb-16">
-              <h2 className="text-2xl font-serif font-bold text-brand-navy mb-6 border-b-2 border-brand-yellow pb-2 inline-block">
-                Head of Department
-              </h2>
-
-              <div className="flex flex-col md:flex-row gap-8 mt-4">
-                {/* Photo */}
-                <div className="relative w-48 h-56 flex-shrink-0 bg-gray-100">
-                  {currentHod.profileImageUrl ? (
-                    <Image
-                      src={currentHod.profileImageUrl}
-                      alt={[currentHod.firstName, currentHod.lastName].filter(Boolean).join(' ')}
-                      fill
-                      sizes="192px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-gray-400 text-sm">
-                      No Image
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-brand-navy">
-                    {[currentHod.academicRank, currentHod.firstName, currentHod.lastName]
-                      .filter(Boolean)
-                      .join(' ')}
-                  </h3>
-
-                  {/* Address */}
-                  {currentHod.hodAddress && (
-                    <div className="mt-4">
-                      <h4 className="text-lg font-medium text-brand-navy">
-                        {currentHod.hodAddress.title}
-                      </h4>
-                      <div className="prose prose-sm max-w-none mt-2 text-gray-700 whitespace-pre-wrap">
-                        {currentHod.hodAddress.body}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </section>
-          )}
+          {currentHod && <CurrentHodSection hod={currentHod} />}
 
           {/* ─── Academic Coordinators ─── */}
           {coordinators.length > 0 && (
             <section className="mb-16">
-              <h2 className="text-2xl font-serif font-bold text-brand-navy mb-6 border-b-2 border-brand-yellow pb-2 inline-block">
-                Academic Coordinators
-              </h2>
+              <div className="bg-brand-navy px-6 py-4 mb-6">
+                <h2 className="text-xl font-serif font-bold text-white">Academic Coordinators</h2>
+              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {coordinators.map((term) => {
                   const name = [term.staff.firstName, term.staff.lastName]
                     .filter(Boolean)
                     .join(' ');
 
                   return (
-                    <div key={term.id} className="border border-gray-200 overflow-hidden">
-                      <div className="relative h-56 bg-gray-100">
+                    <div
+                      key={term.id}
+                      className="bg-white border border-gray-200 shadow-sm overflow-hidden"
+                    >
+                      <div className="relative h-64 bg-gray-100">
                         {term.staff.profileImageUrl ? (
                           <Image
                             src={term.staff.profileImageUrl}
@@ -109,9 +63,9 @@ export default async function LeadershipPage() {
                           <p className="text-sm text-gray-500 mt-1">{term.staff.designation}</p>
                         )}
                         {term.programmeCode && (
-                          <p className="text-xs text-brand-yellow font-medium mt-1">
+                          <span className="inline-block mt-2 bg-brand-navy text-white text-xs font-semibold px-3 py-1">
                             {term.programmeCode}
-                          </p>
+                          </span>
                         )}
                       </div>
                     </div>
@@ -122,20 +76,9 @@ export default async function LeadershipPage() {
           )}
 
           {/* ─── Past HODs ─── */}
-          {pastHods.length > 0 && (
-            <section>
-              <h2 className="text-2xl font-serif font-bold text-brand-navy mb-6 border-b-2 border-brand-yellow pb-2 inline-block">
-                Past Heads of Department
-              </h2>
-              <p className="text-sm text-gray-500 mb-6">
-                Click on a card to view their farewell address, if available.
-              </p>
+          {pastHods.length > 0 && <PastHodsGrid hods={pastHods} />}
 
-              <LeadershipModal hods={pastHods} />
-            </section>
-          )}
-
-          {/* Empty state – nothing at all */}
+          {/* Empty state */}
           {!currentHod && coordinators.length === 0 && pastHods.length === 0 && (
             <div className="text-center py-20">
               <p className="text-gray-500 text-lg">

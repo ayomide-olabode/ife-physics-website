@@ -144,6 +144,7 @@ export async function getPublicCurrentHod() {
   const term = await prisma.leadershipTerm.findFirst({
     where: { role: 'HOD', endDate: null },
     select: {
+      startDate: true,
       staff: {
         select: {
           firstName: true,
@@ -159,5 +160,6 @@ export async function getPublicCurrentHod() {
     orderBy: { startDate: 'desc' },
   });
 
-  return term?.staff ?? null;
+  if (!term) return null;
+  return { ...term.staff, startYear: term.startDate.getFullYear() };
 }

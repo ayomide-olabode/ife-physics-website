@@ -1,6 +1,6 @@
 import { HeroCarousel } from '@/components/public/home/HeroCarousel';
 import { StatsStrip } from '@/components/public/home/StatsStrip';
-import { ProgrammeCards } from '@/components/public/home/ProgrammeCards';
+import { AcademicProgrammesSection } from '@/components/public-ref/home/AcademicProgrammesSection';
 import { LatestPublications } from '@/components/public/home/LatestPublications';
 import { NewsUpdatesSection } from '@/components/public/home/NewsUpdatesSection';
 import { UpcomingEventsSection } from '@/components/public/home/UpcomingEventsSection';
@@ -29,7 +29,7 @@ export default async function HomePage() {
       <StatsStrip />
 
       {/* 3) Academic programmes */}
-      <ProgrammeCards />
+      <AcademicProgrammesSection />
 
       {/* 4) Latest publications */}
       <LatestPublications items={publications} />

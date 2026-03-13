@@ -79,10 +79,11 @@ export function RefNavbar() {
                     <Link
                       href={link.href}
                       className={cn(
-                        'w-full py-6 text-sm font-bold uppercase tracking-wider transition-colors duration-200 flex items-center justify-center gap-1',
-                        'hover:bg-brand-yellow hover:text-brand-navy bg-transparent text-brand-white',
+                        'relative w-full py-6 text-sm font-bold uppercase tracking-wider transition-colors duration-200 flex items-center justify-center gap-1',
+                        'hover:text-brand-yellow bg-transparent text-brand-white',
+                        "after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-brand-yellow after:origin-center after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100",
                         isActive && !isOpen && 'text-brand-yellow',
-                        isOpen && 'bg-brand-yellow text-brand-navy',
+                        isOpen && 'text-brand-white',
                       )}
                     >
                       {link.name}
@@ -92,10 +93,11 @@ export function RefNavbar() {
                     <button
                       onClick={() => setActiveDropdown(isOpen ? null : link.name)}
                       className={cn(
-                        'w-full py-6 text-sm font-bold uppercase tracking-wider transition-colors duration-200 flex items-center justify-center gap-1 cursor-pointer',
-                        'hover:bg-brand-yellow hover:text-brand-navy bg-transparent text-brand-white',
+                        'relative w-full py-6 text-sm font-bold uppercase tracking-wider transition-colors duration-200 flex items-center justify-center gap-1 cursor-pointer',
+                        'hover:text-brand-yellow bg-transparent text-brand-white',
+                        "after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-brand-yellow after:origin-center after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100",
                         isActive && !isOpen && 'text-brand-yellow',
-                        isOpen && 'bg-brand-yellow text-brand-navy',
+                        isOpen && 'text-brand-white',
                       )}
                     >
                       {link.name}
@@ -124,7 +126,7 @@ export function RefNavbar() {
                           <li key={dropItem.href}>
                             <Link
                               href={dropItem.href}
-                              className="block px-4 py-3 text-sm font-semibold text-brand-navy hover:bg-gray-100 hover:text-brand-yellow transition-colors whitespace-nowrap"
+                              className="block px-4 py-3 text-sm font-semibold text-brand-navy hover:bg-gray-100 hover:text-brand-yellow transition-colors whitespace-nowrap text-center"
                             >
                               {dropItem.name}
                             </Link>

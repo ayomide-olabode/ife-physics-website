@@ -2,7 +2,7 @@ import { requireAuth } from '@/lib/guards';
 import { getMyResearchOutputById } from '@/server/queries/profileResearchOutputs';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { PageHeader } from '@/components/dashboard/PageHeader';
-import { ResearchOutputFormClient } from '@/components/profile/ResearchOutputFormClient';
+import { ResearchOutputEntryForm } from '@/components/profile/ResearchOutputEntryForm';
 import { notFound } from 'next/navigation';
 import { mapLegacyToApa } from '@/lib/legacyResearchOutputCompat';
 
@@ -48,7 +48,7 @@ export default async function EditResearchOutputPage({
         />
       </div>
 
-      <ResearchOutputFormClient
+      <ResearchOutputEntryForm
         initialData={{
           id: data.id,
           type: data.type,

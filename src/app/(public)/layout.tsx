@@ -1,10 +1,10 @@
-import { PublicHeader } from '@/components/public/PublicHeader';
+import { RefHeader } from '@/components/public-ref/header/RefHeader';
 import { PublicFooter } from '@/components/public/PublicFooter';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <PublicHeader />
+      <RefHeader />
       <main className="min-h-screen">{children}</main>
       <PublicFooter />
     </>

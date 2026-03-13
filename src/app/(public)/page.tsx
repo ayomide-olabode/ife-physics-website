@@ -12,13 +12,9 @@ export default async function HomePage() {
   const [featuredNews, latestNews, events, publications] = await Promise.all([
     getFeaturedNews(4),
     listPublicNews({ page: 1, pageSize: 3 }),
-    listPublicEventsOpportunities(6),
+    listPublicEventsOpportunities(4),
     getFeaturedPublications(3),
   ]);
-
-  // Prefer events over opportunities for homepage; take up to 3
-  const eventItems = events.filter((e) => e.type === 'EVENT').slice(0, 3);
-  const displayEvents = eventItems.length > 0 ? eventItems : events.slice(0, 3);
 
   return (
     <>
@@ -38,7 +34,7 @@ export default async function HomePage() {
       <NewsUpdatesSection items={latestNews.items} />
 
       {/* 6) Upcoming events */}
-      <UpcomingEventsSection items={displayEvents} />
+      <UpcomingEventsSection items={events} />
     </>
   );
 }

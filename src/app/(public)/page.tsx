@@ -1,38 +1,44 @@
-'use client';
+import { HeroCarousel } from '@/components/public/home/HeroCarousel';
+import { StatsStrip } from '@/components/public/home/StatsStrip';
+import { ProgrammeCards } from '@/components/public/home/ProgrammeCards';
+import { LatestPublications } from '@/components/public/home/LatestPublications';
+import { NewsUpdatesSection } from '@/components/public/home/NewsUpdatesSection';
+import { UpcomingEventsSection } from '@/components/public/home/UpcomingEventsSection';
+import { getFeaturedNews, listPublicNews } from '@/server/public/queries/newsPublic';
+import { listPublicEventsOpportunities } from '@/server/public/queries/eventsPublic';
+import { getFeaturedPublications } from '@/server/public/queries/featuredPublications';
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import Link from 'next/link';
+export default async function HomePage() {
+  const [featuredNews, latestNews, events, publications] = await Promise.all([
+    getFeaturedNews(4),
+    listPublicNews({ page: 1, pageSize: 3 }),
+    listPublicEventsOpportunities(6),
+    getFeaturedPublications(3),
+  ]);
 
-export default function Home() {
+  // Prefer events over opportunities for homepage; take up to 3
+  const eventItems = events.filter((e) => e.type === 'EVENT').slice(0, 3);
+  const displayEvents = eventItems.length > 0 ? eventItems : events.slice(0, 3);
+
   return (
-    <div className="container mx-auto p-4 min-h-screen flex flex-col justify-center items-center space-y-4">
-      <h1 className="text-4xl font-bold text-blue-600">Tailwind CSS & shadcn/ui are Working!</h1>
-      <p className="mt-4 text-lg text-gray-700 dark:text-gray-300">
-        This is a minimal verification page.
-      </p>
-      <Link href="/login">Login</Link>
+    <>
+      {/* 1) Hero carousel */}
+      <HeroCarousel items={featuredNews} />
 
-      <Link href="/register">Register</Link>
+      {/* 2) Stats strip (overlapping hero) */}
+      <StatsStrip />
 
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="default">Open Smoke Test Dialog</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Success!</DialogTitle>
-            <DialogDescription>The shadcn/ui Dialog component renders correctly.</DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-    </div>
+      {/* 3) Academic programmes */}
+      <ProgrammeCards />
+
+      {/* 4) Latest publications */}
+      <LatestPublications items={publications} />
+
+      {/* 5) News updates */}
+      <NewsUpdatesSection items={latestNews.items} />
+
+      {/* 6) Upcoming events */}
+      <UpcomingEventsSection items={displayEvents} />
+    </>
   );
 }

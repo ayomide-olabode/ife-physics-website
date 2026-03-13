@@ -16,6 +16,7 @@ interface PastHod {
   endDate: Date | null;
   staff: {
     firstName: string | null;
+    middleName: string | null;
     lastName: string | null;
     profileImageUrl: string | null;
     hodAddress: { title: string; body: string } | null;
@@ -29,7 +30,9 @@ export function LeadershipModal({ hods }: { hods: PastHod[] }) {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {hods.map((term) => {
-          const name = [term.staff.firstName, term.staff.lastName].filter(Boolean).join(' ');
+          const name = [term.staff.firstName, term.staff.middleName, term.staff.lastName]
+            .filter(Boolean)
+            .join(' ');
           const startYear = new Date(term.startDate).getFullYear();
           const endYear = term.endDate ? new Date(term.endDate).getFullYear() : 'Present';
           const hasAddress = !!term.staff.hodAddress;
@@ -84,11 +87,13 @@ export function LeadershipModal({ hods }: { hods: PastHod[] }) {
               <DialogHeader>
                 <DialogTitle>
                   {selected.staff.hodAddress?.title ??
-                    `Address by ${[selected.staff.firstName, selected.staff.lastName].filter(Boolean).join(' ')}`}
+                    `Address by ${[selected.staff.firstName, selected.staff.middleName, selected.staff.lastName].filter(Boolean).join(' ')}`}
                 </DialogTitle>
                 <DialogDescription>
-                  {[selected.staff.firstName, selected.staff.lastName].filter(Boolean).join(' ')} —{' '}
-                  {new Date(selected.startDate).getFullYear()} –{' '}
+                  {[selected.staff.firstName, selected.staff.middleName, selected.staff.lastName]
+                    .filter(Boolean)
+                    .join(' ')}{' '}
+                  — {new Date(selected.startDate).getFullYear()} –{' '}
                   {selected.endDate ? new Date(selected.endDate).getFullYear() : 'Present'}
                 </DialogDescription>
               </DialogHeader>

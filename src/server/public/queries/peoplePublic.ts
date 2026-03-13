@@ -34,6 +34,7 @@ export async function listPublicStaffByCategory(category: string, params: Pagina
       select: {
         id: true,
         firstName: true,
+        middleName: true,
         lastName: true,
         institutionalEmail: true,
         academicRank: true,
@@ -60,6 +61,7 @@ export async function getPublicStaffBySlug(slug: string) {
     select: {
       id: true,
       firstName: true,
+      middleName: true,
       lastName: true,
       institutionalEmail: true,
       staffType: true,
@@ -148,6 +150,7 @@ export async function getPublicCurrentHod() {
       staff: {
         select: {
           firstName: true,
+          middleName: true,
           lastName: true,
           academicRank: true,
           profileImageUrl: true,

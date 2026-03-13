@@ -10,6 +10,7 @@ export async function DashboardTopbar({ navItems }: { navItems: NavItem[] }) {
 
   let user: TopbarUser = {
     firstName: null,
+    middleName: null,
     lastName: null,
     profileImageUrl: null,
     email: session?.user?.email,
@@ -18,15 +19,22 @@ export async function DashboardTopbar({ navItems }: { navItems: NavItem[] }) {
   if (session?.user?.staffId) {
     const staff = await prisma.staff.findUnique({
       where: { id: session.user.staffId },
-      select: { firstName: true, lastName: true, profileImageUrl: true, institutionalEmail: true },
+      select: {
+        firstName: true,
+        middleName: true,
+        lastName: true,
+        profileImageUrl: true,
+        institutionalEmail: true,
+      },
     });
     if (staff) {
       user = {
         firstName: staff.firstName,
+        middleName: staff.middleName,
         lastName: staff.lastName,
         profileImageUrl: staff.profileImageUrl,
         email: session.user.email || staff.institutionalEmail,
-        name: staff.firstName && staff.lastName ? `${staff.firstName} ${staff.lastName}` : null,
+        name: [staff.firstName, staff.middleName, staff.lastName].filter(Boolean).join(' ') || null,
         image: staff.profileImageUrl,
       };
     }

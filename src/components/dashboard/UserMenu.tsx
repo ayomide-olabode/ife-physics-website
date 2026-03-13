@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export type TopbarUser = {
   firstName: string | null;
+  middleName: string | null;
   lastName: string | null;
   profileImageUrl: string | null;
   name?: string | null;

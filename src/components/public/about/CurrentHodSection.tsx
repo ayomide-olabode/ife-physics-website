@@ -2,6 +2,7 @@ import Image from 'next/image';
 
 interface CurrentHodProps {
   firstName: string | null;
+  middleName: string | null;
   lastName: string | null;
   academicRank: string | null;
   profileImageUrl: string | null;
@@ -10,8 +11,10 @@ interface CurrentHodProps {
 }
 
 export function CurrentHodSection({ hod }: { hod: CurrentHodProps }) {
-  const name = [hod.firstName, hod.lastName].filter(Boolean).join(' ');
-  const fullName = [hod.academicRank, hod.firstName, hod.lastName].filter(Boolean).join(' ');
+  const name = [hod.firstName, hod.middleName, hod.lastName].filter(Boolean).join(' ');
+  const fullName = [hod.academicRank, hod.firstName, hod.middleName, hod.lastName]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <section className="mb-16">

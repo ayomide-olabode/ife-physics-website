@@ -39,6 +39,7 @@ export async function getPublicResearchGroupBySlug(slug: string) {
             select: {
               id: true,
               firstName: true,
+              middleName: true,
               lastName: true,
               academicRank: true,
               profileImageUrl: true,

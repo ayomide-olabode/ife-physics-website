@@ -13,6 +13,7 @@ export async function listPublicAcademicCoordinators() {
       staff: {
         select: {
           firstName: true,
+          middleName: true,
           lastName: true,
           designation: true,
           profileImageUrl: true,
@@ -36,6 +37,7 @@ export async function listPublicPastHods() {
       staff: {
         select: {
           firstName: true,
+          middleName: true,
           lastName: true,
           profileImageUrl: true,
           hodAddress: {

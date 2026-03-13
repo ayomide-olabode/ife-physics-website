@@ -33,7 +33,7 @@ export default async function LeadershipPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {coordinators.map((term) => {
-                  const name = [term.staff.firstName, term.staff.lastName]
+                  const name = [term.staff.firstName, term.staff.middleName, term.staff.lastName]
                     .filter(Boolean)
                     .join(' ');
 

@@ -147,6 +147,7 @@ enum OpportunityCategory {
 model Staff {
   id                 String      @id @default(cuid())
   firstName          String?
+  middleName         String?
   lastName           String?
   institutionalEmail String      @unique
 

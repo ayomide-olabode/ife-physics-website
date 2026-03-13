@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { deleteEventOpportunity } from '@/server/actions/eventsOpportunities';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { Pencil, Trash2 } from 'lucide-react';
+import { formatDate } from '@/lib/format-date';
 
 const CATEGORY_LABELS: Record<string, string> = {
   SEMINAR: 'Seminar',
@@ -85,8 +86,6 @@ export function EventOpportunityListClient({
     const cat = item.eventCategory || item.opportunityCategory;
     return cat ? CATEGORY_LABELS[cat] || cat : '—';
   };
-
-  const formatDate = (d: Date | null) => (d ? new Date(d).toLocaleDateString() : '—');
 
   const headers = ['Title', 'Type', 'Category', 'Dates', 'Deadline', 'Status', 'Actions'];
   const rows = items.map((item) => [

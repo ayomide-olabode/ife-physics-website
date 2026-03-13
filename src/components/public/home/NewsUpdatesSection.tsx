@@ -5,6 +5,7 @@ interface NewsItem {
   id: string;
   slug: string;
   title: string;
+  body: string | null;
   date: Date;
   imageUrl: string | null;
 }
@@ -29,11 +30,16 @@ export function NewsUpdatesSection({ items }: { items: NewsItem[] }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {items.map((item) => (
-              <div key={item.id} className="bg-white overflow-hidden flex flex-col">
+              <div key={item.id} className="bg-white overflow-hidden flex flex-col group">
                 {/* Image area */}
-                <div className="relative h-48 bg-gray-100">
+                <div className="relative h-48 bg-gray-100 overflow-hidden">
                   {item.imageUrl ? (
-                    <Image src={item.imageUrl} alt={item.title} fill className="object-cover" />
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   ) : (
                     <div className="h-full flex items-center justify-center text-gray-400 text-sm">
                       No Image
@@ -44,17 +50,22 @@ export function NewsUpdatesSection({ items }: { items: NewsItem[] }) {
                 <div className="p-6 flex flex-col flex-1">
                   {/* Date */}
                   <p className="text-xs font-semibold text-brand-yellow uppercase tracking-wider mb-2">
-                    {new Date(item.date).toLocaleDateString('en-NG', {
+                    {new Date(item.date).toLocaleDateString('en-GB', {
                       year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
                     })}
                   </p>
 
                   {/* Title */}
-                  <h3 className="font-semibold text-brand-navy leading-snug mb-3 line-clamp-3">
+                  <h3 className="font-semibold text-brand-navy leading-snug mb-2 line-clamp-3">
                     {item.title}
                   </h3>
+
+                  {/* Body preview */}
+                  {item.body && (
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">{item.body}</p>
+                  )}
 
                   {/* CTA */}
                   <div className="mt-auto pt-2">

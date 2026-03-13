@@ -51,7 +51,7 @@ export const THESIS_STATUS_OPTIONS = [
 
 export const RESEARCH_OUTPUT_TYPE_OPTIONS = [
   { value: ResearchOutputType.BOOK, label: 'Book' },
-  { value: ResearchOutputType.BOOK_CHAPTER, label: 'Book chapter' },
+  { value: ResearchOutputType.BOOK_CHAPTER, label: 'Book Chapter' },
   { value: ResearchOutputType.CONFERENCE_PAPER, label: 'Conference Paper' },
   { value: ResearchOutputType.DATA, label: 'Data' },
   { value: ResearchOutputType.JOURNAL_ARTICLE, label: 'Journal Article' },

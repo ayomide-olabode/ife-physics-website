@@ -53,22 +53,11 @@ export default async function EditResearchOutputPage({
           id: data.id,
           type: data.type,
           title: data.title,
-          subtitle: data.subtitle || '',
           authors: data.authors || '',
           groupAuthor: compat.groupAuthor,
           year: data.year?.toString() || '',
-          fullDate: data.fullDate ? data.fullDate.toISOString().split('T')[0] : '',
-          venue: data.venue || '',
-          sourceTitle: compat.sourceTitle,
-          publisher: compat.publisher,
-          url: data.url || '',
-          doi: data.doi || '',
-          language: data.language || '',
-          abstract: data.abstract || '',
-          notes: data.notes || '',
-          metaJson: compat.metaJson,
+          metaJson: compat.metaJson as Record<string, unknown>,
           authorsJson: compat.authorsJson,
-          keywordsJson: compat.keywordsJson,
         }}
       />
     </div>

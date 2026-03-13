@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { ResearchOutputType } from '@prisma/client';
+import { ResearchOutputType, Prisma } from '@prisma/client';
 
 /* ── List query (lean — no metaJson) ── */
 
@@ -13,6 +13,7 @@ export type ResearchOutputRow = {
   venue: string | null;
   url: string | null;
   doi: string | null;
+  metaJson: Prisma.JsonValue;
   createdAt: Date;
 };
 
@@ -43,6 +44,7 @@ export async function listMyResearchOutputs({
         venue: true,
         url: true,
         doi: true,
+        metaJson: true,
         createdAt: true,
       },
       orderBy: [{ year: 'desc' }, { createdAt: 'desc' }],

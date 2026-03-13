@@ -54,10 +54,10 @@ export default async function NewsPage(props: { searchParams: Promise<{ page?: s
                   <div className="p-6 flex flex-col flex-1">
                     {/* Date */}
                     <p className="text-xs font-semibold text-brand-yellow uppercase tracking-wider mb-2">
-                      {new Date(item.date).toLocaleDateString('en-NG', {
+                      {new Date(item.date).toLocaleDateString('en-GB', {
                         year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
                       })}
                     </p>
 

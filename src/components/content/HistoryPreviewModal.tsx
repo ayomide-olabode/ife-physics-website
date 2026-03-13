@@ -6,6 +6,7 @@ import { getHistoryById } from '@/server/queries/history';
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { Loader2 } from 'lucide-react';
 import { PublishStatus } from '@prisma/client';
+import { formatDate } from '@/lib/format-date';
 
 export function HistoryPreviewModal({
   historyId,
@@ -57,13 +58,7 @@ export function HistoryPreviewModal({
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-xl font-bold text-foreground">{data.title}</h3>
-                <p className="text-sm text-primary mt-1 font-medium">
-                  {new Date(data.date).toLocaleDateString([], {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </p>
+                <p className="text-sm text-primary mt-1 font-medium">{formatDate(data.date)}</p>
               </div>
               <StatusBadge status={data.status} />
             </div>
@@ -73,10 +68,8 @@ export function HistoryPreviewModal({
             </div>
 
             <div className="text-xs text-muted-foreground flex justify-between">
-              <span>Added: {new Date(data.createdAt).toLocaleString()}</span>
-              {data.publishedAt && (
-                <span>Published: {new Date(data.publishedAt).toLocaleString()}</span>
-              )}
+              <span>Added: {formatDate(data.createdAt)}</span>
+              {data.publishedAt && <span>Published: {formatDate(data.publishedAt)}</span>}
             </div>
           </div>
         )}

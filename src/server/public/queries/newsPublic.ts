@@ -38,6 +38,7 @@ export async function listPublicNews(params: PaginationParams = {}) {
         id: true,
         slug: true,
         title: true,
+        body: true,
         date: true,
         imageUrl: true,
         updatedAt: true,

@@ -5,6 +5,7 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { AddNewButton } from '@/components/dashboard/AddNewButton';
 import { listUsers } from '@/server/queries/adminUsers';
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/format-date';
 
 export default async function AdminUsersPage({
   searchParams,
@@ -76,10 +77,10 @@ export default async function AdminUsersPage({
         )}
       </span>,
       <span key="joined" className="text-sm">
-        {new Date(user.createdAt).toLocaleDateString()}
+        {formatDate(user.createdAt)}
       </span>,
       <span key="lastLogin" className="text-sm">
-        {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
+        {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never'}
       </span>,
       <Link
         key="actions"

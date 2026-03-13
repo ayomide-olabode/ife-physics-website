@@ -45,10 +45,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
         {/* Date */}
         <p className="text-sm text-brand-yellow font-semibold uppercase tracking-wider mb-8">
-          {new Date(article.date).toLocaleDateString('en-NG', {
+          {new Date(article.date).toLocaleDateString('en-GB', {
             year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
           })}
         </p>
 

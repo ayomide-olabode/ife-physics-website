@@ -5,6 +5,7 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { AddNewButton } from '@/components/dashboard/AddNewButton';
 import { listStaff } from '@/server/queries/adminStaff';
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/format-date';
 
 export default async function AdminStaffPage({
   searchParams,
@@ -45,7 +46,7 @@ export default async function AdminStaffPage({
       </span>
     </span>,
     <span key="joined" className="text-sm">
-      {new Date(staff.createdAt).toLocaleDateString()}
+      {formatDate(staff.createdAt)}
     </span>,
     <Link
       key="actions"

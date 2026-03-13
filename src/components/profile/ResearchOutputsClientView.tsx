@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { deleteMyResearchOutput } from '@/server/actions/profileResearchOutputs';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { ResearchOutputType } from '@prisma/client';
+import { ResearchOutputType, Prisma } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
@@ -21,6 +21,7 @@ type ResearchOutputItem = {
   venue: string | null;
   url: string | null;
   doi: string | null;
+  metaJson: Prisma.JsonValue;
   createdAt: Date;
 };
 
@@ -77,7 +78,17 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
       <DataTable
         headers={['Year', 'Type', 'Title', 'Source', 'DOI / URL', 'Actions']}
         rows={data.items.map((item) => {
-          const source = item.sourceTitle || item.publisher || item.venue || '—';
+          const m = (item.metaJson as Record<string, string>) || {};
+          const metaSource =
+            m.journal_title ||
+            m.book_title ||
+            m.conference_name ||
+            m.publisher ||
+            m.repository ||
+            m.institution ||
+            m.issuing_organization;
+
+          const source = metaSource || item.sourceTitle || item.publisher || item.venue || '—';
 
           return [
             <span key="year" className="text-sm tabular-nums">

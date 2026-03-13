@@ -13,7 +13,13 @@ const newsSchema = z.object({
   title: z.string().min(1, 'Title is required.').max(200),
   slug: z.string().min(1, 'Slug is required.').max(200),
   body: z.string().min(1, 'Body content is required.'),
-  imageUrl: z.string().url().optional().or(z.literal('')),
+  imageUrl: z
+    .string()
+    .refine((val) => val === '' || val.startsWith('/') || /^https?:\/\//.test(val), {
+      message: 'Must be a valid URL or path.',
+    })
+    .optional()
+    .or(z.literal('')),
   date: z.string().min(1, 'Date is required.'),
   buttonLabel: z.string().max(100).optional().or(z.literal('')),
   buttonLink: z.string().url().optional().or(z.literal('')),

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { deleteSpotlight } from '@/server/actions/spotlight';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { formatDate } from '@/lib/format-date';
 
 type ListItem = {
   id: string;
@@ -55,8 +56,6 @@ export function SpotlightListClient({
       setDeleteTarget(null);
     });
   };
-
-  const formatDate = (d: Date | null) => (d ? new Date(d).toLocaleDateString() : '—');
 
   const headers = ['Image', 'Date', 'Title', 'Status', 'Actions'];
   const rows = items.map((item) => [

@@ -7,6 +7,7 @@ import { getStaffById } from '@/server/queries/adminStaff';
 import { Button } from '@/components/ui/button';
 import { UserPlus } from 'lucide-react';
 import { BackToParent } from '@/components/dashboard/BackToParent';
+import { formatDate } from '@/lib/format-date';
 
 export default async function AdminStaffDetailPage({
   params,
@@ -28,10 +29,10 @@ export default async function AdminStaffDetailPage({
       {term.programmeCode || '-'}
     </span>,
     <span key="start" className="text-sm">
-      {new Date(term.startDate).toLocaleDateString()}
+      {formatDate(term.startDate)}
     </span>,
     <span key="end" className="text-sm">
-      {term.endDate ? new Date(term.endDate).toLocaleDateString() : 'Present'}
+      {term.endDate ? formatDate(term.endDate) : 'Present'}
     </span>,
   ]);
 
@@ -81,9 +82,7 @@ export default async function AdminStaffDetailPage({
             </div>
             <div className="flex justify-between">
               <span className="text-sm">Record Created:</span>
-              <span className="text-sm font-medium">
-                {new Date(staff.createdAt).toLocaleDateString()}
-              </span>
+              <span className="text-sm font-medium">{formatDate(staff.createdAt)}</span>
             </div>
           </div>
         </div>
@@ -126,9 +125,7 @@ export default async function AdminStaffDetailPage({
               <div className="flex justify-between">
                 <span className="text-sm">Last Login:</span>
                 <span className="text-sm font-medium text-muted-foreground">
-                  {staff.user.lastLoginAt
-                    ? new Date(staff.user.lastLoginAt).toLocaleDateString()
-                    : 'Never'}
+                  {staff.user.lastLoginAt ? formatDate(staff.user.lastLoginAt) : 'Never'}
                 </span>
               </div>
             </div>

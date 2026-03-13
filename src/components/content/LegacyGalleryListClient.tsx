@@ -12,6 +12,7 @@ import { Pencil, Trash2, Eye, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { PublishStatus } from '@prisma/client';
+import { formatDate } from '@/lib/format-date';
 import {
   Select,
   SelectContent,
@@ -124,13 +125,7 @@ export function LegacyGalleryListClient({
     {
       header: 'Created',
       accessor: (row: LegacyItem) => (
-        <span className="text-muted-foreground">
-          {new Date(row.createdAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          })}
-        </span>
+        <span className="text-muted-foreground">{formatDate(row.createdAt)}</span>
       ),
     },
     {

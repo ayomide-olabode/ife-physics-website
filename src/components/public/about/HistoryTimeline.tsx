@@ -65,10 +65,10 @@ export function HistoryTimeline({ groups }: { groups: DecadeGroup[] }) {
                       className="bg-white border border-gray-200 shadow-sm p-6"
                     >
                       <time className="block text-xs font-semibold uppercase tracking-wider text-brand-yellow mb-2">
-                        {new Date(entry.date).toLocaleDateString('en-NG', {
+                        {new Date(entry.date).toLocaleDateString('en-GB', {
                           year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
                         })}
                       </time>
                       <h3 className="text-lg font-semibold text-brand-navy leading-snug">

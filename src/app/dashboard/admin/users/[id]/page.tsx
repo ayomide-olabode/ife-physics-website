@@ -6,6 +6,7 @@ import { RoleAssignmentManager } from '@/components/admin/RoleAssignmentManager'
 import { getUserById } from '@/server/queries/adminUsers';
 import { listResearchGroupOptions } from '@/server/queries/researchGroupOptions';
 import { BackToParent } from '@/components/dashboard/BackToParent';
+import { formatDate } from '@/lib/format-date';
 
 export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -23,10 +24,10 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
       {term.programmeCode || '-'}
     </span>,
     <span key="start" className="text-sm">
-      {new Date(term.startDate).toLocaleDateString()}
+      {formatDate(term.startDate)}
     </span>,
     <span key="end" className="text-sm">
-      {term.endDate ? new Date(term.endDate).toLocaleDateString() : 'Present'}
+      {term.endDate ? formatDate(term.endDate) : 'Present'}
     </span>,
   ]);
 
@@ -75,14 +76,12 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
             </div>
             <div className="flex justify-between">
               <span className="text-sm">Joined:</span>
-              <span className="text-sm font-medium">
-                {new Date(user.createdAt).toLocaleDateString()}
-              </span>
+              <span className="text-sm font-medium">{formatDate(user.createdAt)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm">Last Login:</span>
               <span className="text-sm font-medium">
-                {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
+                {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never'}
               </span>
             </div>
           </div>

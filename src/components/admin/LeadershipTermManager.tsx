@@ -17,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { toastSuccess, toastError } from '@/lib/toast';
+import { formatDate } from '@/lib/format-date';
 
 type Staff = {
   id: string;
@@ -86,10 +87,10 @@ export function LeadershipTermManager({
         {term.programmeCode || '-'}
       </div>,
       <span key={`start-${term.id}`} className="text-sm">
-        {new Date(term.startDate).toLocaleDateString()}
+        {formatDate(term.startDate)}
       </span>,
       <span key={`end-${term.id}`} className="text-sm">
-        {term.endDate ? new Date(term.endDate).toLocaleDateString() : 'Present'}
+        {term.endDate ? formatDate(term.endDate) : 'Present'}
       </span>,
       <div key={`actions-${term.id}`}>
         {!term.endDate && (

@@ -11,6 +11,7 @@ import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { ScopedRole } from '@prisma/client';
 import { SCOPED_ROLE_OPTIONS } from '@/lib/options';
+import { formatDate } from '@/lib/format-date';
 
 type Assignment = {
   id: string;
@@ -121,7 +122,7 @@ export function RoleAssignmentManager({
       )}
     </span>,
     <span key="expires" className="text-sm text-muted-foreground">
-      {ra.expiresAt ? new Date(ra.expiresAt).toLocaleDateString() : 'Never'}
+      {ra.expiresAt ? formatDate(ra.expiresAt) : 'Never'}
     </span>,
     <span key="actions">
       {!ra.deletedAt && (

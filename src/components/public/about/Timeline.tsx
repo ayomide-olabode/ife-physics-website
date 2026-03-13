@@ -15,10 +15,10 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
 
           {/* Date */}
           <time className="block text-xs font-semibold uppercase tracking-wider text-brand-yellow mb-1">
-            {new Date(entry.date).toLocaleDateString('en-NG', {
+            {new Date(entry.date).toLocaleDateString('en-GB', {
               year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
             })}
           </time>
 

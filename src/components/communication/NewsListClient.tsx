@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { deleteNews, toggleFeaturedNews } from '@/server/actions/news';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { Star, Pencil, Trash2 } from 'lucide-react';
+import { formatDate } from '@/lib/format-date';
 
 type NewsItem = {
   id: string;
@@ -73,7 +74,7 @@ export function NewsListClient({
     </Link>,
     <StatusBadge key={`s-${item.id}`} status={item.status} />,
     <span key={`d-${item.id}`} className="text-sm text-muted-foreground">
-      {new Date(item.date).toLocaleDateString()}
+      {formatDate(item.date)}
     </span>,
     <button
       key={`f-${item.id}`}

@@ -5,7 +5,9 @@ import { revalidatePath } from 'next/cache';
 import { requireAuth, requireStaffOwnership } from '@/lib/guards';
 import { z } from 'zod';
 import { Prisma, ResearchOutputType } from '@prisma/client';
-import { mergeMetaJson, deriveAuthorsString } from '@/lib/legacyResearchOutputCompat';
+import { deriveAuthorsString } from '@/lib/legacyResearchOutputCompat';
+import { FIELD_MAP } from '@/lib/researchOutputFieldMap';
+import { buildMetaForType } from '@/lib/researchOutputMeta';
 
 /* ── sub-schemas ── */
 
@@ -61,150 +63,65 @@ const researchOutputSchema = z
     venue: z.string().optional().nullable(),
   })
   .superRefine((data, ctx) => {
-    /* ── At least one date ── */
-    if (!data.year && !data.fullDate) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Year or full date is required.',
-        path: ['year'],
-      });
-    }
-
-    /* ── At least one author or group author ── */
+    /* ── At least one author ── */
     const hasAuthors =
       (data.authorsJson && data.authorsJson.length > 0) ||
       (data.authors && data.authors.trim().length > 0);
-    const hasGroup = data.groupAuthor && data.groupAuthor.trim().length > 0;
-    if (!hasAuthors && !hasGroup) {
+    if (!hasAuthors) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'At least one author or group author is required.',
-        path: ['authors'],
+        message: 'At least one author is required.',
+        path: ['authorsJson'],
       });
     }
 
+    /* ── Date/Year Requirement ── */
+    if (data.type !== 'DATA') {
+      if (!data.year && !data.fullDate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Year or full date is required.',
+          path: ['year'],
+        });
+      }
+    }
+
     /* ── Type-specific validation ── */
-    const meta = (data.metaJson || {}) as Record<string, string>;
+    const meta = (data.metaJson || {}) as Record<string, unknown>;
     const chk = (val: unknown) => typeof val === 'string' && val.trim().length > 0;
 
-    if (data.type === 'JOURNAL_ARTICLE') {
-      if (!chk(meta.journal_title)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Journal title is required.',
-          path: ['metaJson'],
-        });
-      }
-      if (!chk(meta.volume)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Volume is required.',
-          path: ['metaJson'],
-        });
-      }
-      if (!chk(meta.pages) && !chk(meta.article_number)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Pages or article number is required.',
-          path: ['metaJson'],
-        });
-      }
-    } else if (data.type === 'BOOK') {
-      if (!chk(data.publisher) && !chk(meta.publisher)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Publisher is required for books.',
-          path: ['publisher'],
-        });
-      }
-    } else if (data.type === 'BOOK_CHAPTER') {
-      if (!chk(meta.book_title)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Book title is required.',
-          path: ['metaJson'],
-        });
-      }
-      if (!chk(data.publisher) && !chk(meta.publisher)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Publisher is required.',
-          path: ['publisher'],
-        });
-      }
-    } else if (data.type === 'CONFERENCE_PAPER') {
-      if (!chk(meta.conference_name)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Conference name is required.',
-          path: ['metaJson'],
-        });
-      }
-    } else if (data.type === 'SOFTWARE') {
-      if (!chk(meta.software_title)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Software title is required.',
-          path: ['metaJson'],
-        });
-      }
-    } else if (data.type === 'DATA') {
-      if (!chk(meta.repository)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Repository is required for datasets.',
-          path: ['metaJson'],
-        });
-      }
-    } else if (data.type === 'PATENT') {
-      if (!chk(meta.patent_number)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Patent number is required.',
-          path: ['metaJson'],
-        });
-      }
-      if (!chk(meta.patent_office)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Patent office is required.',
-          path: ['metaJson'],
-        });
-      }
-    } else if (data.type === 'REPORT') {
-      if (!chk(meta.issuing_organization) && !chk(data.publisher)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Issuing organization or publisher is required.',
-          path: ['metaJson'],
-        });
-      }
-    } else if (data.type === 'THESIS') {
-      if (!chk(meta.degree_type)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Degree type is required.',
-          path: ['metaJson'],
-        });
-      }
-      if (!chk(meta.institution)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Institution is required.',
-          path: ['metaJson'],
-        });
-      }
+    const mapConfig = FIELD_MAP[data.type];
+    if (mapConfig) {
+      mapConfig.fields.forEach((field) => {
+        // if required, check both metaJson and top-level fields (e.g. publisher)
+        if (field.required && !chk(meta[field.key]) && !chk(data[field.key as keyof typeof data])) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${field.label} is required.`,
+            path: ['metaJson', field.key],
+          });
+        }
+      });
     }
   });
 
 /* ── Helpers ── */
 
-function buildPersistData(validData: z.infer<typeof researchOutputSchema>) {
+function buildPersistData(
+  validData: z.infer<typeof researchOutputSchema>,
+  existingMeta: Record<string, unknown> = {},
+) {
   // Derive flat authors string from structured data
   const flatAuthors =
     deriveAuthorsString(validData.authorsJson, validData.groupAuthor) ||
     validData.authors?.trim() ||
     '';
+
+  const rawMeta =
+    validData.metaJson && typeof validData.metaJson === 'object'
+      ? (validData.metaJson as Record<string, unknown>)
+      : {};
+  const cleanedMeta = buildMetaForType(validData.type, rawMeta, existingMeta);
 
   return {
     type: validData.type,
@@ -225,7 +142,8 @@ function buildPersistData(validData: z.infer<typeof researchOutputSchema>) {
     notes: validData.notes?.trim() || null,
     authorsJson: (validData.authorsJson || undefined) as Prisma.InputJsonValue | undefined,
     keywordsJson: (validData.keywordsJson || undefined) as Prisma.InputJsonValue | undefined,
-    metaJson: (validData.metaJson || undefined) as Prisma.InputJsonValue | undefined,
+    metaJson:
+      Object.keys(cleanedMeta).length > 0 ? (cleanedMeta as Prisma.InputJsonValue) : Prisma.DbNull,
   };
 }
 
@@ -284,8 +202,6 @@ export async function updateMyResearchOutput(
       return { error: parsed.error.issues[0].message };
     }
 
-    const persistData = buildPersistData(parsed.data);
-
     // Merge metaJson: preserve unknown keys from existing record
     const existingMeta =
       existing.metaJson &&
@@ -293,21 +209,12 @@ export async function updateMyResearchOutput(
       !Array.isArray(existing.metaJson)
         ? (existing.metaJson as Record<string, unknown>)
         : {};
-    const incomingMeta =
-      persistData.metaJson && typeof persistData.metaJson === 'object'
-        ? (persistData.metaJson as Record<string, unknown>)
-        : {};
-    const mergedMeta = mergeMetaJson(existingMeta, incomingMeta);
+
+    const persistData = buildPersistData(parsed.data, existingMeta);
 
     await prisma.researchOutput.update({
       where: { id },
-      data: {
-        ...persistData,
-        metaJson:
-          Object.keys(mergedMeta).length > 0
-            ? (mergedMeta as Prisma.InputJsonValue)
-            : Prisma.DbNull,
-      },
+      data: persistData,
     });
 
     revalidatePath('/dashboard/profile/research-outputs');

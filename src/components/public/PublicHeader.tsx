@@ -40,7 +40,7 @@ export function PublicHeader() {
             ))}
             <Link
               href="#"
-              className="bg-brand-yellow text-brand-ink text-sm font-semibold px-5 py-2 rounded hover:bg-yellow-500 transition-colors"
+              className="bg-brand-yellow text-brand-ink text-sm font-semibold px-5 py-2 hover:bg-yellow-500 transition-colors"
             >
               Give to Physics
             </Link>

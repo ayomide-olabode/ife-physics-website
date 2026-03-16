@@ -65,7 +65,6 @@ export const RESEARCH_OUTPUT_TYPE_OPTIONS = [
 
 export const STAFF_TYPE_OPTIONS = [
   { value: StaffType.ACADEMIC, label: 'Academic' },
-  { value: StaffType.COGNATE, label: 'Cognate' },
   { value: StaffType.EMERITUS, label: 'Emeritus' },
   { value: StaffType.SUPPORT, label: 'Support' },
   { value: StaffType.TECHNICAL, label: 'Technical' },

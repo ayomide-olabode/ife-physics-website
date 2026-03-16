@@ -37,7 +37,6 @@ export const refNavItems: NavItem[] = [
     href: '/people',
     dropdown: [
       { name: 'Academic Faculty', href: '/people/academic-faculty' },
-      { name: 'Cognate Faculty', href: '/people/cognate-faculty' },
       { name: 'Visiting Faculty', href: '/people/visiting-faculty' },
       { name: 'Emeritus', href: '/people/emeritus' },
       { name: 'Retired Faculty', href: '/people/retired-faculty' },

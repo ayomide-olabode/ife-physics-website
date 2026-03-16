@@ -41,7 +41,6 @@ export const navItems: NavItem[] = [
     matchPrefix: '/people',
     children: [
       { label: 'Academic Faculty', href: '/people/academic-faculty' },
-      { label: 'Cognate Faculty', href: '/people/cognate-faculty' },
       { label: 'Visiting Faculty', href: '/people/visiting-faculty' },
       { label: 'Emeritus', href: '/people/emeritus' },
       { label: 'Retired Faculty', href: '/people/retired-faculty' },

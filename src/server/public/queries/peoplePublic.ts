@@ -7,7 +7,6 @@ import { paginationArgs, paginatedResult, type PaginationParams } from '../pagin
 // Map public route categories to StaffType + StaffStatus filters
 const CATEGORY_MAP: Record<string, { staffType?: StaffType; staffStatus?: StaffStatus }> = {
   'academic-faculty': { staffType: 'ACADEMIC', staffStatus: 'ACTIVE' },
-  'cognate-faculty': { staffType: 'COGNATE', staffStatus: 'ACTIVE' },
   'visiting-faculty': { staffType: 'VISITING', staffStatus: 'ACTIVE' },
   emeritus: { staffType: 'EMERITUS', staffStatus: 'ACTIVE' },
   'technical-staff': { staffType: 'TECHNICAL', staffStatus: 'ACTIVE' },

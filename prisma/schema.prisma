@@ -13,7 +13,6 @@ datasource db {
 
 enum StaffType {
   ACADEMIC
-  COGNATE
   VISITING
   EMERITUS
   TECHNICAL
@@ -144,6 +143,21 @@ enum OpportunityCategory {
 // STAFF & AUTHENTICATION
 //////////////////////////////////////////////////////
 
+model SecondaryAffiliation {
+  id          String   @id @default(cuid())
+  name        String
+  acronym     String?
+  description String?
+
+  staff       Staff[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([acronym])
+}
+
 model Staff {
   id                 String      @id @default(cuid())
   firstName          String?
@@ -153,6 +167,8 @@ model Staff {
 
   staffType          StaffType
   staffStatus        StaffStatus @default(ACTIVE)
+  secondaryAffiliationId String?
+  secondaryAffiliation   SecondaryAffiliation? @relation(fields: [secondaryAffiliationId], references: [id], onDelete: SetNull)
 
   // Visiting faculty
   visitStartDate     DateTime?
@@ -194,6 +210,7 @@ model Staff {
 
   @@index([staffStatus])
   @@index([staffType])
+  @@index([secondaryAffiliationId])
 }
 
 model User {

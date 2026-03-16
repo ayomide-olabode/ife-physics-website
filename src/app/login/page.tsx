@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/forms/PasswordInput';
 import Link from 'next/link';
+import { AuthCardShell } from '@/components/auth/AuthCardShell';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,29 +42,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 bg-muted/30">
-      <div className="absolute top-6 left-6">
-        <Link
-          href="/"
-          className="bg-brand-navy py-2 px-4 rounded-lg text-brand-white hover:text-brand-yellow transition-colors"
-        >
-          Back to home
-        </Link>
-      </div>
-      <div className="w-full max-w-sm rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-        <div className="flex flex-col space-y-1.5 pb-6">
-          <h3 className="font-semibold tracking-tight text-2xl">Sign In</h3>
-          <p className="text-sm text-muted-foreground">
-            Enter your email and password to access the dashboard.
-          </p>
-        </div>
-        <form onSubmit={handleLogin} className="space-y-4">
+    <AuthCardShell
+      title="Welcome Back!"
+      footer={
+        <p>
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="font-medium text-brand-navy hover:underline">
+            Sign up
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={handleLogin} className="space-y-6">
+        <div className="space-y-4">
           <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Institutional Email
+            <label htmlFor="email" className="block text-sm font-medium text-foreground">
+              Email
             </label>
             <Input
               id="email"
@@ -71,29 +65,33 @@ export default function LoginPage() {
               placeholder="name@oauife.edu.ng"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="rounded-none bg-white"
               required
             />
           </div>
           <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground">
+                Password
+              </label>
+              <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">
+                Forgot?
+              </Link>
+            </div>
             <PasswordInput
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="[&>input]:rounded-none [&>input]:bg-white"
               required
             />
           </div>
-          {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Signing in...' : 'Sign in'}
-          </Button>
-        </form>
-      </div>
-    </div>
+        </div>
+        {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+        <Button type="submit" className="w-full rounded-none" disabled={isLoading}>
+          {isLoading ? 'Logging in...' : 'Login'}
+        </Button>
+      </form>
+    </AuthCardShell>
   );
 }

@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/forms/PasswordInput';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { completeRegistration } from '@/server/actions/register';
+import { AuthCardShell } from '@/components/auth/AuthCardShell';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -48,66 +48,69 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-12">
-      <div className="w-full max-w-md space-y-8 rounded-xl bg-background p-8 shadow-lg ring-1 ring-border">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold tracking-tight">Complete Registration</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Enter your institutional email and set a new password.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Institutional Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="E.g., first.last@university.edu"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <PasswordInput
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min. 8 characters"
-                required
-                minLength={8}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <PasswordInput
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Retype password"
-                required
-                minLength={8}
-              />
-            </div>
-          </div>
-
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Registering...' : 'Register'}
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-muted-foreground">
-          Already registered?{' '}
-          <Link href="/login" className="font-medium text-primary hover:underline">
-            Sign in
+    <AuthCardShell
+      title="Create Account"
+      footer={
+        <p>
+          Already have an account?{' '}
+          <Link href="/login" className="font-medium text-brand-navy hover:underline">
+            Login
           </Link>
         </p>
-      </div>
-    </div>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground">
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@oauife.edu.ng"
+              className="rounded-none bg-white"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground">
+              Password
+            </label>
+            <PasswordInput
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Min. 8 characters"
+              className="[&>input]:rounded-none [&>input]:bg-white"
+              required
+              minLength={8}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
+              Confirm Password
+            </label>
+            <PasswordInput
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Retype password"
+              className="[&>input]:rounded-none [&>input]:bg-white"
+              required
+              minLength={8}
+            />
+          </div>
+        </div>
+
+        <Button type="submit" className="w-full rounded-none" disabled={isSubmitting}>
+          {isSubmitting ? 'Registering...' : 'Register'}
+        </Button>
+      </form>
+    </AuthCardShell>
   );
 }

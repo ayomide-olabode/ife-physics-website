@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       data: { profileImageUrl: publicUrl },
     });
 
-    revalidatePath('/dashboard/profile');
+    revalidatePath('/dashboard/profile/overview');
     revalidatePath('/dashboard/admin/staff');
 
     return NextResponse.json({ ok: true, url: publicUrl });

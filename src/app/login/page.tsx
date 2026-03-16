@@ -32,7 +32,7 @@ export default function LoginPage() {
     } else {
       const session = await getSession();
       if (session?.user?.firstLogin) {
-        router.push('/dashboard/profile?onboarding=1');
+        router.push('/dashboard/profile/overview?onboarding=1');
       } else {
         router.push('/dashboard');
       }

@@ -9,9 +9,10 @@ import { toastSuccess, toastError } from '@/lib/toast';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 type ProjectFormData = {
   title: string;
@@ -117,12 +118,10 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
         title="Projects"
         description="Manage your ongoing and completed projects natively mapping identities efficiently."
         actions={
-          <button
-            onClick={handleAdd}
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          >
+          <Button onClick={handleAdd} size="sm">
+            <Plus className="h-4 w-4" />
             Add New Project
-          </button>
+          </Button>
         }
       />
 

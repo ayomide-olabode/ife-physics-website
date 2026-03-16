@@ -22,7 +22,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
   const isSessionHod = activeHodTerm?.staffId === staffId;
 
   const tabs: TabItem[] = [
-    { label: 'Overview', href: '/dashboard/profile' },
+    { label: 'Overview', href: '/dashboard/profile/overview' },
     { label: 'Research Outputs', href: '/dashboard/profile/research-outputs' },
     { label: 'Projects', href: '/dashboard/profile/projects' },
     { label: 'Teaching', href: '/dashboard/profile/teaching' },

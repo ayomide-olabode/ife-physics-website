@@ -10,6 +10,7 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { AddNewButton } from '@/components/dashboard/AddNewButton';
 
 type ResearchOutputItem = {
   id: string;
@@ -66,12 +67,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
         title="Research Outputs"
         description="Manage your publications, reports, and conference proceedings securely."
         actions={
-          <Link
-            href="/dashboard/profile/research-outputs/new"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          >
-            Add New Output
-          </Link>
+          <AddNewButton href="/dashboard/profile/research-outputs/new" label="Add New Output" />
         }
       />
 

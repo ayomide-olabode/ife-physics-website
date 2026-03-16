@@ -4,7 +4,7 @@ import { Plus } from 'lucide-react';
 
 export function AddNewButton({ href, label = 'Add New' }: { href: string; label?: string }) {
   return (
-    <Button asChild size="sm">
+    <Button asChild size="sm" variant="default">
       <Link href={href}>
         <Plus className="h-4 w-4" />
         {label}

@@ -54,7 +54,7 @@ export async function updateMyResearchGroupMembership({
       });
     });
 
-    revalidatePath('/dashboard/profile');
+    revalidatePath('/dashboard/profile/overview');
     // @ts-expect-error Next Canary Type definition bug
     revalidateTag('research-groups');
 

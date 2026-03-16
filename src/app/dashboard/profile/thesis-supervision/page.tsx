@@ -25,7 +25,7 @@ export default async function ProfileThesesPage({
 
   return (
     <div className="space-y-6">
-      <BackToParent href="/dashboard/profile" label="Back to Profile" />
+      <BackToParent href="/dashboard/profile/overview" label="Back to Profile" />
       <ThesesClientView data={data} staffId={staffId} />
     </div>
   );

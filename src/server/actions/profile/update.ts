@@ -40,7 +40,7 @@ export async function updateStaffProfile(data: {
       },
     });
 
-    revalidatePath('/dashboard/profile');
+    revalidatePath('/dashboard/profile/overview');
     revalidatePath('/dashboard/admin/staff');
 
     return { success: true };

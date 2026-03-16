@@ -21,7 +21,7 @@ export function UserMenu({ user }: { user: TopbarUser }) {
   return (
     <>
       <Link
-        href="/dashboard/profile"
+        href="/dashboard/profile/overview"
         className="flex items-center gap-2 p-2 pr-4 hover:bg-gray-100 transition-colors rounded-lg"
       >
         <Avatar className="h-8 w-8 rounded-full">

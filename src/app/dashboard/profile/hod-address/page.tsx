@@ -3,7 +3,6 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { getMyHodAddress } from '@/server/queries/profileHodAddress';
 import { HodAddressClientForm } from '@/components/profile/HodAddressClientForm';
-import { BackToParent } from '@/components/dashboard/BackToParent';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 
@@ -32,7 +31,6 @@ export default async function Page() {
   if (!activeHodTerm) {
     return (
       <div className="space-y-6">
-        <BackToParent href="/dashboard/profile" label="Back to Profile" />
         <PageHeader
           title="HOD Address"
           description="Manage the Head of Department welcome address displayed on the homepage."
@@ -50,7 +48,6 @@ export default async function Page() {
 
   return (
     <div className="space-y-6">
-      <BackToParent href="/dashboard/profile" label="Back to Profile" />
       <PageHeader
         title="HOD Address"
         description="Manage the Head of Department welcome address displayed on the homepage."

@@ -11,6 +11,8 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 type PaginatedData = {
   items: ThesisRow[];
@@ -119,12 +121,10 @@ export function ThesesClientView({ data, staffId }: { data: PaginatedData; staff
         title="Student Theses"
         description="Manage the student theses and dissertations you have supervised or are currently supervising."
         actions={
-          <button
-            onClick={handleAdd}
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          >
+          <Button onClick={handleAdd} size="sm">
+            <Plus className="h-4 w-4" />
             Add New Thesis
-          </button>
+          </Button>
         }
       />
 

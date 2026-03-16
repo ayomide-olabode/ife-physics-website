@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { searchStaffAuthors, type StaffAuthorResult } from '@/server/queries/staffAuthorLookup';
+import { formatPersonName } from '@/lib/name';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import type { AuthorObject } from '@/lib/researchOutputTypes';
@@ -61,6 +62,7 @@ export function StaffAuthorAutocomplete({ onSelect, disabled }: StaffAuthorAutoc
     onSelect({
       staffId: staff.id,
       given_name: staff.firstName || '',
+      middle_name: staff.middleName || undefined,
       family_name: staff.lastName || '',
     });
     setSearch('');
@@ -93,8 +95,11 @@ export function StaffAuthorAutocomplete({ onSelect, disabled }: StaffAuthorAutoc
         <ul className="absolute z-50 mt-1 w-full max-h-48 overflow-auto rounded-md border bg-popover p-1 shadow-md">
           {results.map((staff) => {
             const displayName =
-              [staff.firstName, staff.lastName].filter(Boolean).join(' ') ||
-              staff.institutionalEmail;
+              formatPersonName({
+                firstName: staff.firstName,
+                middleName: staff.middleName,
+                lastName: staff.lastName,
+              }) || staff.institutionalEmail;
             return (
               <li key={staff.id}>
                 <button

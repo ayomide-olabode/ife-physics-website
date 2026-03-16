@@ -7,6 +7,7 @@ import { getUserById } from '@/server/queries/adminUsers';
 import { listResearchGroupOptions } from '@/server/queries/researchGroupOptions';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { formatDate } from '@/lib/format-date';
+import { formatFullName } from '@/lib/name';
 
 export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -31,12 +32,19 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
     </span>,
   ]);
 
+  const fullName =
+    formatFullName({
+      firstName: user.staff.firstName,
+      middleName: user.staff.middleName,
+      lastName: user.staff.lastName,
+    }) || user.staff.institutionalEmail;
+
   return (
     <div className="space-y-6">
       <div className="mb-4">
         <BackToParent href="/dashboard/admin/users" label="Back to Users" />
         <PageHeader
-          title={`${user.staff.firstName} ${user.staff.lastName}`}
+          title={fullName}
           description={user.staff.institutionalEmail}
           actions={
             user.isSuperAdmin && (

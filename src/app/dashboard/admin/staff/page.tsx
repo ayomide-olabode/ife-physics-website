@@ -6,6 +6,7 @@ import { AddNewButton } from '@/components/dashboard/AddNewButton';
 import { listStaff } from '@/server/queries/adminStaff';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format-date';
+import { formatFullName } from '@/lib/name';
 
 export default async function AdminStaffPage({
   searchParams,
@@ -24,7 +25,11 @@ export default async function AdminStaffPage({
 
   const rows = staffMembers.map((staff) => [
     <div key="name" className="text-sm font-medium">
-      {staff.firstName} {staff.lastName}
+      {formatFullName({
+        firstName: staff.firstName,
+        middleName: staff.middleName,
+        lastName: staff.lastName,
+      }) || staff.institutionalEmail}
     </div>,
     <div key="email" className="text-sm text-muted-foreground">
       {staff.institutionalEmail}

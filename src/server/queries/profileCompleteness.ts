@@ -1,10 +1,12 @@
 import prisma from '@/lib/prisma';
+import { formatPersonName } from '@/lib/name';
 
 export async function getProfileCompleteness(staffId: string) {
   const staff = await prisma.staff.findUnique({
     where: { id: staffId },
     select: {
       firstName: true,
+      middleName: true,
       lastName: true,
       institutionalEmail: true,
       profileImageUrl: true,
@@ -33,7 +35,11 @@ export async function getProfileCompleteness(staffId: string) {
   // Fallback to email if first/last name not present
   const displayName =
     staff.firstName || staff.lastName
-      ? `${staff.firstName || ''} ${staff.lastName || ''}`.trim()
+      ? formatPersonName({
+          firstName: staff.firstName,
+          middleName: staff.middleName,
+          lastName: staff.lastName,
+        })
       : staff.institutionalEmail || 'Unknown User';
 
   return {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
+import { formatFullName } from '@/lib/name';
 import { YearSelect } from '@/components/forms/YearSelect';
 import { MonthSelect } from '@/components/forms/MonthSelect';
 import { DaySelect } from '@/components/forms/DaySelect';
@@ -87,11 +88,13 @@ export function ResearchOutputEntryForm({
   // Author manual entry state
   const [showManualAuthor, setShowManualAuthor] = useState(false);
   const [manualAuthorGiven, setManualAuthorGiven] = useState('');
+  const [manualAuthorMiddle, setManualAuthorMiddle] = useState('');
   const [manualAuthorFamily, setManualAuthorFamily] = useState('');
 
   // Editor manual entry state
   const [showManualEditor, setShowManualEditor] = useState(false);
   const [manualEditorGiven, setManualEditorGiven] = useState('');
+  const [manualEditorMiddle, setManualEditorMiddle] = useState('');
   const [manualEditorFamily, setManualEditorFamily] = useState('');
 
   const t = formData.type;
@@ -156,7 +159,15 @@ export function ResearchOutputEntryForm({
 
   /* ── Author helpers ── */
   function syncAuthorsString(authors: AuthorObject[]): string {
-    return authors.map((a) => [a.family_name, a.given_name].filter(Boolean).join(' ')).join(', ');
+    return authors
+      .map((a) =>
+        formatFullName({
+          firstName: a.given_name,
+          middleName: a.middle_name,
+          lastName: a.family_name,
+        }),
+      )
+      .join(', ');
   }
 
   function handleAddStaffAuthor(author: AuthorObject) {
@@ -180,6 +191,7 @@ export function ResearchOutputEntryForm({
     const author: AuthorObject = {
       staffId: null,
       given_name: manualAuthorGiven.trim(),
+      middle_name: manualAuthorMiddle.trim() || undefined,
       family_name: manualAuthorFamily.trim(),
     };
     const updated = [...formData.authorsJson, author];
@@ -189,6 +201,7 @@ export function ResearchOutputEntryForm({
       authors: syncAuthorsString(updated),
     }));
     setManualAuthorGiven('');
+    setManualAuthorMiddle('');
     setManualAuthorFamily('');
     setShowManualAuthor(false);
   }
@@ -223,6 +236,7 @@ export function ResearchOutputEntryForm({
     const editor: AuthorObject = {
       staffId: null,
       given_name: manualEditorGiven.trim(),
+      middle_name: manualEditorMiddle.trim() || undefined,
       family_name: manualEditorFamily.trim(),
     };
     const updated = [...formData.editorsJson, editor];
@@ -231,6 +245,7 @@ export function ResearchOutputEntryForm({
       editorsJson: updated,
     }));
     setManualEditorGiven('');
+    setManualEditorMiddle('');
     setManualEditorFamily('');
     setShowManualEditor(false);
   }
@@ -469,7 +484,11 @@ export function ResearchOutputEntryForm({
                     <span className="h-2 w-2 bg-green-500 shrink-0" title="Staff member" />
                   )}
                   <span className="font-medium">
-                    {author.family_name}, {author.given_name}
+                    {formatFullName({
+                      firstName: author.given_name,
+                      middleName: author.middle_name,
+                      lastName: author.family_name,
+                    })}
                   </span>
                 </div>
                 <button
@@ -496,7 +515,7 @@ export function ResearchOutputEntryForm({
         {showManualAuthor ? (
           <div className="border bg-muted/30 p-3 space-y-3 rounded-none mt-2">
             <p className="text-xs font-medium text-muted-foreground">Add external author</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="grid gap-1">
                 <FieldLabel required htmlFor="manual-author-given" className="text-xs">
                   First Name
@@ -506,6 +525,19 @@ export function ResearchOutputEntryForm({
                   value={manualAuthorGiven}
                   onChange={(e) => setManualAuthorGiven(e.target.value)}
                   disabled={dis}
+                  className="h-8 text-sm rounded-none"
+                />
+              </div>
+              <div className="grid gap-1">
+                <FieldLabel htmlFor="manual-author-middle" className="text-xs">
+                  Middle Name
+                </FieldLabel>
+                <Input
+                  id="manual-author-middle"
+                  value={manualAuthorMiddle}
+                  onChange={(e) => setManualAuthorMiddle(e.target.value)}
+                  disabled={dis}
+                  placeholder="Optional"
                   className="h-8 text-sm rounded-none"
                 />
               </div>
@@ -539,6 +571,7 @@ export function ResearchOutputEntryForm({
                 onClick={() => {
                   setShowManualAuthor(false);
                   setManualAuthorGiven('');
+                  setManualAuthorMiddle('');
                   setManualAuthorFamily('');
                 }}
                 disabled={dis}
@@ -637,7 +670,11 @@ export function ResearchOutputEntryForm({
                         <span className="h-2 w-2 bg-green-500 shrink-0" title="Staff member" />
                       )}
                       <span className="font-medium">
-                        {editor.family_name}, {editor.given_name}
+                        {formatFullName({
+                          firstName: editor.given_name,
+                          middleName: editor.middle_name,
+                          lastName: editor.family_name,
+                        })}
                       </span>
                     </div>
                     <button
@@ -664,7 +701,7 @@ export function ResearchOutputEntryForm({
             {showManualEditor ? (
               <div className="border bg-muted/30 p-3 space-y-3 rounded-none mt-2">
                 <p className="text-xs font-medium text-muted-foreground">Add external editor</p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div className="grid gap-1">
                     <FieldLabel htmlFor="manual-editor-given" className="text-xs">
                       First Name
@@ -674,6 +711,19 @@ export function ResearchOutputEntryForm({
                       value={manualEditorGiven}
                       onChange={(e) => setManualEditorGiven(e.target.value)}
                       disabled={dis}
+                      className="h-8 text-sm rounded-none"
+                    />
+                  </div>
+                  <div className="grid gap-1">
+                    <FieldLabel htmlFor="manual-editor-middle" className="text-xs">
+                      Middle Name
+                    </FieldLabel>
+                    <Input
+                      id="manual-editor-middle"
+                      value={manualEditorMiddle}
+                      onChange={(e) => setManualEditorMiddle(e.target.value)}
+                      disabled={dis}
+                      placeholder="Optional"
                       className="h-8 text-sm rounded-none"
                     />
                   </div>
@@ -707,6 +757,7 @@ export function ResearchOutputEntryForm({
                     onClick={() => {
                       setShowManualEditor(false);
                       setManualEditorGiven('');
+                      setManualEditorMiddle('');
                       setManualEditorFamily('');
                     }}
                     disabled={dis}

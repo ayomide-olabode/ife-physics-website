@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { formatFullName } from '@/lib/name';
 import { toastError } from '@/lib/toast';
 
 type Actor = {
@@ -18,6 +19,7 @@ type Actor = {
   isSuperAdmin: boolean;
   staff: {
     firstName: string | null;
+    middleName: string | null;
     lastName: string | null;
     institutionalEmail: string;
   } | null;
@@ -62,8 +64,11 @@ export function AuditLogViewer({ logs }: { logs: AuditLogRow[] }) {
 
   const rows = logs.map((log) => {
     const actorName = log.actor?.staff
-      ? `${log.actor.staff.firstName || ''} ${log.actor.staff.lastName || ''}`.trim() ||
-        log.actor.staff.institutionalEmail
+      ? formatFullName({
+          firstName: log.actor.staff.firstName,
+          middleName: log.actor.staff.middleName,
+          lastName: log.actor.staff.lastName,
+        }) || log.actor.staff.institutionalEmail
       : log.actorId || 'System';
 
     return [

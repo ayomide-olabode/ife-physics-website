@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { formatPersonName } from '@/lib/name';
 
 interface CurrentHodProps {
   firstName: string | null;
@@ -11,10 +12,12 @@ interface CurrentHodProps {
 }
 
 export function CurrentHodSection({ hod }: { hod: CurrentHodProps }) {
-  const name = [hod.firstName, hod.middleName, hod.lastName].filter(Boolean).join(' ');
-  const fullName = [hod.academicRank, hod.firstName, hod.middleName, hod.lastName]
-    .filter(Boolean)
-    .join(' ');
+  const name = formatPersonName({
+    firstName: hod.firstName,
+    middleName: hod.middleName,
+    lastName: hod.lastName,
+  });
+  const fullName = [hod.academicRank, name].filter(Boolean).join(' ');
 
   return (
     <section className="mb-16">

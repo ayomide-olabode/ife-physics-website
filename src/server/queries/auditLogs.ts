@@ -55,6 +55,7 @@ export async function listAuditLogs({
             staff: {
               select: {
                 firstName: true,
+                middleName: true,
                 lastName: true,
                 institutionalEmail: true,
               },

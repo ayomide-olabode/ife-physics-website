@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { UserPlus } from 'lucide-react';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { formatDate } from '@/lib/format-date';
+import { formatFullName } from '@/lib/name';
 
 export default async function AdminStaffDetailPage({
   params,
@@ -36,7 +37,12 @@ export default async function AdminStaffDetailPage({
     </span>,
   ]);
 
-  const hasName = staff.firstName && staff.lastName;
+  const fullName = formatFullName({
+    firstName: staff.firstName,
+    middleName: staff.middleName,
+    lastName: staff.lastName,
+  });
+  const hasName = Boolean(fullName);
 
   return (
     <div className="space-y-6">
@@ -45,7 +51,7 @@ export default async function AdminStaffDetailPage({
           <BackToParent href="/dashboard/admin/staff" label="Back to Staff" />
           <div className="flex items-center gap-3">
             <PageHeader
-              title={hasName ? `${staff.firstName} ${staff.lastName}` : staff.institutionalEmail}
+              title={fullName || staff.institutionalEmail}
               description={hasName ? staff.institutionalEmail : undefined}
               actions={
                 <span

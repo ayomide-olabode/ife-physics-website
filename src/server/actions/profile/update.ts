@@ -7,10 +7,15 @@ import { z } from 'zod';
 
 const updateProfileSchema = z.object({
   firstName: z.string().min(1, 'First name is strictly required.'),
+  middleName: z.string().optional(),
   lastName: z.string().min(1, 'Last name is strictly required.'),
 });
 
-export async function updateStaffProfile(data: { firstName: string; lastName: string }) {
+export async function updateStaffProfile(data: {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+}) {
   try {
     const session = await requireAuth();
     const staffId = session.user?.staffId;
@@ -24,12 +29,13 @@ export async function updateStaffProfile(data: { firstName: string; lastName: st
       return { error: parsed.error.issues[0].message };
     }
 
-    const { firstName, lastName } = parsed.data;
+    const { firstName, middleName, lastName } = parsed.data;
 
     await prisma.staff.update({
       where: { id: staffId },
       data: {
         firstName: firstName.trim(),
+        middleName: middleName ? middleName.trim() : null,
         lastName: lastName.trim(),
       },
     });

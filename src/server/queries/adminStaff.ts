@@ -16,6 +16,7 @@ export async function listStaff({
     ? {
         OR: [
           { firstName: { contains: q, mode: 'insensitive' } },
+          { middleName: { contains: q, mode: 'insensitive' } },
           { lastName: { contains: q, mode: 'insensitive' } },
           { institutionalEmail: { contains: q, mode: 'insensitive' } },
         ],
@@ -31,6 +32,7 @@ export async function listStaff({
       select: {
         id: true,
         firstName: true,
+        middleName: true,
         lastName: true,
         institutionalEmail: true,
         staffType: true,
@@ -51,6 +53,7 @@ export async function getStaffById(staffId: string) {
     select: {
       id: true,
       firstName: true,
+      middleName: true,
       lastName: true,
       institutionalEmail: true,
       staffType: true,

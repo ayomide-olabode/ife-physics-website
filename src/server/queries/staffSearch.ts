@@ -10,6 +10,7 @@ export async function searchStaff({ q, take = 20 }: { q: string; take?: number }
       deletedAt: null,
       OR: [
         { firstName: { contains: q, mode: 'insensitive' } },
+        { middleName: { contains: q, mode: 'insensitive' } },
         { lastName: { contains: q, mode: 'insensitive' } },
         { institutionalEmail: { contains: q, mode: 'insensitive' } },
       ],
@@ -17,6 +18,7 @@ export async function searchStaff({ q, take = 20 }: { q: string; take?: number }
     select: {
       id: true,
       firstName: true,
+      middleName: true,
       lastName: true,
       institutionalEmail: true,
       staffType: true,

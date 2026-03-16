@@ -10,13 +10,16 @@ import { toastSuccess, toastError } from '@/lib/toast';
 
 export function EditProfileForm({
   initialFirstName,
+  initialMiddleName,
   initialLastName,
 }: {
   initialFirstName?: string | null;
+  initialMiddleName?: string | null;
   initialLastName?: string | null;
 }) {
   const router = useRouter();
   const [firstName, setFirstName] = useState(initialFirstName || '');
+  const [middleName, setMiddleName] = useState(initialMiddleName || '');
   const [lastName, setLastName] = useState(initialLastName || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,6 +35,7 @@ export function EditProfileForm({
     try {
       const res = await updateStaffProfile({
         firstName: firstName.trim(),
+        middleName: middleName.trim(),
         lastName: lastName.trim(),
       });
 
@@ -52,7 +56,9 @@ export function EditProfileForm({
     <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <FieldLabel htmlFor="firstName">First Name</FieldLabel>
+          <FieldLabel required htmlFor="firstName">
+            First Name
+          </FieldLabel>
           <Input
             id="firstName"
             value={firstName}
@@ -62,7 +68,18 @@ export function EditProfileForm({
           />
         </div>
         <div className="space-y-2">
-          <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
+          <FieldLabel htmlFor="middleName">Middle Name</FieldLabel>
+          <Input
+            id="middleName"
+            value={middleName}
+            onChange={(e) => setMiddleName(e.target.value)}
+            placeholder="Optional"
+          />
+        </div>
+        <div className="space-y-2">
+          <FieldLabel required htmlFor="lastName">
+            Last Name
+          </FieldLabel>
           <Input
             id="lastName"
             value={lastName}

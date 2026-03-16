@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
+import { formatFullName } from '@/lib/name';
 import prisma from '@/lib/prisma';
 import { UserMenu, type TopbarUser } from './UserMenu';
 import { MobileSidebar, type NavItem } from './DashboardSidebar';
@@ -34,7 +35,12 @@ export async function DashboardTopbar({ navItems }: { navItems: NavItem[] }) {
         lastName: staff.lastName,
         profileImageUrl: staff.profileImageUrl,
         email: session.user.email || staff.institutionalEmail,
-        name: [staff.firstName, staff.middleName, staff.lastName].filter(Boolean).join(' ') || null,
+        name:
+          formatFullName({
+            firstName: staff.firstName,
+            middleName: staff.middleName,
+            lastName: staff.lastName,
+          }) || null,
         image: staff.profileImageUrl,
       };
     }

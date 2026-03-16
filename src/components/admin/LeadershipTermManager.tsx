@@ -18,10 +18,12 @@ import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { formatDate } from '@/lib/format-date';
+import { formatFullName } from '@/lib/name';
 
 type Staff = {
   id: string;
   firstName: string | null;
+  middleName: string | null;
   lastName: string | null;
   institutionalEmail: string;
   profileImageUrl: string | null;
@@ -79,9 +81,11 @@ export function LeadershipTermManager({
   const renderRoles = (terms: TermRow[], emptyTitle: string) => {
     const rows = terms.map((term) => [
       <div key={`name-${term.id}`} className="text-sm font-medium">
-        {term.staff.firstName || term.staff.lastName
-          ? `${term.staff.firstName || ''} ${term.staff.lastName || ''}`.trim()
-          : term.staff.institutionalEmail}
+        {formatFullName({
+          firstName: term.staff.firstName,
+          middleName: term.staff.middleName,
+          lastName: term.staff.lastName,
+        }) || term.staff.institutionalEmail}
       </div>,
       <div key={`prog-${term.id}`} className="text-sm text-muted-foreground">
         {term.programmeCode || '-'}

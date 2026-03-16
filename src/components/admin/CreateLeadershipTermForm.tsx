@@ -11,6 +11,7 @@ import { createLeadershipTerm } from '@/server/actions/leadershipTerms';
 import { searchStaff } from '@/server/queries/staffSearch';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { LeadershipRole, ProgrammeCode } from '@prisma/client';
+import { formatPersonName } from '@/lib/name';
 
 export function CreateLeadershipTermForm() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export function CreateLeadershipTermForm() {
     Array<{
       id: string;
       firstName: string | null;
+      middleName: string | null;
       lastName: string | null;
       institutionalEmail: string;
     }>
@@ -151,7 +153,11 @@ export function CreateLeadershipTermForm() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium">
-                    {staff.firstName} {staff.lastName}
+                    {formatPersonName({
+                      firstName: staff.firstName,
+                      middleName: staff.middleName,
+                      lastName: staff.lastName,
+                    })}
                   </span>
                   <span className="text-xs text-muted-foreground">{staff.institutionalEmail}</span>
                 </div>

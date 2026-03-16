@@ -17,6 +17,7 @@ export async function listUsers({
         staff: {
           OR: [
             { firstName: { contains: q, mode: 'insensitive' } },
+            { middleName: { contains: q, mode: 'insensitive' } },
             { lastName: { contains: q, mode: 'insensitive' } },
             { institutionalEmail: { contains: q, mode: 'insensitive' } },
           ],
@@ -40,6 +41,7 @@ export async function listUsers({
         staff: {
           select: {
             firstName: true,
+            middleName: true,
             lastName: true,
             institutionalEmail: true,
             profileImageUrl: true,
@@ -73,6 +75,7 @@ export async function getUserById(userId: string) {
         select: {
           id: true,
           firstName: true,
+          middleName: true,
           lastName: true,
           institutionalEmail: true,
           profileImageUrl: true,

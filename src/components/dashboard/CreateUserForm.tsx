@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { searchStaff } from '@/server/queries/staffSearch';
 import { createUser } from '@/server/actions/adminUsers';
 import { toastSuccess, toastError } from '@/lib/toast';
+import { formatPersonName } from '@/lib/name';
 
 export function CreateUserForm() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export function CreateUserForm() {
     Array<{
       id: string;
       firstName: string | null;
+      middleName: string | null;
       lastName: string | null;
       institutionalEmail: string;
     }>
@@ -135,7 +137,11 @@ export function CreateUserForm() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium">
-                    {staff.firstName} {staff.lastName}
+                    {formatPersonName({
+                      firstName: staff.firstName,
+                      middleName: staff.middleName,
+                      lastName: staff.lastName,
+                    })}
                   </span>
                   <span className="text-xs text-muted-foreground">{staff.institutionalEmail}</span>
                 </div>

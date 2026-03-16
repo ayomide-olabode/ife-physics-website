@@ -33,6 +33,7 @@ export default async function ProfilePage({
     select: {
       id: true,
       firstName: true,
+      middleName: true,
       lastName: true,
       profileImageUrl: true,
       researchMemberships: {
@@ -90,7 +91,11 @@ export default async function ProfilePage({
 
       <div className="rounded-lg border bg-card p-6">
         <h2 className="text-xl font-semibold mb-6 border-b pb-2">Identity Details</h2>
-        <EditProfileForm initialFirstName={staff.firstName} initialLastName={staff.lastName} />
+        <EditProfileForm
+          initialFirstName={staff.firstName}
+          initialMiddleName={staff.middleName}
+          initialLastName={staff.lastName}
+        />
       </div>
 
       <ResearchGroupMembershipForm initialGroupId={currentGroupId} options={options} />

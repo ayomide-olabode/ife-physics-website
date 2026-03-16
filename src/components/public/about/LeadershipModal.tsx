@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { formatPersonName } from '@/lib/name';
 
 interface PastHod {
   id: string;
@@ -30,9 +31,11 @@ export function LeadershipModal({ hods }: { hods: PastHod[] }) {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {hods.map((term) => {
-          const name = [term.staff.firstName, term.staff.middleName, term.staff.lastName]
-            .filter(Boolean)
-            .join(' ');
+          const name = formatPersonName({
+            firstName: term.staff.firstName,
+            middleName: term.staff.middleName,
+            lastName: term.staff.lastName,
+          });
           const startYear = new Date(term.startDate).getFullYear();
           const endYear = term.endDate ? new Date(term.endDate).getFullYear() : 'Present';
           const hasAddress = !!term.staff.hodAddress;
@@ -87,12 +90,18 @@ export function LeadershipModal({ hods }: { hods: PastHod[] }) {
               <DialogHeader>
                 <DialogTitle>
                   {selected.staff.hodAddress?.title ??
-                    `Address by ${[selected.staff.firstName, selected.staff.middleName, selected.staff.lastName].filter(Boolean).join(' ')}`}
+                    `Address by ${formatPersonName({
+                      firstName: selected.staff.firstName,
+                      middleName: selected.staff.middleName,
+                      lastName: selected.staff.lastName,
+                    })}`}
                 </DialogTitle>
                 <DialogDescription>
-                  {[selected.staff.firstName, selected.staff.middleName, selected.staff.lastName]
-                    .filter(Boolean)
-                    .join(' ')}{' '}
+                  {formatPersonName({
+                    firstName: selected.staff.firstName,
+                    middleName: selected.staff.middleName,
+                    lastName: selected.staff.lastName,
+                  })}{' '}
                   — {new Date(selected.startDate).getFullYear()} –{' '}
                   {selected.endDate ? new Date(selected.endDate).getFullYear() : 'Present'}
                 </DialogDescription>

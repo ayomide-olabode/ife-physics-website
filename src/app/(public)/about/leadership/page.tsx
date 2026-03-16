@@ -7,6 +7,7 @@ import {
 import { PageHero } from '@/components/public/PageHero';
 import { CurrentHodSection } from '@/components/public/about/CurrentHodSection';
 import { PastHodsGrid } from '@/components/public/about/PastHodsGrid';
+import { formatFullName } from '@/lib/name';
 
 export default async function LeadershipPage() {
   const [currentHod, coordinators, pastHods] = await Promise.all([
@@ -33,9 +34,11 @@ export default async function LeadershipPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {coordinators.map((term) => {
-                  const name = [term.staff.firstName, term.staff.middleName, term.staff.lastName]
-                    .filter(Boolean)
-                    .join(' ');
+                  const name = formatFullName({
+                    firstName: term.staff.firstName,
+                    middleName: term.staff.middleName,
+                    lastName: term.staff.lastName,
+                  });
 
                   return (
                     <div

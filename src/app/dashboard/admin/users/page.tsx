@@ -6,6 +6,7 @@ import { AddNewButton } from '@/components/dashboard/AddNewButton';
 import { listUsers } from '@/server/queries/adminUsers';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format-date';
+import { formatFullName } from '@/lib/name';
 
 export default async function AdminUsersPage({
   searchParams,
@@ -35,7 +36,11 @@ export default async function AdminUsersPage({
         {user.staffId}
       </span>,
       <div key="name" className="text-sm">
-        {user.staff.firstName} {user.staff.lastName}
+        {formatFullName({
+          firstName: user.staff.firstName,
+          middleName: user.staff.middleName,
+          lastName: user.staff.lastName,
+        }) || user.staff.institutionalEmail}
       </div>,
       <div key="email" className="text-sm text-muted-foreground">
         {user.staff.institutionalEmail}

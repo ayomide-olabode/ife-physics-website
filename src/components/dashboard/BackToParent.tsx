@@ -12,7 +12,7 @@ export function BackToParent({ href, label }: { href: string; label: string }) {
         className="-ml-3 text-muted-foreground hover:text-foreground"
       >
         <Link href={href}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" />
           {label}
         </Link>
       </Button>

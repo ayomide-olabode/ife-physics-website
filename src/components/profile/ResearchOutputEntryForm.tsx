@@ -413,9 +413,9 @@ export function ResearchOutputEntryForm({
           className="rounded-none"
         >
           {isLookingUp ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <Search className="w-4 h-4 mr-2" />
+            <Search className="h-4 w-4" />
           )}
           Search
         </Button>
@@ -785,7 +785,7 @@ export function ResearchOutputEntryForm({
       {/* ACTIONS */}
       <div className="flex items-center gap-4 pt-4 border-t">
         <Button type="submit" disabled={dis} className="rounded-none">
-          {dis && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          {dis && <Loader2 className="h-4 w-4 animate-spin" />}
           {isEditing ? 'Save changes' : 'Add entry'}
         </Button>
         <Button

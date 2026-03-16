@@ -48,7 +48,7 @@ export function HistoryStatusActions({
             onClick={() => handleStatusChange('PUBLISHED')}
             disabled={isPending}
           >
-            <CheckCircle2 className="mr-2 h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4" />
             Publish Entry
           </Button>
         )}
@@ -60,7 +60,7 @@ export function HistoryStatusActions({
             onClick={() => handleStatusChange('DRAFT')}
             disabled={isPending}
           >
-            <FileEdit className="mr-2 h-4 w-4" />
+            <FileEdit className="h-4 w-4" />
             Revert to Draft
           </Button>
         )}
@@ -72,7 +72,7 @@ export function HistoryStatusActions({
             onClick={() => handleStatusChange('ARCHIVED')}
             disabled={isPending}
           >
-            <Archive className="mr-2 h-4 w-4" />
+            <Archive className="h-4 w-4" />
             Archive Entry
           </Button>
         )}

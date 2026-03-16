@@ -134,7 +134,7 @@ export function LegacyGalleryFormClient({
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
           {initialData ? 'Save Changes' : 'Create Item'}
         </Button>
       </div>

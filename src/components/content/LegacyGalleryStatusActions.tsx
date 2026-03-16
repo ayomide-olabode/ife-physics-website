@@ -39,7 +39,7 @@ export function LegacyGalleryStatusActions({
           onClick={() => handleStatusChange(PublishStatus.PUBLISHED)}
           disabled={isUpdating}
         >
-          {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
           Publish
         </Button>
       )}
@@ -52,7 +52,7 @@ export function LegacyGalleryStatusActions({
             onClick={() => handleStatusChange(PublishStatus.DRAFT)}
             disabled={isUpdating}
           >
-            {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
             Unpublish to Draft
           </Button>
           <Button
@@ -61,7 +61,7 @@ export function LegacyGalleryStatusActions({
             onClick={() => handleStatusChange(PublishStatus.ARCHIVED)}
             disabled={isUpdating}
           >
-            {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
             Archive
           </Button>
         </>
@@ -74,7 +74,7 @@ export function LegacyGalleryStatusActions({
           onClick={() => handleStatusChange(PublishStatus.PUBLISHED)}
           disabled={isUpdating}
         >
-          {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
           Restore & Publish
         </Button>
       )}

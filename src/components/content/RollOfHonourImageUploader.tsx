@@ -80,7 +80,7 @@ export function RollOfHonourImageUploader({
               onClick={onRemove}
               disabled={isUploading}
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="h-4 w-4" />
               Remove
             </Button>
           </div>

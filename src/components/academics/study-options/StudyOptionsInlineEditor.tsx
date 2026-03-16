@@ -231,7 +231,8 @@ export function StudyOptionsInlineEditor({
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">Study Options</h3>
             <Button size="sm" onClick={() => handleSelect('new')} variant="outline">
-              <Plus className="h-4 w-4 mr-1" /> New
+              <Plus className="h-4 w-4" />
+              New
             </Button>
           </div>
           <div className="relative">

@@ -92,7 +92,7 @@ export function DashboardSidebar({ items }: { items: NavItem[] }) {
           variant="ghost"
           className="w-full justify-start text-muted-foreground hover:bg-muted hover:text-foreground"
         >
-          <LogOut className="mr-2 h-4 w-4" />
+          <LogOut className="h-4 w-4" />
           Log Out
         </LogoutButton>
       </div>
@@ -143,7 +143,7 @@ export function MobileSidebar({ items }: { items: NavItem[] }) {
             variant="ghost"
             className="w-full justify-start text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="h-4 w-4" />
             Log Out
           </LogoutButton>
         </div>

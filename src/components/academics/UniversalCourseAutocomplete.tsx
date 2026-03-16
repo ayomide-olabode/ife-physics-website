@@ -75,10 +75,10 @@ export function UniversalCourseAutocomplete({
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
-          className="w-full justify-between overflow-hidden"
+          className="w-full justify-start overflow-hidden"
         >
+          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
           <span className="truncate">{displayValue}</span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">

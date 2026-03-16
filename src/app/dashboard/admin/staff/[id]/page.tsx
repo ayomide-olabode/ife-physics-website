@@ -99,7 +99,7 @@ export default async function AdminStaffDetailPage({
             {!staff.user && (
               <Button size="sm" variant="outline" asChild>
                 <Link href={`/dashboard/admin/users/new?staffId=${staff.id}`}>
-                  <UserPlus className="h-4 w-4 mr-2" />
+                  <UserPlus className="h-4 w-4" />
                   Create user shell
                 </Link>
               </Button>

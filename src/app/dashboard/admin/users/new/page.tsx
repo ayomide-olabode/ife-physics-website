@@ -16,7 +16,7 @@ export default function CreateUserPage() {
           actions={
             <Button size="sm" variant="outline" asChild>
               <Link href="/dashboard/admin/staff/new">
-                <UserPlus className="h-4 w-4 mr-2" />
+                <UserPlus className="h-4 w-4" />
                 Create New Staff
               </Link>
             </Button>

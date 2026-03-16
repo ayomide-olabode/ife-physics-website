@@ -558,15 +558,6 @@ export function ResearchOutputEntryForm({
               <Button
                 type="button"
                 size="sm"
-                onClick={handleAddManualAuthor}
-                disabled={dis}
-                className="rounded-none border"
-              >
-                Add
-              </Button>
-              <Button
-                type="button"
-                size="sm"
                 variant="ghost"
                 onClick={() => {
                   setShowManualAuthor(false);
@@ -578,6 +569,15 @@ export function ResearchOutputEntryForm({
                 className="rounded-none"
               >
                 Cancel
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleAddManualAuthor}
+                disabled={dis}
+                className="rounded-none border"
+              >
+                Add
               </Button>
             </div>
           </div>
@@ -744,15 +744,6 @@ export function ResearchOutputEntryForm({
                   <Button
                     type="button"
                     size="sm"
-                    onClick={handleAddManualEditor}
-                    disabled={dis}
-                    className="rounded-none border"
-                  >
-                    Add
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
                     variant="ghost"
                     onClick={() => {
                       setShowManualEditor(false);
@@ -764,6 +755,15 @@ export function ResearchOutputEntryForm({
                     className="rounded-none"
                   >
                     Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleAddManualEditor}
+                    disabled={dis}
+                    className="rounded-none border"
+                  >
+                    Add
                   </Button>
                 </div>
               </div>

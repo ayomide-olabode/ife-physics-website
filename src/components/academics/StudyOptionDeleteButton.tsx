@@ -40,12 +40,12 @@ export function StudyOptionDeleteButton({
 
   if (confirming) {
     return (
-      <div className="flex gap-2">
-        <Button variant="destructive" size="sm" disabled={isPending} onClick={handleDelete}>
-          {isPending ? 'Deleting…' : 'Confirm Delete'}
-        </Button>
+      <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={() => setConfirming(false)}>
           Cancel
+        </Button>
+        <Button variant="destructive" size="sm" disabled={isPending} onClick={handleDelete}>
+          {isPending ? 'Deleting…' : 'Confirm Delete'}
         </Button>
       </div>
     );

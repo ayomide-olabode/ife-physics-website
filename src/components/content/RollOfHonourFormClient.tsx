@@ -193,18 +193,17 @@ export function RollOfHonourFormClient({
           />
         </div>
 
-        <div className="bg-white p-6 rounded-lg border shadow-sm flex flex-col gap-3">
-          <Button type="submit" form="roh-form" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Entry'}
-          </Button>
+        <div className="bg-white p-6 rounded-lg border shadow-sm flex items-center justify-end gap-3">
           <Button
             type="button"
             variant="outline"
-            className="w-full"
             onClick={() => router.push('/dashboard/content/roll-of-honour')}
             disabled={isSubmitting}
           >
             Cancel
+          </Button>
+          <Button type="submit" form="roh-form" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Entry'}
           </Button>
         </div>
       </div>

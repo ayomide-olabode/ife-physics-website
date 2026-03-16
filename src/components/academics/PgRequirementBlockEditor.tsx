@@ -132,12 +132,12 @@ export function PgRequirementBlockEditor({
           <RichTextEditor value={contentHtml} onChange={setContentHtml} />
         </div>
 
-        <div className="flex gap-3 pt-4 border-t">
-          <Button type="submit" disabled={isPending}>
-            {isPending ? 'Saving…' : isEditing ? 'Update Block' : 'Create Block'}
-          </Button>
+        <div className="flex justify-end gap-3 pt-4 border-t">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? 'Saving…' : isEditing ? 'Update Block' : 'Create Block'}
           </Button>
         </div>
       </form>
@@ -177,12 +177,12 @@ export function PgReqBlockDeleteButton({ programmeCode, degreeType, blockId }: D
 
   if (confirming) {
     return (
-      <span className="inline-flex gap-1">
-        <Button variant="destructive" size="sm" disabled={isPending} onClick={handleDelete}>
-          {isPending ? '…' : 'Confirm'}
-        </Button>
+      <span className="inline-flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={() => setConfirming(false)}>
           ✕
+        </Button>
+        <Button variant="destructive" size="sm" disabled={isPending} onClick={handleDelete}>
+          {isPending ? '…' : 'Confirm'}
         </Button>
       </span>
     );

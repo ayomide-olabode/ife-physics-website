@@ -15,6 +15,7 @@ export async function getFeaturedNews(limit = 4) {
       id: true,
       slug: true,
       title: true,
+      body: true,
       date: true,
       imageUrl: true,
       buttonLabel: true,

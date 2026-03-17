@@ -5,14 +5,12 @@ import { LatestPublications } from '@/components/public/home/LatestPublications'
 import { NewsUpdatesSection } from '@/components/public/home/NewsUpdatesSection';
 import { UpcomingEventsSection } from '@/components/public/home/UpcomingEventsSection';
 import { getFeaturedNews, listPublicNews } from '@/server/public/queries/newsPublic';
-import { listPublicEventsOpportunities } from '@/server/public/queries/eventsPublic';
 import { getFeaturedPublications } from '@/server/public/queries/featuredPublications';
 
 export default async function HomePage() {
-  const [featuredNews, latestNews, events, publications] = await Promise.all([
+  const [featuredNews, latestNews, publications] = await Promise.all([
     getFeaturedNews(3),
     listPublicNews({ page: 1, pageSize: 3 }),
-    listPublicEventsOpportunities(4),
     getFeaturedPublications(3),
   ]);
 
@@ -34,7 +32,7 @@ export default async function HomePage() {
       <NewsUpdatesSection items={latestNews.items} />
 
       {/* 6) Upcoming events */}
-      <UpcomingEventsSection items={events} />
+      <UpcomingEventsSection />
     </>
   );
 }

@@ -1,12 +1,26 @@
 import 'server-only';
 
+import type { EventOpportunityType } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { wherePublished } from '../published';
 
-/** List published events and opportunities, most recent first. */
-export async function listPublicEventsOpportunities(limit = 10) {
+type ListPublicEventOpportunitiesParams = {
+  limit?: number;
+  type?: EventOpportunityType;
+};
+
+/** List published events/opportunities, soonest first, optionally filtered by type. */
+export async function listPublicEventOpportunities({
+  limit = 10,
+  type,
+}: ListPublicEventOpportunitiesParams = {}) {
+  const where = {
+    ...wherePublished(),
+    ...(type ? { type } : {}),
+  };
+
   return prisma.eventOpportunity.findMany({
-    where: wherePublished(),
+    where,
     select: {
       id: true,
       title: true,
@@ -21,7 +35,17 @@ export async function listPublicEventsOpportunities(limit = 10) {
       linkUrl: true,
       updatedAt: true,
     },
-    orderBy: { startDate: 'desc' },
+    orderBy: [{ startDate: { sort: 'asc', nulls: 'last' } }, { createdAt: 'desc' }],
     take: limit,
   });
+}
+
+/** Backward-compatible alias. */
+export async function listPublicEventsOpportunities(
+  limitOrParams: number | ListPublicEventOpportunitiesParams = 10,
+) {
+  if (typeof limitOrParams === 'number') {
+    return listPublicEventOpportunities({ limit: limitOrParams });
+  }
+  return listPublicEventOpportunities(limitOrParams);
 }

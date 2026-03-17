@@ -12,26 +12,19 @@ type HistoryEntryDTO = {
 };
 
 function groupByDecade(entries: HistoryEntryDTO[]): DecadeGroup[] {
-  const map = new Map<string, Map<number, HistoryEntryDTO[]>>();
+  const map = new Map<string, HistoryEntryDTO[]>();
 
   for (const entry of entries) {
-    if (!map.has(entry.decade)) map.set(entry.decade, new Map());
-    const yearMap = map.get(entry.decade)!;
-    if (!yearMap.has(entry.year)) yearMap.set(entry.year, []);
-    yearMap.get(entry.year)!.push(entry);
+    if (!map.has(entry.decade)) map.set(entry.decade, []);
+    map.get(entry.decade)!.push(entry);
   }
 
   return Array.from(map.entries())
     .sort(([a], [b]) => parseInt(a, 10) - parseInt(b, 10))
-    .map(([decadeLabel, yearMap]) => ({
+    .map(([decadeLabel, entriesInDecade]) => ({
       decadeLabel,
       decadeKey: decadeLabel,
-      years: Array.from(yearMap.entries())
-        .sort(([a], [b]) => a - b)
-        .map(([year, yearEntries]) => ({
-          year,
-          entries: [...yearEntries].sort((a, b) => a.date.localeCompare(b.date)),
-        })),
+      entriesFlat: [...entriesInDecade].sort((a, b) => a.date.localeCompare(b.date)),
     }));
 }
 
@@ -51,6 +44,7 @@ export default async function HistoryPage() {
     };
   });
   const decades = groupByDecade(entries);
+  const allEntries = [...entries].sort((a, b) => a.date.localeCompare(b.date));
 
   return (
     <>
@@ -69,7 +63,7 @@ export default async function HistoryPage() {
               </p>
             </div>
           ) : (
-            <HistoryTimeline decades={decades} />
+            <HistoryTimeline decades={decades} allEntries={allEntries} />
           )}
         </div>
       </div>

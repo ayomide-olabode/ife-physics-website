@@ -7,6 +7,7 @@ import { authOptions } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 import { StaffType, StaffStatus } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
+import { requestRegistrationLink } from '@/server/actions/onboardingRegister';
 
 export async function createStaff({
   institutionalEmail,
@@ -14,7 +15,6 @@ export async function createStaff({
   staffStatus,
   designation,
   academicRank,
-  createUserShell = true,
   isSuperAdminShell = false,
 }: {
   institutionalEmail: string;
@@ -22,7 +22,6 @@ export async function createStaff({
   staffStatus: StaffStatus;
   designation?: string;
   academicRank?: string;
-  createUserShell?: boolean;
   isSuperAdminShell?: boolean;
 }) {
   const session = await getServerSession(authOptions);
@@ -55,24 +54,20 @@ export async function createStaff({
       },
     });
 
-    let newUser = null;
+    // Ensure a shell user always exists for onboarding.
+    const existingUser = await tx.user.findUnique({
+      where: { staffId: newStaff.id },
+    });
 
-    if (createUserShell) {
-      // Check if user already exists (shouldn't if staff was just created, but safe)
-      const existingUser = await tx.user.findUnique({
-        where: { staffId: newStaff.id },
-      });
-
-      if (!existingUser) {
-        newUser = await tx.user.create({
-          data: {
-            staffId: newStaff.id,
-            passwordHash: '',
-            isSuperAdmin: isSuperAdminShell,
-          },
-        });
-      }
-    }
+    const newUser =
+      existingUser ??
+      (await tx.user.create({
+        data: {
+          staffId: newStaff.id,
+          passwordHash: '',
+          isSuperAdmin: isSuperAdminShell,
+        },
+      }));
 
     return {
       staffId: newStaff.id,
@@ -112,5 +107,12 @@ export async function createStaff({
   revalidatePath('/dashboard/admin/staff');
   revalidatePath('/dashboard/admin/users');
 
-  return result;
+  const inviteResult = await requestRegistrationLink(result.institutionalEmail);
+
+  return {
+    ...result,
+    inviteStatus: inviteResult.success ? inviteResult.status : 'NO_STAFF',
+    inviteMinutesRemaining: inviteResult.success ? inviteResult.minutesRemaining : undefined,
+    inviteError: inviteResult.success ? undefined : inviteResult.error,
+  };
 }

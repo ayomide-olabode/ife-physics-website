@@ -9,6 +9,7 @@ import { UserPlus } from 'lucide-react';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
+import { StaffInviteControls } from '@/components/admin/StaffInviteControls';
 
 export default async function AdminStaffDetailPage({
   params,
@@ -134,6 +135,11 @@ export default async function AdminStaffDetailPage({
                   {staff.user.lastLoginAt ? formatDate(staff.user.lastLoginAt) : 'Never'}
                 </span>
               </div>
+              {staff.user.passwordHash === '' ? (
+                <div className="pt-2">
+                  <StaffInviteControls staffId={staff.id} />
+                </div>
+              ) : null}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">

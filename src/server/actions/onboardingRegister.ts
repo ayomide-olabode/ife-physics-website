@@ -6,9 +6,28 @@ import { z } from 'zod';
 import { buildInviteEmail } from '@/lib/emailTemplates';
 import { sendMail } from '@/lib/mailer';
 import prisma from '@/lib/prisma';
-import { generateRawToken, getExpiresAt, getExpiryMinutes, hashToken } from '@/lib/tokens';
+import {
+  canResend,
+  generateRawToken,
+  getExpiresAt,
+  getExpiryMinutes,
+  hashToken,
+  minutesUntilResend,
+} from '@/lib/tokens';
 
 const requestSchema = z.string().email();
+type RegistrationRequestStatus = 'SENT' | 'THROTTLED' | 'ALREADY_ACTIVE' | 'NO_STAFF';
+
+type RequestRegistrationResult =
+  | {
+      success: true;
+      status: RegistrationRequestStatus;
+      minutesRemaining?: number;
+    }
+  | {
+      success: false;
+      error: string;
+    };
 
 const completeSchema = z
   .object({
@@ -26,7 +45,7 @@ function getAppUrl(): string {
   return baseUrl.replace(/\/+$/, '');
 }
 
-export async function requestRegistrationLink(email: string) {
+export async function requestRegistrationLink(email: string): Promise<RequestRegistrationResult> {
   const parsed = requestSchema.safeParse(email.trim().toLowerCase());
   if (!parsed.success) {
     return { success: false, error: 'Please enter a valid institutional email address.' };
@@ -45,7 +64,7 @@ export async function requestRegistrationLink(email: string) {
     });
 
     if (!staff) {
-      return { success: true };
+      return { success: true, status: 'NO_STAFF' };
     }
 
     let user = await prisma.user.findUnique({
@@ -63,7 +82,29 @@ export async function requestRegistrationLink(email: string) {
     }
 
     if (user.passwordHash !== '') {
-      return { success: true };
+      return { success: true, status: 'ALREADY_ACTIVE' };
+    }
+
+    const latestUnusedInvite = await prisma.emailToken.findFirst({
+      where: {
+        type: EmailTokenType.INVITE,
+        email: normalizedEmail,
+        usedAt: null,
+      },
+      select: {
+        lastSentAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (latestUnusedInvite?.lastSentAt && !canResend(latestUnusedInvite.lastSentAt)) {
+      return {
+        success: true,
+        status: 'THROTTLED',
+        minutesRemaining: minutesUntilResend(latestUnusedInvite.lastSentAt),
+      };
     }
 
     const rawToken = generateRawToken();
@@ -93,7 +134,7 @@ export async function requestRegistrationLink(email: string) {
       html: template.html,
     });
 
-    return { success: true };
+    return { success: true, status: 'SENT' };
   } catch (error) {
     console.error('requestRegistrationLink error:', error);
     return { success: false, error: 'Unable to process registration request right now.' };

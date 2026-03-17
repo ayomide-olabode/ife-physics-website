@@ -22,7 +22,6 @@ export function CreateStaffForm() {
   const [staffStatus, setStaffStatus] = useState<StaffStatus>('ACTIVE');
   const [designation, setDesignation] = useState('');
   const [academicRank, setAcademicRank] = useState('');
-  const [createUserShell, setCreateUserShell] = useState(true);
   const [isSuperAdminShell, setIsSuperAdminShell] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,11 +36,21 @@ export function CreateStaffForm() {
         staffStatus,
         designation,
         academicRank,
-        createUserShell,
-        isSuperAdminShell: createUserShell ? isSuperAdminShell : false,
+        isSuperAdminShell,
       });
 
-      toast.success('Staff record created successfully.');
+      if (result.inviteStatus === 'SENT') {
+        toast.success(`Staff created. Invite link sent to ${result.institutionalEmail}.`);
+      } else if (result.inviteStatus === 'THROTTLED') {
+        toast.success(
+          `Staff created. Invite already sent recently (try again in ${result.inviteMinutesRemaining ?? 1} minute(s)).`,
+        );
+      } else if (result.inviteStatus === 'ALREADY_ACTIVE') {
+        toast.success('Staff created. This account is already active.');
+      } else {
+        toast.success('Staff record created successfully.');
+      }
+
       router.push(`/dashboard/admin/staff/${result.staffId}`);
       router.refresh();
     } catch (err) {
@@ -138,37 +147,15 @@ export function CreateStaffForm() {
       <div className="space-y-4">
         <h3 className="text-lg font-medium border-b pb-2">3. User System Integration</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Determine if this staff member should immediately receive access to the administration
-          panel.
+          A user shell is automatically provisioned for onboarding and an invite link is sent to the
+          staff email.
         </p>
 
-        <div className="flex items-start space-x-3 rounded-md border p-4 bg-muted/20">
-          <Checkbox
-            id="createUserShell"
-            checked={createUserShell}
-            onCheckedChange={(checked) => setCreateUserShell(checked as boolean)}
-          />
-          <div className="space-y-1 leading-none">
-            <FieldLabel htmlFor="createUserShell" className="font-medium cursor-pointer">
-              Create user shell (invite)
-            </FieldLabel>
-            <p className="text-sm text-muted-foreground mt-1">
-              Automatically provision an unactivated User account linked to this staff record. They
-              can later activate it via email registration.
-            </p>
-          </div>
-        </div>
-
-        <div
-          className={`flex items-start space-x-3 rounded-md border p-4 transition-opacity ${
-            !createUserShell ? 'opacity-50 pointer-events-none' : ''
-          }`}
-        >
+        <div className="flex items-start space-x-3 rounded-md border p-4">
           <Checkbox
             id="isSuperAdminShell"
             checked={isSuperAdminShell}
             onCheckedChange={(checked) => setIsSuperAdminShell(checked as boolean)}
-            disabled={!createUserShell}
           />
           <div className="space-y-1 leading-none">
             <FieldLabel

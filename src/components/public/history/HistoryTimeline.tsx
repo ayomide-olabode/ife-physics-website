@@ -1,62 +1,72 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { YearCarousel, type HistoryYearEntry } from './YearCarousel';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export interface HistoryTimelineDecadeGroup {
+export type HistoryEntryDTO = {
   id: string;
+  date: string;
+  year: number;
   decade: string;
-  years: {
-    id: string;
-    year: number;
-    entries: HistoryYearEntry[];
-  }[];
+  title: string;
+  shortDescription: string;
+};
+
+export type DecadeGroup = {
+  decadeLabel: string;
+  decadeKey: string;
+  years: Array<{ year: number; entries: HistoryEntryDTO[] }>;
+};
+
+function formatDate(dateISO: string): string {
+  return new Date(dateISO).toLocaleDateString('en-GB', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 }
 
-type TocItem =
-  | { kind: 'decade'; id: string; label: string }
-  | { kind: 'year'; id: string; label: string; parentDecadeId: string };
+function initialSelectedYears(decades: DecadeGroup[]): Record<string, number> {
+  return decades.reduce<Record<string, number>>((acc, decade) => {
+    acc[decade.decadeKey] = decade.years[0]?.year ?? 0;
+    return acc;
+  }, {});
+}
 
-export function HistoryTimeline({ grouped }: { grouped: HistoryTimelineDecadeGroup[] }) {
-  const [activeYearId, setActiveYearId] = useState<string | null>(grouped[0]?.years[0]?.id ?? null);
-  const railItemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-  const tocItems = useMemo<TocItem[]>(
-    () =>
-      grouped.flatMap((decade) => [
-        { kind: 'decade', id: decade.id, label: decade.decade } as const,
-        ...decade.years.map(
-          (year) =>
-            ({
-              kind: 'year',
-              id: year.id,
-              label: String(year.year),
-              parentDecadeId: decade.id,
-            }) as const,
-        ),
-      ]),
-    [grouped],
+export function HistoryTimeline({ decades }: { decades: DecadeGroup[] }) {
+  const [activeDecadeKey, setActiveDecadeKey] = useState(decades[0]?.decadeKey ?? '');
+  const [cardsPerView, setCardsPerView] = useState(1);
+  const [selectedYearByDecade, setSelectedYearByDecade] = useState<Record<string, number>>(() =>
+    initialSelectedYears(decades),
   );
+  const [pageByDecadeYear, setPageByDecadeYear] = useState<Record<string, number>>({});
 
-  const yearToDecadeMap = useMemo(
-    () =>
-      grouped.reduce<Record<string, string>>((acc, decade) => {
-        for (const year of decade.years) {
-          acc[year.id] = decade.id;
-        }
-        return acc;
-      }, {}),
-    [grouped],
-  );
-
-  const activeDecadeId = activeYearId ? yearToDecadeMap[activeYearId] : grouped[0]?.id;
+  const railRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
-    const sections = grouped
-      .flatMap((decade) => decade.years.map((year) => document.getElementById(year.id)))
+    const updateCardsPerView = () => {
+      if (window.innerWidth >= 1024) {
+        setCardsPerView(3);
+        return;
+      }
+      if (window.innerWidth >= 768) {
+        setCardsPerView(2);
+        return;
+      }
+      setCardsPerView(1);
+    };
+
+    updateCardsPerView();
+    window.addEventListener('resize', updateCardsPerView);
+    return () => window.removeEventListener('resize', updateCardsPerView);
+  }, []);
+
+  useEffect(() => {
+    const observed = decades
+      .map((decade) => document.getElementById(`decade-${decade.decadeKey}`))
       .filter((el): el is HTMLElement => Boolean(el));
 
-    if (sections.length === 0) return;
+    if (observed.length === 0) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -64,94 +74,223 @@ export function HistoryTimeline({ grouped }: { grouped: HistoryTimelineDecadeGro
           .filter((entry) => entry.isIntersecting)
           .sort(
             (a, b) =>
-              Math.abs(a.boundingClientRect.top - 120) - Math.abs(b.boundingClientRect.top - 120),
+              Math.abs(a.boundingClientRect.top - 140) - Math.abs(b.boundingClientRect.top - 140),
           );
 
-        const topVisible = visible[0];
-        if (topVisible?.target?.id) {
-          setActiveYearId(topVisible.target.id);
-        }
+        const top = visible[0];
+        if (!top?.target?.id) return;
+        const decadeKey = top.target.id.replace('decade-', '');
+        setActiveDecadeKey(decadeKey);
       },
-      { root: null, rootMargin: '-30% 0px -60% 0px', threshold: 0 },
+      { rootMargin: '-30% 0px -55% 0px', threshold: 0.35 },
     );
 
-    sections.forEach((section) => observer.observe(section));
+    observed.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
-  }, [grouped]);
+  }, [decades]);
 
   useEffect(() => {
-    const activeId = activeYearId ?? activeDecadeId;
-    if (!activeId) return;
-    railItemRefs.current[activeId]?.scrollIntoView({ block: 'nearest' });
-  }, [activeDecadeId, activeYearId]);
+    if (!activeDecadeKey) return;
+    railRefs.current[activeDecadeKey]?.scrollIntoView({ block: 'nearest' });
+  }, [activeDecadeKey]);
 
-  const scrollToId = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToDecade = (decadeKey: string) => {
+    setActiveDecadeKey(decadeKey);
+    document
+      .getElementById(`decade-${decadeKey}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  const setYearForDecade = (decadeKey: string, year: number) => {
+    setSelectedYearByDecade((current) => ({ ...current, [decadeKey]: year }));
+    setPageByDecadeYear((current) => ({ ...current, [`${decadeKey}-${year}`]: 0 }));
+  };
+
+  const setPageForDecadeYear = (decadeKey: string, year: number, page: number) => {
+    setPageByDecadeYear((current) => ({ ...current, [`${decadeKey}-${year}`]: page }));
+  };
+
+  const decadesWithActiveYear = useMemo(
+    () =>
+      decades.map((decade) => {
+        const activeYear =
+          selectedYearByDecade[decade.decadeKey] ||
+          decade.years[0]?.year ||
+          decade.years[0]?.year ||
+          0;
+        const yearGroup =
+          decade.years.find((group) => group.year === activeYear) ?? decade.years[0];
+        const entries = yearGroup?.entries ?? [];
+        const key = `${decade.decadeKey}-${yearGroup?.year ?? activeYear}`;
+        const totalPages = Math.max(1, Math.ceil(entries.length / cardsPerView));
+        const safePage = Math.min(pageByDecadeYear[key] ?? 0, totalPages - 1);
+        const start = safePage * cardsPerView;
+
+        return {
+          decade,
+          activeYear: yearGroup?.year ?? activeYear,
+          entries,
+          visibleEntries: entries.slice(start, start + cardsPerView),
+          page: safePage,
+          totalPages,
+        };
+      }),
+    [cardsPerView, decades, pageByDecadeYear, selectedYearByDecade],
+  );
 
   return (
     <div className="flex gap-12">
-      <aside className="hidden lg:block w-72 flex-shrink-0">
+      <aside className="hidden lg:block w-52 flex-shrink-0">
         <nav
-          className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border border-black/10 bg-white"
-          aria-label="History timeline contents"
+          className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2"
+          aria-label="Decade navigation"
         >
-          <ul className="py-3">
-            {tocItems.map((item) => {
-              const isDecade = item.kind === 'decade';
-              const isActive =
-                item.kind === 'year' ? activeYearId === item.id : activeDecadeId === item.id;
+          <div className="relative">
+            <div className="absolute left-[7px] top-2 bottom-2 w-[2px] bg-gray-200" />
 
-              return (
-                <li key={item.id}>
-                  <button
-                    ref={(el) => {
-                      railItemRefs.current[item.id] = el;
-                    }}
-                    type="button"
-                    onClick={() => scrollToId(item.id)}
-                    className={`w-full text-left px-4 py-2 transition-colors border-l-4 ${
-                      isActive
-                        ? 'border-l-brand-yellow bg-brand-yellow/10 text-brand-navy'
-                        : 'border-l-transparent text-slate-400 hover:bg-slate-50 hover:text-brand-navy'
-                    } ${isDecade ? 'text-sm font-semibold' : 'text-xs pl-8 font-medium'}`}
-                  >
-                    {item.label}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+            <ul className="relative space-y-6">
+              {decades.map((decade) => {
+                const isActive = activeDecadeKey === decade.decadeKey;
+                return (
+                  <li key={decade.decadeKey}>
+                    <button
+                      ref={(el) => {
+                        railRefs.current[decade.decadeKey] = el;
+                      }}
+                      type="button"
+                      onClick={() => scrollToDecade(decade.decadeKey)}
+                      className="w-full flex items-center gap-3 group text-left"
+                    >
+                      <span
+                        className={`relative z-10 flex h-4 w-4 items-center justify-center border-2 flex-shrink-0 transition-colors ${
+                          isActive
+                            ? 'bg-brand-yellow border-brand-yellow'
+                            : 'bg-gray-300 border-gray-300'
+                        }`}
+                      />
+                      <span
+                        className={`text-sm font-semibold transition-colors ${
+                          isActive ? 'text-brand-navy' : 'text-gray-400 group-hover:text-brand-navy'
+                        }`}
+                      >
+                        {decade.decadeLabel}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </nav>
       </aside>
 
-      <div className="flex-1 min-w-0 space-y-14">
-        {grouped.map((decade) => (
-          <section key={decade.id} id={decade.id} className="scroll-mt-24">
-            <h2 className="text-2xl font-serif font-bold text-brand-navy mb-8 border-b-2 border-brand-yellow pb-2 inline-block">
-              {decade.decade}
-            </h2>
+      <div className="flex-1 min-w-0 space-y-16">
+        {decadesWithActiveYear.map(
+          ({ decade, activeYear, entries, visibleEntries, page, totalPages }) => {
+            const canPrev = page > 0;
+            const canNext = page < totalPages - 1;
 
-            <div className="space-y-10">
-              {decade.years.map((yearGroup) => (
-                <section
-                  key={yearGroup.id}
-                  id={yearGroup.id}
-                  data-history-year
-                  className="scroll-mt-24 space-y-4"
+            return (
+              <section
+                key={decade.decadeKey}
+                id={`decade-${decade.decadeKey}`}
+                className="scroll-mt-24 space-y-6"
+              >
+                <h2 className="text-2xl font-serif font-bold text-brand-navy border-b-2 border-brand-yellow pb-2 inline-block">
+                  {decade.decadeLabel}
+                </h2>
+
+                <div
+                  className="flex gap-2 overflow-x-auto pb-1"
+                  role="tablist"
+                  aria-label={`${decade.decadeLabel} years`}
                 >
-                  <div className="flex items-center justify-between gap-4">
+                  {decade.years.map((yearGroup) => {
+                    const isActiveYear = yearGroup.year === activeYear;
+                    return (
+                      <button
+                        key={yearGroup.year}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActiveYear}
+                        onClick={() => setYearForDecade(decade.decadeKey, yearGroup.year)}
+                        className={`shrink-0 px-4 py-2 text-sm font-semibold border transition-colors ${
+                          isActiveYear
+                            ? 'bg-brand-navy border-brand-navy text-white'
+                            : 'bg-white border-black/10 text-brand-navy hover:bg-gray-50'
+                        }`}
+                      >
+                        {yearGroup.year}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
                     <span className="inline-block bg-brand-navy text-white text-sm font-semibold px-4 py-1.5">
-                      {yearGroup.year}
+                      {activeYear}
                     </span>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPageForDecadeYear(decade.decadeKey, activeYear, Math.max(0, page - 1))
+                        }
+                        disabled={!canPrev}
+                        aria-label={`Previous entries for ${activeYear}`}
+                        className="h-10 w-10 border border-black/10 text-brand-navy flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPageForDecadeYear(
+                            decade.decadeKey,
+                            activeYear,
+                            Math.min(totalPages - 1, page + 1),
+                          )
+                        }
+                        disabled={!canNext}
+                        aria-label={`Next entries for ${activeYear}`}
+                        className="h-10 w-10 border border-black/10 text-brand-navy flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
 
-                  <YearCarousel entries={yearGroup.entries} />
-                </section>
-              ))}
-            </div>
-          </section>
-        ))}
+                  {entries.length === 0 ? (
+                    <p className="text-sm text-gray-500 border border-gray-200 bg-white p-6">
+                      No entries available for {activeYear}.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {visibleEntries.map((entry) => (
+                        <article
+                          key={entry.id}
+                          className="bg-white border border-gray-200 shadow-sm p-6"
+                        >
+                          <time className="block text-xs font-semibold uppercase tracking-wider text-brand-yellow mb-2">
+                            {formatDate(entry.date)}
+                          </time>
+                          <h3 className="text-lg font-semibold text-brand-navy leading-snug">
+                            {entry.title}
+                          </h3>
+                          <p className="mt-2 text-sm text-gray-600 leading-relaxed line-clamp-4">
+                            {entry.shortDescription}
+                          </p>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </section>
+            );
+          },
+        )}
       </div>
     </div>
   );

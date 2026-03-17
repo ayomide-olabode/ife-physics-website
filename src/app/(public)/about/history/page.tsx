@@ -1,57 +1,56 @@
 import { listPublicHistoryEntries } from '@/server/public/queries/historyPublic';
 import { PageHero } from '@/components/public/PageHero';
-import {
-  HistoryTimeline,
-  type HistoryTimelineDecadeGroup,
-} from '@/components/public/history/HistoryTimeline';
+import { HistoryTimeline, type DecadeGroup } from '@/components/public/history/HistoryTimeline';
 
-function groupHistoryEntries(
-  entries: Awaited<ReturnType<typeof listPublicHistoryEntries>>,
-): HistoryTimelineDecadeGroup[] {
-  const decadeMap = new Map<number, Map<number, HistoryTimelineDecadeGroup['years'][number]>>();
+type HistoryEntryDTO = {
+  id: string;
+  date: string;
+  year: number;
+  decade: string;
+  title: string;
+  shortDescription: string;
+};
+
+function groupByDecade(entries: HistoryEntryDTO[]): DecadeGroup[] {
+  const map = new Map<string, Map<number, HistoryEntryDTO[]>>();
 
   for (const entry of entries) {
-    const year = new Date(entry.date).getFullYear();
-    const decadeStart = Math.floor(year / 10) * 10;
-
-    if (!decadeMap.has(decadeStart)) {
-      decadeMap.set(decadeStart, new Map());
-    }
-
-    const yearMap = decadeMap.get(decadeStart)!;
-    if (!yearMap.has(year)) {
-      yearMap.set(year, {
-        id: `year-${year}`,
-        year,
-        entries: [],
-      });
-    }
-
-    yearMap.get(year)!.entries.push({
-      id: entry.id,
-      dateISO: new Date(entry.date).toISOString(),
-      title: entry.title,
-      shortDesc: entry.shortDesc,
-    });
+    if (!map.has(entry.decade)) map.set(entry.decade, new Map());
+    const yearMap = map.get(entry.decade)!;
+    if (!yearMap.has(entry.year)) yearMap.set(entry.year, []);
+    yearMap.get(entry.year)!.push(entry);
   }
 
-  return Array.from(decadeMap.entries())
-    .sort(([a], [b]) => a - b)
-    .map(([decadeStart, yearMap]) => ({
-      id: `decade-${decadeStart}`,
-      decade: `${decadeStart}s`,
-      years: Array.from(yearMap.values())
-        .sort((a, b) => a.year - b.year)
-        .map((yearGroup) => ({
-          ...yearGroup,
-          entries: [...yearGroup.entries].sort((a, b) => a.dateISO.localeCompare(b.dateISO)),
+  return Array.from(map.entries())
+    .sort(([a], [b]) => parseInt(a, 10) - parseInt(b, 10))
+    .map(([decadeLabel, yearMap]) => ({
+      decadeLabel,
+      decadeKey: decadeLabel,
+      years: Array.from(yearMap.entries())
+        .sort(([a], [b]) => a - b)
+        .map(([year, yearEntries]) => ({
+          year,
+          entries: [...yearEntries].sort((a, b) => a.date.localeCompare(b.date)),
         })),
     }));
 }
 
 export default async function HistoryPage() {
-  const entries = await listPublicHistoryEntries();
-  const grouped = groupHistoryEntries(entries);
+  const rawEntries = await listPublicHistoryEntries();
+  const entries: HistoryEntryDTO[] = rawEntries.map((entry) => {
+    const year = new Date(entry.date).getFullYear();
+    const decade = `${Math.floor(year / 10) * 10}s`;
+
+    return {
+      id: entry.id,
+      date: new Date(entry.date).toISOString(),
+      year,
+      decade,
+      title: entry.title,
+      shortDescription: entry.shortDesc,
+    };
+  });
+  const decades = groupByDecade(entries);
 
   return (
     <>
@@ -70,7 +69,7 @@ export default async function HistoryPage() {
               </p>
             </div>
           ) : (
-            <HistoryTimeline grouped={grouped} />
+            <HistoryTimeline decades={decades} />
           )}
         </div>
       </div>

@@ -7,6 +7,11 @@ import { getProfileCompleteness } from '@/server/queries/profileCompleteness';
 import { ProfileCompletenessCard } from '@/components/dashboard/ProfileCompletenessCard';
 import { ResearchGroupMembershipForm } from '@/components/profile/ResearchGroupMembershipForm';
 import { listResearchGroupOptions } from '@/server/queries/researchGroupOptions';
+import {
+  getMySecondaryAffiliation,
+  listSecondaryAffiliationOptions,
+} from '@/server/queries/profileSecondaryAffiliation';
+import { SecondaryAffiliationSelector } from '@/components/profile/SecondaryAffiliationSelector';
 
 export default async function ProfileOverviewPage({
   searchParams,
@@ -62,6 +67,8 @@ export default async function ProfileOverviewPage({
   const completeness = await getProfileCompleteness(staffId);
   const options = await listResearchGroupOptions();
   const currentGroupId = staff.researchMemberships[0]?.researchGroupId || null;
+  const secondaryAffiliationOptions = await listSecondaryAffiliationOptions();
+  const currentSecondaryAffiliation = await getMySecondaryAffiliation(staffId);
 
   return (
     <main className="container mx-auto px-4 py-12 space-y-8 max-w-4xl">
@@ -95,6 +102,21 @@ export default async function ProfileOverviewPage({
           initialFirstName={staff.firstName}
           initialMiddleName={staff.middleName}
           initialLastName={staff.lastName}
+        />
+      </div>
+
+      <div className="rounded-none border bg-card p-6">
+        <div className="mb-6 border-b pb-2">
+          <h2 className="text-xl font-semibold">Secondary Affiliation</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Optional — select a centre/unit you&apos;re affiliated with.
+          </p>
+        </div>
+        <SecondaryAffiliationSelector
+          initialSecondaryAffiliationId={
+            currentSecondaryAffiliation?.secondaryAffiliationId ?? null
+          }
+          options={secondaryAffiliationOptions}
         />
       </div>
 

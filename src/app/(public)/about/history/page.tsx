@@ -1,12 +1,57 @@
 import { listPublicHistoryEntries } from '@/server/public/queries/historyPublic';
 import { PageHero } from '@/components/public/PageHero';
-import { HistoryDecadeRail } from '@/components/public/about/HistoryDecadeRail';
-import { HistoryTimeline, groupByDecade } from '@/components/public/about/HistoryTimeline';
+import {
+  HistoryTimeline,
+  type HistoryTimelineDecadeGroup,
+} from '@/components/public/history/HistoryTimeline';
+
+function groupHistoryEntries(
+  entries: Awaited<ReturnType<typeof listPublicHistoryEntries>>,
+): HistoryTimelineDecadeGroup[] {
+  const decadeMap = new Map<number, Map<number, HistoryTimelineDecadeGroup['years'][number]>>();
+
+  for (const entry of entries) {
+    const year = new Date(entry.date).getFullYear();
+    const decadeStart = Math.floor(year / 10) * 10;
+
+    if (!decadeMap.has(decadeStart)) {
+      decadeMap.set(decadeStart, new Map());
+    }
+
+    const yearMap = decadeMap.get(decadeStart)!;
+    if (!yearMap.has(year)) {
+      yearMap.set(year, {
+        id: `year-${year}`,
+        year,
+        entries: [],
+      });
+    }
+
+    yearMap.get(year)!.entries.push({
+      id: entry.id,
+      dateISO: new Date(entry.date).toISOString(),
+      title: entry.title,
+      shortDesc: entry.shortDesc,
+    });
+  }
+
+  return Array.from(decadeMap.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([decadeStart, yearMap]) => ({
+      id: `decade-${decadeStart}`,
+      decade: `${decadeStart}s`,
+      years: Array.from(yearMap.values())
+        .sort((a, b) => a.year - b.year)
+        .map((yearGroup) => ({
+          ...yearGroup,
+          entries: [...yearGroup.entries].sort((a, b) => a.dateISO.localeCompare(b.dateISO)),
+        })),
+    }));
+}
 
 export default async function HistoryPage() {
   const entries = await listPublicHistoryEntries();
-  const groups = groupByDecade(entries);
-  const decades = groups.map((g) => g.decade);
+  const grouped = groupHistoryEntries(entries);
 
   return (
     <>
@@ -25,17 +70,7 @@ export default async function HistoryPage() {
               </p>
             </div>
           ) : (
-            <div className="flex gap-12">
-              {/* Decade rail – hidden on small screens */}
-              <aside className="hidden lg:block w-36 flex-shrink-0">
-                <HistoryDecadeRail decades={decades} />
-              </aside>
-
-              {/* Timeline content */}
-              <div className="flex-1 min-w-0">
-                <HistoryTimeline groups={groups} />
-              </div>
-            </div>
+            <HistoryTimeline grouped={grouped} />
           )}
         </div>
       </div>

@@ -1,11 +1,11 @@
 import { AuthCardShell } from '@/components/auth/AuthCardShell';
-import { RegisterCheckEmailClient } from './RegisterCheckEmailClient';
+import { ForgotPasswordCheckEmailClient } from './ForgotPasswordCheckEmailClient';
 
 type Props = {
   searchParams?: Promise<{ email?: string }>;
 };
 
-export default async function CheckEmailPage({ searchParams }: Props) {
+export default async function ForgotPasswordCheckEmailPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : {};
   const email = params.email ?? 'your address';
 
@@ -17,7 +17,7 @@ export default async function CheckEmailPage({ searchParams }: Props) {
           sent a link.
         </p>
 
-        <RegisterCheckEmailClient email={email} />
+        <ForgotPasswordCheckEmailClient email={email} />
       </div>
     </AuthCardShell>
   );

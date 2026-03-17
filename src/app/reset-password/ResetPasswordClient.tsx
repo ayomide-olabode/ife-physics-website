@@ -8,28 +8,27 @@ import { PasswordInput } from '@/components/forms/PasswordInput';
 import { PasswordStrength } from '@/components/forms/PasswordStrength';
 import { Button } from '@/components/ui/button';
 import { toastError } from '@/lib/toast';
-import { completeRegistration } from '@/server/actions/onboardingRegister';
+import { completePasswordReset } from '@/server/actions/passwordReset';
 
 type Props = {
   token: string;
 };
 
-export function ConfirmRegistrationClient({ token }: Props) {
+export function ResetPasswordClient({ token }: Props) {
   const router = useRouter();
-
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!token) {
     return (
-      <AuthCardShell title="Registration link missing">
+      <AuthCardShell title="Reset link missing">
         <div className="space-y-4 text-center">
           <p className="text-sm text-muted-foreground">
-            We could not find a valid registration token in this link.
+            We could not find a valid reset token in this link.
           </p>
           <Button asChild className="rounded-none">
-            <Link href="/register">Back to register</Link>
+            <Link href="/forgot-password">Back to forgot password</Link>
           </Button>
         </div>
       </AuthCardShell>
@@ -38,11 +37,10 @@ export function ConfirmRegistrationClient({ token }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
     setIsSubmitting(true);
-    try {
-      const result = await completeRegistration(token, password, confirmPassword);
 
+    try {
+      const result = await completePasswordReset(token, password, confirmPassword);
       if (!result.success) {
         toastError(result.error ?? 'Link expired or invalid');
         setIsSubmitting(false);
@@ -57,22 +55,11 @@ export function ConfirmRegistrationClient({ token }: Props) {
   }
 
   return (
-    <AuthCardShell
-      title="Email confirmed"
-      subtitle="Create your password to finish account setup."
-      footer={
-        <p>
-          Already set your password?{' '}
-          <Link href="/login" className="font-medium text-brand-navy hover:underline">
-            Login
-          </Link>
-        </p>
-      }
-    >
+    <AuthCardShell title="Set new password" subtitle="Create your new password to continue.">
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
           <label htmlFor="password" className="block text-sm font-medium text-foreground">
-            Create Password
+            New Password
           </label>
           <PasswordInput
             id="password"
@@ -101,8 +88,8 @@ export function ConfirmRegistrationClient({ token }: Props) {
           />
         </div>
 
-        <Button type="submit" className="w-full rounded-none" disabled={isSubmitting || !token}>
-          {isSubmitting ? 'Setting password...' : 'Set password'}
+        <Button type="submit" className="w-full rounded-none" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Set password'}
         </Button>
       </form>
     </AuthCardShell>

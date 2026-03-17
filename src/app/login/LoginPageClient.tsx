@@ -80,7 +80,10 @@ export function LoginPageClient({ isNewAccount }: Props) {
               <label htmlFor="password" className="block text-sm font-medium text-foreground">
                 Password
               </label>
-              <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
                 Forgot?
               </Link>
             </div>

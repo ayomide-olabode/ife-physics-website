@@ -40,6 +40,7 @@ export default async function ProfileOverviewPage({
       firstName: true,
       middleName: true,
       lastName: true,
+      title: true,
       academicRank: true,
       designation: true,
       profileImageUrl: true,
@@ -103,6 +104,7 @@ export default async function ProfileOverviewPage({
           Personal &amp; Appointment Details
         </h2>
         <EditProfileForm
+          initialTitle={staff.title}
           initialFirstName={staff.firstName}
           initialMiddleName={staff.middleName}
           initialLastName={staff.lastName}

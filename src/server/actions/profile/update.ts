@@ -1,12 +1,21 @@
 'use server';
 
-import { ACADEMIC_RANK_VALUES } from '@/lib/options';
+import { ACADEMIC_RANK_VALUES, STAFF_TITLE_OPTIONS } from '@/lib/options';
 import prisma from '@/lib/prisma';
 import { requireAuth } from '@/lib/guards';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 const updateProfileSchema = z.object({
+  title: z
+    .string()
+    .min(1, 'Title is required.')
+    .refine(
+      (value) => STAFF_TITLE_OPTIONS.includes(value as (typeof STAFF_TITLE_OPTIONS)[number]),
+      {
+        message: 'Title is required.',
+      },
+    ),
   firstName: z.string().min(1, 'First name is strictly required.'),
   middleName: z.string().optional(),
   lastName: z.string().min(1, 'Last name is strictly required.'),
@@ -15,6 +24,7 @@ const updateProfileSchema = z.object({
 });
 
 export async function updateStaffProfile(data: {
+  title: string;
   firstName: string;
   middleName?: string;
   lastName: string;
@@ -34,11 +44,12 @@ export async function updateStaffProfile(data: {
       return { error: parsed.error.issues[0].message };
     }
 
-    const { firstName, middleName, lastName, academicRank, designation } = parsed.data;
+    const { title, firstName, middleName, lastName, academicRank, designation } = parsed.data;
 
     await prisma.staff.update({
       where: { id: staffId },
       data: {
+        title,
         firstName: firstName.trim(),
         middleName: middleName?.trim() ? middleName.trim() : null,
         lastName: lastName.trim(),

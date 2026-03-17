@@ -78,6 +78,18 @@ export const ACADEMIC_RANK_OPTIONS = ACADEMIC_RANK_VALUES.map((rank) => ({
   label: rank,
 }));
 
+export const STAFF_TITLE_OPTIONS = [
+  'Prof.',
+  'Prof. (Mrs.)',
+  'Prof. (Ms.)',
+  'Dr.',
+  'Dr. (Mrs.)',
+  'Dr. (Ms.)',
+  'Mr.',
+  'Mrs.',
+  'Ms.',
+] as const;
+
 export const STAFF_TYPE_OPTIONS = [
   { value: StaffType.ACADEMIC, label: 'Academic' },
   { value: StaffType.EMERITUS, label: 'Emeritus' },

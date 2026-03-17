@@ -168,6 +168,7 @@ model Staff {
   firstName          String?
   middleName         String?
   lastName           String?
+  title              String?
   institutionalEmail String      @unique
 
   staffType          StaffType

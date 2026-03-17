@@ -47,17 +47,21 @@ function toExcerpt(value: string, maxLength = 140): string {
 }
 
 export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
-  const classYear = new Date().getFullYear() + 4;
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const sessionStartYear = month >= 9 ? year : year - 1;
+  const classYear = sessionStartYear + 4;
 
   const slides = useMemo<HeroSlide[]>(() => {
     const welcomeSlide: HeroSlide = {
       key: 'welcome',
-      title: `Welcome, class of ${classYear}!`,
+      title: `Welcome to the If\u1EB9\u0300 legacy, class of ${classYear}!`,
       subtitle: "We're so glad to have you, click the link below to get started.",
       buttonLabel: 'Get started here',
       href: 'https://eportal.oauife.edu.ng',
       imageSrc: '/assets/hero.png',
-      tabLabel: 'Welcome',
+      tabLabel: `Welcome, class of ${classYear}!`,
     };
 
     const newsSlides = items.slice(0, 3).map((item) => ({

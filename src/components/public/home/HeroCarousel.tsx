@@ -17,15 +17,15 @@ interface FeaturedNewsItem {
 }
 
 interface HeroSlide {
-  id: string;
+  key: string;
   title: string;
   subtitle: string;
   buttonLabel: string;
   href: string;
-  image: string;
+  imageSrc: string;
+  tabLabel: string;
 }
 
-const FALLBACK_IMAGE = '/assets/physics.png';
 const AUTO_ADVANCE_MS = 5000;
 
 function toPlainText(value: string): string {
@@ -47,18 +47,31 @@ function toExcerpt(value: string, maxLength = 140): string {
 }
 
 export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
-  const slides = useMemo<HeroSlide[]>(
-    () =>
-      items.map((item) => ({
-        id: item.id,
-        title: item.title,
-        subtitle: item.subtitle?.trim() || toExcerpt(item.body),
-        buttonLabel: item.buttonLabel || 'Get started here',
-        href: `/news/${item.slug}`,
-        image: item.imageUrl || FALLBACK_IMAGE,
-      })),
-    [items],
-  );
+  const classYear = new Date().getFullYear() + 4;
+
+  const slides = useMemo<HeroSlide[]>(() => {
+    const welcomeSlide: HeroSlide = {
+      key: 'welcome',
+      title: `Welcome, class of ${classYear}!`,
+      subtitle: "We're so glad to have you, click the link below to get started.",
+      buttonLabel: 'Get started here',
+      href: 'https://eportal.oauife.edu.ng',
+      imageSrc: '/assets/hero.png',
+      tabLabel: 'Welcome',
+    };
+
+    const newsSlides = items.slice(0, 3).map((item) => ({
+      key: item.slug || item.id,
+      title: item.title,
+      subtitle: item.subtitle?.trim() || toExcerpt(item.body),
+      buttonLabel: 'Learn more',
+      href: `/news/${item.slug}`,
+      imageSrc: item.imageUrl ?? '/assets/hero.png',
+      tabLabel: item.title,
+    }));
+
+    return [welcomeSlide, ...newsSlides].slice(0, 4);
+  }, [classYear, items]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
@@ -93,27 +106,21 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
 
   const onSelectSlide = useCallback((index: number) => setActiveIndex(index), []);
 
-  if (slides.length === 0) {
-    return (
-      <section className="relative h-[420px] md:h-[520px] lg:h-[600px] bg-brand-navy flex items-center justify-center">
-        <div className="text-brand-white text-center px-4 max-w-3xl">
-          <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4">
-            Department of Physics and Engineering Physics
-          </h1>
-          <p className="text-lg text-white/70 max-w-xl mx-auto">
-            Obafemi Awolowo University, Ile-Ife
-          </p>
-        </div>
-      </section>
-    );
-  }
-
   const resolvedActiveIndex = activeIndex >= slides.length ? 0 : activeIndex;
   const activeSlide = slides[resolvedActiveIndex];
+  const tabRackWidthPercent = Math.min(Math.max(slides.length, 1), 4) * 25;
+  const tabGridClass =
+    slides.length === 1
+      ? 'grid-cols-1 md:grid-cols-1'
+      : slides.length === 2
+        ? 'grid-cols-2 md:grid-cols-2'
+        : slides.length === 3
+          ? 'grid-cols-2 md:grid-cols-3'
+          : 'grid-cols-2 md:grid-cols-4';
 
   return (
     <section
-      className="relative h-[420px] md:h-[520px] lg:h-[600px] overflow-hidden"
+      className="relative h-[420px] md:h-[520px] lg:h-[700px] "
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       onFocusCapture={() => setIsFocusWithin(true)}
@@ -121,7 +128,7 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
       aria-label="Featured news carousel"
     >
       <Image
-        src={activeSlide.image}
+        src={activeSlide.imageSrc}
         alt={activeSlide.title}
         fill
         className="object-cover"
@@ -134,7 +141,7 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
           const isActive = index === resolvedActiveIndex;
           return (
             <div
-              key={slide.id}
+              key={slide.key}
               id={`hero-panel-${index}`}
               role="tabpanel"
               aria-hidden={!isActive}
@@ -142,11 +149,13 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
               aria-labelledby={`hero-tab-${index}`}
               className="pointer-events-auto absolute left-4 right-4 bottom-[96px] bg-white shadow-lg border border-black/10 p-6 md:left-auto md:right-16 md:top-24 md:bottom-auto md:w-[420px] md:p-8"
             >
-              <p className="text-xs uppercase tracking-[0.2em] text-brand-navy/70 mb-3">Welcome</p>
               <h1 className="text-2xl md:text-4xl font-serif font-bold text-brand-navy leading-tight mb-4">
                 {slide.title}
               </h1>
-              <p className="text-sm md:text-base text-slate-700 mb-6">{slide.subtitle}</p>
+              <p className="text-sm md:text-base text-slate-700 mb-6 line-clamp-4 ">
+                {slide.subtitle}
+              </p>
+              <div className="grow h-auto"></div>
               <Link
                 href={slide.href}
                 className="inline-flex items-center justify-center bg-brand-yellow text-brand-ink font-semibold px-6 py-3 text-sm transition-colors hover:bg-yellow-500"
@@ -159,31 +168,36 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
       </div>
 
       {slides.length > 1 && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 mx-auto">
+        <div className="absolute -bottom-6 left-0 right-0 z-20 w-full">
           <div
             role="tablist"
             aria-label="Featured news slides"
-            className="mx-auto max-w-[1440px] grid grid-cols-2 md:grid-cols-4 gap-0"
+            className={`mx-auto max-w-6xl w-full grid gap-0 relative shadow-[0_4px_20px_rgba(0,0,0,0.1)] ${tabGridClass}`}
+            style={{
+              width: `${tabRackWidthPercent}%`,
+            }}
           >
             {slides.map((slide, index) => {
               const isActive = index === resolvedActiveIndex;
               return (
                 <button
-                  key={slide.id}
+                  key={slide.key}
                   id={`hero-tab-${index}`}
                   type="button"
                   role="tab"
                   aria-selected={isActive}
                   aria-controls={`hero-panel-${index}`}
                   onClick={() => onSelectSlide(index)}
-                  className={`h-24 border border-black/10 px-4 text-left transition-colors ${
+                  className={`h-24 w-full min-w-0 border border-black/5 px-4 text-left transition-colors border-t-brand-yellow border-t-2 relative ${
                     isActive
-                      ? 'bg-white text-brand-navy border-t-4 border-t-brand-yellow'
-                      : 'bg-white/90 text-slate-600 hover:bg-white'
+                      ? 'bg-white text-brand-navy '
+                      : 'bg-white text-slate-600 hover:bg-gray-50'
                   }`}
                 >
-                  <span className="block text-xs uppercase tracking-wider mb-1">Featured</span>
-                  <span className="block text-sm font-semibold truncate">{slide.title}</span>
+                  {isActive && (
+                    <div className="absolute top-0 right-0 left-0 h-1 w-full bg-brand-yellow" />
+                  )}
+                  <span className="block text-lg line-clamp-2">{slide.tabLabel}</span>
                 </button>
               );
             })}

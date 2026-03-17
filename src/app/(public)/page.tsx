@@ -10,7 +10,7 @@ import { getFeaturedPublications } from '@/server/public/queries/featuredPublica
 
 export default async function HomePage() {
   const [featuredNews, latestNews, events, publications] = await Promise.all([
-    getFeaturedNews(4),
+    getFeaturedNews(3),
     listPublicNews({ page: 1, pageSize: 3 }),
     listPublicEventsOpportunities(4),
     getFeaturedPublications(3),

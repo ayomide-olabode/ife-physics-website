@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 
 interface AuthCardShellProps {
   title: string;
+  subtitle?: string;
   children: ReactNode;
   footer?: ReactNode;
 }
 
-export function AuthCardShell({ title, children, footer }: AuthCardShellProps) {
+export function AuthCardShell({ title, subtitle, children, footer }: AuthCardShellProps) {
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6">
       <div className="mx-auto flex w-full max-w-6xl justify-end">
@@ -31,6 +32,9 @@ export function AuthCardShell({ title, children, footer }: AuthCardShellProps) {
         <section className="w-full rounded-none border border-gray-200 bg-white p-8 shadow-sm">
           <header>
             <h1 className="text-center font-serif text-3xl text-brand-navy">{title}</h1>
+            {subtitle ? (
+              <p className="mt-2 text-center text-sm text-muted-foreground">{subtitle}</p>
+            ) : null}
           </header>
 
           <div className="mt-6">{children}</div>

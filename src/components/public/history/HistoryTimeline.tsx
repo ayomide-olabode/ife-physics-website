@@ -34,7 +34,7 @@ export function HistoryTimeline({
   allEntries: HistoryEntryDTO[];
 }) {
   const [activeDecadeKey, setActiveDecadeKey] = useState('all');
-  const [pageIndex, setPageIndex] = useState(0);
+  const [windowStart, setWindowStart] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(1);
 
   useEffect(() => {
@@ -48,29 +48,43 @@ export function HistoryTimeline({
     return () => window.removeEventListener('resize', updateCardsPerView);
   }, []);
 
-  const selectedEntries = useMemo(() => {
-    if (activeDecadeKey === 'all') return allEntries;
-    return decades.find((d) => d.decadeKey === activeDecadeKey)?.entriesFlat ?? [];
-  }, [activeDecadeKey, allEntries, decades]);
+  const selectedDecade = useMemo(
+    () => decades.find((d) => d.decadeKey === activeDecadeKey) ?? null,
+    [activeDecadeKey, decades],
+  );
+
+  const selectedEntries = selectedDecade?.entriesFlat ?? [];
 
   const selectedTitle = useMemo(() => {
     if (activeDecadeKey === 'all') return 'All Periods';
     return decades.find((d) => d.decadeKey === activeDecadeKey)?.decadeLabel ?? 'All Periods';
   }, [activeDecadeKey, decades]);
 
-  const totalPages = Math.max(1, Math.ceil(selectedEntries.length / cardsPerView));
-  const safePage = Math.min(pageIndex, totalPages - 1);
-  const canPrev = safePage > 0;
-  const canNext = safePage < totalPages - 1;
-  const visibleEntries = selectedEntries.slice(
-    safePage * cardsPerView,
-    safePage * cardsPerView + cardsPerView,
-  );
+  const maxWindowStart = Math.max(0, selectedEntries.length - cardsPerView);
+  const safeWindowStart = Math.min(windowStart, maxWindowStart);
+  const canPrev = safeWindowStart > 0;
+  const canNext = safeWindowStart + cardsPerView < selectedEntries.length;
+  const visibleEntries = selectedEntries.slice(safeWindowStart, safeWindowStart + cardsPerView);
 
   const selectPeriod = (decadeKey: string) => {
     setActiveDecadeKey(decadeKey);
-    setPageIndex(0);
+    setWindowStart(0);
   };
+
+  const renderCard = (entry: HistoryEntryDTO) => (
+    <article key={entry.id} className="bg-white border border-black/10 shadow-sm p-6">
+      <time className="block text-xs font-semibold uppercase tracking-wider text-brand-yellow mb-2">
+        {formatDate(entry.date)}
+      </time>
+      <span className="inline-block bg-brand-navy text-white text-xs font-semibold px-2 py-1 mb-3">
+        {entry.year}
+      </span>
+      <h3 className="text-lg font-semibold text-brand-navy leading-snug">{entry.title}</h3>
+      <p className="mt-2 text-sm text-gray-600 leading-relaxed line-clamp-4">
+        {entry.shortDescription}
+      </p>
+    </article>
+  );
 
   return (
     <div className="flex gap-12">
@@ -121,58 +135,76 @@ export function HistoryTimeline({
         </nav>
       </aside>
 
-      <div className="flex-1 min-w-0 space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-serif font-bold text-brand-navy border-b-2 border-brand-yellow pb-2 inline-block">
-            {selectedTitle}
-          </h2>
-
-          {selectedEntries.length > cardsPerView && (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPageIndex((current) => Math.max(0, current - 1))}
-                disabled={!canPrev}
-                aria-label="Previous history entries"
-                className="h-10 w-10 border border-black/10 text-brand-navy flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setPageIndex((current) => Math.min(totalPages - 1, current + 1))}
-                disabled={!canNext}
-                aria-label="Next history entries"
-                className="h-10 w-10 border border-black/10 text-brand-navy flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {selectedEntries.length === 0 ? (
-          <p className="text-sm text-gray-500 border border-gray-200 bg-white p-6">
-            No history entries available for this period.
-          </p>
+      <div className="flex-1 min-w-0">
+        {activeDecadeKey === 'all' ? (
+          <div className="space-y-10">
+            <h2 className="text-2xl font-serif font-bold text-brand-navy border-b-2 border-brand-yellow pb-2 inline-block">
+              All Periods
+            </h2>
+            {allEntries.length === 0 ? (
+              <p className="text-sm text-gray-500 border border-gray-200 bg-white p-6">
+                No history entries available for this period.
+              </p>
+            ) : (
+              <div className="space-y-12">
+                {decades.map((decade) => (
+                  <section key={decade.decadeKey} className="space-y-6">
+                    <div className="flex items-end gap-4">
+                      <h3 className="text-2xl font-serif font-semibold text-brand-navy">
+                        {decade.decadeLabel}
+                      </h3>
+                      <div className="h-[2px] w-16 bg-brand-yellow" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {decade.entriesFlat.map(renderCard)}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {visibleEntries.map((entry) => (
-              <article key={entry.id} className="bg-white border border-black/10 shadow-sm p-6">
-                <time className="block text-xs font-semibold uppercase tracking-wider text-brand-yellow mb-2">
-                  {formatDate(entry.date)}
-                </time>
-                <span className="inline-block bg-brand-navy text-white text-xs font-semibold px-2 py-1 mb-3">
-                  {entry.year}
-                </span>
-                <h3 className="text-lg font-semibold text-brand-navy leading-snug">
-                  {entry.title}
-                </h3>
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed line-clamp-4">
-                  {entry.shortDescription}
-                </p>
-              </article>
-            ))}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-2xl font-serif font-bold text-brand-navy border-b-2 border-brand-yellow pb-2 inline-block">
+                {selectedTitle}
+              </h2>
+
+              {selectedEntries.length > cardsPerView && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setWindowStart((current) => Math.max(0, current - 1))}
+                    disabled={!canPrev}
+                    aria-label="Previous history entries"
+                    className="h-10 w-10 border border-black/10 text-brand-navy flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setWindowStart((current) => Math.min(maxWindowStart, current + 1))
+                    }
+                    disabled={!canNext}
+                    aria-label="Next history entries"
+                    className="h-10 w-10 border border-black/10 text-brand-navy flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {selectedEntries.length === 0 ? (
+              <p className="text-sm text-gray-500 border border-gray-200 bg-white p-6">
+                No history entries available for this period.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {visibleEntries.map(renderCard)}
+              </div>
+            )}
           </div>
         )}
       </div>

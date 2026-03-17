@@ -12,7 +12,49 @@ type SendMailResult =
   | { ok: true; mode: 'smtp' }
   | { ok: false; mode: 'smtp'; error: string };
 
+type NodeMailerLike = {
+  default?: {
+    createTransport: (config: {
+      host: string;
+      port: number;
+      secure: boolean;
+      auth: { user: string; pass: string };
+    }) => {
+      sendMail: (message: {
+        from: string;
+        to: string;
+        subject: string;
+        html?: string;
+        text?: string;
+      }) => Promise<unknown>;
+    };
+  };
+  createTransport?: (config: {
+    host: string;
+    port: number;
+    secure: boolean;
+    auth: { user: string; pass: string };
+  }) => {
+    sendMail: (message: {
+      from: string;
+      to: string;
+      subject: string;
+      html?: string;
+      text?: string;
+    }) => Promise<unknown>;
+  };
+};
+
 const URL_PATTERN = /https?:\/\/[^\s"'<>]+/gi;
+
+type SmtpConfig = {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  from: string;
+  secure: boolean;
+};
 
 function extractUrls(content?: string): string[] {
   if (!content) return [];
@@ -20,8 +62,38 @@ function extractUrls(content?: string): string[] {
   return matches ? Array.from(new Set(matches)) : [];
 }
 
-function hasSmtpConfig(): boolean {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+function getSmtpConfig(): SmtpConfig | null {
+  const host = process.env.SMTP_HOST;
+  const portRaw = process.env.SMTP_PORT;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const from = process.env.SMTP_FROM ?? user;
+
+  if (!host || !portRaw || !user || !pass || !from) {
+    return null;
+  }
+
+  const port = Number(portRaw);
+  if (!Number.isFinite(port)) {
+    return null;
+  }
+
+  return {
+    host,
+    port,
+    user,
+    pass,
+    from,
+    secure: process.env.SMTP_SECURE === 'true' || port === 465,
+  };
+}
+
+async function loadNodeMailer(): Promise<NodeMailerLike> {
+  // Runtime-only import prevents Turbopack from trying to resolve nodemailer in Option D mode.
+  const runtimeImport = new Function('specifier', 'return import(specifier)') as (
+    specifier: string,
+  ) => Promise<NodeMailerLike>;
+  return runtimeImport('nodemailer');
 }
 
 export async function sendMail({
@@ -30,7 +102,9 @@ export async function sendMail({
   html,
   text,
 }: SendMailInput): Promise<SendMailResult> {
-  if (!hasSmtpConfig()) {
+  const smtpConfig = getSmtpConfig();
+
+  if (!smtpConfig) {
     const urls = Array.from(new Set([...extractUrls(text), ...extractUrls(html)]));
 
     console.log('================ DEV MAIL FALLBACK ================');
@@ -55,39 +129,9 @@ export async function sendMail({
   }
 
   try {
-    const nodemailerName = 'nodemailer';
-    const nodemailerModule = (await import(nodemailerName)) as {
-      default?: {
-        createTransport: (config: {
-          host: string;
-          port: number;
-          secure: boolean;
-          auth: { user: string; pass: string };
-        }) => {
-          sendMail: (message: {
-            from: string;
-            to: string;
-            subject: string;
-            html?: string;
-            text?: string;
-          }) => Promise<unknown>;
-        };
-      };
-      createTransport?: (config: {
-        host: string;
-        port: number;
-        secure: boolean;
-        auth: { user: string; pass: string };
-      }) => {
-        sendMail: (message: {
-          from: string;
-          to: string;
-          subject: string;
-          html?: string;
-          text?: string;
-        }) => Promise<unknown>;
-      };
-    };
+    console.log('MAILER: smtp mode enabled');
+
+    const nodemailerModule = await loadNodeMailer();
 
     const createTransport =
       nodemailerModule.default?.createTransport ?? nodemailerModule.createTransport;
@@ -97,17 +141,17 @@ export async function sendMail({
     }
 
     const transport = createTransport({
-      host: process.env.SMTP_HOST!,
-      port: Number(process.env.SMTP_PORT ?? 587),
-      secure: process.env.SMTP_SECURE === 'true',
+      host: smtpConfig.host,
+      port: smtpConfig.port,
+      secure: smtpConfig.secure,
       auth: {
-        user: process.env.SMTP_USER!,
-        pass: process.env.SMTP_PASS!,
+        user: smtpConfig.user,
+        pass: smtpConfig.pass,
       },
     });
 
     await transport.sendMail({
-      from: process.env.SMTP_FROM ?? process.env.SMTP_USER!,
+      from: smtpConfig.from,
       to,
       subject,
       html,

@@ -34,11 +34,11 @@ export function PublicFooter() {
         <Image src="/assets/whitehouse-sunset.png" alt="" fill className="object-cover" />
       </div>
       <div
-        className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/70 to-black/40"
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-black/95 via-black/75 to-black/50"
         aria-hidden="true"
       />
 
-      <div className="relative z-10 mx-auto max-w-[1440px] px-6 lg:px-10 pt-16 pb-10">
+      <div className="relative z-10 mx-auto max-w-[1440px] px-6 lg:px-10 pt-20 pb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
           {/* ── Left block: logo + social + CTA ── */}
           <div className="lg:col-span-4 flex flex-col gap-6">

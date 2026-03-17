@@ -70,6 +70,11 @@ enum ScopeType {
   RESEARCH_GROUP
 }
 
+enum EmailTokenType {
+  INVITE
+  PASSWORD_RESET
+}
+
 enum PublishStatus {
   DRAFT
   PUBLISHED
@@ -191,6 +196,7 @@ model Staff {
   profileImageUrl    String?
 
   user               User?
+  emailTokens        EmailToken[]
 
   // Relations
   researchMemberships  ResearchGroupMembership[]
@@ -223,10 +229,31 @@ model User {
 
   roleAssignments RoleAssignment[]
   auditLogs       AuditLog[] @relation("ActorAuditLogs")
+  emailTokens     EmailToken[]
 
   lastLoginAt   DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model EmailToken {
+  id         String         @id @default(cuid())
+  type       EmailTokenType
+  email      String
+  userId     String?
+  staffId    String?
+  tokenHash  String         @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  lastSentAt DateTime?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  user       User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  staff      Staff?         @relation(fields: [staffId], references: [id], onDelete: SetNull)
+
+  @@index([email, type])
+  @@index([expiresAt])
 }
 
 //////////////////////////////////////////////////////

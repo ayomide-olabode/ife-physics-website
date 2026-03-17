@@ -14,12 +14,18 @@ export function ForgotPasswordCheckEmailClient({ email }: Props) {
       backHref="/login"
       onResend={async () => {
         const result = await requestPasswordResetLink(email);
-        if (result.success && result.status === 'THROTTLED') {
+
+        if (!result.success) {
+          throw new Error(result.error ?? 'Unable to resend email right now.');
+        }
+
+        if (result.status === 'THROTTLED') {
           return {
             status: 'THROTTLED' as const,
             minutesRemaining: result.minutesRemaining,
           };
         }
+
         return { status: 'SENT' as const };
       }}
     />

@@ -1,8 +1,9 @@
 'use server';
 
 import bcrypt from 'bcrypt';
-import { EmailTokenType } from '@prisma/client';
+import { EmailTokenType, StaffStatus, StaffType } from '@prisma/client';
 import { z } from 'zod';
+import { logAudit } from '@/lib/audit';
 import { buildInviteEmail } from '@/lib/emailTemplates';
 import { sendMail } from '@/lib/mailer';
 import prisma from '@/lib/prisma';
@@ -52,9 +53,12 @@ export async function requestRegistrationLink(email: string): Promise<RequestReg
   }
 
   const normalizedEmail = parsed.data;
+  if (!normalizedEmail.endsWith('@oauife.edu.ng')) {
+    return { success: false, error: 'Please use your @oauife.edu.ng email address.' };
+  }
 
   try {
-    const staff = await prisma.staff.findFirst({
+    let staff = await prisma.staff.findFirst({
       where: {
         institutionalEmail: {
           equals: normalizedEmail,
@@ -64,7 +68,24 @@ export async function requestRegistrationLink(email: string): Promise<RequestReg
     });
 
     if (!staff) {
-      return { success: true, status: 'NO_STAFF' };
+      staff = await prisma.staff.create({
+        data: {
+          institutionalEmail: normalizedEmail,
+          staffStatus: StaffStatus.ACTIVE,
+          staffType: StaffType.ACADEMIC,
+        },
+      });
+
+      await logAudit({
+        actorId: null,
+        action: 'STAFF_SELF_REGISTERED_CREATED',
+        entityType: 'Staff',
+        entityId: staff.id,
+        snapshot: {
+          institutionalEmail: staff.institutionalEmail,
+          source: 'self-registration',
+        },
+      });
     }
 
     let user = await prisma.user.findUnique({
@@ -77,6 +98,17 @@ export async function requestRegistrationLink(email: string): Promise<RequestReg
           staffId: staff.id,
           passwordHash: '',
           isSuperAdmin: false,
+        },
+      });
+
+      await logAudit({
+        actorId: null,
+        action: 'USER_SHELL_CREATED',
+        entityType: 'User',
+        entityId: user.id,
+        snapshot: {
+          staffId: staff.id,
+          source: 'self-registration',
         },
       });
     }

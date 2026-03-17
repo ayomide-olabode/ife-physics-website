@@ -58,8 +58,8 @@ export function CheckEmailActions({ email, onResend, backHref }: CheckEmailActio
 
       setCooldownSeconds(DEFAULT_COOLDOWN_SECONDS);
       toastSuccess('Email link sent. Check your inbox.');
-    } catch {
-      toastError('Unable to resend email right now.');
+    } catch (error) {
+      toastError(error instanceof Error ? error.message : 'Unable to resend email right now.');
     } finally {
       setIsSending(false);
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState, type FocusEvent } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -22,7 +23,7 @@ interface HeroSlide {
   subtitle: string;
   buttonLabel: string;
   href: string;
-  imageSrc: string;
+  imageSrc: string | null;
   tabLabel: string;
 }
 
@@ -56,12 +57,13 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
   const slides = useMemo<HeroSlide[]>(() => {
     const welcomeSlide: HeroSlide = {
       key: 'welcome',
-      title: `Welcome to the If\u1EB9\u0300 legacy, class of ${classYear}!`,
-      subtitle: "We're so glad to have you, click the link below to get started.",
+      title: `Welcome, class of ${classYear}!`,
+      subtitle:
+        'Welcome to the Great If\u1EB9\u0300 legacy. You have now joined a long and proud legacy of excellence, character and distinction. Are you ready for the future?',
       buttonLabel: 'Get started here',
       href: 'https://eportal.oauife.edu.ng',
       imageSrc: '/assets/hero.png',
-      tabLabel: `Welcome, class of ${classYear}!`,
+      tabLabel: `Welcome to the Great If\u1EB9\u0300 legacy, class of ${classYear}!`,
     };
 
     const newsSlides = items.slice(0, 3).map((item) => ({
@@ -70,7 +72,7 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
       subtitle: item.subtitle?.trim() || toExcerpt(item.body),
       buttonLabel: 'Learn more',
       href: `/news/${item.slug}`,
-      imageSrc: item.imageUrl ?? '/assets/hero.png',
+      imageSrc: item.imageUrl,
       tabLabel: item.title,
     }));
 
@@ -109,105 +111,202 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
   }, []);
 
   const onSelectSlide = useCallback((index: number) => setActiveIndex(index), []);
+  const onPrevSlide = useCallback(() => {
+    setActiveIndex((current) => (current === 0 ? slides.length - 1 : current - 1));
+  }, [slides.length]);
+  const onNextSlide = useCallback(() => {
+    setActiveIndex((current) => (current + 1) % slides.length);
+  }, [slides.length]);
 
   const resolvedActiveIndex = activeIndex >= slides.length ? 0 : activeIndex;
   const activeSlide = slides[resolvedActiveIndex];
   const tabRackWidthPercent = Math.min(Math.max(slides.length, 1), 4) * 25;
-  const tabGridClass =
-    slides.length === 1
-      ? 'grid-cols-1 md:grid-cols-1'
-      : slides.length === 2
-        ? 'grid-cols-2 md:grid-cols-2'
-        : slides.length === 3
-          ? 'grid-cols-2 md:grid-cols-3'
-          : 'grid-cols-2 md:grid-cols-4';
+  const cardClassName = 'bg-white shadow-lg border border-black/10 p-6 md:p-8';
+
+  const renderSlideImage = () => {
+    if (activeSlide.imageSrc) {
+      return (
+        <Image
+          src={activeSlide.imageSrc}
+          alt={activeSlide.title}
+          fill
+          className="object-cover"
+          sizes="100vw"
+          priority={resolvedActiveIndex === 0}
+        />
+      );
+    }
+
+    return <div className="absolute inset-0 bg-brand-navy/80" aria-hidden="true" />;
+  };
+
+  const renderSlideCardContent = (slide: HeroSlide) => (
+    <>
+      <h1 className="text-2xl md:text-4xl font-serif font-bold text-brand-navy leading-tight mb-4">
+        {slide.title}
+      </h1>
+      <p className="text-sm md:text-base text-slate-700 mb-6 line-clamp-4">{slide.subtitle}</p>
+      <div className="grow h-auto" />
+      <Link
+        href={slide.href}
+        className="inline-flex items-center justify-center bg-brand-yellow text-brand-ink font-semibold px-6 py-3 text-sm transition-colors hover:bg-yellow-500"
+      >
+        {slide.buttonLabel}
+      </Link>
+    </>
+  );
 
   return (
     <section
-      className="relative h-[420px] md:h-[520px] lg:h-[700px] "
+      className="relative lg:h-[700px]"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       onFocusCapture={() => setIsFocusWithin(true)}
       onBlurCapture={handleBlurCapture}
       aria-label="Featured news carousel"
     >
-      <Image
-        src={activeSlide.imageSrc}
-        alt={activeSlide.title}
-        fill
-        className="object-cover"
-        sizes="100vw"
-        priority={resolvedActiveIndex === 0}
-      />
+      <div className="lg:hidden">
+        <div className="relative w-full h-[300px] sm:h-[360px] md:h-[420px]">
+          {renderSlideImage()}
+        </div>
 
-      <div className="absolute inset-0 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pointer-events-none">
-        {slides.map((slide, index) => {
-          const isActive = index === resolvedActiveIndex;
-          return (
-            <div
-              key={slide.key}
-              id={`hero-panel-${index}`}
-              role="tabpanel"
-              aria-hidden={!isActive}
-              hidden={!isActive}
-              aria-labelledby={`hero-tab-${index}`}
-              className="pointer-events-auto absolute left-4 right-4 bottom-[96px] bg-white shadow-lg border border-black/10 p-6 md:left-auto md:right-16 md:top-24 md:bottom-auto md:w-[420px] md:p-8"
-            >
-              <h1 className="text-2xl md:text-4xl font-serif font-bold text-brand-navy leading-tight mb-4">
-                {slide.title}
-              </h1>
-              <p className="text-sm md:text-base text-slate-700 mb-6 line-clamp-4 ">
-                {slide.subtitle}
-              </p>
-              <div className="grow h-auto"></div>
-              <Link
-                href={slide.href}
-                className="inline-flex items-center justify-center bg-brand-yellow text-brand-ink font-semibold px-6 py-3 text-sm transition-colors hover:bg-yellow-500"
+        <div className="px-4 sm:px-6 py-6 md:py-8">
+          {slides.map((slide, index) => {
+            const isActive = index === resolvedActiveIndex;
+            return (
+              <div
+                key={slide.key}
+                id={`hero-panel-mobile-${index}`}
+                role="tabpanel"
+                aria-hidden={!isActive}
+                hidden={!isActive}
+                aria-labelledby={`hero-tab-mobile-${index}`}
+                className={cardClassName}
               >
-                {slide.buttonLabel}
-              </Link>
+                {renderSlideCardContent(slide)}
+              </div>
+            );
+          })}
+        </div>
+
+        {slides.length > 1 && (
+          <div className="px-4 sm:px-6 pb-6 md:pb-8">
+            <div className="flex items-stretch gap-2">
+              <button
+                type="button"
+                onClick={onPrevSlide}
+                aria-label="Previous slide"
+                className="h-12 w-12 shrink-0 border border-black/10 bg-white text-brand-navy flex items-center justify-center"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+
+              <div
+                role="tablist"
+                aria-label="Featured news slides"
+                className="flex-1 grid gap-0 shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+                style={{ gridTemplateColumns: `repeat(${slides.length}, minmax(0, 1fr))` }}
+              >
+                {slides.map((slide, index) => {
+                  const isActive = index === resolvedActiveIndex;
+                  return (
+                    <button
+                      key={slide.key}
+                      id={`hero-tab-mobile-${index}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls={`hero-panel-mobile-${index}`}
+                      onClick={() => onSelectSlide(index)}
+                      className={`h-12 w-full min-w-0 border border-black/5 px-3 text-left transition-colors border-t-brand-yellow border-t-2 relative ${
+                        isActive
+                          ? 'bg-white text-brand-navy '
+                          : 'bg-white text-slate-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      {isActive && (
+                        <div className="absolute top-0 right-0 left-0 h-1 w-full bg-brand-yellow" />
+                      )}
+                      <span className="block text-sm line-clamp-1">{slide.tabLabel}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={onNextSlide}
+                aria-label="Next slide"
+                className="h-12 w-12 shrink-0 border border-black/10 bg-white text-brand-navy flex items-center justify-center"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
             </div>
-          );
-        })}
+          </div>
+        )}
       </div>
 
-      {slides.length > 1 && (
-        <div className="absolute -bottom-6 left-0 right-0 z-20 w-full">
-          <div
-            role="tablist"
-            aria-label="Featured news slides"
-            className={`mx-auto max-w-6xl w-full grid gap-0 relative shadow-[0_4px_20px_rgba(0,0,0,0.1)] ${tabGridClass}`}
-            style={{
-              width: `${tabRackWidthPercent}%`,
-            }}
-          >
-            {slides.map((slide, index) => {
-              const isActive = index === resolvedActiveIndex;
-              return (
-                <button
-                  key={slide.key}
-                  id={`hero-tab-${index}`}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-controls={`hero-panel-${index}`}
-                  onClick={() => onSelectSlide(index)}
-                  className={`h-24 w-full min-w-0 border border-black/5 px-4 text-left transition-colors border-t-brand-yellow border-t-2 relative ${
-                    isActive
-                      ? 'bg-white text-brand-navy '
-                      : 'bg-white text-slate-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {isActive && (
-                    <div className="absolute top-0 right-0 left-0 h-1 w-full bg-brand-yellow" />
-                  )}
-                  <span className="block text-lg line-clamp-2">{slide.tabLabel}</span>
-                </button>
-              );
-            })}
-          </div>
+      <div className="hidden lg:block relative h-full overflow-hidden">
+        {renderSlideImage()}
+
+        <div className="absolute inset-0 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pointer-events-none">
+          {slides.map((slide, index) => {
+            const isActive = index === resolvedActiveIndex;
+            return (
+              <div
+                key={slide.key}
+                id={`hero-panel-desktop-${index}`}
+                role="tabpanel"
+                aria-hidden={!isActive}
+                hidden={!isActive}
+                aria-labelledby={`hero-tab-desktop-${index}`}
+                className={`pointer-events-auto absolute left-4 right-4 bottom-[96px] md:left-auto md:right-16 md:top-24 md:bottom-auto md:w-[420px] ${cardClassName}`}
+              >
+                {renderSlideCardContent(slide)}
+              </div>
+            );
+          })}
         </div>
-      )}
+
+        {slides.length > 1 && (
+          <div className="absolute -bottom-6 left-0 right-0 z-20 w-full">
+            <div
+              role="tablist"
+              aria-label="Featured news slides"
+              className="mx-auto max-w-6xl w-full grid gap-0 relative shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+              style={{
+                width: `${tabRackWidthPercent}%`,
+                gridTemplateColumns: `repeat(${slides.length}, minmax(0, 1fr))`,
+              }}
+            >
+              {slides.map((slide, index) => {
+                const isActive = index === resolvedActiveIndex;
+                return (
+                  <button
+                    key={slide.key}
+                    id={`hero-tab-desktop-${index}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`hero-panel-desktop-${index}`}
+                    onClick={() => onSelectSlide(index)}
+                    className={`h-24 w-full min-w-0 border border-black/5 px-4 text-left transition-colors border-t-brand-yellow border-t-2 relative ${
+                      isActive
+                        ? 'bg-white text-brand-navy '
+                        : 'bg-white text-slate-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {isActive && (
+                      <div className="absolute top-0 right-0 left-0 h-1 w-full bg-brand-yellow" />
+                    )}
+                    <span className="block text-lg line-clamp-2">{slide.tabLabel}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

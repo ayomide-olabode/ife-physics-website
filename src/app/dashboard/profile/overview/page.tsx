@@ -40,6 +40,8 @@ export default async function ProfileOverviewPage({
       firstName: true,
       middleName: true,
       lastName: true,
+      academicRank: true,
+      designation: true,
       profileImageUrl: true,
       researchMemberships: {
         select: {
@@ -97,11 +99,15 @@ export default async function ProfileOverviewPage({
       </div>
 
       <div className="rounded-lg border bg-card p-6">
-        <h2 className="text-xl font-semibold mb-6 border-b pb-2">Identity Details</h2>
+        <h2 className="text-xl font-semibold mb-6 border-b pb-2">
+          Personal &amp; Appointment Details
+        </h2>
         <EditProfileForm
           initialFirstName={staff.firstName}
           initialMiddleName={staff.middleName}
           initialLastName={staff.lastName}
+          initialAcademicRank={staff.academicRank}
+          initialDesignation={staff.designation}
         />
       </div>
 

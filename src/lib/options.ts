@@ -63,6 +63,21 @@ export const RESEARCH_OUTPUT_TYPE_OPTIONS = [
   { value: ResearchOutputType.THESIS, label: 'Thesis' },
 ];
 
+export const ACADEMIC_RANK_VALUES = [
+  'Professor',
+  'Reader',
+  'Senior Lecturer',
+  'Lecturer I',
+  'Lecturer II',
+  'Assistant Lecturer',
+  'Graduate Assistant',
+] as const;
+
+export const ACADEMIC_RANK_OPTIONS = ACADEMIC_RANK_VALUES.map((rank) => ({
+  value: rank,
+  label: rank,
+}));
+
 export const STAFF_TYPE_OPTIONS = [
   { value: StaffType.ACADEMIC, label: 'Academic' },
   { value: StaffType.EMERITUS, label: 'Emeritus' },

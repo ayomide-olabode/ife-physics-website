@@ -2,25 +2,32 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { FieldLabel } from '@/components/forms/FieldLabel';
+import { ACADEMIC_RANK_OPTIONS } from '@/lib/options';
 import { updateStaffProfile } from '@/server/actions/profile/update';
 import { toastSuccess, toastError } from '@/lib/toast';
+import { FieldLabel } from '@/components/forms/FieldLabel';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export function EditProfileForm({
   initialFirstName,
   initialMiddleName,
   initialLastName,
+  initialAcademicRank,
+  initialDesignation,
 }: {
   initialFirstName?: string | null;
   initialMiddleName?: string | null;
   initialLastName?: string | null;
+  initialAcademicRank?: string | null;
+  initialDesignation?: string | null;
 }) {
   const router = useRouter();
   const [firstName, setFirstName] = useState(initialFirstName || '');
   const [middleName, setMiddleName] = useState(initialMiddleName || '');
   const [lastName, setLastName] = useState(initialLastName || '');
+  const [academicRank, setAcademicRank] = useState(initialAcademicRank || '');
+  const [designation, setDesignation] = useState(initialDesignation || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,6 +44,8 @@ export function EditProfileForm({
         firstName: firstName.trim(),
         middleName: middleName.trim(),
         lastName: lastName.trim(),
+        academicRank,
+        designation: designation.trim(),
       });
 
       if (res.error) {
@@ -53,7 +62,7 @@ export function EditProfileForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <FieldLabel required htmlFor="firstName">
@@ -65,8 +74,10 @@ export function EditProfileForm({
             onChange={(e) => setFirstName(e.target.value)}
             required
             placeholder="John"
+            className="rounded-none"
           />
         </div>
+
         <div className="space-y-2">
           <FieldLabel htmlFor="middleName">Middle Name</FieldLabel>
           <Input
@@ -74,9 +85,11 @@ export function EditProfileForm({
             value={middleName}
             onChange={(e) => setMiddleName(e.target.value)}
             placeholder="Optional"
+            className="rounded-none"
           />
         </div>
-        <div className="space-y-2">
+
+        <div className="space-y-2 sm:col-span-2">
           <FieldLabel required htmlFor="lastName">
             Last Name
           </FieldLabel>
@@ -86,11 +99,42 @@ export function EditProfileForm({
             onChange={(e) => setLastName(e.target.value)}
             required
             placeholder="Doe"
+            className="rounded-none"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <FieldLabel htmlFor="academicRank">Academic Rank</FieldLabel>
+          <select
+            id="academicRank"
+            value={academicRank}
+            onChange={(e) => setAcademicRank(e.target.value)}
+            className="flex h-9 w-full rounded-none border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            <option value="">Select rank</option>
+            {ACADEMIC_RANK_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-muted-foreground">Select your current academic rank.</p>
+        </div>
+
+        <div className="space-y-2">
+          <FieldLabel htmlFor="designation">Designation</FieldLabel>
+          <Input
+            id="designation"
+            value={designation}
+            onChange={(e) => setDesignation(e.target.value)}
+            placeholder="e.g., Programme Coordinator, Lab Manager"
+            className="rounded-none"
+            maxLength={200}
           />
         </div>
       </div>
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" disabled={isSubmitting} className="rounded-none">
         {isSubmitting ? 'Saving...' : 'Save Profile'}
       </Button>
     </form>

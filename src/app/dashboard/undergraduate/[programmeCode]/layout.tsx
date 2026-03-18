@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
-import { ProgrammeTabs } from '@/components/academics/ProgrammeTabs';
 import { requireAcademicAccess } from '@/lib/guards';
-import { getAccessibleProgrammesForLevel } from '@/lib/rbac';
+import { ModuleTabs } from '@/components/dashboard/ModuleTabs';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,17 +17,25 @@ export default async function UndergraduateProgrammeLayout({ children, params }:
   }
 
   const programmeCode = codeStr as ProgrammeCode;
-  const session = await requireAcademicAccess({ level: 'UNDERGRADUATE', programmeCode });
-  const basePath = `/dashboard/undergraduate/${programmeCode.toLowerCase()}`;
-  const accessibleProgrammes = await getAccessibleProgrammesForLevel(session, 'UNDERGRADUATE');
+  await requireAcademicAccess({ level: 'UNDERGRADUATE', programmeCode });
 
   return (
     <div className="space-y-6">
-      <ProgrammeTabs
-        programmeCode={programmeCode}
-        basePath={basePath}
-        level="UNDERGRADUATE"
-        allowedProgrammeCodes={accessibleProgrammes}
+      <ModuleTabs
+        tabs={[
+          {
+            label: 'Overview',
+            href: `/dashboard/undergraduate/${programmeCode.toLowerCase()}/overview`,
+          },
+          {
+            label: 'Requirements',
+            href: `/dashboard/undergraduate/${programmeCode.toLowerCase()}/requirements`,
+          },
+          {
+            label: 'Courses',
+            href: `/dashboard/undergraduate/${programmeCode.toLowerCase()}/courses`,
+          },
+        ]}
       />
       {children}
     </div>

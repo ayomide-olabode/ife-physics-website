@@ -29,7 +29,7 @@ export function PublicFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative isolate overflow-hidden text-brand-white text-center md:text-left">
+    <footer className="relative isolate overflow-hidden text-brand-white text-center md:text-left outline-[40px] outline outline-brand-navy mt-4">
       <div className="absolute inset-0 -z-20">
         <Image
           src="/assets/whitehouse-sunset.png"

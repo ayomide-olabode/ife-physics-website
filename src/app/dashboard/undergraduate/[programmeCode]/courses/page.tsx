@@ -22,6 +22,7 @@ import {
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { requireAcademicAccess } from '@/lib/guards';
 import { listUndergraduateCourses } from '@/server/queries/undergraduateCourses';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 
 interface PageProps {
   params: Promise<{
@@ -62,17 +63,8 @@ export default async function UndergraduateCoursesPage({ params, searchParams }:
 
   return (
     <div className="space-y-6">
-      <div className="text-sm border-b pb-2 mb-4">
-        <Link
-          href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}`}
-          className="text-muted-foreground hover:text-foreground inline-flex items-center"
-        >
-          &larr; Back to {programmeCode} Overview
-        </Link>
-      </div>
-
       <PageHeader
-        title={`UG Courses — ${programmeCode}`}
+        title={`${programmeCode} / Courses`}
         description={`Manage the list of courses offered for the ${programmeCode} undergraduate programme.`}
         actions={
           <Button asChild>

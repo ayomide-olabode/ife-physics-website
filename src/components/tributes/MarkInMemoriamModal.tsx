@@ -191,7 +191,7 @@ export function MarkInMemoriamModal() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <FieldLabel htmlFor="dateOfBirth">Date of Birth (Optional)</FieldLabel>
+              <FieldLabel htmlFor="dateOfBirth">Date of Birth</FieldLabel>
               <Input
                 id="dateOfBirth"
                 type="date"

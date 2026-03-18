@@ -40,7 +40,7 @@ export default async function PublicTributeSubmissionPage({
         <h1 className="text-3xl font-bold tracking-tight">Submit a Tribute</h1>
         <p className="text-muted-foreground">
           Share your remembrance for <span className="font-medium text-foreground">{name}</span>.
-          Submissions are reviewed before publication.
+          Kindly note that all tributes will be moderated for appropriate content, thank you.
         </p>
       </section>
 

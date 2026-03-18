@@ -87,7 +87,7 @@ export default async function TributesDashboardPage({
       />
 
       <DataTable
-        headers={['Name', 'Date of death', 'Status', 'Actions']}
+        headers={['Name', 'Date of Death', 'Status', 'Actions']}
         rows={rows}
         emptyState={
           <EmptyState

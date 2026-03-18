@@ -9,8 +9,26 @@ import { formatFullName } from '@/lib/name';
 
 type TabKey = 'tributes' | 'bio' | 'research' | 'projects' | 'teaching' | 'theses';
 
-export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+function parseTab(value?: string): TabKey | undefined {
+  if (!value) return undefined;
+  if (value === 'tributes') return 'tributes';
+  if (value === 'bio') return 'bio';
+  if (value === 'research') return 'research';
+  if (value === 'projects') return 'projects';
+  if (value === 'teaching') return 'teaching';
+  if (value === 'theses') return 'theses';
+  return undefined;
+}
+
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ tab?: string; submitted?: string }>;
+}) {
   const { slug } = await params;
+  const query = await searchParams;
   const staff = await getPublicStaffBySlug(slug);
 
   if (!staff) {
@@ -38,7 +56,10 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     ? [{ key: 'tributes', label: 'Tributes' }, ...baseTabs]
     : baseTabs;
 
-  const defaultTab: TabKey = tabs[0].key;
+  const requestedTab = parseTab(query.tab);
+  const tabKeys = new Set<TabKey>(tabs.map((tab) => tab.key));
+  const defaultTab: TabKey = requestedTab && tabKeys.has(requestedTab) ? requestedTab : tabs[0].key;
+  const submitted = query.submitted === '1';
 
   return (
     <main className="container mx-auto space-y-8 px-4 py-12">
@@ -89,12 +110,18 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
             <section className="space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-xl font-semibold">Testimonials</h2>
-                <Link href={`/people/in-memoriam/${slug}`}>
+                <Link href={`/people/staff/${slug}/tributes/new`}>
                   <Button variant="outline" size="sm">
                     Add tribute
                   </Button>
                 </Link>
               </div>
+
+              {submitted && (
+                <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                  Tribute submitted successfully. It will appear after moderation.
+                </div>
+              )}
 
               {staff.testimonials.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No testimonials available yet.</p>

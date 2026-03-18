@@ -94,22 +94,20 @@ export default async function Page({
         {isInMemoriam && (
           <TabsContent value="tributes" className="space-y-8 pt-4">
             <section className="space-y-3">
-              <h2 className="text-xl font-semibold">Departmental Tribute</h2>
+              <h2 className="text-xl font-semibold">Biography</h2>
               {staff.tribute ? (
                 <div className="space-y-3 rounded-md border bg-card p-5">
                   <h3 className="text-lg font-semibold">{staff.tribute.title}</h3>
                   <Prose html={staff.tribute.bodyHtml} />
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  A departmental tribute has not been published yet.
-                </p>
+                <p className="text-sm text-muted-foreground">No biography published yet.</p>
               )}
             </section>
 
             <section className="space-y-4">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-xl font-semibold">Testimonials</h2>
+                <h2 className="text-xl font-semibold">Tributes</h2>
                 <Link href={`/people/staff/${slug}/tributes/new`}>
                   <Button variant="outline" size="sm">
                     Add tribute
@@ -124,7 +122,7 @@ export default async function Page({
               )}
 
               {staff.testimonials.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No testimonials available yet.</p>
+                <p className="text-sm text-muted-foreground">No tributes yet.</p>
               ) : (
                 <div className="space-y-4">
                   {staff.testimonials.map((testimonial) => (

@@ -73,10 +73,10 @@ export function TestimonialsModerationTable({
     startTransition(async () => {
       const res = await approveTestimonial(id);
       if (!res.success) {
-        toastError(res.error || 'Failed to approve testimonial.');
+        toastError(res.error || 'Failed to approve tribute.');
         return;
       }
-      toastSuccess('Testimonial approved.');
+      toastSuccess('Tribute approved.');
       router.refresh();
     });
   }
@@ -94,10 +94,10 @@ export function TestimonialsModerationTable({
     startTransition(async () => {
       const res = await declineTestimonial(declineTarget.id, declineReason || undefined);
       if (!res.success) {
-        toastError(res.error || 'Failed to decline testimonial.');
+        toastError(res.error || 'Failed to decline tribute.');
         return;
       }
-      toastSuccess('Testimonial declined.');
+      toastSuccess('Tribute declined.');
       setDeclineModalOpen(false);
       setDeclineTarget(null);
       setDeclineReason('');
@@ -153,8 +153,8 @@ export function TestimonialsModerationTable({
         rows={rows}
         emptyState={
           <EmptyState
-            title="No testimonials yet"
-            description="Submitted testimonials for this staff member will appear here."
+            title="No tributes yet"
+            description="Submitted tributes for this staff member will appear here."
           />
         }
         footer={
@@ -162,7 +162,7 @@ export function TestimonialsModerationTable({
             <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
               <div>
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total}{' '}
-                testimonials
+                tributes
               </div>
               <div className="flex gap-2">
                 {hasPrevPage ? (
@@ -198,9 +198,9 @@ export function TestimonialsModerationTable({
       <Dialog open={declineModalOpen} onOpenChange={setDeclineModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Decline Testimonial</DialogTitle>
+            <DialogTitle>Decline Tribute</DialogTitle>
             <DialogDescription>
-              Decline this testimonial. You can optionally add a reason for moderation records.
+              Decline this tribute. You can optionally add a reason for moderation records.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={submitDecline} className="space-y-4">

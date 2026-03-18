@@ -53,8 +53,11 @@ export function DepartmentalTributeFormClient({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-md border p-4">
+      <div>
+        <h3 className="text-base font-semibold">Biography</h3>
+      </div>
       <div className="space-y-2">
-        <FieldLabel htmlFor="tributeTitle">Tribute Title</FieldLabel>
+        <FieldLabel htmlFor="tributeTitle">Title*</FieldLabel>
         <Input
           id="tributeTitle"
           value={title}
@@ -65,7 +68,7 @@ export function DepartmentalTributeFormClient({
       </div>
 
       <div className="space-y-2">
-        <FieldLabel>Tribute Body</FieldLabel>
+        <FieldLabel>Biography*</FieldLabel>
         <RichTextEditor value={bodyHtml} onChange={setBodyHtml} />
       </div>
 

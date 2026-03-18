@@ -47,7 +47,7 @@ export function PublicTributeSubmissionForm({ staffSlug }: PublicTributeSubmissi
   return (
     <form onSubmit={handleSubmit} className="space-y-6 rounded-md border bg-card p-6">
       <div className="space-y-2">
-        <FieldLabel htmlFor="name">Name</FieldLabel>
+        <FieldLabel htmlFor="name">Name*</FieldLabel>
         <Input
           id="name"
           value={name}
@@ -59,7 +59,7 @@ export function PublicTributeSubmissionForm({ staffSlug }: PublicTributeSubmissi
       </div>
 
       <div className="space-y-2">
-        <FieldLabel htmlFor="relationship">Relationship</FieldLabel>
+        <FieldLabel htmlFor="relationship">Relationship*</FieldLabel>
         <Input
           id="relationship"
           value={relationship}
@@ -71,7 +71,7 @@ export function PublicTributeSubmissionForm({ staffSlug }: PublicTributeSubmissi
       </div>
 
       <div className="space-y-2">
-        <FieldLabel>Tribute</FieldLabel>
+        <FieldLabel>Tribute*</FieldLabel>
         <RichTextEditor value={tributeHtml} onChange={setTributeHtml} />
       </div>
 

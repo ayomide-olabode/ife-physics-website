@@ -89,9 +89,9 @@ export default async function TributeDetailPage({
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold">Departmental Tribute</h2>
+          <h2 className="text-lg font-semibold">Biography</h2>
           <p className="text-sm text-muted-foreground">
-            Write and maintain the official departmental tribute statement.
+            Write and maintain the department biography for this in-memoriam profile.
           </p>
         </div>
         <DepartmentalTributeFormClient
@@ -104,9 +104,9 @@ export default async function TributeDetailPage({
       <section className="space-y-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-lg font-semibold">Testimonials Moderation</h2>
+            <h2 className="text-lg font-semibold">Tributes Moderation</h2>
             <p className="text-sm text-muted-foreground">
-              Review public testimonials submitted for this staff member.
+              Review public tributes submitted for this staff member.
             </p>
           </div>
           <form

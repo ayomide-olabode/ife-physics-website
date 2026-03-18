@@ -37,6 +37,19 @@ enum ProgrammeCode {
   SLT
 }
 
+enum ProgrammeScope {
+  GENERAL
+  PHY
+  EPH
+  SLT
+}
+
+enum DegreeScope {
+  GENERAL
+  UNDERGRADUATE
+  POSTGRADUATE
+}
+
 enum DegreeType {
   BSC
   MSC
@@ -149,71 +162,71 @@ enum OpportunityCategory {
 //////////////////////////////////////////////////////
 
 model SecondaryAffiliation {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   acronym     String?
   description String?
 
-  staff       Staff[]
+  staff Staff[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([name])
   @@index([acronym])
 }
 
 model Staff {
-  id                 String      @id @default(cuid())
+  id                 String  @id @default(cuid())
   firstName          String?
   middleName         String?
   lastName           String?
   title              String?
-  institutionalEmail String      @unique
+  institutionalEmail String  @unique
 
-  staffType          StaffType
-  staffStatus        StaffStatus @default(ACTIVE)
+  staffType              StaffType
+  staffStatus            StaffStatus           @default(ACTIVE)
   secondaryAffiliationId String?
   secondaryAffiliation   SecondaryAffiliation? @relation(fields: [secondaryAffiliationId], references: [id], onDelete: SetNull)
 
   // Visiting faculty
-  visitStartDate     DateTime?
-  visitEndDate       DateTime?
+  visitStartDate DateTime?
+  visitEndDate   DateTime?
 
   // Academic/faculty fields
-  academicRank       String?
-  designation        String?
-  researchArea       String?
-  roomNumber         String?
-  academicLinkUrl    String?
+  academicRank    String?
+  designation     String?
+  researchArea    String?
+  roomNumber      String?
+  academicLinkUrl String?
 
   // Technical/Support fields
-  operationalUnit    String?
-  areaOfExpertise    String?
+  operationalUnit String?
+  areaOfExpertise String?
 
-  phoneNumber        String?
-  bio                String?
-  researchInterests  String?
-  profileImageUrl    String?
+  phoneNumber       String?
+  bio               String?
+  researchInterests String?
+  profileImageUrl   String?
 
-  user               User?
-  emailTokens        EmailToken[]
+  user        User?
+  emailTokens EmailToken[]
 
   // Relations
-  researchMemberships  ResearchGroupMembership[]
+  researchMemberships   ResearchGroupMembership[]
   publicationAuthorship PublicationAuthor[]
 
-  researchOutputs     ResearchOutput[]
-  projects            Project[]
-  teaching            TeachingResponsibility[]
-  thesesSupervised    StudentThesis[]
+  researchOutputs  ResearchOutput[]
+  projects         Project[]
+  teaching         TeachingResponsibility[]
+  thesesSupervised StudentThesis[]
 
-  leadershipTerms     LeadershipTerm[]
-  hodAddress          HodAddress?
+  leadershipTerms LeadershipTerm[]
+  hodAddress      HodAddress?
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  deletedAt           DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([staffStatus])
   @@index([staffType])
@@ -221,20 +234,20 @@ model Staff {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  staffId       String   @unique
-  staff         Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  staffId String @unique
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  passwordHash  String
-  isSuperAdmin  Boolean  @default(false)
+  passwordHash String
+  isSuperAdmin Boolean @default(false)
 
   roleAssignments RoleAssignment[]
-  auditLogs       AuditLog[] @relation("ActorAuditLogs")
+  auditLogs       AuditLog[]       @relation("ActorAuditLogs")
   emailTokens     EmailToken[]
 
-  lastLoginAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model EmailToken {
@@ -250,8 +263,8 @@ model EmailToken {
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
 
-  user       User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
-  staff      Staff?         @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  staff Staff? @relation(fields: [staffId], references: [id], onDelete: SetNull)
 
   @@index([email, type])
   @@index([expiresAt])
@@ -262,13 +275,15 @@ model EmailToken {
 //////////////////////////////////////////////////////
 
 model RoleAssignment {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  role      ScopedRole
-  scopeType ScopeType
-  scopeId   String?   // REQUIRED when scopeType=RESEARCH_GROUP (enforced in app logic)
+  role           ScopedRole
+  scopeType      ScopeType
+  scopeId        String? // REQUIRED when scopeType=RESEARCH_GROUP (enforced in app logic)
+  programmeScope ProgrammeScope?
+  degreeScope    DegreeScope?
 
   expiresAt DateTime?
   deletedAt DateTime?
@@ -276,11 +291,12 @@ model RoleAssignment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
-  @@index([role, scopeType, scopeId])
-
   // Prevent duplicates (same user assigned same role to same scope twice)
   @@unique([userId, role, scopeType, scopeId])
+  @@index([userId])
+  @@index([role, scopeType, scopeId])
+  @@index([role, programmeScope, degreeScope])
+  @@index([userId, role, deletedAt])
 }
 
 //////////////////////////////////////////////////////
@@ -288,10 +304,10 @@ model RoleAssignment {
 //////////////////////////////////////////////////////
 
 model ResearchGroup {
-  id           String   @id @default(cuid())
+  id           String  @id @default(cuid())
   name         String
   abbreviation String
-  slug         String   @unique
+  slug         String  @unique
   imageUrl     String?
   overview     String?
   focusAreas   String?
@@ -302,62 +318,62 @@ model ResearchGroup {
   featuredPublicationId String?
   featuredPublication   ResearchOutput? @relation("GroupFeatured", fields: [featuredPublicationId], references: [id])
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  deletedAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model ResearchGroupMembership {
-  id              String        @id @default(cuid())
+  id              String @id @default(cuid())
   staffId         String
   researchGroupId String
 
-  staff           Staff         @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  researchGroup   ResearchGroup @relation(fields: [researchGroupId], references: [id], onDelete: Cascade)
+  staff         Staff         @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  researchGroup ResearchGroup @relation(fields: [researchGroupId], references: [id], onDelete: Cascade)
 
-  joinedAt        DateTime?
-  leftAt          DateTime?
+  joinedAt DateTime?
+  leftAt   DateTime?
 
   @@unique([staffId, researchGroupId])
 }
 
 model Publication {
-  id              String   @id @default(cuid())
-  title           String
-  slug            String   @unique
-  doi             String?  @unique
-  year            Int?
-  type            String?
-  abstract        String?
-  url             String?
-  authors         String?
-  venue           String?
+  id       String  @id @default(cuid())
+  title    String
+  slug     String  @unique
+  doi      String? @unique
+  year     Int?
+  type     String?
+  abstract String?
+  url      String?
+  authors  String?
+  venue    String?
 
   // Homepage rule: pick 1 featured publication per ResearchGroup
-  isFeatured      Boolean  @default(false)
+  isFeatured Boolean @default(false)
 
   researchGroupId String
   researchGroup   ResearchGroup @relation(fields: [researchGroupId], references: [id])
 
-  authorEntries   PublicationAuthor[]
+  authorEntries PublicationAuthor[]
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  deletedAt       DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([year])
   @@index([researchGroupId, isFeatured])
 }
 
 model PublicationAuthor {
-  id            String   @id @default(cuid())
+  id            String  @id @default(cuid())
   publicationId String
   staffId       String?
   externalName  String?
   authorOrder   Int
 
-  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
-  staff         Staff?      @relation(fields: [staffId], references: [id])
+  publication Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  staff       Staff?      @relation(fields: [staffId], references: [id])
 
   @@unique([publicationId, authorOrder])
 }
@@ -367,90 +383,90 @@ model PublicationAuthor {
 //////////////////////////////////////////////////////
 
 model ResearchOutput {
-  id        String           @id @default(cuid())
-  staffId   String
-  staff     Staff            @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  type      ResearchOutputType
-  title     String
-  authors   String
-  year      Int?
-  venue     String?
-  url       String?
-  doi       String?
+  type    ResearchOutputType
+  title   String
+  authors String
+  year    Int?
+  venue   String?
+  url     String?
+  doi     String?
 
   // APA common fields
-  groupAuthor  String?
-  fullDate     DateTime?
-  subtitle     String?
-  sourceTitle  String?
-  publisher    String?
-  language     String?
-  abstract     String?
-  notes        String?
+  groupAuthor String?
+  fullDate    DateTime?
+  subtitle    String?
+  sourceTitle String?
+  publisher   String?
+  language    String?
+  abstract    String?
+  notes       String?
 
   // Structured JSON
-  authorsJson  Json?   // array of author objects [{given_name, family_name, …}]
-  keywordsJson Json?   // array of strings
-  metaJson     Json?   // type-specific fields (volume, issue, pages, etc.)
+  authorsJson  Json? // array of author objects [{given_name, family_name, …}]
+  keywordsJson Json? // array of strings
+  metaJson     Json? // type-specific fields (volume, issue, pages, etc.)
 
   featuredByGroups ResearchGroup[] @relation("GroupFeatured")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  staffId     String
-  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
   title           String
   acronym         String?
   descriptionHtml String?
   url             String?
-  
-  status          ProjectStatus @default(ONGOING)
-  isFunded        Boolean       @default(false)
-  startYear       Int           @default(2025)
-  endYear         Int?
 
-  createdAt       DateTime      @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  status    ProjectStatus @default(ONGOING)
+  isFunded  Boolean       @default(false)
+  startYear Int           @default(2025)
+  endYear   Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model TeachingResponsibility {
-  id          String   @id @default(cuid())
-  staffId     String
-  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
   courseCode  String?
   title       String
-  sessionYear Int?     // e.g., 2025
-  semester    String?  // e.g., "Harmattan"
+  sessionYear Int? // e.g., 2025
+  semester    String? // e.g., "Harmattan"
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model StudentThesis {
-  id        String       @id @default(cuid())
-  staffId   String
-  staff     Staff        @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  year      Int
-  title     String
+  year        Int
+  title       String
   studentName String?
   programme   String?
   degreeLevel String?
   externalUrl String?
-  status    ThesisStatus
+  status      ThesisStatus
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
@@ -459,31 +475,31 @@ model StudentThesis {
 //////////////////////////////////////////////////////
 
 model LeadershipTerm {
-  id            String         @id @default(cuid())
-  staffId        String
-  staff          Staff          @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  role           LeadershipRole
-  startDate      DateTime
-  endDate        DateTime?
+  role      LeadershipRole
+  startDate DateTime
+  endDate   DateTime?
 
   // Optional: if you want to tag academic coordinators by programme for display,
   // without making them "owners" in RBAC:
-  programmeCode  ProgrammeCode?
+  programmeCode ProgrammeCode?
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([role, endDate])
   @@index([programmeCode])
 }
 
 model HodAddress {
-  id        String   @id @default(cuid())
-  staffId   String   @unique
-  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  staffId String @unique
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  title     String
-  body      String
+  title String
+  body  String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -498,49 +514,49 @@ model AcademicProgram {
   programmeCode ProgrammeCode
   level         ProgramLevel
 
-  slug          String        @unique
+  slug String @unique
 
   // Sections (UG/PG)
-  overviewProspects     String?
-  admissionRequirements String?
-  courseRequirements    String?
-  curriculum            String?
-  programmeStructure    String?
-  studyOptionsText      String?
+  overviewProspects       String?
+  admissionRequirements   String?
+  courseRequirements      String?
+  curriculum              String?
+  programmeStructure      String?
+  studyOptionsText        String?
   courseDescriptionsIntro String?
 
   // PG accordion blocks for admission/course requirements
   requirementBlocks RequirementBlock[]
 
-  courses        Course[]
+  courses Course[]
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  deletedAt      DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@unique([programmeCode, level])
 }
 
 model PgDegreeContent {
-  id              String        @id @default(cuid())
-  programmeCode   ProgrammeCode
-  degreeType      DegreeType
-  
-  admissionHtml   String
-  periodHtml      String
-  courseHtml      String
-  examHtml        String
+  id            String        @id @default(cuid())
+  programmeCode ProgrammeCode
+  degreeType    DegreeType
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  admissionHtml String
+  periodHtml    String
+  courseHtml    String
+  examHtml      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([programmeCode, degreeType])
 }
 
 model RequirementBlock {
-  id              String          @id @default(cuid())
-  programId       String
-  program         AcademicProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  id        String          @id @default(cuid())
+  programId String
+  program   AcademicProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
 
   degreeType      DegreeType
   requirementType RequirementType
@@ -548,24 +564,24 @@ model RequirementBlock {
   contentHtml     String
   orderIndex      Int             @default(0)
 
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  deletedAt       DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([programId, degreeType, requirementType])
 }
 
 model StudyOption {
-  id        String   @id @default(cuid())
-  name      String
-  about     String
-  slug      String?  @unique
+  id    String  @id @default(cuid())
+  name  String
+  about String
+  slug  String? @unique
 
-  programs  ProgramStudyOption[]
-  courses   CourseOnStudyOption[]
+  programs ProgramStudyOption[]
+  courses  CourseOnStudyOption[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
@@ -575,36 +591,36 @@ model ProgramStudyOption {
   level         ProgramLevel
   studyOptionId String
 
-  studyOption   StudyOption   @relation(fields: [studyOptionId], references: [id], onDelete: Cascade)
+  studyOption StudyOption @relation(fields: [studyOptionId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime      @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([programmeCode, level, studyOptionId])
 }
 
 model Course {
-  id            String       @id @default(cuid())
-  code          String       @unique
+  id            String  @id @default(cuid())
+  code          String  @unique
   title         String
   description   String?
   prerequisites String?
 
   // L/T/P/U fields (numbers)
-  L             Int?
-  T             Int?
-  P             Int?
-  U             Int?
+  L Int?
+  T Int?
+  P Int?
+  U Int?
 
-  status        CourseStatus @default(CORE)
+  status CourseStatus @default(CORE)
 
-  programId     String
-  program       AcademicProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  programId String
+  program   AcademicProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
 
-  studyOptions  CourseOnStudyOption[]
+  studyOptions CourseOnStudyOption[]
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  deletedAt     DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([programId])
 }
@@ -613,8 +629,8 @@ model CourseOnStudyOption {
   courseId      String
   studyOptionId String
 
-  course        Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  studyOption   StudyOption @relation(fields: [studyOptionId], references: [id], onDelete: Cascade)
+  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  studyOption StudyOption @relation(fields: [studyOptionId], references: [id], onDelete: Cascade)
 
   @@id([courseId, studyOptionId])
 }
@@ -624,15 +640,15 @@ model CourseOnStudyOption {
 //////////////////////////////////////////////////////
 
 model News {
-  id          String        @id @default(cuid())
-  title       String
-  slug        String        @unique
-  body        String
-  imageUrl    String?
-  date        DateTime
+  id       String   @id @default(cuid())
+  title    String
+  slug     String   @unique
+  body     String
+  imageUrl String?
+  date     DateTime
 
   // Homepage hero carousel: 4 featured news
-  isFeatured  Boolean       @default(false)
+  isFeatured Boolean @default(false)
 
   buttonLabel String?
   buttonLink  String?
@@ -641,103 +657,103 @@ model News {
   publishedAt DateTime?
   archivedAt  DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([isFeatured, date])
   @@index([status])
 }
 
 model EventOpportunity {
-  id                   String               @id @default(cuid())
-  title                String
-  type                 EventOpportunityType
-  eventCategory        EventCategory?
-  opportunityCategory  OpportunityCategory?
-  description          String?
-  startDate            DateTime?
-  endDate              DateTime?
-  venue                String?
-  linkUrl              String?
-  deadline             DateTime?
+  id                  String               @id @default(cuid())
+  title               String
+  type                EventOpportunityType
+  eventCategory       EventCategory?
+  opportunityCategory OpportunityCategory?
+  description         String?
+  startDate           DateTime?
+  endDate             DateTime?
+  venue               String?
+  linkUrl             String?
+  deadline            DateTime?
 
-  status               PublishStatus        @default(DRAFT)
-  publishedAt          DateTime?
-  archivedAt           DateTime?
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+  archivedAt  DateTime?
 
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  deletedAt            DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([type, deadline])
   @@index([status])
 }
 
 model Spotlight {
-  id          String        @id @default(cuid())
-  title       String
-  date        DateTime?
-  imageUrl    String?
-  text        String
+  id       String    @id @default(cuid())
+  title    String
+  date     DateTime?
+  imageUrl String?
+  text     String
 
   status      PublishStatus @default(DRAFT)
   publishedAt DateTime?
   archivedAt  DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([status])
 }
 
 model HistoryEntry {
-  id          String   @id @default(cuid())
-  date        DateTime
-  title       String
-  shortDesc   String
+  id        String   @id @default(cuid())
+  date      DateTime
+  title     String
+  shortDesc String
 
   status      PublishStatus @default(DRAFT)
   publishedAt DateTime?
   archivedAt  DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([date])
   @@index([status])
 }
 
 model RollOfHonourEntry {
-  id                String   @id @default(cuid())
+  id                 String  @id @default(cuid())
   imageUrl           String?
   name               String
   registrationNumber String
-  programme          String   // display string ("PHY", etc.)
+  programme          String // display string ("PHY", etc.)
   cgpa               Float
   graduatingYear     Int
 
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  deletedAt          DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model LegacyGalleryItem {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   mediaUrl  String
   title     String
   bioText   String
-  datesText String?  // e.g., "1978–2004"
+  datesText String? // e.g., "1978–2004"
   year      Int?
 
-  status    PublishStatus @default(DRAFT)
+  status      PublishStatus @default(DRAFT)
   publishedAt DateTime?
   archivedAt  DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
@@ -746,16 +762,16 @@ model LegacyGalleryItem {
 //////////////////////////////////////////////////////
 
 model ResourceItem {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
   description String?
   link        String
   imageUrl    String?
-  category    String?  // e.g., "Apps", "Documents", "Forms"
+  category    String? // e.g., "Apps", "Documents", "Forms"
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 //////////////////////////////////////////////////////
@@ -763,14 +779,14 @@ model ResourceItem {
 //////////////////////////////////////////////////////
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  actorId    String?
-  actor      User?    @relation("ActorAuditLogs", fields: [actorId], references: [id])
+  id      String  @id @default(cuid())
+  actorId String?
+  actor   User?   @relation("ActorAuditLogs", fields: [actorId], references: [id])
 
   action     String
   entityType String
   entityId   String
   snapshot   Json
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 }

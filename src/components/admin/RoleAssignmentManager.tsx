@@ -9,8 +9,8 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { ScopedRole } from '@prisma/client';
-import { SCOPED_ROLE_OPTIONS } from '@/lib/options';
+import { DegreeScope, ProgrammeScope, ScopedRole } from '@prisma/client';
+import { DEGREE_SCOPE_OPTIONS, PROGRAMME_SCOPE_OPTIONS, SCOPED_ROLE_OPTIONS } from '@/lib/options';
 import { formatDate } from '@/lib/format-date';
 
 type Assignment = {
@@ -18,6 +18,8 @@ type Assignment = {
   role: string;
   scopeType: string;
   scopeId: string | null;
+  programmeScope: string | null;
+  degreeScope: string | null;
   expiresAt: Date | null;
   deletedAt: Date | null;
 };
@@ -43,6 +45,8 @@ export function RoleAssignmentManager({
   // Form state
   const [role, setRole] = useState<ScopedRole | ''>('');
   const [scopeId, setScopeId] = useState('');
+  const [programmeScope, setProgrammeScope] = useState<ProgrammeScope | ''>('');
+  const [degreeScope, setDegreeScope] = useState<DegreeScope | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Revoke state
@@ -59,13 +63,22 @@ export function RoleAssignmentManager({
       toastError('Please select a research group.');
       return;
     }
+    if (role === 'ACADEMIC_COORDINATOR' && (!programmeScope || !degreeScope)) {
+      toastError('Please select both programme and degree scope.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
+      const acProgrammeScope = role === 'ACADEMIC_COORDINATOR' ? programmeScope || null : null;
+      const acDegreeScope = role === 'ACADEMIC_COORDINATOR' ? degreeScope || null : null;
+
       const res = await assignRole({
         userId,
         role,
         scopeId: role === 'RESEARCH_LEAD' ? scopeId : null,
+        programmeScope: acProgrammeScope,
+        degreeScope: acDegreeScope,
       });
 
       if (res.error) {
@@ -74,6 +87,8 @@ export function RoleAssignmentManager({
         toastSuccess('Role assigned successfully.');
         setRole('');
         setScopeId('');
+        setProgrammeScope('');
+        setDegreeScope('');
         startTransition(() => {
           router.refresh();
         });
@@ -110,7 +125,9 @@ export function RoleAssignmentManager({
       {ra.role}
     </span>,
     <span key="scope" className="text-sm">
-      {ra.scopeType} {ra.scopeId ? `(${groupLookup.get(ra.scopeId)?.name ?? ra.scopeId})` : ''}
+      {ra.role === 'ACADEMIC_COORDINATOR'
+        ? `${ra.programmeScope ?? '-'} / ${ra.degreeScope ?? '-'}`
+        : `${ra.scopeType}${ra.scopeId ? ` (${groupLookup.get(ra.scopeId)?.name ?? ra.scopeId})` : ''}`}
     </span>,
     <span key="status" className="text-sm">
       {ra.deletedAt ? (
@@ -153,6 +170,8 @@ export function RoleAssignmentManager({
                 onChange={(e) => {
                   setRole(e.target.value as ScopedRole);
                   setScopeId('');
+                  setProgrammeScope('');
+                  setDegreeScope('');
                 }}
                 className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 required
@@ -195,6 +214,49 @@ export function RoleAssignmentManager({
                   </select>
                 )}
               </div>
+            )}
+
+            {role === 'ACADEMIC_COORDINATOR' && (
+              <>
+                <div className="space-y-2">
+                  <FieldLabel htmlFor="programmeScope">Programme Scope</FieldLabel>
+                  <select
+                    id="programmeScope"
+                    value={programmeScope}
+                    onChange={(e) => setProgrammeScope(e.target.value as ProgrammeScope)}
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    required
+                  >
+                    <option value="" disabled>
+                      Select programme scope...
+                    </option>
+                    {PROGRAMME_SCOPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <FieldLabel htmlFor="degreeScope">Degree Scope</FieldLabel>
+                  <select
+                    id="degreeScope"
+                    value={degreeScope}
+                    onChange={(e) => setDegreeScope(e.target.value as DegreeScope)}
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    required
+                  >
+                    <option value="" disabled>
+                      Select degree scope...
+                    </option>
+                    {DEGREE_SCOPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
             )}
 
             <Button

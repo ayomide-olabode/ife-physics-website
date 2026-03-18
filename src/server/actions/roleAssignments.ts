@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { ScopedRole, ScopeType } from '@prisma/client';
+import { DegreeScope, ProgrammeScope, ScopedRole, ScopeType } from '@prisma/client';
 import { logAudit } from '@/lib/audit';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -10,6 +10,8 @@ export async function assignRole(params: {
   userId: string;
   role: ScopedRole;
   scopeId?: string | null;
+  programmeScope?: ProgrammeScope | null;
+  degreeScope?: DegreeScope | null;
   expiresAt?: Date | null;
 }) {
   const session = await getServerSession(authOptions);
@@ -17,7 +19,7 @@ export async function assignRole(params: {
     return { error: 'Unauthorized.' };
   }
 
-  const { userId, role, scopeId, expiresAt } = params;
+  const { userId, role, scopeId, programmeScope, degreeScope, expiresAt } = params;
 
   // Validate user exists
   const targetUser = await prisma.user.findUnique({ where: { id: userId } });
@@ -27,11 +29,31 @@ export async function assignRole(params: {
 
   let scopeType: ScopeType;
   let finalScopeId: string | null = null;
+  let finalProgrammeScope: ProgrammeScope | null = null;
+  let finalDegreeScope: DegreeScope | null = null;
 
-  if (role === 'EDITOR' || role === 'ACADEMIC_COORDINATOR') {
+  if (role === 'EDITOR') {
     scopeType = 'GLOBAL';
+    if (programmeScope || degreeScope) {
+      return { error: 'EDITOR cannot include programme or degree scope.' };
+    }
+  } else if (role === 'ACADEMIC_COORDINATOR') {
+    scopeType = 'GLOBAL';
+    if (!programmeScope || !degreeScope) {
+      return {
+        error: 'ACADEMIC_COORDINATOR requires both programmeScope and degreeScope.',
+      };
+    }
+    if (scopeId) {
+      return { error: 'ACADEMIC_COORDINATOR cannot include scopeId.' };
+    }
+    finalProgrammeScope = programmeScope;
+    finalDegreeScope = degreeScope;
   } else if (role === 'RESEARCH_LEAD') {
     scopeType = 'RESEARCH_GROUP';
+    if (programmeScope || degreeScope) {
+      return { error: 'RESEARCH_LEAD cannot include programme or degree scope.' };
+    }
     if (!scopeId) {
       return { error: 'RESEARCH_LEAD requires a scopeId (Research Group).' };
     }
@@ -68,6 +90,8 @@ export async function assignRole(params: {
         role,
         scopeType,
         scopeId: finalScopeId,
+        programmeScope: finalProgrammeScope,
+        degreeScope: finalDegreeScope,
         expiresAt: expiresAt ?? null,
       },
     });

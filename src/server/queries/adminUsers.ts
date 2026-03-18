@@ -97,6 +97,8 @@ export async function getUserById(userId: string) {
           role: true,
           scopeType: true,
           scopeId: true,
+          programmeScope: true,
+          degreeScope: true,
           expiresAt: true,
           deletedAt: true,
           createdAt: true,

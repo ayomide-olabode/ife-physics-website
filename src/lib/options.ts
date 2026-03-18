@@ -1,11 +1,13 @@
 import {
   CourseStatus,
+  DegreeScope,
   DegreeType,
   EventCategory,
   EventOpportunityType,
   LeadershipRole,
   OpportunityCategory,
   ProgrammeCode,
+  ProgrammeScope,
   PublishStatus,
   RequirementType,
   ResearchOutputType,
@@ -19,6 +21,19 @@ export const PROGRAMME_OPTIONS = [
   { value: ProgrammeCode.EPH, label: 'Engineering Physics' },
   { value: ProgrammeCode.PHY, label: 'Physics' },
   { value: ProgrammeCode.SLT, label: 'Science Laboratory Technology' },
+];
+
+export const PROGRAMME_SCOPE_OPTIONS = [
+  { value: ProgrammeScope.GENERAL, label: 'General' },
+  { value: ProgrammeScope.EPH, label: 'Engineering Physics (EPH)' },
+  { value: ProgrammeScope.PHY, label: 'Physics (PHY)' },
+  { value: ProgrammeScope.SLT, label: 'Science Laboratory Technology (SLT)' },
+];
+
+export const DEGREE_SCOPE_OPTIONS = [
+  { value: DegreeScope.GENERAL, label: 'General' },
+  { value: DegreeScope.UNDERGRADUATE, label: 'Undergraduate' },
+  { value: DegreeScope.POSTGRADUATE, label: 'Postgraduate' },
 ];
 
 /** Roll-of-Honour programme options – stored as display strings, not enum codes */
@@ -157,7 +172,10 @@ export const REQUIREMENT_TYPE_OPTIONS = [
 ];
 
 export const SCOPED_ROLE_OPTIONS = [
-  { value: ScopedRole.ACADEMIC_COORDINATOR, label: 'Academic Coordinator (Global)' },
+  {
+    value: ScopedRole.ACADEMIC_COORDINATOR,
+    label: 'Academic Coordinator (Programme + Degree Scoped)',
+  },
   { value: ScopedRole.EDITOR, label: 'Editor (Global)' },
   { value: ScopedRole.RESEARCH_LEAD, label: 'Research Lead (Scoped)' },
 ];

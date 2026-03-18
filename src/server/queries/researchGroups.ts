@@ -81,7 +81,15 @@ export async function getResearchGroupByIdForUser({
       slug: true,
       imageUrl: true,
       overview: true,
-      focusAreas: true,
+      focusAreas: {
+        where: { deletedAt: null },
+        select: {
+          id: true,
+          title: true,
+          orderIndex: true,
+        },
+        orderBy: { orderIndex: 'asc' },
+      },
       featuredPublicationId: true,
     },
   });

@@ -349,7 +349,7 @@ model ResearchGroup {
   slug         String  @unique
   imageUrl     String?
   overview     String?
-  focusAreas   String?
+  focusAreas   ResearchGroupFocusArea[]
 
   memberships  ResearchGroupMembership[]
   publications Publication[]
@@ -360,6 +360,22 @@ model ResearchGroup {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+}
+
+model ResearchGroupFocusArea {
+  id              String @id @default(cuid())
+  researchGroupId String
+  title           String
+  orderIndex      Int    @default(0)
+
+  researchGroup ResearchGroup @relation(fields: [researchGroupId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([researchGroupId, orderIndex])
+  @@index([deletedAt])
 }
 
 model ResearchGroupMembership {

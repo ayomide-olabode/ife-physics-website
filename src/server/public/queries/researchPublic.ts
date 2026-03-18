@@ -30,7 +30,15 @@ export async function getPublicResearchGroupBySlug(slug: string) {
       slug: true,
       imageUrl: true,
       overview: true,
-      focusAreas: true,
+      focusAreas: {
+        where: { deletedAt: null },
+        select: {
+          id: true,
+          title: true,
+          orderIndex: true,
+        },
+        orderBy: { orderIndex: 'asc' },
+      },
       featuredPublicationId: true,
       memberships: {
         where: { leftAt: null, staff: { deletedAt: null } },

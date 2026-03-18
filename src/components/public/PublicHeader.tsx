@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { PublicNavMain } from './PublicNavMain';
+import { listPublicResearchGroups } from '@/server/public/queries/researchPublic';
 
 const utilityLinks = [
   { label: 'ePortal', href: 'https://eportal.oauife.edu.ng' },
@@ -9,7 +10,9 @@ const utilityLinks = [
   { label: 'Our Alumni', href: '#' },
 ];
 
-export function PublicHeader() {
+export async function PublicHeader() {
+  const researchGroups = await listPublicResearchGroups();
+
   return (
     <header>
       {/* ── White utility bar ── */}
@@ -51,7 +54,7 @@ export function PublicHeader() {
       {/* ── Navy nav bar ── */}
       <div className="bg-brand-navy">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <PublicNavMain />
+          <PublicNavMain researchGroups={researchGroups} />
         </div>
       </div>
     </header>

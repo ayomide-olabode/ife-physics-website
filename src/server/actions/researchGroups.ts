@@ -66,6 +66,8 @@ export async function createResearchGroup(data: ResearchGroupInput) {
 
     // @ts-expect-error Next Canary Type definition bug
     revalidateTag('research-groups');
+    // @ts-expect-error Next Canary Type definition bug
+    revalidateTag('public:research-groups');
 
     return { success: true, groupId: group.id };
   } catch (error: unknown) {
@@ -121,6 +123,8 @@ export async function updateResearchGroup(groupId: string, data: ResearchGroupIn
 
     // @ts-expect-error Next Canary Type definition bug
     revalidateTag('research-groups');
+    // @ts-expect-error Next Canary Type definition bug
+    revalidateTag('public:research-groups');
 
     return { success: true };
   } catch (error: unknown) {

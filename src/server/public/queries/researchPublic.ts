@@ -2,22 +2,29 @@ import 'server-only';
 
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { unstable_cache } from 'next/cache';
 import { whereNotDeleted } from '../published';
 export { getFeaturedResearchOutputs } from './featuredResearchOutputs';
 
+const listPublicResearchGroupsCached = unstable_cache(
+  async () =>
+    prisma.researchGroup.findMany({
+      where: whereNotDeleted(),
+      select: {
+        name: true,
+        abbreviation: true,
+        slug: true,
+        imageUrl: true,
+      },
+      orderBy: { name: 'asc' },
+    }),
+  ['public-research-groups'],
+  { tags: ['public:research-groups'] },
+);
+
 /** List all research groups (public cards). */
 export async function listPublicResearchGroups() {
-  return prisma.researchGroup.findMany({
-    where: whereNotDeleted(),
-    select: {
-      id: true,
-      name: true,
-      abbreviation: true,
-      slug: true,
-      imageUrl: true,
-    },
-    orderBy: { name: 'asc' },
-  });
+  return listPublicResearchGroupsCached();
 }
 
 /** Full research group detail by slug (public). */

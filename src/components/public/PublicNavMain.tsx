@@ -13,7 +13,14 @@ export interface NavItem {
   children?: { label: string; href: string }[];
 }
 
-export const navItems: NavItem[] = [
+type PublicResearchGroupNavItem = {
+  name: string;
+  abbreviation: string;
+  slug: string;
+  imageUrl: string | null;
+};
+
+const baseNavItems: NavItem[] = [
   { label: 'HOME', href: '/', matchPrefix: '/' },
   {
     label: 'OUR DEPARTMENT',
@@ -51,6 +58,24 @@ export const navItems: NavItem[] = [
   },
   { label: 'RESOURCES', href: '/resources', matchPrefix: '/resources' },
 ];
+
+function buildNavItems(researchGroups: PublicResearchGroupNavItem[]): NavItem[] {
+  return baseNavItems.map((item) => {
+    if (item.label !== 'RESEARCH') {
+      return item;
+    }
+
+    const children = researchGroups.map((group) => ({
+      label: `${group.abbreviation} - ${group.name}`,
+      href: `/research/${group.slug}`,
+    }));
+
+    return {
+      ...item,
+      children: children.length > 0 ? children : undefined,
+    };
+  });
+}
 
 function isActive(pathname: string, item: NavItem): boolean {
   if (item.href === '/') return pathname === '/';
@@ -128,9 +153,14 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
-export function PublicNavMain() {
+export function PublicNavMain({
+  researchGroups,
+}: {
+  researchGroups: PublicResearchGroupNavItem[];
+}) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navItems = buildNavItems(researchGroups);
 
   return (
     <>

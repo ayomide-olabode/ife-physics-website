@@ -264,7 +264,8 @@ export function RoleAssignmentManager({
               disabled={
                 isSubmitting ||
                 isPending ||
-                (role === 'RESEARCH_LEAD' && researchGroups.length === 0)
+                (role === 'RESEARCH_LEAD' && researchGroups.length === 0) ||
+                (role === 'ACADEMIC_COORDINATOR' && (!programmeScope || !degreeScope))
               }
               className="w-full"
             >

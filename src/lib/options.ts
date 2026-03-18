@@ -25,9 +25,9 @@ export const PROGRAMME_OPTIONS = [
 
 export const PROGRAMME_SCOPE_OPTIONS = [
   { value: ProgrammeScope.GENERAL, label: 'General' },
-  { value: ProgrammeScope.EPH, label: 'Engineering Physics (EPH)' },
-  { value: ProgrammeScope.PHY, label: 'Physics (PHY)' },
-  { value: ProgrammeScope.SLT, label: 'Science Laboratory Technology (SLT)' },
+  { value: ProgrammeScope.EPH, label: 'Engineering Physics' },
+  { value: ProgrammeScope.PHY, label: 'Physics' },
+  { value: ProgrammeScope.SLT, label: 'Science Laboratory Technology' },
 ];
 
 export const DEGREE_SCOPE_OPTIONS = [

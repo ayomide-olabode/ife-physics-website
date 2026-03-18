@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { Menu, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { refNavItems } from './RefNavbar';
+import { buildRefNavItems } from './RefNavbar';
 
 function MobileNavGroup({
   item,
@@ -66,10 +66,17 @@ function MobileNavGroup({
   );
 }
 
-export function RefMobileMenu() {
+type ResearchGroupNavItem = {
+  name: string;
+  abbreviation: string;
+  slug: string;
+};
+
+export function RefMobileMenu({ researchGroups }: { researchGroups: ResearchGroupNavItem[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
+  const refNavItems = buildRefNavItems(researchGroups);
 
   const utilityLinks = [
     { name: 'ePortal', href: 'https://eportal.oauife.edu.ng' },

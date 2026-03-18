@@ -12,7 +12,13 @@ type NavItem = {
   dropdown?: { name: string; href: string }[];
 };
 
-export const refNavItems: NavItem[] = [
+type ResearchGroupNavItem = {
+  name: string;
+  abbreviation: string;
+  slug: string;
+};
+
+const baseRefNavItems: NavItem[] = [
   { name: 'HOME', href: '/' },
   {
     name: 'OUR DEPARTMENT',
@@ -48,9 +54,28 @@ export const refNavItems: NavItem[] = [
   { name: 'RESOURCES', href: '/resources' },
 ];
 
-export function RefNavbar() {
+export function buildRefNavItems(researchGroups: ResearchGroupNavItem[]): NavItem[] {
+  return baseRefNavItems.map((item) => {
+    if (item.name !== 'RESEARCH') {
+      return item;
+    }
+
+    const dropdown = researchGroups.map((group) => ({
+      name: `${group.abbreviation} - ${group.name}`,
+      href: `/research/${group.slug}`,
+    }));
+
+    return {
+      ...item,
+      dropdown: dropdown.length > 0 ? dropdown : undefined,
+    };
+  });
+}
+
+export function RefNavbar({ researchGroups }: { researchGroups: ResearchGroupNavItem[] }) {
   const pathname = usePathname();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const refNavItems = buildRefNavItems(researchGroups);
 
   return (
     <div className="bg-brand-navy z-50 text-brand-white shadow-md hidden md:block">
@@ -108,7 +133,7 @@ export function RefNavbar() {
                   {hasDropdown && (
                     <div
                       className={cn(
-                        'absolute top-full left-0 w-full min-w-[220px] bg-white text-left shadow-xl border-t-4 border-brand-yellow transform transition-all duration-200 origin-top z-50',
+                        'absolute top-full left-0 w-full min-w-[220px] bg-white text-left shadow-xl  transform transition-all duration-200 origin-top z-50',
                         isOpen
                           ? 'opacity-100 scale-y-100 visible'
                           : 'opacity-0 scale-y-95 invisible',

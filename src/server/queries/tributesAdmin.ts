@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { Prisma, StaffStatus } from '@prisma/client';
+import { Prisma, StaffStatus, TestimonialStatus } from '@prisma/client';
 
 export async function listInMemoriamStaff({
   q = '',
@@ -50,6 +50,44 @@ export async function listInMemoriamStaff({
       },
     }),
     prisma.staff.count({ where }),
+  ]);
+
+  return { items, total, page, pageSize };
+}
+
+export async function listTestimonialsForStaff({
+  staffId,
+  page = 1,
+  pageSize = 10,
+  status,
+}: {
+  staffId: string;
+  page?: number;
+  pageSize?: number;
+  status?: TestimonialStatus;
+}) {
+  const skip = (page - 1) * pageSize;
+  const where: Prisma.TributeTestimonialWhereInput = {
+    staffId,
+    ...(status ? { status } : {}),
+  };
+
+  const [items, total] = await prisma.$transaction([
+    prisma.tributeTestimonial.findMany({
+      where,
+      orderBy: [{ submittedAt: 'desc' }],
+      skip,
+      take: pageSize,
+      select: {
+        id: true,
+        name: true,
+        relationship: true,
+        tributeHtml: true,
+        submittedAt: true,
+        status: true,
+      },
+    }),
+    prisma.tributeTestimonial.count({ where }),
   ]);
 
   return { items, total, page, pageSize };

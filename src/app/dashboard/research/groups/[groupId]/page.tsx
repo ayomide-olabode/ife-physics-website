@@ -6,6 +6,7 @@ import { getResearchGroupByIdForUser } from '@/server/queries/researchGroups';
 import { ResearchGroupFormClient } from '@/components/research/ResearchGroupFormClient';
 import { listRecentResearchOutputsForGroupMembers } from '@/server/queries/researchGroupPublicationsFromMembers';
 import { ResearchGroupFeaturedResearchOutputClient } from '@/components/research/ResearchGroupFeaturedResearchOutputClient';
+import { FocusAreasInlineEditor } from '@/components/research/FocusAreasInlineEditor';
 
 interface PageProps {
   params: Promise<{ groupId: string }>;
@@ -39,6 +40,8 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
       />
 
       <ResearchGroupFormClient initialData={group} />
+
+      <FocusAreasInlineEditor groupId={group.id} initialItems={group.focusAreas} />
 
       <ResearchGroupFeaturedResearchOutputClient
         groupId={group.id}

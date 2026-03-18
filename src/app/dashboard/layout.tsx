@@ -5,6 +5,7 @@ import {
   getAccessibleProgrammesForLevel,
   getScopedResearchGroupIds,
   hasGlobalRole,
+  hasTributesAccess,
   isSuperAdmin,
 } from '@/lib/rbac';
 import type { NavItem } from '@/components/dashboard/DashboardSidebar';
@@ -29,6 +30,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (isAdmin || (await hasGlobalRole(session, 'EDITOR'))) {
     navItems.push({ label: 'Communication', href: '/dashboard/communication' });
     navItems.push({ label: 'Content', href: '/dashboard/content' });
+  }
+
+  if (await hasTributesAccess(session)) {
+    navItems.push({ label: 'Tributes', href: '/dashboard/tributes' });
   }
 
   const undergraduateProgrammes = await getAccessibleProgrammesForLevel(session, 'UNDERGRADUATE');

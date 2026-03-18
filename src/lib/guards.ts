@@ -8,6 +8,7 @@ import {
   isResearchLeadForGroup,
   getScopedResearchGroupIds,
   canEditStaff,
+  hasTributesAccess,
 } from '@/lib/rbac';
 import { ProgrammeCode, ScopedRole } from '.prisma/client';
 import { Session } from 'next-auth';
@@ -76,4 +77,13 @@ export function requireStaffOwnership(session: Session, staffId: string) {
   if (!canEditStaff(session, staffId)) {
     notFound();
   }
+}
+
+export async function requireTributesAccess() {
+  const session = await requireAuth();
+  const canAccess = await hasTributesAccess(session);
+  if (!canAccess) {
+    notFound();
+  }
+  return session;
 }

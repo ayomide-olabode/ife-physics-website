@@ -143,6 +143,13 @@ export async function hasGlobalRole(session: Session | null, role: ScopedRole): 
   return !!assignment;
 }
 
+export async function hasTributesAccess(session: Session | null): Promise<boolean> {
+  if (!session) return false;
+  if (isSuperAdmin(session)) return true;
+  if (await hasGlobalRole(session, ScopedRole.EDITOR)) return true;
+  return isCurrentHod(session);
+}
+
 export async function getScopedResearchGroupIds(session: Session | null): Promise<string[]> {
   if (!session?.user?.userId) return [];
 

@@ -30,12 +30,12 @@ export default async function PublicationsIndexPage({ params, searchParams }: Pa
       <BackToParent href={`/dashboard/research/groups/${groupId}`} label="Back to Group" />
 
       <PageHeader
-        title="Publications"
-        description="Manage research publications for this group."
+        title="Research Outputs"
+        description="Manage research outputs for this group."
         actions={
           <AddNewButton
             href={`/dashboard/research/groups/${groupId}/publications/new`}
-            label="Add Publication"
+            label="Add Research Output"
           />
         }
       />

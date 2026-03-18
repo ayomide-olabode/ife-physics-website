@@ -354,8 +354,8 @@ model ResearchGroup {
   memberships  ResearchGroupMembership[]
   publications Publication[]
 
-  featuredPublicationId String?
-  featuredPublication   ResearchOutput? @relation("GroupFeatured", fields: [featuredPublicationId], references: [id])
+  featuredResearchOutputId String?
+  featuredResearchOutput   ResearchOutput? @relation("GroupFeatured", fields: [featuredResearchOutputId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -404,7 +404,7 @@ model Publication {
   authors  String?
   venue    String?
 
-  // Homepage rule: pick 1 featured publication per ResearchGroup
+  // Homepage rule: pick 1 featured research output per ResearchGroup
   isFeatured Boolean @default(false)
 
   researchGroupId String

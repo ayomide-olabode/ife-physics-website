@@ -71,10 +71,10 @@ export function PublicationsListClient({
     try {
       const res = await deletePublication(groupId, deleteTarget);
       if (res.success) {
-        toastSuccess('Publication deleted.');
+        toastSuccess('Research output deleted.');
         router.refresh();
       } else {
-        toastError(res.error || 'Failed to delete publication.');
+        toastError(res.error || 'Failed to delete research output.');
       }
     } catch (err: unknown) {
       toastError(err instanceof Error ? err.message : 'Failed to delete.');
@@ -193,11 +193,11 @@ export function PublicationsListClient({
 
       {data.length === 0 ? (
         <EmptyState
-          title="No publications yet"
+          title="No research outputs yet"
           description={
             searchQuery || yearQuery
               ? 'Try adjusting your filters.'
-              : 'Add your first publication to this research group.'
+              : 'Add your first research output to this research group.'
           }
           action={
             <Button
@@ -209,7 +209,7 @@ export function PublicationsListClient({
                 }
               }}
             >
-              {searchQuery || yearQuery ? 'Clear Filters' : 'Add First Publication'}
+              {searchQuery || yearQuery ? 'Clear Filters' : 'Add First Research Output'}
             </Button>
           }
         />
@@ -248,8 +248,8 @@ export function PublicationsListClient({
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete Publication"
-        description="Are you sure you want to delete this publication? This action will soft-delete it."
+        title="Delete Research Output"
+        description="Are you sure you want to delete this research output? This action will soft-delete it."
         confirmText="Delete"
         cancelText="Cancel"
         onConfirm={handleDelete}

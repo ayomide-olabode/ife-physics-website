@@ -3,6 +3,7 @@ import 'server-only';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { whereNotDeleted } from '../published';
+export { getFeaturedResearchOutputs } from './featuredResearchOutputs';
 
 /** List all research groups (public cards). */
 export async function listPublicResearchGroups() {
@@ -39,7 +40,7 @@ export async function getPublicResearchGroupBySlug(slug: string) {
         },
         orderBy: { orderIndex: 'asc' },
       },
-      featuredPublicationId: true,
+      featuredResearchOutputId: true,
       memberships: {
         where: { leftAt: null, staff: { deletedAt: null } },
         select: {
@@ -69,7 +70,7 @@ export async function listPublicRecentOutputsForGroup(groupId: string, take = 20
   const staffIds = memberships.map((m) => m.staffId);
   if (staffIds.length === 0) return [];
 
-  const publications = await prisma.$queryRaw<
+  const researchOutputs = await prisma.$queryRaw<
     {
       id: string;
       title: string;
@@ -89,5 +90,5 @@ export async function listPublicRecentOutputsForGroup(groupId: string, take = 20
     LIMIT ${take};
   `;
 
-  return publications;
+  return researchOutputs;
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
-interface FeaturedPublication {
+interface FeaturedResearchOutput {
   id: string;
   type: string;
   title: string;
@@ -12,15 +12,16 @@ interface FeaturedPublication {
   url: string | null;
   groupName: string;
   groupAbbreviation: string;
+  groupSlug: string;
 }
 
-export function LatestPublications({ items }: { items: FeaturedPublication[] }) {
+export function ResearchOutputsSection({ items }: { items: FeaturedResearchOutput[] }) {
   return (
     <section className="py-20 bg-gray-50">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         {/* Header row */}
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-3xl font-serif font-bold text-brand-navy">Latest Publications</h2>
+          <h2 className="text-3xl font-serif font-bold text-brand-navy">Research Outputs</h2>
           <Link
             href="/research"
             className="text-sm font-semibold text-brand-navy border border-brand-navy px-5 py-2 hover:bg-brand-navy hover:text-brand-white transition-colors"
@@ -31,7 +32,7 @@ export function LatestPublications({ items }: { items: FeaturedPublication[] }) 
 
         {items.length === 0 ? (
           <p className="text-gray-500 text-center py-10">
-            No featured publications yet. Check back soon.
+            No featured research outputs yet. Check back soon.
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

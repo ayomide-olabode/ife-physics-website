@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { getResearchGroupMemberStaffIds } from './researchGroupMembers';
 
-export type GroupEligiblePublication = {
+export type GroupEligibleResearchOutput = {
   id: string;
   title: string;
   year: number | null;
@@ -13,18 +13,20 @@ export type GroupEligiblePublication = {
   type: string;
 };
 
-export async function listRecentPublicationsForGroupMembers({
+export type GroupEligiblePublication = GroupEligibleResearchOutput;
+
+export async function listRecentResearchOutputsForGroupMembers({
   groupId,
   take = 20,
 }: {
   groupId: string;
   take?: number;
-}): Promise<GroupEligiblePublication[]> {
+}): Promise<GroupEligibleResearchOutput[]> {
   const staffIds = await getResearchGroupMemberStaffIds(groupId);
   if (staffIds.length === 0) return [];
 
   // Using jsonb_array_elements on authorsJson safely (coalesce to empty array if null).
-  const publications = await prisma.$queryRaw<
+  const researchOutputs = await prisma.$queryRaw<
     {
       id: string;
       title: string;
@@ -47,7 +49,7 @@ export async function listRecentPublicationsForGroupMembers({
     LIMIT ${take};
   `;
 
-  return publications.map((p) => ({
+  return researchOutputs.map((p) => ({
     id: p.id,
     title: p.title,
     year: p.year,

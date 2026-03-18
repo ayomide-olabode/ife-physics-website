@@ -4,8 +4,8 @@ import { BackToParent } from '@/components/dashboard/BackToParent';
 import { requireAuth } from '@/lib/guards';
 import { getResearchGroupByIdForUser } from '@/server/queries/researchGroups';
 import { ResearchGroupFormClient } from '@/components/research/ResearchGroupFormClient';
-import { listRecentPublicationsForGroupMembers } from '@/server/queries/researchGroupPublicationsFromMembers';
-import { ResearchGroupFeaturedPublicationClient } from '@/components/research/ResearchGroupFeaturedPublicationClient';
+import { listRecentResearchOutputsForGroupMembers } from '@/server/queries/researchGroupPublicationsFromMembers';
+import { ResearchGroupFeaturedResearchOutputClient } from '@/components/research/ResearchGroupFeaturedResearchOutputClient';
 
 interface PageProps {
   params: Promise<{ groupId: string }>;
@@ -25,7 +25,7 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
     notFound();
   }
 
-  const eligiblePublications = await listRecentPublicationsForGroupMembers({
+  const eligibleResearchOutputs = await listRecentResearchOutputsForGroupMembers({
     groupId: resolvedParams.groupId,
   });
 
@@ -40,10 +40,10 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
 
       <ResearchGroupFormClient initialData={group} />
 
-      <ResearchGroupFeaturedPublicationClient
+      <ResearchGroupFeaturedResearchOutputClient
         groupId={group.id}
-        initialFeaturedId={group.featuredPublicationId}
-        eligiblePublications={eligiblePublications}
+        initialFeaturedOutputId={group.featuredResearchOutputId}
+        eligibleResearchOutputs={eligibleResearchOutputs}
       />
     </div>
   );

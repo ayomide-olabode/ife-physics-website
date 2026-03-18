@@ -4,36 +4,36 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { setFeaturedPublication } from '@/server/actions/researchFeaturedPublication';
-import { GroupEligiblePublication } from '@/server/queries/researchGroupPublicationsFromMembers';
+import { setFeaturedResearchOutput } from '@/server/actions/researchFeaturedResearchOutput';
+import { GroupEligibleResearchOutput } from '@/server/queries/researchGroupPublicationsFromMembers';
 import { Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 
 interface Props {
   groupId: string;
-  initialFeaturedId: string | null;
-  eligiblePublications: GroupEligiblePublication[];
+  initialFeaturedOutputId: string | null;
+  eligibleResearchOutputs: GroupEligibleResearchOutput[];
 }
 
-export function ResearchGroupFeaturedPublicationClient({
+export function ResearchGroupFeaturedResearchOutputClient({
   groupId,
-  initialFeaturedId,
-  eligiblePublications,
+  initialFeaturedOutputId,
+  eligibleResearchOutputs,
 }: Props) {
   const router = useRouter();
-  const [selectedId, setSelectedId] = useState<string>(initialFeaturedId || 'none');
+  const [selectedId, setSelectedId] = useState<string>(initialFeaturedOutputId || 'none');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      const pubId = selectedId === 'none' ? null : selectedId;
-      const res = await setFeaturedPublication({ groupId, publicationId: pubId });
+      const researchOutputId = selectedId === 'none' ? null : selectedId;
+      const res = await setFeaturedResearchOutput({ groupId, researchOutputId });
       if (res.error) {
         toastError(res.error);
       } else {
-        toastSuccess('Featured publication updated.');
+        toastSuccess('Featured research output updated.');
         router.refresh();
       }
     } catch {
@@ -50,16 +50,16 @@ export function ResearchGroupFeaturedPublicationClient({
   return (
     <div className="bg-card p-6 rounded-lg border space-y-4 max-w-2xl mt-8">
       <div>
-        <h3 className="text-lg font-semibold">Recent Publications (Group Members)</h3>
+        <h3 className="text-lg font-semibold">Research Outputs (Group Members)</h3>
         <p className="text-sm text-muted-foreground">
-          Select one publication to feature for this research group. This will be highlighted on the
-          group overview page.
+          Select one research output to feature for this research group. This will be highlighted on
+          the group overview page.
         </p>
       </div>
 
-      {eligiblePublications.length === 0 ? (
+      {eligibleResearchOutputs.length === 0 ? (
         <div className="text-sm text-muted-foreground bg-muted p-4 rounded-md">
-          <p>No publications found for group members.</p>
+          <p>No research outputs found for group members.</p>
           <p className="mt-1">
             Once members add research outputs with linked staff authors, they will appear here.
           </p>
@@ -74,7 +74,7 @@ export function ResearchGroupFeaturedPublicationClient({
                   None
                 </Label>
               </div>
-              {eligiblePublications.map((pub) => (
+              {eligibleResearchOutputs.map((pub) => (
                 <div key={pub.id} className="flex items-start space-x-3 border-b pb-3 items-center">
                   <RadioGroupItem value={pub.id} id={`pub-${pub.id}`} className="mt-1" />
                   <Label
@@ -95,7 +95,7 @@ export function ResearchGroupFeaturedPublicationClient({
           <div className="flex items-center gap-3 pt-2">
             <Button
               onClick={handleSave}
-              disabled={isSubmitting || selectedId === (initialFeaturedId || 'none')}
+              disabled={isSubmitting || selectedId === (initialFeaturedOutputId || 'none')}
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               Save Selection

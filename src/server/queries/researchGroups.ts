@@ -90,7 +90,7 @@ export async function getResearchGroupByIdForUser({
         },
         orderBy: { orderIndex: 'asc' },
       },
-      featuredPublicationId: true,
+      featuredResearchOutputId: true,
     },
   });
 }

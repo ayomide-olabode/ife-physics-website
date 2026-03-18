@@ -1,17 +1,17 @@
 import { HeroCarousel } from '@/components/public/home/HeroCarousel';
 import { StatsStrip } from '@/components/public/home/StatsStrip';
 import { AcademicProgrammesSection } from '@/components/public-ref/home/AcademicProgrammesSection';
-import { LatestPublications } from '@/components/public/home/LatestPublications';
+import { ResearchOutputsSection } from '@/components/public/home/ResearchOutputsSection';
 import { NewsUpdatesSection } from '@/components/public/home/NewsUpdatesSection';
 import { UpcomingEventsSection } from '@/components/public/home/UpcomingEventsSection';
 import { getFeaturedNews, listPublicNews } from '@/server/public/queries/newsPublic';
-import { getFeaturedPublications } from '@/server/public/queries/featuredPublications';
+import { getFeaturedResearchOutputs } from '@/server/public/queries/researchPublic';
 
 export default async function HomePage() {
-  const [featuredNews, latestNews, publications] = await Promise.all([
+  const [featuredNews, latestNews, featuredResearchOutputs] = await Promise.all([
     getFeaturedNews(3),
     listPublicNews({ page: 1, pageSize: 3 }),
-    getFeaturedPublications(3),
+    getFeaturedResearchOutputs(3),
   ]);
 
   return (
@@ -25,8 +25,8 @@ export default async function HomePage() {
       {/* 3) Academic programmes */}
       <AcademicProgrammesSection />
 
-      {/* 4) Latest publications */}
-      <LatestPublications items={publications} />
+      {/* 4) Research outputs */}
+      <ResearchOutputsSection items={featuredResearchOutputs} />
 
       {/* 5) News updates */}
       <NewsUpdatesSection items={latestNews.items} />

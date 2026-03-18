@@ -103,12 +103,12 @@ export async function createPublication(groupId: string, data: PublicationInput)
       return { success: false, error: error.issues[0].message };
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return { success: false, error: 'A publication with this slug or DOI already exists.' };
+      return { success: false, error: 'A research output with this slug or DOI already exists.' };
     }
     if (error instanceof Error) {
       return { success: false, error: error.message };
     }
-    return { success: false, error: 'Failed to create publication' };
+    return { success: false, error: 'Failed to create research output' };
   }
 }
 
@@ -125,7 +125,7 @@ export async function updatePublication(groupId: string, id: string, data: Publi
     });
 
     if (!existing) {
-      return { success: false, error: 'Publication not found' };
+      return { success: false, error: 'Research output not found' };
     }
 
     await prisma.publication.update({
@@ -158,12 +158,12 @@ export async function updatePublication(groupId: string, id: string, data: Publi
       return { success: false, error: error.issues[0].message };
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return { success: false, error: 'A publication with this DOI already exists.' };
+      return { success: false, error: 'A research output with this DOI already exists.' };
     }
     if (error instanceof Error) {
       return { success: false, error: error.message };
     }
-    return { success: false, error: 'Failed to update publication' };
+    return { success: false, error: 'Failed to update research output' };
   }
 }
 
@@ -178,7 +178,7 @@ export async function deletePublication(groupId: string, id: string) {
     });
 
     if (!existing) {
-      return { success: false, error: 'Publication not found' };
+      return { success: false, error: 'Research output not found' };
     }
 
     await prisma.publication.update({
@@ -201,7 +201,7 @@ export async function deletePublication(groupId: string, id: string) {
     if (error instanceof Error) {
       return { success: false, error: error.message };
     }
-    return { success: false, error: 'Failed to delete publication' };
+    return { success: false, error: 'Failed to delete research output' };
   }
 }
 
@@ -216,7 +216,7 @@ export async function toggleFeatured(groupId: string, id: string, isFeatured: bo
     });
 
     if (!existing) {
-      return { success: false, error: 'Publication not found' };
+      return { success: false, error: 'Research output not found' };
     }
 
     await prisma.publication.update({

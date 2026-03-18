@@ -97,7 +97,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
         : await createPublication(groupId, payload);
 
       if (res.success) {
-        toastSuccess(isEditing ? 'Publication updated.' : 'Publication created.');
+        toastSuccess(isEditing ? 'Research output updated.' : 'Research output created.');
         if (!isEditing && 'publicationId' in res && res.publicationId) {
           router.push(`${basePath}/${res.publicationId}`);
         } else {
@@ -122,7 +122,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
     try {
       const res = await deletePublication(groupId, initialData.id);
       if (res.success) {
-        toastSuccess('Publication deleted.');
+        toastSuccess('Research output deleted.');
         router.push(basePath);
       } else {
         toastError(res.error || 'Failed to delete.');
@@ -144,7 +144,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
               id="title"
               value={data.title}
               onChange={(e) => setData({ ...data, title: e.target.value })}
-              placeholder="Publication title"
+              placeholder="Research output title"
               disabled={isSubmitting}
               required
               maxLength={500}
@@ -216,7 +216,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
               id="abstract"
               value={data.abstract}
               onChange={(e) => setData({ ...data, abstract: e.target.value })}
-              placeholder="Publication abstract or summary..."
+              placeholder="Research output abstract or summary..."
               className="min-h-[150px]"
               disabled={isSubmitting}
               maxLength={5000}
@@ -231,7 +231,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
               disabled={isSubmitting}
             />
             <FieldLabel htmlFor="isFeatured" className="cursor-pointer">
-              Featured publication
+              Featured research output
             </FieldLabel>
           </div>
         </div>
@@ -247,7 +247,7 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isEditing ? 'Save Changes' : 'Create Publication'}
+            {isEditing ? 'Save Changes' : 'Create Research Output'}
           </Button>
           {isEditing && (
             <Button
@@ -265,8 +265,8 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
       <ConfirmDialog
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
-        title="Delete Publication"
-        description="Are you sure you want to delete this publication? This action will soft-delete it."
+        title="Delete Research Output"
+        description="Are you sure you want to delete this research output? This action will soft-delete it."
         confirmText="Delete"
         cancelText="Cancel"
         onConfirm={handleDelete}

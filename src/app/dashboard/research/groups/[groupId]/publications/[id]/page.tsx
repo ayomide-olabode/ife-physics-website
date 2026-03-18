@@ -21,10 +21,10 @@ export default async function EditPublicationPage({ params }: PageProps) {
     <div className="space-y-6">
       <BackToParent
         href={`/dashboard/research/groups/${groupId}/publications`}
-        label="Publications"
+        label="Research Outputs"
       />
 
-      <PageHeader title="Edit Publication" />
+      <PageHeader title="Edit Research Output" />
 
       <PublicationFormClient
         groupId={groupId}

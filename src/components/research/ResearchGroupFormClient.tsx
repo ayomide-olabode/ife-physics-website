@@ -27,7 +27,7 @@ export type ResearchGroupFormData = {
   focusAreas: Array<{
     id: string;
     title: string;
-    orderIndex: number;
+    description: string | null;
   }>;
 };
 
@@ -63,10 +63,7 @@ export function ResearchGroupFormClient({ initialData }: Props) {
       (initialData?.focusAreas || []).map((focusArea) => [focusArea.id, focusArea.title]),
     ),
   );
-  const sortedFocusAreas = useMemo(
-    () => [...focusAreas].sort((a, b) => a.orderIndex - b.orderIndex),
-    [focusAreas],
-  );
+  const sortedFocusAreas = useMemo(() => [...focusAreas], [focusAreas]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();

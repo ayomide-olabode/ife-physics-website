@@ -156,34 +156,27 @@ export async function addFocusArea(researchGroupId: string, title: string) {
       return { success: false, error: 'Research group not found' };
     }
 
-    const maxOrder = await prisma.researchGroupFocusArea.aggregate({
-      where: { researchGroupId, deletedAt: null },
-      _max: { orderIndex: true },
-    });
-    const nextOrder = (maxOrder._max.orderIndex ?? -1) + 1;
-
-    const focusArea = await prisma.researchGroupFocusArea.create({
+    const focusArea = await prisma.focusArea.create({
       data: {
         researchGroupId,
         title: parsedTitle,
-        orderIndex: nextOrder,
       },
       select: {
         id: true,
         title: true,
-        orderIndex: true,
+        description: true,
       },
     });
 
     await logAudit({
       actorId: session.user?.userId || '',
       action: 'FOCUS_AREA_ADDED',
-      entityType: 'ResearchGroupFocusArea',
+      entityType: 'FocusArea',
       entityId: focusArea.id,
       snapshot: {
         researchGroupId,
         title: focusArea.title,
-        orderIndex: focusArea.orderIndex,
+        description: focusArea.description,
       },
     });
 
@@ -206,7 +199,7 @@ export async function updateFocusArea(id: string, title: string) {
     const session = await requireAuth();
     const parsedTitle = focusAreaTitleSchema.parse(title);
 
-    const existing = await prisma.researchGroupFocusArea.findFirst({
+    const existing = await prisma.focusArea.findFirst({
       where: { id, deletedAt: null },
       select: { id: true, researchGroupId: true, title: true },
     });
@@ -216,21 +209,22 @@ export async function updateFocusArea(id: string, title: string) {
 
     await requireResearchGroupScopeAccess(session, existing.researchGroupId);
 
-    const updated = await prisma.researchGroupFocusArea.update({
+    const updated = await prisma.focusArea.update({
       where: { id },
       data: { title: parsedTitle },
-      select: { id: true, title: true, orderIndex: true },
+      select: { id: true, title: true, description: true },
     });
 
     await logAudit({
       actorId: session.user?.userId || '',
       action: 'FOCUS_AREA_UPDATED',
-      entityType: 'ResearchGroupFocusArea',
+      entityType: 'FocusArea',
       entityId: id,
       snapshot: {
         researchGroupId: existing.researchGroupId,
         previousTitle: existing.title,
         title: updated.title,
+        description: updated.description,
       },
     });
 
@@ -252,9 +246,9 @@ export async function removeFocusArea(id: string) {
   try {
     const session = await requireAuth();
 
-    const existing = await prisma.researchGroupFocusArea.findFirst({
+    const existing = await prisma.focusArea.findFirst({
       where: { id, deletedAt: null },
-      select: { id: true, researchGroupId: true, title: true, orderIndex: true },
+      select: { id: true, researchGroupId: true, title: true, description: true },
     });
     if (!existing) {
       return { success: false, error: 'Focus area not found' };
@@ -262,7 +256,7 @@ export async function removeFocusArea(id: string) {
 
     await requireResearchGroupScopeAccess(session, existing.researchGroupId);
 
-    await prisma.researchGroupFocusArea.update({
+    await prisma.focusArea.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
@@ -270,12 +264,12 @@ export async function removeFocusArea(id: string) {
     await logAudit({
       actorId: session.user?.userId || '',
       action: 'FOCUS_AREA_REMOVED',
-      entityType: 'ResearchGroupFocusArea',
+      entityType: 'FocusArea',
       entityId: id,
       snapshot: {
         researchGroupId: existing.researchGroupId,
         title: existing.title,
-        orderIndex: existing.orderIndex,
+        description: existing.description,
       },
     });
 
@@ -287,62 +281,5 @@ export async function removeFocusArea(id: string) {
       return { success: false, error: error.message };
     }
     return { success: false, error: 'Failed to remove focus area' };
-  }
-}
-
-export async function reorderFocusAreas(researchGroupId: string, orderedIds: string[]) {
-  try {
-    const session = await requireAuth();
-    await requireResearchGroupScopeAccess(session, researchGroupId);
-
-    const parsedIds = z.array(z.string().min(1)).parse(orderedIds);
-    if (parsedIds.length === 0) {
-      return { success: false, error: 'No focus areas to reorder.' };
-    }
-
-    const existing = await prisma.researchGroupFocusArea.findMany({
-      where: {
-        researchGroupId,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-      },
-    });
-    const existingIds = new Set(existing.map((item) => item.id));
-    if (existingIds.size !== parsedIds.length || parsedIds.some((id) => !existingIds.has(id))) {
-      return { success: false, error: 'Invalid focus area ordering payload.' };
-    }
-
-    await prisma.$transaction(
-      parsedIds.map((id, index) =>
-        prisma.researchGroupFocusArea.update({
-          where: { id },
-          data: { orderIndex: index },
-        }),
-      ),
-    );
-
-    await logAudit({
-      actorId: session.user?.userId || '',
-      action: 'FOCUS_AREA_REORDERED',
-      entityType: 'ResearchGroup',
-      entityId: researchGroupId,
-      snapshot: {
-        orderedIds: parsedIds,
-      },
-    });
-
-    // @ts-expect-error Next Canary Type definition bug
-    revalidateTag('research-groups');
-    return { success: true };
-  } catch (error: unknown) {
-    if (error instanceof z.ZodError) {
-      return { success: false, error: error.issues[0].message };
-    }
-    if (error instanceof Error) {
-      return { success: false, error: error.message };
-    }
-    return { success: false, error: 'Failed to reorder focus areas' };
   }
 }

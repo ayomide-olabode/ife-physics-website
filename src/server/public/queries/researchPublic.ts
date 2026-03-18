@@ -43,9 +43,9 @@ export async function getPublicResearchGroupBySlug(slug: string) {
         select: {
           id: true,
           title: true,
-          orderIndex: true,
+          description: true,
         },
-        orderBy: { orderIndex: 'asc' },
+        orderBy: { createdAt: 'asc' },
       },
       featuredResearchOutputId: true,
       memberships: {

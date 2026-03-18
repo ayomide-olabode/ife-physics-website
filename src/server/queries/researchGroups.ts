@@ -86,9 +86,9 @@ export async function getResearchGroupByIdForUser({
         select: {
           id: true,
           title: true,
-          orderIndex: true,
+          description: true,
         },
-        orderBy: { orderIndex: 'asc' },
+        orderBy: { createdAt: 'asc' },
       },
       featuredResearchOutputId: true,
     },

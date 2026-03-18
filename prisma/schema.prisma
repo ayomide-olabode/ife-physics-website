@@ -157,6 +157,12 @@ enum OpportunityCategory {
   COLLABORATION
 }
 
+enum TestimonialStatus {
+  PENDING
+  APPROVED
+  DECLINED
+}
+
 //////////////////////////////////////////////////////
 // STAFF & AUTHENTICATION
 //////////////////////////////////////////////////////
@@ -208,6 +214,9 @@ model Staff {
   bio               String?
   researchInterests String?
   profileImageUrl   String?
+  dateOfBirth       DateTime?
+  dateOfDeath       DateTime?
+  isInMemoriam      Boolean @default(false)
 
   user        User?
   emailTokens EmailToken[]
@@ -220,6 +229,8 @@ model Staff {
   projects         Project[]
   teaching         TeachingResponsibility[]
   thesesSupervised StudentThesis[]
+  tribute          DepartmentalTribute?
+  testimonials     TributeTestimonial[]
 
   leadershipTerms LeadershipTerm[]
   hodAddress      HodAddress?
@@ -231,6 +242,34 @@ model Staff {
   @@index([staffStatus])
   @@index([staffType])
   @@index([secondaryAffiliationId])
+}
+
+model DepartmentalTribute {
+  id        String   @id @default(cuid())
+  staffId   String   @unique
+  title     String
+  bodyHtml  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+}
+
+model TributeTestimonial {
+  id             String            @id @default(cuid())
+  staffId        String
+  name           String
+  relationship   String
+  tributeHtml    String
+  status         TestimonialStatus @default(PENDING)
+  submittedAt    DateTime          @default(now())
+  reviewedAt     DateTime?
+  reviewerUserId String?
+  declineReason  String?
+
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId, status, submittedAt])
 }
 
 model User {

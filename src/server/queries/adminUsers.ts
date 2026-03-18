@@ -33,25 +33,27 @@ export async function listUsers({
       take: pageSize,
       select: {
         id: true,
-        staffId: true,
         isSuperAdmin: true,
-        passwordHash: true,
         lastLoginAt: true,
-        createdAt: true,
         staff: {
           select: {
             firstName: true,
             middleName: true,
             lastName: true,
             institutionalEmail: true,
-            profileImageUrl: true,
           },
         },
         roleAssignments: {
           where: {
             deletedAt: null,
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
           },
-          select: { role: true, expiresAt: true },
+          select: {
+            role: true,
+            programmeScope: true,
+            degreeScope: true,
+            scopeId: true,
+          },
         },
       },
     }),

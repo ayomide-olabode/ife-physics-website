@@ -4,9 +4,23 @@ import { EmptyState } from '@/components/dashboard/EmptyState';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { AddNewButton } from '@/components/dashboard/AddNewButton';
 import { listUsers } from '@/server/queries/adminUsers';
+import { listResearchGroupOptions } from '@/server/queries/researchGroupOptions';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
+
+const DEGREE_SCOPE_LABELS = {
+  GENERAL: 'General',
+  UNDERGRADUATE: 'UG',
+  POSTGRADUATE: 'PG',
+} as const;
+
+const PROGRAMME_SCOPE_LABELS = {
+  GENERAL: 'General',
+  PHY: 'Physics',
+  EPH: 'Engineering Physics',
+  SLT: 'Science Laboratory Technology',
+} as const;
 
 export default async function AdminUsersPage({
   searchParams,
@@ -18,71 +32,78 @@ export default async function AdminUsersPage({
   const page = parseInt(params.page || '1', 10);
   const pageSize = parseInt(params.pageSize || '20', 10);
 
-  const { items: users, total } = await listUsers({ q, page, pageSize });
+  const [{ items: users, total }, researchGroups] = await Promise.all([
+    listUsers({ q, page, pageSize }),
+    listResearchGroupOptions(),
+  ]);
+  const researchGroupLookup = new Map(
+    researchGroups.map((group) => [group.id, group.abbreviation || group.name]),
+  );
 
   const hasNextPage = page * pageSize < total;
   const hasPrevPage = page > 1;
 
   const rows = users.map((user) => {
-    const activeRoles = user.roleAssignments
-      ? user.roleAssignments
-          .filter((ra) => !ra.expiresAt || new Date(ra.expiresAt) > new Date())
-          .map((ra) => ra.role)
-      : [];
-    const uniqueRoles = Array.from(new Set(activeRoles));
+    const roleLabels = user.roleAssignments.map((assignment) => {
+      if (assignment.role === 'EDITOR') {
+        return 'EDITOR';
+      }
+
+      if (assignment.role === 'RESEARCH_LEAD') {
+        if (assignment.scopeId) {
+          const groupName = researchGroupLookup.get(assignment.scopeId);
+          if (groupName) {
+            return `Research Lead - ${groupName}`;
+          }
+        }
+        return 'Research Lead (scoped)';
+      }
+
+      if (
+        assignment.role === 'ACADEMIC_COORDINATOR' &&
+        assignment.degreeScope &&
+        assignment.programmeScope
+      ) {
+        const degree = DEGREE_SCOPE_LABELS[assignment.degreeScope];
+        const programme = PROGRAMME_SCOPE_LABELS[assignment.programmeScope];
+        return `${degree} Coordinator - ${programme}`;
+      }
+
+      return assignment.role;
+    });
+    const uniqueRoleLabels = Array.from(new Set(roleLabels));
 
     return [
-      <span key="staffId" className="text-sm font-medium">
-        {user.staffId}
-      </span>,
       <div key="name" className="text-sm">
-        {formatFullName({
-          firstName: user.staff.firstName,
-          middleName: user.staff.middleName,
-          lastName: user.staff.lastName,
-        }) || user.staff.institutionalEmail}
+        <p className="font-medium text-foreground">
+          {formatFullName({
+            firstName: user.staff.firstName,
+            middleName: user.staff.middleName,
+            lastName: user.staff.lastName,
+          }) || user.staff.institutionalEmail}
+        </p>
+        {user.isSuperAdmin && (
+          <span className="mt-1 inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-500">
+            SUPER_ADMIN
+          </span>
+        )}
       </div>,
       <div key="email" className="text-sm text-muted-foreground">
         {user.staff.institutionalEmail}
       </div>,
-      <span key="account" className="text-sm">
-        {user.passwordHash === '' ? (
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
-            INVITED
-          </span>
-        ) : (
-          <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-500">
-            ACTIVE
-          </span>
-        )}
-      </span>,
       <span key="roles" className="text-sm flex flex-wrap gap-1">
-        {user.isSuperAdmin && (
-          <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-500">
-            SUPER_ADMIN
-          </span>
+        {uniqueRoleLabels.length > 0 ? (
+          uniqueRoleLabels.map((label) => (
+            <span
+              key={label}
+              className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground"
+            >
+              {label}
+            </span>
+          ))
+        ) : (
+          <span className="text-muted-foreground">No roles</span>
         )}
-        {uniqueRoles.includes('EDITOR') && (
-          <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">
-            EDITOR
-          </span>
-        )}
-        {uniqueRoles.includes('ACADEMIC_COORDINATOR') && (
-          <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-500">
-            ACADEMIC_COORDINATOR
-          </span>
-        )}
-        {uniqueRoles.includes('RESEARCH_LEAD') && (
-          <span className="inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-800 dark:bg-teal-900/30 dark:text-teal-500">
-            RESEARCH_LEAD
-          </span>
-        )}
-        {!user.isSuperAdmin && uniqueRoles.length === 0 && (
-          <span className="text-muted-foreground">-</span>
-        )}
-      </span>,
-      <span key="joined" className="text-sm">
-        {formatDate(user.createdAt)}
       </span>,
       <span key="lastLogin" className="text-sm">
         {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never'}
@@ -121,16 +142,7 @@ export default async function AdminUsersPage({
         }
       />
       <DataTable
-        headers={[
-          'Staff ID',
-          'Name',
-          'Email',
-          'Account',
-          'Roles',
-          'Joined',
-          'Last Login',
-          'Actions',
-        ]}
+        headers={['Name', 'Email', 'Roles', 'Last Login', 'Actions']}
         rows={rows}
         emptyState={
           <EmptyState

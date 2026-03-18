@@ -42,8 +42,8 @@ export async function approveTestimonial(id: string) {
       snapshot: { staffId: testimonial.staffId, status: testimonial.status },
     });
 
-    revalidatePath('/dashboard/tributes');
-    revalidatePath(`/dashboard/tributes/${testimonial.staffId}`);
+    revalidatePath('/dashboard/content/tributes');
+    revalidatePath(`/dashboard/content/tributes/${testimonial.staffId}`);
     return { success: true };
   } catch (error) {
     console.error('Failed to approve testimonial:', error);
@@ -86,8 +86,8 @@ export async function declineTestimonial(id: string, reason?: string) {
       },
     });
 
-    revalidatePath('/dashboard/tributes');
-    revalidatePath(`/dashboard/tributes/${testimonial.staffId}`);
+    revalidatePath('/dashboard/content/tributes');
+    revalidatePath(`/dashboard/content/tributes/${testimonial.staffId}`);
     return { success: true };
   } catch (error) {
     console.error('Failed to decline testimonial:', error);

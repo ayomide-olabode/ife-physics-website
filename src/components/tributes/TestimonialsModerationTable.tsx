@@ -167,7 +167,7 @@ export function TestimonialsModerationTable({
               <div className="flex gap-2">
                 {hasPrevPage ? (
                   <Link
-                    href={`/dashboard/tributes/${staffId}?page=${page - 1}${statusQuery}`}
+                    href={`/dashboard/content/tributes/${staffId}?page=${page - 1}${statusQuery}`}
                     className="rounded-md border px-3 py-1 hover:bg-muted"
                   >
                     Previous
@@ -179,7 +179,7 @@ export function TestimonialsModerationTable({
                 )}
                 {hasNextPage ? (
                   <Link
-                    href={`/dashboard/tributes/${staffId}?page=${page + 1}${statusQuery}`}
+                    href={`/dashboard/content/tributes/${staffId}?page=${page + 1}${statusQuery}`}
                     className="rounded-md border px-3 py-1 hover:bg-muted"
                   >
                     Next

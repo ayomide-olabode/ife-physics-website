@@ -79,7 +79,7 @@ export function MarkInMemoriamModal() {
       toastSuccess('Staff marked as in memoriam.');
       setOpen(false);
       resetForm();
-      router.push(`/dashboard/tributes/${selectedStaffId}`);
+      router.push(`/dashboard/content/tributes/${selectedStaffId}`);
       router.refresh();
     } catch {
       toastError('An unexpected error occurred.');

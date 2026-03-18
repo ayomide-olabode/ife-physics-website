@@ -64,8 +64,8 @@ export async function upsertDepartmentalTribute(input: UpsertDepartmentalTribute
       },
     });
 
-    revalidatePath('/dashboard/tributes');
-    revalidatePath(`/dashboard/tributes/${staffId}`);
+    revalidatePath('/dashboard/content/tributes');
+    revalidatePath(`/dashboard/content/tributes/${staffId}`);
 
     return { success: true };
   } catch (error) {

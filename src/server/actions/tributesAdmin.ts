@@ -132,8 +132,8 @@ export async function markStaffInMemoriam({
       return { rolesEndedCount, termsEndedCount };
     });
 
-    revalidatePath('/dashboard/tributes');
-    revalidatePath(`/dashboard/tributes/${staffId}`);
+    revalidatePath('/dashboard/content/tributes');
+    revalidatePath(`/dashboard/content/tributes/${staffId}`);
 
     return { success: true, staffId, ...result };
   } catch (error) {

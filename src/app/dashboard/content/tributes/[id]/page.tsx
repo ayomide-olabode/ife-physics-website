@@ -1,8 +1,8 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TestimonialStatus } from '@prisma/client';
 import { requireTributesAccess } from '@/lib/guards';
 import prisma from '@/lib/prisma';
+import { BackToParent } from '@/components/dashboard/BackToParent';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format-date';
@@ -80,15 +80,11 @@ export default async function TributeDetailPage({
   const displayName = [staff.title, fullName].filter(Boolean).join(' ').trim() || 'Unnamed staff';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      <BackToParent href="/dashboard/content/tributes" label="Back to Tributes" />
       <PageHeader
         title={displayName}
         description={`In memoriam record • Died: ${formatDate(staff.dateOfDeath)}${staff.dateOfBirth ? ` • Born: ${formatDate(staff.dateOfBirth)}` : ''}`}
-        actions={
-          <Link href="/dashboard/tributes">
-            <Button variant="outline">Back to Tributes</Button>
-          </Link>
-        }
       />
 
       <section className="space-y-4">
@@ -113,7 +109,11 @@ export default async function TributeDetailPage({
               Review public testimonials submitted for this staff member.
             </p>
           </div>
-          <form method="GET" action={`/dashboard/tributes/${staff.id}`} className="flex gap-2">
+          <form
+            method="GET"
+            action={`/dashboard/content/tributes/${staff.id}`}
+            className="flex gap-2"
+          >
             <select
               name="status"
               defaultValue={status || ''}

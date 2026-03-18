@@ -50,7 +50,7 @@ export default async function TributesDashboardPage({
       </span>,
       <Link
         key="actions"
-        href={`/dashboard/tributes/${staff.id}`}
+        href={`/dashboard/content/tributes/${staff.id}`}
         className="text-sm font-medium text-primary hover:underline"
       >
         View
@@ -65,7 +65,11 @@ export default async function TributesDashboardPage({
         description="Manage staff memorial profiles and tribute records."
         actions={
           <div className="flex items-center gap-4">
-            <form method="GET" action="/dashboard/tributes" className="flex items-center gap-2">
+            <form
+              method="GET"
+              action="/dashboard/content/tributes"
+              className="flex items-center gap-2"
+            >
               <input
                 type="text"
                 name="q"
@@ -103,7 +107,7 @@ export default async function TributesDashboardPage({
               <div className="flex gap-2">
                 {hasPrevPage ? (
                   <Link
-                    href={`/dashboard/tributes?page=${page - 1}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+                    href={`/dashboard/content/tributes?page=${page - 1}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
                     className="rounded-md border px-3 py-1 hover:bg-muted"
                   >
                     Previous
@@ -115,7 +119,7 @@ export default async function TributesDashboardPage({
                 )}
                 {hasNextPage ? (
                   <Link
-                    href={`/dashboard/tributes?page=${page + 1}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+                    href={`/dashboard/content/tributes?page=${page + 1}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
                     className="rounded-md border px-3 py-1 hover:bg-muted"
                   >
                     Next

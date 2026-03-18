@@ -30,7 +30,8 @@ export default async function TributeDetailPage({
 
   const { id } = await params;
   const query = await searchParams;
-  const page = parseInt(query.page || '1', 10);
+  const parsedPage = parseInt(query.page || '1', 10);
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const status = parseStatus(query.status);
   const pageSize = 10;
 

@@ -83,18 +83,26 @@ export async function markStaffInMemoriam({
 
       let rolesEndedCount = 0;
       if (user) {
-        const rolesUpdate = await tx.roleAssignment.updateMany({
+        const revokedRoles = await tx.roleAssignment.updateMany({
           where: {
             userId: user.id,
             deletedAt: null,
+          },
+          data: {
+            deletedAt: new Date(),
+          },
+        });
+
+        await tx.roleAssignment.updateMany({
+          where: {
+            userId: user.id,
             OR: [{ expiresAt: null }, { expiresAt: { gt: parsedDateOfDeath } }],
           },
           data: {
             expiresAt: parsedDateOfDeath,
-            deletedAt: new Date(),
           },
         });
-        rolesEndedCount = rolesUpdate.count;
+        rolesEndedCount = revokedRoles.count;
       }
 
       const termsUpdate = await tx.leadershipTerm.updateMany({

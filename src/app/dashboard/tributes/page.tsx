@@ -18,7 +18,8 @@ export default async function TributesDashboardPage({
 
   const params = await searchParams;
   const q = params.q || '';
-  const page = parseInt(params.page || '1', 10);
+  const parsedPage = parseInt(params.page || '1', 10);
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const pageSize = 10;
 
   const { items, total } = await listInMemoriamStaff({ q, page, pageSize });

@@ -10,7 +10,9 @@ export async function listInMemoriamStaff({
   page?: number;
   pageSize?: number;
 }) {
-  const skip = (page - 1) * pageSize;
+  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? Math.floor(pageSize) : 10;
+  const skip = (safePage - 1) * safePageSize;
 
   const where: Prisma.StaffWhereInput = {
     deletedAt: null,
@@ -36,7 +38,7 @@ export async function listInMemoriamStaff({
       where,
       orderBy: [{ dateOfDeath: 'desc' }, { updatedAt: 'desc' }],
       skip,
-      take: pageSize,
+      take: safePageSize,
       select: {
         id: true,
         title: true,
@@ -52,7 +54,7 @@ export async function listInMemoriamStaff({
     prisma.staff.count({ where }),
   ]);
 
-  return { items, total, page, pageSize };
+  return { items, total, page: safePage, pageSize: safePageSize };
 }
 
 export async function listTestimonialsForStaff({
@@ -66,7 +68,9 @@ export async function listTestimonialsForStaff({
   pageSize?: number;
   status?: TestimonialStatus;
 }) {
-  const skip = (page - 1) * pageSize;
+  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? Math.floor(pageSize) : 10;
+  const skip = (safePage - 1) * safePageSize;
   const where: Prisma.TributeTestimonialWhereInput = {
     staffId,
     ...(status ? { status } : {}),
@@ -77,7 +81,7 @@ export async function listTestimonialsForStaff({
       where,
       orderBy: [{ submittedAt: 'desc' }],
       skip,
-      take: pageSize,
+      take: safePageSize,
       select: {
         id: true,
         name: true,
@@ -90,5 +94,5 @@ export async function listTestimonialsForStaff({
     prisma.tributeTestimonial.count({ where }),
   ]);
 
-  return { items, total, page, pageSize };
+  return { items, total, page: safePage, pageSize: safePageSize };
 }

@@ -1,0 +1,173 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { cn } from '@/lib/utils';
+
+type YearNumber = 1 | 2 | 3 | 4;
+
+interface UndergraduateCourse {
+  code: string;
+  title: string;
+  units?: number | null;
+  semester?: string | null;
+  year?: number | null;
+}
+
+interface UndergraduateCourseListingProps {
+  courses: UndergraduateCourse[];
+}
+
+interface GroupedYear {
+  year: YearNumber;
+  label: string;
+  courses: UndergraduateCourse[];
+}
+
+const YEARS: YearNumber[] = [1, 2, 3, 4];
+
+function sortCourses(courses: UndergraduateCourse[]) {
+  return [...courses].sort((a, b) => a.code.localeCompare(b.code));
+}
+
+function getDefaultOpenYear(groups: GroupedYear[]) {
+  const firstPopulated = groups.find((group) => group.courses.length > 0);
+  return firstPopulated?.year ?? 1;
+}
+
+function groupCoursesByYear(courses: UndergraduateCourse[]) {
+  const hasExplicitYearMapping = courses.some((course) => {
+    return (
+      typeof course.year === 'number' &&
+      Number.isInteger(course.year) &&
+      course.year >= 1 &&
+      course.year <= 4
+    );
+  });
+
+  const byYear = new Map<YearNumber, UndergraduateCourse[]>(
+    YEARS.map((year) => [year, [] as UndergraduateCourse[]]),
+  );
+
+  if (hasExplicitYearMapping) {
+    for (const course of courses) {
+      const year = course.year;
+      if (typeof year === 'number' && year >= 1 && year <= 4) {
+        byYear.get(year as YearNumber)?.push(course);
+      } else {
+        byYear.get(1)?.push(course);
+      }
+    }
+  } else {
+    // TODO(UG): Switch to year/semester mapping fields when UG program-course mapping is available.
+    for (const course of courses) {
+      byYear.get(1)?.push(course);
+    }
+  }
+
+  return YEARS.map((year) => ({
+    year,
+    label: `Year ${year}`,
+    courses: sortCourses(byYear.get(year) || []),
+  }));
+}
+
+function displaySemester(value?: string | null) {
+  const normalized = value?.trim();
+  return normalized ? normalized : '—';
+}
+
+function displayUnits(value?: number | null) {
+  return typeof value === 'number' ? value.toString() : '—';
+}
+
+export function UndergraduateCourseListing({ courses }: UndergraduateCourseListingProps) {
+  const groups = useMemo(() => groupCoursesByYear(courses), [courses]);
+  const [openYear, setOpenYear] = useState<YearNumber>(getDefaultOpenYear(groups));
+
+  if (courses.length === 0) {
+    return (
+      <div className="border border-brand-navy/20 bg-white px-4 py-3">
+        <p className="text-sm font-semibold text-brand-navy">No courses yet</p>
+        <p className="mt-1 text-sm text-gray-600">
+          Courses will appear here once added by an academic coordinator.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-brand-navy/20 bg-white">
+      {groups.map((group) => {
+        const isOpen = openYear === group.year;
+
+        return (
+          <section key={group.year} className="border-b border-brand-navy/20 last:border-b-0">
+            <h3>
+              <button
+                type="button"
+                onClick={() => setOpenYear(group.year)}
+                className={cn(
+                  'flex w-full items-center justify-between px-5 py-4 text-left text-base font-semibold transition-colors',
+                  isOpen
+                    ? 'bg-brand-navy text-white'
+                    : 'bg-white text-brand-navy hover:bg-slate-50',
+                )}
+                aria-expanded={isOpen}
+              >
+                <span>{group.label}</span>
+                <span className="text-lg leading-none">{isOpen ? '−' : '+'}</span>
+              </button>
+            </h3>
+
+            {isOpen ? (
+              <div className="overflow-x-auto border-t border-brand-navy/20">
+                {group.courses.length > 0 ? (
+                  <table className="min-w-full border-collapse text-sm">
+                    <thead>
+                      <tr className="bg-slate-50 text-left text-brand-navy">
+                        <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                          Course Code
+                        </th>
+                        <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                          Course Title
+                        </th>
+                        <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                          Semester Taken
+                        </th>
+                        <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                          No of units
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {group.courses.map((course) => (
+                        <tr key={course.code} className="bg-white">
+                          <td className="border border-brand-navy/20 px-4 py-3 font-medium text-brand-navy">
+                            {course.code}
+                          </td>
+                          <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                            {course.title}
+                          </td>
+                          <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                            {displaySemester(course.semester)}
+                          </td>
+                          <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                            {displayUnits(course.units)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="px-4 py-4">
+                    <p className="text-sm text-gray-600">No courses for this year yet.</p>
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </section>
+        );
+      })}
+    </div>
+  );
+}

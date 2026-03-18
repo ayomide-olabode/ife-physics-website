@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { PageHero } from '@/components/public/PageHero';
 import { Prose } from '@/components/public/Prose';
 import { ProgrammeTabs } from '@/components/public/academics/ProgrammeTabs';
+import { UndergraduateCourseListing } from '@/components/public/academics/UndergraduateCourseListing';
 import {
   getPublicUndergraduateProgram,
   listPublicUgCourses,
@@ -142,16 +143,13 @@ export default async function UndergraduateProgrammePage({ params }: PageProps) 
           <section className="space-y-6">
             <h2 className="text-2xl font-serif font-bold text-brand-navy">Course listing</h2>
             <Prose html={courseListingIntro || ''} className="text-gray-700" />
-
-            <div className="border border-brand-navy/20 bg-white p-6">
-              <p className="text-sm font-semibold text-brand-navy">
-                Year accordion and table (UG.2)
-              </p>
-              <p className="mt-1 text-sm text-gray-600">
-                Placeholder for the year-by-year expandable course table. {courses.length} course
-                {courses.length === 1 ? '' : 's'} loaded for this programme.
-              </p>
-            </div>
+            <UndergraduateCourseListing
+              courses={courses.map((course) => ({
+                code: course.code,
+                title: course.title,
+                units: course.U,
+              }))}
+            />
           </section>
         </div>
       </section>

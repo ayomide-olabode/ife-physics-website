@@ -1,33 +1,74 @@
+import Image from 'next/image';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { AddNewButton } from '@/components/dashboard/AddNewButton';
-import { listLeadershipTerms } from '@/server/queries/leadershipTerms';
-import { LeadershipTermManager, TermRow } from '@/components/admin/LeadershipTermManager';
+import { EmptyState } from '@/components/dashboard/EmptyState';
+import { formatDate } from '@/lib/format-date';
+import { formatFullName } from '@/lib/name';
+import { getCurrentHodTerm, listPastHodTerms } from '@/server/queries/leadershipTerms';
 
 export default async function AdminLeadershipPage() {
-  // Fetch HOD terms
-  const { items: hodAll } = await listLeadershipTerms({ role: 'HOD', pageSize: 100 });
-  const hodActive = hodAll.filter((t) => !t.endDate);
-  const hodPast = hodAll.filter((t) => t.endDate);
-
-  // Fetch Coordinators (both active and past combined for now, though we can split if needed)
-  const { items: coordinatorsAll } = await listLeadershipTerms({
-    role: 'ACADEMIC_COORDINATOR',
-    pageSize: 100,
-  });
+  const [currentHod, pastHods] = await Promise.all([getCurrentHodTerm(), listPastHodTerms()]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Leadership"
-        description="Manage Heads of Department and Academic Coordinators."
-        actions={<AddNewButton href="/dashboard/admin/leadership/new" />}
+        description="Manage Head of Department records."
+        actions={<AddNewButton href="/dashboard/admin/leadership/new" label="Update HOD" />}
       />
 
-      <LeadershipTermManager
-        hodTerms={hodActive as unknown as TermRow[]}
-        pastHodTerms={hodPast as unknown as TermRow[]}
-        coordinatorTerms={coordinatorsAll as unknown as TermRow[]}
-      />
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold tracking-tight">Current HOD</h2>
+        {currentHod ? (
+          <article className="rounded-md border bg-card p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="relative h-24 w-24 overflow-hidden rounded-md bg-muted">
+                {currentHod.staff.profileImageUrl ? (
+                  <Image
+                    src={currentHod.staff.profileImageUrl}
+                    alt={formatFullName(currentHod.staff) || currentHod.staff.institutionalEmail}
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                  />
+                ) : null}
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold">
+                  {formatFullName(currentHod.staff) || currentHod.staff.institutionalEmail}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Start: {formatDate(currentHod.startDate)}
+                  {currentHod.endDate ? ` • End: ${formatDate(currentHod.endDate)}` : ' • Ongoing'}
+                </p>
+              </div>
+            </div>
+          </article>
+        ) : (
+          <EmptyState title="No current HOD" description="Use Update HOD to assign a term." />
+        )}
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold tracking-tight">Past HODs</h2>
+        {pastHods.length === 0 ? (
+          <EmptyState title="No past HOD records" description="Past terms will appear here." />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {pastHods.map((term) => (
+              <article key={term.id} className="rounded-md border bg-card p-4">
+                <h3 className="font-semibold">
+                  {formatFullName(term.staff) || term.staff.institutionalEmail}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {formatDate(term.startDate)} -{' '}
+                  {term.endDate ? formatDate(term.endDate) : 'Present'}
+                </p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

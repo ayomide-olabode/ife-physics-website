@@ -7,8 +7,8 @@ export default function NewLeadershipTermPage() {
     <div className="space-y-6">
       <BackToParent href="/dashboard/admin/leadership" label="Back to Leadership" />
       <PageHeader
-        title="Assign Leadership Term"
-        description="Designate a Head of Department or Academic Coordinator. HOD roles check against active conflicts automatically."
+        title="Update HOD"
+        description="Assign a Head of Department term using staff search and date range."
       />
 
       <div className="max-w-3xl">

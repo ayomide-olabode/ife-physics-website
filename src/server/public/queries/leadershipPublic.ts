@@ -5,60 +5,66 @@ import prisma from '@/lib/prisma';
 /** Active academic coordinators (endDate is null). */
 export async function listPublicAcademicCoordinators() {
   const now = new Date();
-  const terms = await prisma.leadershipTerm.findMany({
-    where: { role: 'ACADEMIC_COORDINATOR', endDate: null },
+  const assignments = await prisma.roleAssignment.findMany({
+    where: {
+      role: 'ACADEMIC_COORDINATOR',
+      deletedAt: null,
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    },
     select: {
       id: true,
-      startDate: true,
-      staff: {
+      programmeScope: true,
+      degreeScope: true,
+      user: {
         select: {
-          id: true,
-          firstName: true,
-          middleName: true,
-          lastName: true,
-          profileImageUrl: true,
-          user: {
+          staff: {
             select: {
-              roleAssignments: {
-                where: {
-                  role: 'ACADEMIC_COORDINATOR',
-                  deletedAt: null,
-                  OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-                },
-                select: {
-                  id: true,
-                  programmeScope: true,
-                  degreeScope: true,
-                },
-              },
+              id: true,
+              title: true,
+              firstName: true,
+              middleName: true,
+              lastName: true,
+              profileImageUrl: true,
+              institutionalEmail: true,
+              designation: true,
             },
           },
         },
       },
     },
-    orderBy: { startDate: 'desc' },
   });
 
-  const seen = new Set<string>();
-  const cards = terms.flatMap((term) =>
-    (term.staff.user?.roleAssignments ?? [])
-      .filter((assignment) => assignment.programmeScope && assignment.degreeScope)
-      .map((assignment) => ({
-        id: assignment.id,
-        staffId: term.staff.id,
-        firstName: term.staff.firstName,
-        middleName: term.staff.middleName,
-        lastName: term.staff.lastName,
-        profileImageUrl: term.staff.profileImageUrl,
-        programmeScope: assignment.programmeScope,
-        degreeScope: assignment.degreeScope,
-      }))
-      .filter((card) => {
-        if (seen.has(card.id)) return false;
-        seen.add(card.id);
-        return true;
-      }),
-  );
+  const programmeRank = { GENERAL: 0, PHY: 1, EPH: 2, SLT: 3 } as const;
+  const degreeRank = { GENERAL: 0, UNDERGRADUATE: 1, POSTGRADUATE: 2 } as const;
+
+  const cards = assignments
+    .filter(
+      (assignment) => assignment.programmeScope && assignment.degreeScope && assignment.user.staff,
+    )
+    .map((assignment) => ({
+      id: assignment.id,
+      staff: {
+        id: assignment.user.staff.id,
+        title: assignment.user.staff.title,
+        firstName: assignment.user.staff.firstName,
+        middleName: assignment.user.staff.middleName,
+        lastName: assignment.user.staff.lastName,
+        institutionalEmail: assignment.user.staff.institutionalEmail,
+        designation: assignment.user.staff.designation,
+        profileImageUrl: assignment.user.staff.profileImageUrl,
+      },
+      programmeScope: assignment.programmeScope!,
+      degreeScope: assignment.degreeScope!,
+    }))
+    .sort((a, b) => {
+      const programmeCmp = programmeRank[a.programmeScope] - programmeRank[b.programmeScope];
+      if (programmeCmp !== 0) return programmeCmp;
+      const degreeCmp = degreeRank[a.degreeScope] - degreeRank[b.degreeScope];
+      if (degreeCmp !== 0) return degreeCmp;
+      const aName = `${a.staff.lastName ?? ''} ${a.staff.firstName ?? ''}`.toLowerCase();
+      const bName = `${b.staff.lastName ?? ''} ${b.staff.firstName ?? ''}`.toLowerCase();
+      return aName.localeCompare(bName);
+    });
 
   return cards;
 }
@@ -91,7 +97,6 @@ export async function listPublicPastHods() {
 
 /** Leadership payload for /about/leadership public page. */
 export async function getPublicLeadership() {
-  const now = new Date();
   const [currentHodTerm, academicCoordinators, pastHodTerms] = await Promise.all([
     prisma.leadershipTerm.findFirst({
       where: { role: 'HOD', endDate: null },
@@ -115,39 +120,7 @@ export async function getPublicLeadership() {
       },
       orderBy: { startDate: 'desc' },
     }),
-    prisma.leadershipTerm.findMany({
-      where: { role: 'ACADEMIC_COORDINATOR', endDate: null },
-      select: {
-        id: true,
-        startDate: true,
-        staff: {
-          select: {
-            id: true,
-            firstName: true,
-            middleName: true,
-            lastName: true,
-            profileImageUrl: true,
-            user: {
-              select: {
-                roleAssignments: {
-                  where: {
-                    role: 'ACADEMIC_COORDINATOR',
-                    deletedAt: null,
-                    OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-                  },
-                  select: {
-                    id: true,
-                    programmeScope: true,
-                    degreeScope: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      orderBy: { startDate: 'desc' },
-    }),
+    listPublicAcademicCoordinators(),
     prisma.leadershipTerm.findMany({
       where: { role: 'HOD', endDate: { not: null } },
       select: {
@@ -181,29 +154,6 @@ export async function getPublicLeadership() {
     ? { ...currentHodTerm.staff, startYear: currentHodTerm.startDate.getFullYear() }
     : null;
 
-  const seenCoordinatorAssignmentIds = new Set<string>();
-  const coordinatorCards = academicCoordinators.flatMap((term) =>
-    (term.staff.user?.roleAssignments ?? [])
-      .filter((assignment) => assignment.programmeScope && assignment.degreeScope)
-      .map((assignment) => ({
-        id: assignment.id,
-        staff: {
-          id: term.staff.id,
-          firstName: term.staff.firstName,
-          middleName: term.staff.middleName,
-          lastName: term.staff.lastName,
-          profileImageUrl: term.staff.profileImageUrl,
-        },
-        programmeScope: assignment.programmeScope,
-        degreeScope: assignment.degreeScope,
-      }))
-      .filter((card) => {
-        if (seenCoordinatorAssignmentIds.has(card.id)) return false;
-        seenCoordinatorAssignmentIds.add(card.id);
-        return true;
-      }),
-  );
-
   const pastHods = pastHodTerms.map((term) => ({
     id: term.id,
     startYear: term.startDate.getFullYear(),
@@ -225,7 +175,7 @@ export async function getPublicLeadership() {
 
   return {
     currentHod,
-    academicCoordinators: coordinatorCards,
+    academicCoordinators,
     pastHods,
   };
 }

@@ -53,3 +53,56 @@ export async function listLeadershipTerms({
 
   return { items, total, page, pageSize };
 }
+
+export async function getCurrentHodTerm() {
+  return prisma.leadershipTerm.findFirst({
+    where: {
+      role: 'HOD',
+      OR: [{ endDate: null }, { endDate: { gt: new Date() } }],
+    },
+    orderBy: [{ endDate: { sort: 'asc', nulls: 'first' } }, { startDate: 'desc' }],
+    select: {
+      id: true,
+      startDate: true,
+      endDate: true,
+      staff: {
+        select: {
+          id: true,
+          firstName: true,
+          middleName: true,
+          lastName: true,
+          institutionalEmail: true,
+          profileImageUrl: true,
+          title: true,
+          designation: true,
+          academicRank: true,
+        },
+      },
+    },
+  });
+}
+
+export async function listPastHodTerms() {
+  return prisma.leadershipTerm.findMany({
+    where: { role: 'HOD', endDate: { not: null } },
+    orderBy: [{ endDate: 'desc' }, { startDate: 'desc' }],
+    select: {
+      id: true,
+      startDate: true,
+      endDate: true,
+      staff: {
+        select: {
+          id: true,
+          firstName: true,
+          middleName: true,
+          lastName: true,
+          institutionalEmail: true,
+          profileImageUrl: true,
+          title: true,
+          designation: true,
+          academicRank: true,
+        },
+      },
+    },
+  });
+}

@@ -5,18 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
-
-import { LEADERSHIP_ROLE_OPTIONS, PROGRAMME_OPTIONS } from '@/lib/options';
-import { createLeadershipTerm } from '@/server/actions/leadershipTerms';
+import { upsertHodTerm } from '@/server/actions/leadershipTerms';
 import { searchStaff } from '@/server/queries/staffSearch';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { LeadershipRole, ProgrammeCode } from '@prisma/client';
 import { formatPersonName } from '@/lib/name';
 
 export function CreateLeadershipTermForm() {
   const router = useRouter();
 
-  // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<
     Array<{
@@ -30,13 +26,9 @@ export function CreateLeadershipTermForm() {
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Form state
   const [selectedStaffId, setSelectedStaffId] = useState<string>('');
-  const [role, setRole] = useState<LeadershipRole | ''>('');
   const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState<string>('');
-  const [programmeCode, setProgrammeCode] = useState<ProgrammeCode | ''>('');
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSearch(e: React.FormEvent) {
@@ -64,26 +56,19 @@ export function CreateLeadershipTermForm() {
       return;
     }
 
-    if (!role) {
-      toastError('Please select a leadership role.');
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      const res = await createLeadershipTerm({
+      const res = await upsertHodTerm({
         staffId: selectedStaffId,
-        role: role as LeadershipRole,
         startDate: new Date(startDate),
         endDate: endDate ? new Date(endDate) : null,
-        programmeCode: programmeCode ? (programmeCode as ProgrammeCode) : null,
       });
 
       if (res.error) {
         toastError(res.error);
         setIsSubmitting(false);
       } else {
-        toastSuccess('Leadership term created.');
+        toastSuccess('HOD updated successfully.');
         router.push('/dashboard/admin/leadership');
         router.refresh();
       }
@@ -95,11 +80,10 @@ export function CreateLeadershipTermForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl">
-      {/* 1. Staff Selection */}
       <div className="space-y-4 rounded-lg border p-4 bg-card text-card-foreground shadow-sm">
         <h3 className="text-lg font-medium">1. Select Staff Member</h3>
         <p className="text-sm text-muted-foreground">
-          Search for the staff member to assign this term to.
+          Search for the staff member to assign as HOD.
         </p>
 
         <div className="flex gap-2">
@@ -167,71 +151,29 @@ export function CreateLeadershipTermForm() {
         )}
       </div>
 
-      {/* 2. Term Details */}
       <div className="space-y-4 rounded-lg border p-4 bg-card text-card-foreground shadow-sm">
-        <h3 className="text-lg font-medium">2. Term Details</h3>
+        <h3 className="text-lg font-medium">2. HOD Term Dates</h3>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <FieldLabel htmlFor="role">Role</FieldLabel>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as LeadershipRole)}
-              className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            <FieldLabel htmlFor="startDate">Start Date</FieldLabel>
+            <Input
+              id="startDate"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
               required
-            >
-              <option value="" disabled>
-                Select a role...
-              </option>
-              {LEADERSHIP_ROLE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            />
           </div>
-
-          {role === 'ACADEMIC_COORDINATOR' && (
-            <div className="space-y-2">
-              <FieldLabel htmlFor="programmeCode">Programme Code (Optional)</FieldLabel>
-              <select
-                id="programmeCode"
-                value={programmeCode}
-                onChange={(e) => setProgrammeCode(e.target.value as ProgrammeCode)}
-                className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="">None / General</option>
-                {PROGRAMME_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.value} ({opt.label})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <FieldLabel htmlFor="startDate">Start Date</FieldLabel>
-              <Input
-                id="startDate"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <FieldLabel htmlFor="endDate">End Date (Optional)</FieldLabel>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">Leave blank for an ongoing term.</p>
-            </div>
+          <div className="space-y-2">
+            <FieldLabel htmlFor="endDate">End Date (Optional)</FieldLabel>
+            <Input
+              id="endDate"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">Leave blank for an ongoing HOD term.</p>
           </div>
         </div>
       </div>
@@ -246,7 +188,7 @@ export function CreateLeadershipTermForm() {
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting || !selectedStaffId}>
-          {isSubmitting ? 'Creating Term...' : 'Create Term'}
+          {isSubmitting ? 'Saving...' : 'Save HOD'}
         </Button>
       </div>
     </form>

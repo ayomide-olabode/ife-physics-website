@@ -1,84 +1,82 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { LeadershipRole, ProgrammeCode } from '@prisma/client';
 import { logAudit } from '@/lib/audit';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireAuth, requireSuperAdmin } from '@/lib/guards';
+import { revalidatePath } from 'next/cache';
 
-export async function createLeadershipTerm(params: {
+export async function upsertHodTerm(params: {
   staffId: string;
-  role: LeadershipRole;
   startDate: Date;
   endDate?: Date | null;
-  programmeCode?: ProgrammeCode | null;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.userId || !session.user.isSuperAdmin) {
-    return { error: 'Unauthorized.' };
+  const session = await requireAuth();
+  await requireSuperAdmin(session);
+
+  const { staffId, startDate, endDate } = params;
+  const normalizedStartDate = new Date(startDate);
+  const normalizedEndDate = endDate ? new Date(endDate) : null;
+
+  if (normalizedEndDate && normalizedEndDate < normalizedStartDate) {
+    return { error: 'End date cannot be before start date.' };
   }
 
-  const { staffId, role, startDate, endDate, programmeCode } = params;
-
-  // Validate Staff exists
   const targetStaff = await prisma.staff.findUnique({ where: { id: staffId } });
   if (!targetStaff) {
     return { error: 'Staff member not found.' };
   }
 
-  if (endDate && new Date(startDate) > new Date(endDate)) {
-    return { error: 'Start date cannot be after end date.' };
-  }
-
-  // If role == HOD, enforce single active HOD
-  if (role === 'HOD') {
-    if (!endDate) {
-      // Ensure no other HOD term has endDate null
-      const activeHod = await prisma.leadershipTerm.findFirst({
-        where: { role: 'HOD', endDate: null },
-      });
-      if (activeHod) {
-        return {
-          error:
-            'There is already an active HOD. End the current term before starting a new ongoing term.',
-        };
-      }
-    }
-  }
-
   try {
-    const term = await prisma.leadershipTerm.create({
-      data: {
-        staffId,
-        role,
-        startDate: new Date(startDate),
-        endDate: endDate ? new Date(endDate) : null,
-        programmeCode: programmeCode ?? null,
-      },
-    });
+    const term = await prisma.$transaction(async (tx) => {
+      if (!normalizedEndDate) {
+        // Keep only one active HOD by ending any currently active term at the new start date.
+        await tx.leadershipTerm.updateMany({
+          where: {
+            role: 'HOD',
+            endDate: null,
+          },
+          data: {
+            endDate: normalizedStartDate,
+          },
+        });
+      }
 
-    const snapshot = JSON.parse(JSON.stringify(term));
+      return tx.leadershipTerm.create({
+        data: {
+          staffId,
+          role: 'HOD',
+          startDate: normalizedStartDate,
+          endDate: normalizedEndDate,
+          programmeCode: null,
+        },
+      });
+    });
 
     await logAudit({
       actorId: session.user.userId,
-      action: 'LEADERSHIP_TERM_CREATED',
+      action: 'HOD_TERM_UPSERTED',
       entityType: 'LeadershipTerm',
       entityId: term.id,
-      snapshot,
+      snapshot: {
+        staffId,
+        startDate: normalizedStartDate.toISOString(),
+        endDate: normalizedEndDate?.toISOString() ?? null,
+      },
     });
 
-    return { success: true, term };
+    revalidatePath('/dashboard/admin/leadership');
+    revalidatePath('/about/leadership');
+
+    return { success: true, termId: term.id };
   } catch (error) {
-    console.error('Error creating leadership term:', error);
-    return { error: 'Failed to create leadership term.' };
+    console.error('Error upserting HOD term:', error);
+    return { error: 'Failed to update HOD term.' };
   }
 }
 
 export async function endLeadershipTerm({ termId, endDate }: { termId: string; endDate: Date }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.userId || !session.user.isSuperAdmin) {
-    return { error: 'Unauthorized.' };
-  }
+  const session = await requireAuth();
+  await requireSuperAdmin(session);
 
   const existingTerm = await prisma.leadershipTerm.findUnique({
     where: { id: termId },
@@ -107,6 +105,9 @@ export async function endLeadershipTerm({ termId, endDate }: { termId: string; e
       entityId: updated.id,
       snapshot,
     });
+
+    revalidatePath('/dashboard/admin/leadership');
+    revalidatePath('/about/leadership');
 
     return { success: true, term: updated };
   } catch (error) {

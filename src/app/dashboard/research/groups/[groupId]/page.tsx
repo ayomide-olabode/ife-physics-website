@@ -7,6 +7,7 @@ import { ResearchGroupFormClient } from '@/components/research/ResearchGroupForm
 import { listRecentResearchOutputsForGroupMembers } from '@/server/queries/researchGroupPublicationsFromMembers';
 import { ResearchGroupFeaturedResearchOutputClient } from '@/components/research/ResearchGroupFeaturedResearchOutputClient';
 import { FocusAreasInlineEditor } from '@/components/research/FocusAreasInlineEditor';
+import { listFocusAreasForGroup } from '@/server/queries/focusAreas';
 
 interface PageProps {
   params: Promise<{ groupId: string }>;
@@ -26,9 +27,12 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
     notFound();
   }
 
-  const eligibleResearchOutputs = await listRecentResearchOutputsForGroupMembers({
-    groupId: resolvedParams.groupId,
-  });
+  const [eligibleResearchOutputs, focusAreas] = await Promise.all([
+    listRecentResearchOutputsForGroupMembers({
+      groupId: resolvedParams.groupId,
+    }),
+    listFocusAreasForGroup({ groupId: resolvedParams.groupId }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -41,7 +45,7 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
 
       <ResearchGroupFormClient initialData={group} />
 
-      <FocusAreasInlineEditor groupId={group.id} initialItems={group.focusAreas} />
+      <FocusAreasInlineEditor groupId={group.id} initialItems={focusAreas} />
 
       <ResearchGroupFeaturedResearchOutputClient
         groupId={group.id}

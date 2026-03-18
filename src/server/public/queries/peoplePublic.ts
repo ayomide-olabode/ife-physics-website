@@ -76,6 +76,26 @@ export async function getPublicStaffBySlug(slug: string) {
       profileImageUrl: true,
       operationalUnit: true,
       areaOfExpertise: true,
+      isInMemoriam: true,
+      dateOfBirth: true,
+      dateOfDeath: true,
+      tribute: {
+        select: {
+          title: true,
+          bodyHtml: true,
+        },
+      },
+      testimonials: {
+        where: { status: 'APPROVED' },
+        select: {
+          id: true,
+          name: true,
+          relationship: true,
+          tributeHtml: true,
+          submittedAt: true,
+        },
+        orderBy: { submittedAt: 'desc' },
+      },
       // Relations – limited for public view
       researchOutputs: {
         where: { deletedAt: null },

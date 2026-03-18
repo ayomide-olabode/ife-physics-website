@@ -7,6 +7,8 @@ import { PostgraduateDegreeAccordion } from '@/components/public/academics/Postg
 import {
   getPublicPgDegreeContent,
   getPublicPostgraduateProgram,
+  listPublicPgCourses,
+  listPublicPgStudyOptions,
 } from '@/server/public/queries/academicsPublic';
 
 const POSTGRAD_PROGRAMME_CODES = ['phy', 'eph'] as const;
@@ -77,12 +79,16 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
 
   const prismaProgrammeCode = programmeCode.toUpperCase() as ProgrammeCode;
 
-  const [program, mscContent, mphilContent, phdContent] = await Promise.all([
+  const [program, mscContent, mphilContent, phdContent, studyOptions, courses] = await Promise.all([
     getPublicPostgraduateProgram(prismaProgrammeCode),
     getPublicPgDegreeContent(prismaProgrammeCode, DegreeType.MSC),
     getPublicPgDegreeContent(prismaProgrammeCode, DegreeType.MPHIL),
     getPublicPgDegreeContent(prismaProgrammeCode, DegreeType.PHD),
+    listPublicPgStudyOptions(prismaProgrammeCode),
+    listPublicPgCourses(prismaProgrammeCode),
   ]);
+
+  const sortedCourses = [...courses].sort((a, b) => a.code.localeCompare(b.code));
 
   return (
     <>
@@ -134,6 +140,76 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
             courseHtml={phdContent?.courseHtml}
             examHtml={phdContent?.examHtml}
           />
+
+          <section className="space-y-6">
+            <h2 className="text-2xl font-serif font-bold text-brand-navy">Study options</h2>
+
+            {studyOptions.length > 0 ? (
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {studyOptions.map(({ id, studyOption }) => (
+                  <article key={id} className="border border-brand-navy/20 bg-white p-6">
+                    <h3 className="text-lg font-semibold text-brand-navy">{studyOption.name}</h3>
+                    <p className="mt-2 line-clamp-3 text-sm text-gray-600">
+                      {studyOption.about?.trim() || 'Description coming soon.'}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="No study options yet"
+                text="Study options linked to this programme will be listed here once published."
+              />
+            )}
+          </section>
+
+          <section className="space-y-6">
+            <h2 className="text-2xl font-serif font-bold text-brand-navy">Course Listing</h2>
+
+            {sortedCourses.length > 0 ? (
+              <div className="overflow-x-auto border border-brand-navy/20 bg-white">
+                <table className="min-w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 text-left text-brand-navy">
+                      <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                        Course Code
+                      </th>
+                      <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                        Course Title
+                      </th>
+                      <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                        Semester Taken
+                      </th>
+                      <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                        No of units
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedCourses.map((course) => (
+                      <tr key={course.id} className="bg-white">
+                        <td className="border border-brand-navy/20 px-4 py-3 font-medium text-brand-navy">
+                          {course.code}
+                        </td>
+                        <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                          {course.title}
+                        </td>
+                        <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">—</td>
+                        <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                          {typeof course.U === 'number' ? course.U : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyState
+                title="No courses yet"
+                text="Courses will appear here once added by an academic coordinator."
+              />
+            )}
+          </section>
         </div>
       </section>
     </>

@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { Menu, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { buildRefNavItems } from './RefNavbar';
+import { buildRefNavItems } from '@/components/public/header/RefNavbar';
 
 function MobileNavGroup({
   item,

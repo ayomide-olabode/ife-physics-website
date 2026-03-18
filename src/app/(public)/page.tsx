@@ -1,6 +1,6 @@
 import { HeroCarousel } from '@/components/public/home/HeroCarousel';
 import { StatsStrip } from '@/components/public/home/StatsStrip';
-import { AcademicProgrammesSection } from '@/components/public-ref/home/AcademicProgrammesSection';
+import { AcademicProgrammesSection } from '@/components/public/home/AcademicProgrammesSection';
 import { ResearchOutputsSection } from '@/components/public/home/ResearchOutputsSection';
 import { NewsUpdatesSection } from '@/components/public/home/NewsUpdatesSection';
 import { UpcomingEventsSection } from '@/components/public/home/UpcomingEventsSection';

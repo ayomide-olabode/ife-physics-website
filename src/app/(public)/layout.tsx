@@ -1,4 +1,4 @@
-import { RefHeader } from '@/components/public-ref/header/RefHeader';
+import { RefHeader } from '@/components/public/header/RefHeader';
 import { PublicFooter } from '@/components/public/PublicFooter';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {

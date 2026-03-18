@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
+import { ProgrammeTabs } from '@/components/academics/ProgrammeTabs';
 import { ModuleTabs } from '@/components/dashboard/ModuleTabs';
 import { requireAcademicAccess } from '@/lib/guards';
 import { getAccessibleProgrammesForLevel } from '@/lib/rbac';
@@ -21,19 +22,16 @@ export default async function ProgrammeLayout({ children, params }: LayoutProps)
   const session = await requireAcademicAccess({ level: 'POSTGRADUATE', programmeCode });
   const code = codeStr.toLowerCase();
   const accessibleProgrammes = await getAccessibleProgrammesForLevel(session, 'POSTGRADUATE');
-  const programmeTabs = accessibleProgrammes.map((prog) => ({
-    label:
-      prog === 'PHY'
-        ? 'Physics'
-        : prog === 'EPH'
-          ? 'Engineering Physics'
-          : 'Science Laboratory Technology',
-    href: `/dashboard/postgraduate/${prog.toLowerCase()}/overview`,
-  }));
 
   return (
     <>
-      <ModuleTabs tabs={programmeTabs} />
+      <ProgrammeTabs
+        programmeCode={programmeCode}
+        basePath={`/dashboard/postgraduate/${code}`}
+        level="POSTGRADUATE"
+        allowedProgrammeCodes={accessibleProgrammes}
+        showSectionTabs={false}
+      />
       <ModuleTabs
         tabs={[
           { label: 'Overview', href: `/dashboard/postgraduate/${code}/overview` },

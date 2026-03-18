@@ -20,7 +20,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
-import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { requireAcademicAccess } from '@/lib/guards';
 import { listUndergraduateCourses } from '@/server/queries/undergraduateCourses';
 
 interface PageProps {
@@ -35,15 +35,13 @@ interface PageProps {
 }
 
 export default async function UndergraduateCoursesPage({ params, searchParams }: PageProps) {
-  const session = await requireAuth();
-  await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
-
   const resolvedParams = await params;
   const codeStr = resolvedParams.programmeCode.toUpperCase();
   if (!['PHY', 'EPH', 'SLT'].includes(codeStr)) {
     notFound();
   }
   const programmeCode = codeStr as ProgrammeCode;
+  await requireAcademicAccess({ level: 'UNDERGRADUATE', programmeCode });
 
   const resolvedSearchParams = await searchParams;
   const q = resolvedSearchParams.q || '';

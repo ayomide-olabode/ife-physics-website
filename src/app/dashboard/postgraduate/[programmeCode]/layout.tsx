@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
+import { ProgrammeCode } from '@prisma/client';
 import { ModuleTabs } from '@/components/dashboard/ModuleTabs';
+import { requireAcademicAccess } from '@/lib/guards';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,6 +16,8 @@ export default async function ProgrammeLayout({ children, params }: LayoutProps)
     notFound();
   }
 
+  const programmeCode = codeStr as ProgrammeCode;
+  await requireAcademicAccess({ level: 'POSTGRADUATE', programmeCode });
   const code = codeStr.toLowerCase();
 
   return (

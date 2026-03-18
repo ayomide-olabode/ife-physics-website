@@ -1,13 +1,15 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import {
+  canAccessAcademicRoute,
+  hasAnyAcademicAccessForLevel,
   isSuperAdmin,
   hasGlobalRole,
   isResearchLeadForGroup,
   getScopedResearchGroupIds,
   canEditStaff,
 } from '@/lib/rbac';
-import { ScopedRole } from '.prisma/client';
+import { ProgrammeCode, ScopedRole } from '.prisma/client';
 import { Session } from 'next-auth';
 
 export async function requireAuth(): Promise<Session> {
@@ -44,6 +46,30 @@ export async function requireAnyResearchLead(session: Session) {
   if (groupIds.length === 0) {
     notFound();
   }
+}
+
+export async function requireAcademicAccess({
+  level,
+  programmeCode,
+}: {
+  level: 'UNDERGRADUATE' | 'POSTGRADUATE';
+  programmeCode: ProgrammeCode;
+}) {
+  const session = await requireAuth();
+  const canAccess = await canAccessAcademicRoute(session, { level, programmeCode });
+  if (!canAccess) {
+    notFound();
+  }
+  return session;
+}
+
+export async function requireAnyAcademicLevelAccess(level: 'UNDERGRADUATE' | 'POSTGRADUATE') {
+  const session = await requireAuth();
+  const canAccess = await hasAnyAcademicAccessForLevel(session, level);
+  if (!canAccess) {
+    notFound();
+  }
+  return session;
 }
 
 export function requireStaffOwnership(session: Session, staffId: string) {

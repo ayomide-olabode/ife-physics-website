@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
-import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { requireAcademicAccess } from '@/lib/guards';
 import { getPgDegreeContent } from '@/server/queries/pgDegreeContent';
 import { PgDegreeContentEditor } from '@/components/academics/PgDegreeContentEditor';
 
@@ -10,9 +10,6 @@ interface PageProps {
 }
 
 export default async function MphilDegreePage({ params }: PageProps) {
-  const session = await requireAuth();
-  await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
-
   const resolvedParams = await params;
   const codeStr = resolvedParams.programmeCode.toUpperCase();
   if (!['PHY', 'EPH', 'SLT'].includes(codeStr)) {
@@ -20,6 +17,7 @@ export default async function MphilDegreePage({ params }: PageProps) {
   }
 
   const programmeCode = codeStr as ProgrammeCode;
+  await requireAcademicAccess({ level: 'POSTGRADUATE', programmeCode });
   const content = await getPgDegreeContent(programmeCode, 'MPHIL');
 
   return (

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
 import { ProgrammeTabs } from '@/components/academics/ProgrammeTabs';
+import { requireAcademicAccess } from '@/lib/guards';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ export default async function UndergraduateProgrammeLayout({ children, params }:
   }
 
   const programmeCode = codeStr as ProgrammeCode;
+  await requireAcademicAccess({ level: 'UNDERGRADUATE', programmeCode });
   const basePath = `/dashboard/undergraduate/${programmeCode.toLowerCase()}`;
 
   return (

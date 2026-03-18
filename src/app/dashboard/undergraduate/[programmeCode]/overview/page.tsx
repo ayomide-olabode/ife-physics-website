@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
-import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { requireAcademicAccess } from '@/lib/guards';
 import { getUndergraduateProgram } from '@/server/queries/undergraduateProgram';
 import { UndergraduateOverviewEditor } from '@/components/academics/ug/UndergraduateOverviewEditor';
 import { listStudyOptions } from '@/server/queries/undergraduateStudyOptions';
@@ -16,9 +16,6 @@ export default async function UndergraduateProgrammeOverviewPage({
   params,
   searchParams,
 }: PageProps) {
-  const session = await requireAuth();
-  await requireGlobalRole(session, 'ACADEMIC_COORDINATOR');
-
   const resolvedParams = await params;
   const codeStr = resolvedParams.programmeCode.toUpperCase();
   if (!['PHY', 'EPH', 'SLT'].includes(codeStr)) {
@@ -26,6 +23,7 @@ export default async function UndergraduateProgrammeOverviewPage({
   }
 
   const programmeCode = codeStr as ProgrammeCode;
+  await requireAcademicAccess({ level: 'UNDERGRADUATE', programmeCode });
 
   const resolvedSearchParams = await searchParams;
   const q = resolvedSearchParams.q || '';

@@ -1,7 +1,12 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
-import { isSuperAdmin, hasGlobalRole, getScopedResearchGroupIds } from '@/lib/rbac';
+import {
+  getAccessibleProgrammesForLevel,
+  getScopedResearchGroupIds,
+  hasGlobalRole,
+  isSuperAdmin,
+} from '@/lib/rbac';
 import type { NavItem } from '@/components/dashboard/DashboardSidebar';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -26,25 +31,38 @@ export default async function DashboardLayout({ children }: { children: React.Re
     navItems.push({ label: 'Content', href: '/dashboard/content' });
   }
 
-  // Undergraduate + Postgraduate: ACADEMIC_COORDINATOR or superadmin
-  if (isAdmin || (await hasGlobalRole(session, 'ACADEMIC_COORDINATOR'))) {
+  const undergraduateProgrammes = await getAccessibleProgrammesForLevel(session, 'UNDERGRADUATE');
+  const postgraduateProgrammes = await getAccessibleProgrammesForLevel(session, 'POSTGRADUATE');
+
+  if (undergraduateProgrammes.length > 0) {
     navItems.push({
       label: 'Undergraduate',
       href: '/dashboard/undergraduate',
-      children: [
-        { label: 'Physics', href: '/dashboard/undergraduate/phy/overview' },
-        { label: 'Engineering Physics', href: '/dashboard/undergraduate/eph/overview' },
-        { label: 'Science Laboratory Technology', href: '/dashboard/undergraduate/slt/overview' },
-      ],
+      children: undergraduateProgrammes.map((code) => ({
+        label:
+          code === 'PHY'
+            ? 'Physics'
+            : code === 'EPH'
+              ? 'Engineering Physics'
+              : 'Science Laboratory Technology',
+        href: `/dashboard/undergraduate/${code.toLowerCase()}/overview`,
+      })),
     });
+  }
+
+  if (postgraduateProgrammes.length > 0) {
     navItems.push({
       label: 'Postgraduate',
       href: '/dashboard/postgraduate',
-      children: [
-        { label: 'Physics', href: '/dashboard/postgraduate/phy/overview' },
-        { label: 'Engineering Physics', href: '/dashboard/postgraduate/eph/overview' },
-        { label: 'Science Laboratory Technology', href: '/dashboard/postgraduate/slt/overview' },
-      ],
+      children: postgraduateProgrammes.map((code) => ({
+        label:
+          code === 'PHY'
+            ? 'Physics'
+            : code === 'EPH'
+              ? 'Engineering Physics'
+              : 'Science Laboratory Technology',
+        href: `/dashboard/postgraduate/${code.toLowerCase()}/overview`,
+      })),
     });
   }
 

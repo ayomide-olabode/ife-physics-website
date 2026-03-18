@@ -1,20 +1,25 @@
 import Image from 'next/image';
-import { getPublicCurrentHod } from '@/server/public/queries/peoplePublic';
-import {
-  listPublicAcademicCoordinators,
-  listPublicPastHods,
-} from '@/server/public/queries/leadershipPublic';
+import { getPublicLeadership } from '@/server/public/queries/leadershipPublic';
 import { PageHero } from '@/components/public/PageHero';
 import { CurrentHodSection } from '@/components/public/about/CurrentHodSection';
-import { PastHodsGrid } from '@/components/public/about/PastHodsGrid';
+import { PastHodGrid } from '@/components/public/leadership/PastHodGrid';
 import { formatFullName } from '@/lib/name';
 
+const DEGREE_SCOPE_LABELS = {
+  GENERAL: 'General',
+  UNDERGRADUATE: 'Undergraduate',
+  POSTGRADUATE: 'Postgraduate',
+} as const;
+
+const PROGRAMME_SCOPE_LABELS = {
+  GENERAL: 'General',
+  PHY: 'Physics',
+  EPH: 'Engineering Physics',
+  SLT: 'Science Laboratory Technology',
+} as const;
+
 export default async function LeadershipPage() {
-  const [currentHod, coordinators, pastHods] = await Promise.all([
-    getPublicCurrentHod(),
-    listPublicAcademicCoordinators(),
-    listPublicPastHods(),
-  ]);
+  const { currentHod, academicCoordinators: coordinators, pastHods } = await getPublicLeadership();
 
   return (
     <>
@@ -34,11 +39,17 @@ export default async function LeadershipPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {coordinators.map((term) => {
+                  if (!term.degreeScope || !term.programmeScope) {
+                    return null;
+                  }
+
                   const name = formatFullName({
                     firstName: term.staff.firstName,
                     middleName: term.staff.middleName,
                     lastName: term.staff.lastName,
                   });
+                  const degreeLabel = DEGREE_SCOPE_LABELS[term.degreeScope];
+                  const programmeLabel = PROGRAMME_SCOPE_LABELS[term.programmeScope];
 
                   return (
                     <div
@@ -62,14 +73,8 @@ export default async function LeadershipPage() {
                       </div>
                       <div className="p-4">
                         <h3 className="font-semibold text-brand-navy">{name}</h3>
-                        {term.staff.designation && (
-                          <p className="text-sm text-gray-500 mt-1">{term.staff.designation}</p>
-                        )}
-                        {term.programmeCode && (
-                          <span className="inline-block mt-2 bg-brand-navy text-white text-xs font-semibold px-3 py-1">
-                            {term.programmeCode}
-                          </span>
-                        )}
+                        <p className="text-sm text-gray-600 mt-1">{degreeLabel} Coordinator</p>
+                        <p className="text-sm text-gray-600 mt-1">{programmeLabel} Programme</p>
                       </div>
                     </div>
                   );
@@ -79,7 +84,7 @@ export default async function LeadershipPage() {
           )}
 
           {/* ─── Past HODs ─── */}
-          {pastHods.length > 0 && <PastHodsGrid hods={pastHods} />}
+          {pastHods.length > 0 && <PastHodGrid pastHods={pastHods} />}
 
           {/* Empty state */}
           {!currentHod && coordinators.length === 0 && pastHods.length === 0 && (

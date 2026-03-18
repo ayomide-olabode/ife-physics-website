@@ -6,14 +6,19 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { ProgrammeCode, Prisma } from '@prisma/client';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { logAudit } from '@/lib/audit';
+import { normalizeCourseCode } from '@/lib/courseCode';
+
+const courseCodeRegex = /^[A-Z]{2,6}[0-9]{2,4}$/;
 
 const courseSchema = z.object({
   code: z
     .string()
-    .min(3, 'Code must be at least 3 characters')
-    .max(12, 'Code must be at most 12 characters')
-    .regex(/^[A-Za-z0-9]+$/, 'Code must contain only letters and numbers')
-    .transform((v) => v.toUpperCase()),
+    .min(1, 'Course code is required')
+    .transform((v) => normalizeCourseCode(v))
+    .refine(
+      (value) => courseCodeRegex.test(value),
+      'Code must match format like PHY101 (2-6 letters + 2-4 digits)',
+    ),
   title: z.string().min(1, 'Title is required').max(200),
   description: z.string().max(4000).optional(),
   prerequisites: z.string().max(500).optional(),
@@ -21,6 +26,7 @@ const courseSchema = z.object({
   T: z.coerce.number().int().min(0).max(10),
   P: z.coerce.number().int().min(0).max(10),
   U: z.coerce.number().int().min(0).max(10),
+  yearLevel: z.coerce.number().int().min(1, 'Year is required').max(4),
   status: z.enum(['CORE', 'RESTRICTED']),
 });
 
@@ -77,6 +83,7 @@ export async function createCourseForProgramme(programmeCode: ProgrammeCode, dat
           T: validated.T,
           P: validated.P,
           U: validated.U,
+          yearLevel: validated.yearLevel,
           status: validated.status,
         },
       });
@@ -91,6 +98,7 @@ export async function createCourseForProgramme(programmeCode: ProgrammeCode, dat
           T: validated.T,
           P: validated.P,
           U: validated.U,
+          yearLevel: validated.yearLevel,
           status: validated.status,
           programId: program.id,
         },
@@ -161,6 +169,7 @@ export async function updateCourseForProgramme(
         T: validated.T,
         P: validated.P,
         U: validated.U,
+        yearLevel: validated.yearLevel,
         status: validated.status,
       },
     });
@@ -230,6 +239,7 @@ export async function getCourseByExactCode({ code }: { code: string }) {
       T: true,
       P: true,
       U: true,
+      yearLevel: true,
       status: true,
       programId: true,
     },

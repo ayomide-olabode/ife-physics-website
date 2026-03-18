@@ -148,6 +148,7 @@ export default async function UndergraduateProgrammePage({ params }: PageProps) 
                 code: course.code,
                 title: course.title,
                 units: course.U,
+                year: course.yearLevel,
               }))}
             />
           </section>

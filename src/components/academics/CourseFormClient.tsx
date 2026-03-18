@@ -8,6 +8,7 @@ import { COURSE_STATUS_OPTIONS } from '@/lib/options';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
+import { normalizeCourseCode } from '@/lib/courseCode';
 import {
   Select,
   SelectContent,
@@ -19,9 +20,7 @@ import { toastSuccess, toastError } from '@/lib/toast';
 import {
   createCourseForProgramme,
   updateCourseForProgramme,
-  getCourseByExactCode,
 } from '@/server/actions/undergraduateCourses';
-import { CourseCodeAutocomplete } from './CourseCodeAutocomplete';
 
 export type CourseFormData = {
   id?: string;
@@ -33,6 +32,7 @@ export type CourseFormData = {
   T: number | null;
   P: number | null;
   U: number | null;
+  yearLevel: number | null;
   status: 'CORE' | 'RESTRICTED';
 };
 
@@ -54,15 +54,20 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
   const [T, setT] = useState(initialData?.T ?? 0);
   const [P, setP] = useState(initialData?.P ?? 0);
   const [U, setU] = useState(initialData?.U ?? 0);
+  const [yearLevel, setYearLevel] = useState<string>(
+    initialData?.yearLevel ? String(initialData.yearLevel) : '',
+  );
   const [status, setStatus] = useState<'CORE' | 'RESTRICTED'>(initialData?.status || 'CORE');
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedCode = normalizeCourseCode(code);
+    setCode(normalizedCode);
 
     startTransition(async () => {
       try {
         const payload = {
-          code,
+          code: normalizedCode,
           title,
           description: description || undefined,
           prerequisites: prerequisites || undefined,
@@ -70,6 +75,7 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
           T,
           P,
           U,
+          yearLevel: Number(yearLevel),
           status,
         };
 
@@ -95,24 +101,6 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
     });
   };
 
-  const onSelectExactCourse = async (selectedCode: string) => {
-    try {
-      const course = await getCourseByExactCode({ code: selectedCode });
-      if (course) {
-        setTitle(course.title);
-        setDescription(course.description || '');
-        setPrerequisites(course.prerequisites || '');
-        setL(course.L ?? 0);
-        setT(course.T ?? 0);
-        setP(course.P ?? 0);
-        setU(course.U ?? 0);
-        setStatus(course.status as 'CORE' | 'RESTRICTED');
-      }
-    } catch {
-      toastError('Failed to fetch course details.');
-    }
-  };
-
   return (
     <form onSubmit={onSubmit} className="space-y-6 max-w-2xl pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -120,13 +108,14 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
           <FieldLabel required htmlFor="code">
             Course Code
           </FieldLabel>
-          <CourseCodeAutocomplete
-            programmeCode={programmeCode}
-            level="UNDERGRADUATE"
+          <Input
+            id="code"
             value={code}
-            onChange={setCode}
-            onSelect={(course) => onSelectExactCourse(course.code)}
-            disabled={isEditing}
+            onChange={(e) => setCode(e.target.value)}
+            onBlur={() => setCode((prev) => normalizeCourseCode(prev))}
+            placeholder="e.g. PHY101"
+            required
+            maxLength={20}
           />
         </div>
 
@@ -147,6 +136,23 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <FieldLabel required htmlFor="yearLevel">
+          Year
+        </FieldLabel>
+        <Select value={yearLevel} onValueChange={setYearLevel}>
+          <SelectTrigger id="yearLevel">
+            <SelectValue placeholder="Select year" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">Year 1</SelectItem>
+            <SelectItem value="2">Year 2</SelectItem>
+            <SelectItem value="3">Year 3</SelectItem>
+            <SelectItem value="4">Year 4</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">

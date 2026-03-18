@@ -649,6 +649,8 @@ model Course {
   T Int?
   P Int?
   U Int?
+  // UG-only year level (1-4). Null for postgraduate courses.
+  yearLevel Int?
 
   status CourseStatus @default(CORE)
 
@@ -662,6 +664,7 @@ model Course {
   deletedAt DateTime?
 
   @@index([programId])
+  @@index([yearLevel])
 }
 
 model CourseOnStudyOption {

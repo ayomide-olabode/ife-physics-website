@@ -8,6 +8,7 @@ import { COURSE_STATUS_OPTIONS } from '@/lib/options';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
+import { normalizeCourseCode } from '@/lib/courseCode';
 import {
   Select,
   SelectContent,
@@ -20,8 +21,6 @@ import {
   createPostgraduateCourseForProgramme,
   updatePostgraduateCourseForProgramme,
 } from '@/server/actions/postgraduateCourses';
-import { getCourseByExactCode } from '@/server/actions/postgraduateCourses';
-import { CourseCodeAutocomplete } from './CourseCodeAutocomplete';
 
 export type PGCourseFormData = {
   id?: string;
@@ -58,11 +57,13 @@ export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormC
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedCode = normalizeCourseCode(code);
+    setCode(normalizedCode);
 
     startTransition(async () => {
       try {
         const payload = {
-          code,
+          code: normalizedCode,
           title,
           description: description || undefined,
           prerequisites: prerequisites || undefined,
@@ -95,26 +96,6 @@ export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormC
     });
   };
 
-  const onSelectExactCourse = async (selectedCode: string) => {
-    try {
-      const course = await getCourseByExactCode({ code: selectedCode });
-      if (course) {
-        setTitle(course.title);
-        setDescription(course.description || '');
-        setPrerequisites(course.prerequisites || '');
-        setL(course.L ?? 0);
-        setT(course.T ?? 0);
-        setP(course.P ?? 0);
-        setU(course.U ?? 0);
-        setStatus(course.status as 'CORE' | 'RESTRICTED');
-        // We do NOT set isEditing because we are merely pre-filling a form on the /new route,
-        // and our server action handles the upsert automatically.
-      }
-    } catch {
-      toastError('Failed to fetch course details.');
-    }
-  };
-
   return (
     <form onSubmit={onSubmit} className="space-y-6 max-w-2xl pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -122,13 +103,14 @@ export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormC
           <FieldLabel required htmlFor="code">
             Course Code
           </FieldLabel>
-          <CourseCodeAutocomplete
-            programmeCode={programmeCode}
-            level="POSTGRADUATE"
+          <Input
+            id="code"
             value={code}
-            onChange={setCode}
-            onSelect={(course) => onSelectExactCourse(course.code)}
-            disabled={isEditing}
+            onChange={(e) => setCode(e.target.value)}
+            onBlur={() => setCode((prev) => normalizeCourseCode(prev))}
+            placeholder="e.g. PHY501"
+            required
+            maxLength={20}
           />
         </div>
 

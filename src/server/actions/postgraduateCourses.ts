@@ -6,14 +6,19 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { ProgrammeCode, Prisma } from '@prisma/client';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { logAudit } from '@/lib/audit';
+import { normalizeCourseCode } from '@/lib/courseCode';
+
+const courseCodeRegex = /^[A-Z]{2,6}[0-9]{2,4}$/;
 
 const courseSchema = z.object({
   code: z
     .string()
-    .min(3, 'Code must be at least 3 characters')
-    .max(12, 'Code must be at most 12 characters')
-    .regex(/^[A-Za-z0-9]+$/, 'Code must contain only letters and numbers')
-    .transform((v) => v.toUpperCase()),
+    .min(1, 'Course code is required')
+    .transform((v) => normalizeCourseCode(v))
+    .refine(
+      (value) => courseCodeRegex.test(value),
+      'Code must match format like PHY101 (2-6 letters + 2-4 digits)',
+    ),
   title: z.string().min(1, 'Title is required').max(200),
   description: z.string().max(4000).optional(),
   prerequisites: z.string().max(500).optional(),
@@ -60,6 +65,7 @@ export async function createPostgraduateCourseForProgramme(
       T: validated.T,
       P: validated.P,
       U: validated.U,
+      yearLevel: null,
       status: validated.status,
       programId: program.id,
     };
@@ -135,6 +141,7 @@ export async function updatePostgraduateCourseForProgramme(
         T: validated.T,
         P: validated.P,
         U: validated.U,
+        yearLevel: null,
         status: validated.status,
       },
     });

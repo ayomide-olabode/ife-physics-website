@@ -42,6 +42,7 @@ export async function listPublicUgCourses(programmeCode: ProgrammeCode) {
       T: true,
       P: true,
       U: true,
+      yearLevel: true,
       status: true,
     },
     orderBy: { code: 'asc' },

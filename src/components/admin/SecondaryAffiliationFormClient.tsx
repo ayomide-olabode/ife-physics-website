@@ -112,7 +112,7 @@ export function SecondaryAffiliationFormClient({
         />
       </div>
 
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex items-center justify-end gap-4 pt-2">
         <Button
           type="button"
           variant="outline"
@@ -120,11 +120,9 @@ export function SecondaryAffiliationFormClient({
           onClick={() => router.push('/dashboard/admin/secondary-affiliations')}
           disabled={isSubmitting}
         >
-          <X className="h-4 w-4" />
           Cancel
         </Button>
         <Button type="submit" className="rounded-none" disabled={isSubmitting}>
-          <Save className="h-4 w-4" />
           {isSubmitting
             ? mode === 'create'
               ? 'Creating...'

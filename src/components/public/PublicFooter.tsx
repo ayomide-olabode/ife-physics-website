@@ -19,8 +19,8 @@ const aboutLinks = [
 
 const quickLinks = [
   { label: 'PEPSA', href: '#' },
-  { label: 'ePortal', href: 'https://eportal.oauife.edu.ng' },
-  { label: 'NetQue', href: 'https://netque.oauife.edu.ng' },
+  { label: 'News', href: '/news' },
+  { label: 'Events', href: '/events' },
   { label: 'Alumni', href: '#' },
   { label: 'Resources', href: '/resources' },
 ];
@@ -29,19 +29,24 @@ export function PublicFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative isolate overflow-hidden text-brand-white">
+    <footer className="relative isolate overflow-hidden text-brand-white text-center md:text-left">
       <div className="absolute inset-0 -z-20">
-        <Image src="/assets/whitehouse-sunset.png" alt="" fill className="object-cover" />
+        <Image
+          src="/assets/whitehouse-sunset.png"
+          alt=""
+          fill
+          className="object-cover object-[20%_0%]  md:object-center"
+        />
       </div>
       <div
         className="absolute inset-0 -z-10 bg-gradient-to-t from-black/95 via-black/75 to-black/50"
         aria-hidden="true"
       />
 
-      <div className="relative z-10 mx-auto max-w-[1440px] px-6 lg:px-10 pt-20 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+      <div className="relative z-10 mx-auto max-w-[1440px] px-6 lg:px-10 pt-20 md:pt-40 lg:pt-60 pb-12">
+        <div className="flex flex-col md:flex-row gap-10 lg:gap-8 ">
           {/* ── Left block: logo + social + CTA ── */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="flex flex-col gap-6 items-center md:items-start md:w-2/5">
             <Image
               src="/assets/logoSecondary.svg"
               alt="Department of Physics and Engineering Physics"
@@ -75,25 +80,8 @@ export function PublicFooter() {
             </Link>
           </div>
 
-          {/* ── About Us column ── */}
-          <div className="lg:col-span-2">
-            <h3 className="font-serif font-semibold text-base text-brand-yellow mb-4">About Us</h3>
-            <ul className="space-y-2.5">
-              {aboutLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/80 hover:text-white hover:underline underline-offset-4 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* ── Contact column ── */}
-          <div className="lg:col-span-3">
+          <div className="md:w-1/5">
             <h3 className="font-serif font-semibold text-base text-brand-yellow mb-4">Contact</h3>
             <address className="not-italic text-sm text-white/80 space-y-1.5">
               <p>Faculty of Science</p>
@@ -119,8 +107,25 @@ export function PublicFooter() {
             </address>
           </div>
 
+          {/* ── About Us column ── */}
+          <div className="md:w-1/5">
+            <h3 className="font-serif font-semibold text-base text-brand-yellow mb-4">About Us</h3>
+            <ul className="space-y-2.5">
+              {aboutLinks.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-white/80 hover:text-white hover:underline underline-offset-4 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* ── Quick Links column ── */}
-          <div className="lg:col-span-3">
+          <div className="md:w-1/5">
             <h3 className="font-serif font-semibold text-base text-brand-yellow mb-4">
               Quick Links
             </h3>
@@ -141,7 +146,7 @@ export function PublicFooter() {
 
         {/* ── Bottom divider + copyright ── */}
         <div className="border-t border-white/20 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/75">
-          <p>
+          <p className="text-balance">
             &copy; {currentYear} Department of Physics and Engineering Physics. All rights reserved.
           </p>
           <div className="flex items-center gap-4">

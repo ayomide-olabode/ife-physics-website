@@ -27,7 +27,7 @@ const programmes = [
   {
     title: 'Science Laboratory Technology',
     code: 'slt',
-    image: '/assets/slt.png',
+    image: '/assets/slt.jpg',
     degrees: [{ label: 'B.Sc.', href: '/academics/undergraduate/slt' }],
   },
 ];
@@ -40,7 +40,7 @@ export function AcademicProgrammesSection() {
           Our Academic Programmes
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {programmes.map((prog) => (
             <div key={prog.code} className="bg-white overflow-hidden flex flex-col h-full group">
               {/* Programme image */}
@@ -54,13 +54,13 @@ export function AcademicProgrammesSection() {
               </div>
 
               {/* Card body */}
-              <div className="flex flex-col grow space-y-4 pt-6">
+              <div className="flex flex-col grow space-y-2 pt-4 bg-gray-100 p-4">
                 <h3 className="text-2xl font-semibold text-brand-navy group-hover:text-brand-yellow transition-colors duration-300">
                   {prog.title}
                 </h3>
 
                 {/* Degree-link buttons */}
-                <div className="mt-auto border-t border-gray-100 pt-4">
+                <div className="mt-auto border-t border-gray-300 pt-4">
                   <ProgrammeDegreeLinks degrees={prog.degrees} />
                 </div>
               </div>

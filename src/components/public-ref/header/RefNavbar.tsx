@@ -18,8 +18,8 @@ export const refNavItems: NavItem[] = [
     name: 'OUR DEPARTMENT',
     href: '/about',
     dropdown: [
-      { name: 'History', href: '/about/history' },
-      { name: 'Leadership', href: '/about/leadership' },
+      { name: 'Our History', href: '/about/history' },
+      { name: 'Our Leadership', href: '/about/leadership' },
       { name: 'Roll of Honours', href: '/about/roll-of-honour' },
     ],
   },
@@ -53,7 +53,7 @@ export function RefNavbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   return (
-    <div className="bg-brand-navy sticky top-0 z-50 text-brand-white shadow-md hidden md:block">
+    <div className="bg-brand-navy z-50 text-brand-white shadow-md hidden md:block">
       <div className="max-w-[1440px] mx-auto px-8 relative">
         <nav className="flex items-center justify-between">
           <ul className="flex items-center justify-between w-full">

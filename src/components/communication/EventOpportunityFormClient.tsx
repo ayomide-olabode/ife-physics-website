@@ -207,7 +207,7 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <FieldLabel htmlFor="venue">Venue</FieldLabel>
+          <FieldLabel htmlFor="venue">Venue / Awarding Body</FieldLabel>
           <Input
             id="venue"
             value={venue}

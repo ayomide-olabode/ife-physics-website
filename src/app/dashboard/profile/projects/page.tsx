@@ -1,6 +1,5 @@
 import { requireAuth } from '@/lib/guards';
 import { listMyProjects } from '@/server/queries/profileProjects';
-import { BackToParent } from '@/components/dashboard/BackToParent';
 import { ProjectsClientView } from '@/components/profile/ProjectsClientView';
 
 export default async function ProfileProjectsPage({
@@ -25,7 +24,6 @@ export default async function ProfileProjectsPage({
 
   return (
     <div className="space-y-6">
-      <BackToParent href="/dashboard/profile/overview" label="Back to Profile" />
       <ProjectsClientView data={data} staffId={staffId} />
     </div>
   );

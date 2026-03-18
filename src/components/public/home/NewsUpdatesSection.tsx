@@ -10,6 +10,17 @@ interface NewsItem {
   imageUrl: string | null;
 }
 
+function toPlainText(value: string): string {
+  return value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function NewsUpdatesSection({ items }: { items: NewsItem[] }) {
   return (
     <section className="py-20 bg-brand-navy">
@@ -64,7 +75,9 @@ export function NewsUpdatesSection({ items }: { items: NewsItem[] }) {
 
                   {/* Body preview */}
                   {item.body && (
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">{item.body}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                      {toPlainText(item.body)}
+                    </p>
                   )}
 
                   {/* CTA */}

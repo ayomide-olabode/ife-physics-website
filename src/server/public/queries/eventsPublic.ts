@@ -35,7 +35,11 @@ export async function listPublicEventOpportunities({
       linkUrl: true,
       updatedAt: true,
     },
-    orderBy: [{ startDate: { sort: 'asc', nulls: 'last' } }, { createdAt: 'desc' }],
+    orderBy: [
+      { deadline: { sort: 'asc', nulls: 'last' } },
+      { startDate: { sort: 'asc', nulls: 'last' } },
+      { createdAt: 'desc' },
+    ],
     take: limit,
   });
 }

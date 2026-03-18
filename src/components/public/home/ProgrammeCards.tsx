@@ -43,7 +43,7 @@ export function ProgrammeCards() {
           We offer undergraduate and postgraduate programmes across three disciplines.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
           {programmes.map((prog) => (
             <div key={prog.code} className="border border-gray-200 overflow-hidden group">
               {/* Placeholder image area */}

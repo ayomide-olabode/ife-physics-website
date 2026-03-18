@@ -60,40 +60,34 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
   const categoryLabel = getCategoryLabel(category);
 
   const cardContent = (
-    <div className="border border-gray-200 bg-white flex flex-col h-full min-h-[400px]">
+    <div className="border border-gray-50 bg-[hsl(220,16%,96%)] flex flex-col h-full min-h-[450px]">
       {/* Top: Type label */}
       <div className="px-5 pt-5 pb-3">
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+        <span className="text-sm font-bold uppercase tracking-widest text-gray-500">
           {isEvent ? 'EVENT' : 'OPPORTUNITY'}
         </span>
       </div>
 
-      <hr className="border-gray-200" />
+      <hr className="border-gray-200 mx-5" />
 
       {/* Category row */}
       <div className="px-5 pt-4 flex items-center gap-3">
-        <span className="inline-flex items-center justify-center w-8 h-8 bg-brand-navy text-brand-white text-[10px] font-bold tracking-wider shrink-0">
-          {abbrev}
+        <span className="inline-flex items-center justify-center w-fit h-8 bg-brand-navy text-brand-white text-[10px] font-bold tracking-widest shrink-0 uppercase px-2">
+          {categoryLabel}
         </span>
-        <span className="text-sm text-gray-500">{categoryLabel}</span>
       </div>
 
       {/* Title */}
       <div className="px-5 pt-4">
-        <h3 className="text-lg font-bold text-brand-navy leading-snug line-clamp-4">
+        <h3 className="text-xl font-bold text-brand-navy leading-snug line-clamp-4">
           {item.title}
         </h3>
       </div>
 
       {/* Type label below title */}
-      <div className="px-5 pt-3">
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
-          {categoryLabel || (isEvent ? 'EVENT' : 'OPPORTUNITY')}
-        </span>
-      </div>
 
       {/* Dates block */}
-      <div className="px-5 pt-3 space-y-1 text-sm text-gray-500">
+      <div className="px-5 pt-3 space-y-1 text-base text-gray-500">
         {isEvent && item.startDate && (
           <p>
             <span className="font-medium text-gray-600">Starting from: </span>
@@ -120,21 +114,23 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
       {/* Bottom "Apply before" block */}
       <hr className="border-gray-200 mx-5 mt-4" />
       <div className="px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-gray-400">
-          <Hourglass className="w-4 h-4" />
-          <span className="text-xs font-medium">Apply before:</span>
+        <div className="items-center space-y-2 text-gray-400">
+          <Hourglass className="w-6 h-6" />
+          <span className="text-base font-medium">Apply before:</span>
         </div>
 
         {item.deadline ? (
           <div className="flex items-end gap-2">
-            <span className="text-5xl font-bold text-gray-700 leading-none">
+            <span className="text-6xl font-bold text-gray-700 leading-none">
               {formatDay(item.deadline)}
             </span>
-            <div className="flex flex-col text-right leading-tight pb-1">
-              <span className="text-xs font-bold text-gray-500 uppercase">
+            <div className="flex flex-col text-right leading-tight pb-1.5">
+              <span className="text-2xl font-bold leading-none text-gray-500 uppercase">
                 {formatMonthAbbrev(item.deadline)}
               </span>
-              <span className="text-xs text-gray-400">{formatYear(item.deadline)}</span>
+              <span className="text-2xl text-gray-400 leading-none">
+                {formatYear(item.deadline)}
+              </span>
             </div>
           </div>
         ) : (

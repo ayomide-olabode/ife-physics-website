@@ -80,7 +80,6 @@ export function SecondaryAffiliationSelector({
           onClick={handleCancel}
           disabled={isSubmitting || !hasChanged}
         >
-          <X className="h-4 w-4" />
           Cancel
         </Button>
         <Button
@@ -89,7 +88,6 @@ export function SecondaryAffiliationSelector({
           onClick={handleSave}
           disabled={isSubmitting || !hasChanged}
         >
-          <Save className="h-4 w-4" />
           {isSubmitting ? 'Saving...' : 'Save'}
         </Button>
       </div>

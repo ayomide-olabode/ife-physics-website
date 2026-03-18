@@ -1,6 +1,5 @@
 import { requireAuth } from '@/lib/guards';
 import { listMyTheses } from '@/server/queries/profileTheses';
-import { BackToParent } from '@/components/dashboard/BackToParent';
 import { ThesesClientView } from '@/components/profile/ThesesClientView';
 
 export default async function ProfileThesesPage({
@@ -25,7 +24,6 @@ export default async function ProfileThesesPage({
 
   return (
     <div className="space-y-6">
-      <BackToParent href="/dashboard/profile/overview" label="Back to Profile" />
       <ThesesClientView data={data} staffId={staffId} />
     </div>
   );

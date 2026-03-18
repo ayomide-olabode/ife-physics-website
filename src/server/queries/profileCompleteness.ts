@@ -47,5 +47,6 @@ export async function getProfileCompleteness(staffId: string) {
     missingRequired,
     missingRecommended,
     displayName,
+    firstName: staff.firstName,
   };
 }

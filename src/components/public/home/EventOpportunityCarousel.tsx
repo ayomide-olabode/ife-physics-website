@@ -65,6 +65,9 @@ export function EventOpportunityCarousel({
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div className="flex flex-wrap items-center gap-4">
             <h2 className="text-3xl font-serif font-bold text-brand-navy">Upcoming Events</h2>
+          </div>
+
+          <div className="flex items-center gap-2">
             <div className="inline-flex border border-black/10 bg-white">
               <button
                 type="button"
@@ -100,9 +103,6 @@ export function EventOpportunityCarousel({
                 Opportunities
               </button>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setPage((current) => Math.max(0, current - 1))}

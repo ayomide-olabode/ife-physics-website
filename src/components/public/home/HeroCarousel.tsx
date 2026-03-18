@@ -70,8 +70,8 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
       key: item.slug || item.id,
       title: item.title,
       subtitle: item.subtitle?.trim() || toExcerpt(item.body),
-      buttonLabel: 'Learn more',
-      href: `/news/${item.slug}`,
+      buttonLabel: item.buttonLabel ?? 'Learn more',
+      href: item.buttonLink || `/news/${item.slug}`,
       imageSrc: item.imageUrl,
       tabLabel: item.title,
     }));
@@ -191,12 +191,12 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
 
         {slides.length > 1 && (
           <div className="px-4 sm:px-6 pb-6 md:pb-8">
-            <div className="flex items-stretch gap-2">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={onPrevSlide}
                 aria-label="Previous slide"
-                className="h-12 w-12 shrink-0 border border-black/10 bg-white text-brand-navy flex items-center justify-center"
+                className="h-12 w-12 shrink-0  bg-white text-brand-navy flex items-center justify-center"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -204,7 +204,7 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
               <div
                 role="tablist"
                 aria-label="Featured news slides"
-                className="flex-1 grid gap-0 shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+                className="flex-1 grid gap-1 "
                 style={{ gridTemplateColumns: `repeat(${slides.length}, minmax(0, 1fr))` }}
               >
                 {slides.map((slide, index) => {
@@ -218,17 +218,12 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
                       aria-selected={isActive}
                       aria-controls={`hero-panel-mobile-${index}`}
                       onClick={() => onSelectSlide(index)}
-                      className={`h-12 w-full min-w-0 border border-black/5 px-3 text-left transition-colors border-t-brand-yellow border-t-2 relative ${
+                      className={`w-full h-1.5 min-w-0 border border-brand-yellow px-3 text-left transition-colors  relative ${
                         isActive
-                          ? 'bg-white text-brand-navy '
+                          ? 'bg-brand-yellow text-brand-navy '
                           : 'bg-white text-slate-600 hover:bg-gray-50'
                       }`}
-                    >
-                      {isActive && (
-                        <div className="absolute top-0 right-0 left-0 h-1 w-full bg-brand-yellow" />
-                      )}
-                      <span className="block text-sm line-clamp-1">{slide.tabLabel}</span>
-                    </button>
+                    ></button>
                   );
                 })}
               </div>
@@ -237,7 +232,7 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
                 type="button"
                 onClick={onNextSlide}
                 aria-label="Next slide"
-                className="h-12 w-12 shrink-0 border border-black/10 bg-white text-brand-navy flex items-center justify-center"
+                className="h-12 w-12 shrink-0  bg-white text-brand-navy flex items-center justify-center"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -269,11 +264,11 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
         </div>
 
         {slides.length > 1 && (
-          <div className="absolute -bottom-6 left-0 right-0 z-20 w-full">
+          <div className="absolute bottom-6 left-0 right-0 z-20 w-full">
             <div
               role="tablist"
               aria-label="Featured news slides"
-              className="mx-auto max-w-6xl w-full grid gap-0 relative shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+              className="mx-auto max-w-[1440px] px-16 w-full grid gap-0 relative "
               style={{
                 width: `${tabRackWidthPercent}%`,
                 gridTemplateColumns: `repeat(${slides.length}, minmax(0, 1fr))`,

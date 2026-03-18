@@ -13,8 +13,8 @@ export default async function CheckEmailPage({ searchParams }: Props) {
     <AuthCardShell title="Check your mail">
       <div className="space-y-6 text-center">
         <p className="text-sm text-muted-foreground">
-          If an account exists for <span className="font-medium text-foreground">{email}</span>, we
-          sent a link.
+          We just sent a link to you at <span className="font-medium text-foreground">{email}</span>
+          .
         </p>
 
         <RegisterCheckEmailClient email={email} />

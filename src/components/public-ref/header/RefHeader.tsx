@@ -4,7 +4,7 @@ import { RefMobileMenu } from './RefMobileMenu';
 
 export function RefHeader() {
   return (
-    <header className="flex flex-col z-50">
+    <header className="sticky top-0 z-50 flex flex-col bg-white">
       <RefHeaderTop />
       <RefNavbar />
       <RefMobileMenu />

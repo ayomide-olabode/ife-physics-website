@@ -1,6 +1,5 @@
 import { requireAuth } from '@/lib/guards';
 import { listMyResearchOutputs } from '@/server/queries/profileResearchOutputs';
-import { BackToParent } from '@/components/dashboard/BackToParent';
 import { ResearchOutputsClientView } from '@/components/profile/ResearchOutputsClientView';
 
 export default async function ProfileResearchOutputsPage({
@@ -25,7 +24,6 @@ export default async function ProfileResearchOutputsPage({
 
   return (
     <div className="space-y-6">
-      <BackToParent href="/dashboard/profile/overview" label="Back to Profile" />
       <ResearchOutputsClientView data={data} />
     </div>
   );

@@ -15,7 +15,9 @@ import {
 } from '@/components/ui/dialog';
 import { searchStaff } from '@/server/queries/staffSearch';
 import { formatPersonName } from '@/lib/name';
-import { toastError } from '@/lib/toast';
+import { toastError, toastSuccess } from '@/lib/toast';
+import { markStaffInMemoriam } from '@/server/actions/tributesAdmin';
+import { useRouter } from 'next/navigation';
 
 type StaffSearchResult = {
   id: string;
@@ -26,6 +28,7 @@ type StaffSearchResult = {
 };
 
 export function MarkInMemoriamModal() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,8 +63,28 @@ export function MarkInMemoriamModal() {
     if (!selectedStaffId || !dateOfDeath) return;
 
     setIsSubmitting(true);
-    toastError('Action not implemented yet. This will be completed in TR.3.');
-    setIsSubmitting(false);
+    try {
+      const result = await markStaffInMemoriam({
+        staffId: selectedStaffId,
+        dateOfBirth: dateOfBirth || undefined,
+        dateOfDeath,
+      });
+
+      if (result.error) {
+        toastError(result.error);
+        setIsSubmitting(false);
+        return;
+      }
+
+      toastSuccess('Staff marked as in memoriam.');
+      setOpen(false);
+      resetForm();
+      router.push(`/dashboard/tributes/${selectedStaffId}`);
+      router.refresh();
+    } catch {
+      toastError('An unexpected error occurred.');
+      setIsSubmitting(false);
+    }
   }
 
   function resetForm() {

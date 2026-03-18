@@ -58,6 +58,8 @@ export async function getPublicResearchGroupBySlug(slug: string) {
               middleName: true,
               lastName: true,
               academicRank: true,
+              designation: true,
+              institutionalEmail: true,
               profileImageUrl: true,
             },
           },
@@ -68,34 +70,94 @@ export async function getPublicResearchGroupBySlug(slug: string) {
 }
 
 /** Recent research outputs authored by group members (reuses authorsJson staffId logic). */
-export async function listPublicRecentOutputsForGroup(groupId: string, take = 20) {
+export async function listPublicRecentOutputsForGroup(
+  groupId: string,
+  params?: { page?: number; pageSize?: number; q?: string },
+) {
+  const page = Math.max(1, params?.page ?? 1);
+  const pageSize = Math.max(1, Math.min(50, params?.pageSize ?? 10));
+  const offset = (page - 1) * pageSize;
+  const q = params?.q?.trim() ?? '';
+
   // Get member staff IDs
   const memberships = await prisma.researchGroupMembership.findMany({
     where: { researchGroupId: groupId, leftAt: null, staff: { deletedAt: null } },
     select: { staffId: true },
   });
   const staffIds = memberships.map((m) => m.staffId);
-  if (staffIds.length === 0) return [];
+  if (staffIds.length === 0) {
+    return { items: [], total: 0, page, pageSize, hasMore: false };
+  }
+
+  const searchClause =
+    q.length > 0
+      ? Prisma.sql`
+          AND (
+            r.title ILIKE ${`%${q}%`}
+            OR COALESCE(r.authors, '') ILIKE ${`%${q}%`}
+            OR COALESCE(r."sourceTitle", '') ILIKE ${`%${q}%`}
+            OR COALESCE(r.publisher, '') ILIKE ${`%${q}%`}
+            OR COALESCE(r.venue, '') ILIKE ${`%${q}%`}
+            OR COALESCE(r.year::text, '') ILIKE ${`%${q}%`}
+          )
+        `
+      : Prisma.empty;
 
   const researchOutputs = await prisma.$queryRaw<
     {
       id: string;
       title: string;
       year: number | null;
+      fullDate: Date | null;
+      outputType: string;
+      authors: string;
       sourceTitle: string | null;
+      venue: string | null;
+      publisher: string | null;
       doi: string | null;
       url: string | null;
-      type: string;
     }[]
   >`
-    SELECT DISTINCT r.id, r.title, r.year, r."sourceTitle", r.doi, r.url, r.type
+    SELECT DISTINCT
+      r.id,
+      r.title,
+      r.year,
+      r."fullDate",
+      r.type as "outputType",
+      COALESCE(NULLIF(BTRIM(r.authors), ''), 'Unknown author(s)') as authors,
+      r."sourceTitle",
+      r.venue,
+      r.publisher,
+      r.doi,
+      r.url
     FROM "ResearchOutput" r,
          jsonb_array_elements(COALESCE(r."authorsJson", '[]'::jsonb)) as a
     WHERE r."deletedAt" IS NULL
       AND (a->>'staffId' IN (${Prisma.join(staffIds)}))
-    ORDER BY r.year DESC NULLS LAST
-    LIMIT ${take};
+      ${searchClause}
+    ORDER BY r."fullDate" DESC NULLS LAST, r.year DESC NULLS LAST, r."updatedAt" DESC
+    LIMIT ${pageSize}
+    OFFSET ${offset};
   `;
 
-  return researchOutputs;
+  const countRows = await prisma.$queryRaw<{ total: number }[]>`
+    SELECT COUNT(*)::int as total
+    FROM (
+      SELECT DISTINCT r.id
+      FROM "ResearchOutput" r,
+           jsonb_array_elements(COALESCE(r."authorsJson", '[]'::jsonb)) as a
+      WHERE r."deletedAt" IS NULL
+        AND (a->>'staffId' IN (${Prisma.join(staffIds)}))
+        ${searchClause}
+    ) as deduped;
+  `;
+  const total = countRows[0]?.total ?? 0;
+
+  return {
+    items: researchOutputs,
+    total,
+    page,
+    pageSize,
+    hasMore: page * pageSize < total,
+  };
 }

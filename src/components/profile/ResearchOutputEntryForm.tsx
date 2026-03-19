@@ -37,6 +37,7 @@ type FormDataState = {
   authors: string;
   groupAuthor: string;
   year: string;
+  doi: string;
   metaJson: MetaJson;
   authorsJson: AuthorObject[];
   editorsJson: AuthorObject[];
@@ -48,10 +49,22 @@ const defaultValues: FormDataState = {
   authors: '',
   groupAuthor: '',
   year: '',
+  doi: '',
   metaJson: {},
   authorsJson: [],
   editorsJson: [],
 };
+
+function extractDoiFromIdentifier(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+
+  const withoutPrefix = trimmed
+    .replace(/^https?:\/\/(?:dx\.)?doi\.org\//i, '')
+    .replace(/^doi:\s*/i, '');
+
+  return /^10\.\d{4,9}\/\S+$/i.test(withoutPrefix) ? withoutPrefix : '';
+}
 
 function meta(form: FormDataState, key: string): string {
   return (form.metaJson[key] as string) || '';
@@ -79,6 +92,7 @@ export function ResearchOutputEntryForm({
       ((initialData?.metaJson as Record<string, unknown>)?.editorsJson as AuthorObject[]) || [],
     metaJson: (initialData?.metaJson as MetaJson) || {},
     groupAuthor: initialData?.groupAuthor || '',
+    doi: initialData?.doi || '',
   }));
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,9 +138,11 @@ export function ResearchOutputEntryForm({
       setFormData((prev) => {
         const next = { ...prev };
         const metaJson = { ...next.metaJson };
+        const lookedUpDoi = extractDoiFromIdentifier(identifierQuery);
 
         if (!next.title && data.title) next.title = data.title;
         if (!next.year && data.year) next.year = String(data.year);
+        if (!next.doi && lookedUpDoi) next.doi = lookedUpDoi;
 
         if (next.type === 'JOURNAL_ARTICLE') {
           if (data.journalName) metaJson.journalName = data.journalName;
@@ -302,6 +318,7 @@ export function ResearchOutputEntryForm({
       authors: formData.authors || syncAuthorsString(formData.authorsJson),
       authorsJson: formData.authorsJson.length > 0 ? formData.authorsJson : undefined,
       groupAuthor: formData.groupAuthor || undefined,
+      doi: formData.doi,
       year: yearVal,
       metaJson: Object.keys(metaJsonToSave).length > 0 ? metaJsonToSave : undefined,
     };
@@ -463,6 +480,19 @@ export function ResearchOutputEntryForm({
           value={formData.title}
           onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
           required
+          disabled={dis}
+          className="rounded-none"
+        />
+      </div>
+
+      {/* DOI */}
+      <div className="grid gap-2">
+        <FieldLabel htmlFor="doi">DOI</FieldLabel>
+        <Input
+          id="doi"
+          value={formData.doi}
+          onChange={(e) => setFormData((prev) => ({ ...prev, doi: e.target.value }))}
+          placeholder="e.g. 10.1038/s41586-020-2649-2"
           disabled={dis}
           className="rounded-none"
         />

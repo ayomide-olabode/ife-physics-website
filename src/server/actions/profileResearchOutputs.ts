@@ -9,6 +9,8 @@ import { deriveAuthorsString } from '@/lib/legacyResearchOutputCompat';
 import { FIELD_MAP } from '@/lib/researchOutputFieldMap';
 import { buildMetaForType } from '@/lib/researchOutputMeta';
 
+const DOI_REGEX = /^10\.\d{4,9}\/\S+$/i;
+
 /* ── sub-schemas ── */
 
 const authorObjectSchema = z.object({
@@ -49,7 +51,11 @@ const researchOutputSchema = z
     subtitle: z.string().optional().nullable(),
     sourceTitle: z.string().optional().nullable(),
     publisher: z.string().optional().nullable(),
-    doi: z.string().optional().nullable(),
+    doi: z.preprocess((value) => {
+      if (typeof value !== 'string') return value;
+      const trimmed = value.trim();
+      return trimmed === '' ? null : trimmed;
+    }, z.string().regex(DOI_REGEX, 'Invalid DOI format. Use a DOI like 10.1234/abc123.').optional().nullable()),
     url: z.string().url('Must be a valid URL').optional().nullable().or(z.literal('')),
     language: z.string().optional().nullable(),
     abstract: z.string().optional().nullable(),
@@ -131,7 +137,7 @@ function buildPersistData(
       validData.year ?? (validData.fullDate ? new Date(validData.fullDate).getFullYear() : null),
     venue: validData.venue?.trim() || null,
     url: validData.url?.trim() || null,
-    doi: validData.doi?.trim() || null,
+    doi: validData.doi ?? null,
     groupAuthor: validData.groupAuthor?.trim() || null,
     fullDate: validData.fullDate ? new Date(validData.fullDate) : null,
     subtitle: validData.subtitle?.trim() || null,
@@ -162,14 +168,16 @@ export async function createMyResearchOutput(data: z.infer<typeof researchOutput
       return { error: parsed.error.issues[0].message };
     }
 
-    await prisma.researchOutput.create({
+    const created = await prisma.researchOutput.create({
       data: {
         staffId,
         ...buildPersistData(parsed.data),
       },
+      select: { id: true },
     });
 
     revalidatePath('/dashboard/profile/research-outputs');
+    revalidatePath(`/dashboard/profile/research-outputs/${created.id}`);
     return { success: true };
   } catch (error) {
     console.error('Create Research Output Error:', error);
@@ -218,6 +226,7 @@ export async function updateMyResearchOutput(
     });
 
     revalidatePath('/dashboard/profile/research-outputs');
+    revalidatePath(`/dashboard/profile/research-outputs/${id}`);
     return { success: true };
   } catch (error) {
     console.error('Update Research Output Error:', error);

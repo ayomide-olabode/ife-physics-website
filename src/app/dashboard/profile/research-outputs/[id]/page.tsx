@@ -29,6 +29,7 @@ export default async function EditResearchOutputPage({
   const compat = mapLegacyToApa({
     type: data.type,
     authors: data.authors,
+    doi: data.doi,
     venue: data.venue,
     authorsJson: data.authorsJson,
     keywordsJson: data.keywordsJson,
@@ -55,6 +56,7 @@ export default async function EditResearchOutputPage({
           title: data.title,
           authors: data.authors || '',
           groupAuthor: compat.groupAuthor,
+          doi: compat.doi,
           year: data.year?.toString() || '',
           metaJson: compat.metaJson as Record<string, unknown>,
           authorsJson: compat.authorsJson,

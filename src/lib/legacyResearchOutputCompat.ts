@@ -12,6 +12,7 @@ import type { AuthorObject } from '@/lib/researchOutputTypes';
 type LegacyRecord = {
   type: string;
   authors: string;
+  doi?: string | null;
   venue?: string | null;
   authorsJson?: unknown;
   keywordsJson?: unknown;
@@ -25,6 +26,7 @@ type MappedResult = {
   authorsJson: AuthorObject[];
   keywordsJson: string[];
   metaJson: Record<string, unknown>;
+  doi: string;
   sourceTitle: string;
   publisher: string;
   groupAuthor: string;
@@ -118,6 +120,40 @@ function migrateMetaKeys(meta: Record<string, unknown>): Record<string, unknown>
   return result;
 }
 
+const DOI_REGEX = /^10\.\d{4,9}\/\S+$/i;
+
+function normalizeDoi(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+
+  const withoutPrefix = trimmed
+    .replace(/^https?:\/\/(?:dx\.)?doi\.org\//i, '')
+    .replace(/^doi:\s*/i, '');
+
+  return DOI_REGEX.test(withoutPrefix) ? withoutPrefix : '';
+}
+
+function extractLegacyDoi(meta: Record<string, unknown>): string {
+  const candidates = [
+    meta.doi,
+    meta.DOI,
+    meta.doiUrl,
+    meta.doiURL,
+    meta.doi_url,
+    meta.doiLink,
+    meta.doi_link,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string') {
+      const normalized = normalizeDoi(candidate);
+      if (normalized) return normalized;
+    }
+  }
+
+  return '';
+}
+
 /* ── Main mapper ── */
 
 export function mapLegacyToApa(data: LegacyRecord): MappedResult {
@@ -141,6 +177,9 @@ export function mapLegacyToApa(data: LegacyRecord): MappedResult {
       ? (data.metaJson as Record<string, unknown>)
       : {};
   const metaJson = migrateMetaKeys(rawMeta);
+
+  // Preserve explicit DOI; otherwise backfill from common legacy metaJson keys.
+  const doi = normalizeDoi(data.doi || '') || extractLegacyDoi(metaJson);
 
   // If venue exists but no sourceTitle and no type-specific key, map it
   let sourceTitle = data.sourceTitle || '';
@@ -168,6 +207,7 @@ export function mapLegacyToApa(data: LegacyRecord): MappedResult {
     authorsJson,
     keywordsJson: existingKeywords,
     metaJson,
+    doi,
     sourceTitle,
     publisher,
     groupAuthor,

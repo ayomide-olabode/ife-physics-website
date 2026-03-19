@@ -28,6 +28,7 @@ import { Loader2, X, UserPlus, Plus, Search } from 'lucide-react';
 import { StaffAuthorAutocomplete } from '@/components/forms/StaffAuthorAutocomplete';
 import type { AuthorObject } from '@/lib/researchOutputTypes';
 import { FIELD_MAP } from '@/lib/researchOutputFieldMap';
+import { AuthorChipsReorder } from '@/components/profile/AuthorChipsReorder';
 
 type MetaJson = Record<string, unknown>;
 
@@ -186,17 +187,21 @@ export function ResearchOutputEntryForm({
       .join(', ');
   }
 
+  function handleAuthorsChange(updated: AuthorObject[]) {
+    setFormData((prev) => ({
+      ...prev,
+      authorsJson: updated,
+      authors: syncAuthorsString(updated),
+    }));
+  }
+
   function handleAddStaffAuthor(author: AuthorObject) {
     if (author.staffId && formData.authorsJson.some((a) => a.staffId === author.staffId)) {
       toastError('This staff member is already added.');
       return;
     }
     const updated = [...formData.authorsJson, author];
-    setFormData((prev) => ({
-      ...prev,
-      authorsJson: updated,
-      authors: syncAuthorsString(updated),
-    }));
+    handleAuthorsChange(updated);
   }
 
   function handleAddManualAuthor() {
@@ -211,24 +216,11 @@ export function ResearchOutputEntryForm({
       family_name: manualAuthorFamily.trim(),
     };
     const updated = [...formData.authorsJson, author];
-    setFormData((prev) => ({
-      ...prev,
-      authorsJson: updated,
-      authors: syncAuthorsString(updated),
-    }));
+    handleAuthorsChange(updated);
     setManualAuthorGiven('');
     setManualAuthorMiddle('');
     setManualAuthorFamily('');
     setShowManualAuthor(false);
-  }
-
-  function handleRemoveAuthor(index: number) {
-    const updated = formData.authorsJson.filter((_, i) => i !== index);
-    setFormData((prev) => ({
-      ...prev,
-      authorsJson: updated,
-      authors: updated.length > 0 ? syncAuthorsString(updated) : prev.authors,
-    }));
   }
 
   /* ── Editors helpers ── */
@@ -503,35 +495,11 @@ export function ResearchOutputEntryForm({
         <FieldLabel required>Authors</FieldLabel>
 
         {formData.authorsJson.length > 0 && (
-          <div className="flex flex-col gap-2">
-            {formData.authorsJson.map((author, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between border bg-card px-3 py-2 text-sm rounded-none"
-              >
-                <div className="flex items-center gap-2">
-                  {author.staffId && (
-                    <span className="h-2 w-2 bg-green-500 shrink-0" title="Staff member" />
-                  )}
-                  <span className="font-medium">
-                    {formatFullName({
-                      firstName: author.given_name,
-                      middleName: author.middle_name,
-                      lastName: author.family_name,
-                    })}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveAuthor(idx)}
-                  className="p-1 hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors rounded-none"
-                  disabled={dis}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
-          </div>
+          <AuthorChipsReorder
+            authors={formData.authorsJson}
+            disabled={dis}
+            onAuthorsChange={handleAuthorsChange}
+          />
         )}
 
         <div className="space-y-2 mt-2">

@@ -1,0 +1,95 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import { ExternalLink, Mail } from 'lucide-react';
+import { formatDate } from '@/lib/format-date';
+import { formatFullNameWithMiddleInitial } from '@/lib/name';
+import type { PublicStaffProfile } from '@/server/public/queries/peoplePublic';
+
+export function StaffProfileHeader({ staff }: { staff: PublicStaffProfile }) {
+  const fullName = formatFullNameWithMiddleInitial({
+    firstName: staff.firstName,
+    middleName: staff.middleName,
+    lastName: staff.lastName,
+  });
+  const heading = [staff.title, fullName].filter(Boolean).join(' ').trim() || staff.institutionalEmail;
+  const isInMemoriam = staff.isInMemoriam || staff.staffStatus === 'IN_MEMORIAM';
+
+  return (
+    <section className="grid grid-cols-1 gap-6 border border-gray-200 bg-white p-6 lg:grid-cols-[1fr_260px]">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">Faculty Profile</p>
+        <h1 className="text-3xl font-serif font-bold text-brand-navy">{heading}</h1>
+
+        {(staff.academicRank || staff.designation) && (
+          <p className="text-sm text-gray-700">{[staff.academicRank, staff.designation].filter(Boolean).join(', ')}</p>
+        )}
+
+        {staff.primaryResearchGroup && (
+          <p className="text-sm text-gray-700">
+            Research Group:{' '}
+            <Link href={`/research/${staff.primaryResearchGroup.slug}`} className="font-semibold text-brand-navy hover:underline">
+              {staff.primaryResearchGroup.name}
+            </Link>
+          </p>
+        )}
+
+        <p className="flex items-center gap-2 text-sm text-gray-700">
+          <Mail className="h-4 w-4 shrink-0" />
+          <a href={`mailto:${staff.institutionalEmail}`} className="break-all hover:underline">
+            {staff.institutionalEmail}
+          </a>
+        </p>
+
+        {isInMemoriam && (staff.dateOfBirth || staff.dateOfDeath) && (
+          <p className="text-sm text-gray-600">
+            Born {formatDate(staff.dateOfBirth)}, Died {formatDate(staff.dateOfDeath)}
+          </p>
+        )}
+
+        {(staff.googleScholarUrl || staff.orcidUrl) && (
+          <div className="flex flex-wrap items-center gap-3 pt-1 text-sm text-gray-700">
+            {staff.googleScholarUrl && (
+              <a
+                href={staff.googleScholarUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-semibold text-brand-navy hover:underline"
+              >
+                Google Scholar
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            )}
+            {staff.orcidUrl && (
+              <a
+                href={staff.orcidUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-semibold text-brand-navy hover:underline"
+              >
+                ORCID
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="h-fit border border-gray-200 bg-gray-100">
+        {staff.profileImageUrl ? (
+          <Image
+            src={staff.profileImageUrl}
+            alt={heading}
+            width={520}
+            height={520}
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex aspect-square items-center justify-center text-sm font-semibold uppercase tracking-wide text-gray-500">
+            No Image
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

@@ -4,7 +4,6 @@ import prisma from '@/lib/prisma';
 import { getAcademicRankSortValue } from '@/lib/rankOrder';
 import { buildStaffSlug, slugify } from '@/lib/slug';
 import { StaffStatus, StaffType } from '@prisma/client';
-import { paginationArgs, paginatedResult, type PaginationParams } from '../pagination';
 
 // Map public route categories to StaffType + StaffStatus filters
 const CATEGORY_MAP: Record<string, { staffType?: StaffType; staffStatus?: StaffStatus }> = {
@@ -16,6 +15,8 @@ const CATEGORY_MAP: Record<string, { staffType?: StaffType; staffStatus?: StaffS
   'retired-faculty': { staffStatus: 'RETIRED' },
   'in-memoriam': { staffStatus: 'IN_MEMORIAM' },
 };
+
+export type PublicPeopleCategory = keyof typeof CATEGORY_MAP;
 
 type StaffSlugIdentity = {
   id: string;
@@ -63,42 +64,16 @@ function compareNullableStrings(a: string | null | undefined, b: string | null |
   return (a ?? '').localeCompare(b ?? '', undefined, { sensitivity: 'base' });
 }
 
-/** Paginated staff list filtered by public category (e.g., "academic-faculty"). */
-export async function listPublicStaffByCategory(category: string, params: PaginationParams = {}) {
-  const filter = CATEGORY_MAP[category];
-  if (!filter) return paginatedResult([], 0, 1, 10);
+function inferLinks(url: string | null): { googleScholarUrl: string | null; orcidUrl: string | null } {
+  if (!url) {
+    return { googleScholarUrl: null, orcidUrl: null };
+  }
 
-  const { skip, take, page, pageSize } = paginationArgs(params);
-
-  const where = {
-    deletedAt: null,
-    ...filter,
+  const lower = url.toLowerCase();
+  return {
+    googleScholarUrl: lower.includes('scholar.google') ? url : null,
+    orcidUrl: lower.includes('orcid.org') ? url : null,
   };
-
-  const [items, total] = await Promise.all([
-    prisma.staff.findMany({
-      where,
-      select: {
-        id: true,
-        firstName: true,
-        middleName: true,
-        lastName: true,
-        institutionalEmail: true,
-        academicRank: true,
-        designation: true,
-        researchArea: true,
-        profileImageUrl: true,
-        staffType: true,
-        staffStatus: true,
-      },
-      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
-      skip,
-      take,
-    }),
-    prisma.staff.count({ where }),
-  ]);
-
-  return paginatedResult(items, total, page, pageSize);
 }
 
 export interface PublicAcademicFacultyParams {
@@ -107,7 +82,7 @@ export interface PublicAcademicFacultyParams {
   pageSize?: number;
 }
 
-export interface PublicAcademicFacultyItem {
+export interface PublicPeopleCardItem {
   staffId: string;
   title: string | null;
   firstName: string | null;
@@ -120,8 +95,99 @@ export interface PublicAcademicFacultyItem {
   primaryResearchGroup: { name: string; slug: string } | null;
   secondaryAffiliation: { name: string; acronym: string | null } | null;
   computedStaffSlug: string;
+  staffStatus: StaffStatus;
+  isInMemoriam: boolean;
+  dateOfBirth: Date | null;
+  dateOfDeath: Date | null;
   isHod: boolean;
   rankSortValue: number;
+}
+
+export type PublicAcademicFacultyItem = PublicPeopleCardItem;
+
+function buildCardItem(
+  row: {
+    id: string;
+    title: string | null;
+    firstName: string | null;
+    middleName: string | null;
+    lastName: string | null;
+    academicRank: string | null;
+    designation: string | null;
+    institutionalEmail: string;
+    profileImageUrl: string | null;
+    staffStatus: StaffStatus;
+    isInMemoriam: boolean;
+    dateOfBirth: Date | null;
+    dateOfDeath: Date | null;
+    secondaryAffiliation: {
+      name: string;
+      acronym: string | null;
+    } | null;
+    researchMemberships: Array<{
+      researchGroup: {
+        name: string;
+        slug: string;
+      };
+    }>;
+  },
+  computedSlugById: Map<string, string>,
+  currentHodStaffId: string | null,
+): PublicPeopleCardItem {
+  const rankSortValue = getAcademicRankSortValue(row.academicRank);
+  return {
+    staffId: row.id,
+    title: row.title,
+    firstName: row.firstName,
+    middleName: row.middleName,
+    lastName: row.lastName,
+    academicRank: row.academicRank,
+    designation: row.designation,
+    institutionalEmail: row.institutionalEmail,
+    profileImageUrl: row.profileImageUrl,
+    primaryResearchGroup: row.researchMemberships[0]
+      ? {
+          name: row.researchMemberships[0].researchGroup.name,
+          slug: row.researchMemberships[0].researchGroup.slug,
+        }
+      : null,
+    secondaryAffiliation: row.secondaryAffiliation
+      ? {
+          name: row.secondaryAffiliation.name,
+          acronym: row.secondaryAffiliation.acronym,
+        }
+      : null,
+    computedStaffSlug: computedSlugById.get(row.id) ?? 'staff',
+    staffStatus: row.staffStatus,
+    isInMemoriam: row.isInMemoriam,
+    dateOfBirth: row.dateOfBirth,
+    dateOfDeath: row.dateOfDeath,
+    isHod: currentHodStaffId === row.id,
+    rankSortValue,
+  };
+}
+
+function sortAcademicFaculty(a: PublicPeopleCardItem, b: PublicPeopleCardItem): number {
+  if (a.isHod !== b.isHod) return a.isHod ? -1 : 1;
+  if (a.rankSortValue !== b.rankSortValue) return a.rankSortValue - b.rankSortValue;
+
+  const lastNameCmp = compareNullableStrings(a.lastName, b.lastName);
+  if (lastNameCmp !== 0) return lastNameCmp;
+
+  const firstNameCmp = compareNullableStrings(a.firstName, b.firstName);
+  if (firstNameCmp !== 0) return firstNameCmp;
+
+  return a.staffId.localeCompare(b.staffId);
+}
+
+function sortByName(a: PublicPeopleCardItem, b: PublicPeopleCardItem): number {
+  const lastNameCmp = compareNullableStrings(a.lastName, b.lastName);
+  if (lastNameCmp !== 0) return lastNameCmp;
+
+  const firstNameCmp = compareNullableStrings(a.firstName, b.firstName);
+  if (firstNameCmp !== 0) return firstNameCmp;
+
+  return a.staffId.localeCompare(b.staffId);
 }
 
 export async function listPublicAcademicFaculty({
@@ -164,6 +230,10 @@ export async function listPublicAcademicFaculty({
         designation: true,
         institutionalEmail: true,
         profileImageUrl: true,
+        staffStatus: true,
+        isInMemoriam: true,
+        dateOfBirth: true,
+        dateOfDeath: true,
         secondaryAffiliation: {
           select: {
             name: true,
@@ -206,47 +276,8 @@ export async function listPublicAcademicFaculty({
   const currentHodStaffId = activeHodTerm?.staffId ?? null;
 
   const sorted = rows
-    .map<PublicAcademicFacultyItem>((row) => {
-      const rankSortValue = getAcademicRankSortValue(row.academicRank);
-      return {
-        staffId: row.id,
-        title: row.title,
-        firstName: row.firstName,
-        middleName: row.middleName,
-        lastName: row.lastName,
-        academicRank: row.academicRank,
-        designation: row.designation,
-        institutionalEmail: row.institutionalEmail,
-        profileImageUrl: row.profileImageUrl,
-        primaryResearchGroup: row.researchMemberships[0]
-          ? {
-              name: row.researchMemberships[0].researchGroup.name,
-              slug: row.researchMemberships[0].researchGroup.slug,
-            }
-          : null,
-        secondaryAffiliation: row.secondaryAffiliation
-          ? {
-              name: row.secondaryAffiliation.name,
-              acronym: row.secondaryAffiliation.acronym,
-            }
-          : null,
-        computedStaffSlug: computedSlugById.get(row.id) ?? 'staff',
-        isHod: currentHodStaffId === row.id,
-        rankSortValue,
-      };
-    })
-    .sort((a, b) => {
-      if (a.isHod !== b.isHod) return a.isHod ? -1 : 1;
-      if (a.rankSortValue !== b.rankSortValue) return a.rankSortValue - b.rankSortValue;
-
-      const lastNameCmp = compareNullableStrings(a.lastName, b.lastName);
-      if (lastNameCmp !== 0) return lastNameCmp;
-
-      const firstNameCmp = compareNullableStrings(a.firstName, b.firstName);
-      if (firstNameCmp !== 0) return firstNameCmp;
-
-      return a.staffId.localeCompare(b.staffId);
-    });
+    .map<PublicAcademicFacultyItem>((row) => buildCardItem(row, computedSlugById, currentHodStaffId))
+    .sort(sortAcademicFaculty);
 
   const start = (safePage - 1) * safePageSize;
   const end = start + safePageSize;
@@ -258,8 +289,125 @@ export async function listPublicAcademicFaculty({
   };
 }
 
+export async function listPublicPeopleByCategory(
+  category: PublicPeopleCategory,
+  { q, page = 1, pageSize = 9 }: PublicAcademicFacultyParams = {},
+) {
+  if (category === 'academic-faculty') {
+    return listPublicAcademicFaculty({ q, page, pageSize });
+  }
+
+  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? Math.floor(pageSize) : 9;
+  const query = q?.trim();
+  const filter = CATEGORY_MAP[category];
+  const isInMemoriamCategory = category === 'in-memoriam';
+  const baseCategoryFilter = isInMemoriamCategory
+    ? { OR: [{ staffStatus: 'IN_MEMORIAM' as const }, { isInMemoriam: true }] }
+    : { ...filter };
+
+  const where = {
+    deletedAt: null,
+    AND: [
+      baseCategoryFilter,
+      ...(query
+        ? [
+            {
+              OR: [
+                { firstName: { contains: query, mode: 'insensitive' as const } },
+                { middleName: { contains: query, mode: 'insensitive' as const } },
+                { lastName: { contains: query, mode: 'insensitive' as const } },
+                { institutionalEmail: { contains: query, mode: 'insensitive' as const } },
+              ],
+            },
+          ]
+        : []),
+    ],
+  };
+
+  const rows = await prisma.staff.findMany({
+    where,
+    select: {
+      id: true,
+      title: true,
+      firstName: true,
+      middleName: true,
+      lastName: true,
+      academicRank: true,
+      designation: true,
+      institutionalEmail: true,
+      profileImageUrl: true,
+      staffStatus: true,
+      isInMemoriam: true,
+      dateOfBirth: true,
+      dateOfDeath: true,
+      secondaryAffiliation: {
+        select: {
+          name: true,
+          acronym: true,
+        },
+      },
+      researchMemberships: {
+        where: {
+          leftAt: null,
+          researchGroup: {
+            deletedAt: null,
+          },
+        },
+        orderBy: [{ joinedAt: 'asc' }, { researchGroup: { name: 'asc' } }],
+        take: 1,
+        select: {
+          researchGroup: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const computedSlugById = buildUniqueStaffSlugs(rows);
+  const sorted = rows
+    .map<PublicPeopleCardItem>((row) => buildCardItem(row, computedSlugById, null))
+    .sort(sortByName);
+
+  const start = (safePage - 1) * safePageSize;
+  const end = start + safePageSize;
+  const items = sorted.slice(start, end);
+
+  return {
+    items,
+    nextPage: end < sorted.length ? safePage + 1 : undefined,
+  };
+}
+
+export interface PublicStaffProfile {
+  id: string;
+  computedStaffSlug: string;
+  title: string | null;
+  firstName: string | null;
+  middleName: string | null;
+  lastName: string | null;
+  academicRank: string | null;
+  designation: string | null;
+  institutionalEmail: string;
+  profileImageUrl: string | null;
+  staffType: StaffType;
+  staffStatus: StaffStatus;
+  isInMemoriam: boolean;
+  dateOfBirth: Date | null;
+  dateOfDeath: Date | null;
+  bio: string | null;
+  primaryResearchGroup: { id: string; name: string; slug: string } | null;
+  secondaryAffiliation: { id: string; name: string; acronym: string | null } | null;
+  googleScholarUrl: string | null;
+  orcidUrl: string | null;
+}
+
 /** Full staff profile by staff name slug. */
-export async function getPublicStaffBySlug(slug: string) {
+export async function getPublicStaffBySlug(slug: string): Promise<PublicStaffProfile | null> {
   const normalizedSlug = slugify(slug);
   if (!normalizedSlug) return null;
 
@@ -282,10 +430,11 @@ export async function getPublicStaffBySlug(slug: string) {
     return null;
   }
 
-  return prisma.staff.findFirst({
+  const staff = await prisma.staff.findFirst({
     where: { id: matched.id, deletedAt: null },
     select: {
       id: true,
+      title: true,
       firstName: true,
       middleName: true,
       lastName: true,
@@ -294,97 +443,254 @@ export async function getPublicStaffBySlug(slug: string) {
       staffStatus: true,
       academicRank: true,
       designation: true,
-      researchArea: true,
-      researchInterests: true,
-      roomNumber: true,
       academicLinkUrl: true,
-      phoneNumber: true,
       bio: true,
       profileImageUrl: true,
-      operationalUnit: true,
-      areaOfExpertise: true,
       isInMemoriam: true,
       dateOfBirth: true,
       dateOfDeath: true,
-      tribute: {
-        select: {
-          title: true,
-          bodyHtml: true,
-        },
-      },
-      testimonials: {
-        where: { status: 'APPROVED' },
+      secondaryAffiliation: {
         select: {
           id: true,
           name: true,
-          relationship: true,
-          tributeHtml: true,
-          submittedAt: true,
-        },
-        orderBy: { submittedAt: 'desc' },
-      },
-      // Relations – limited for public view
-      researchOutputs: {
-        where: { deletedAt: null },
-        select: {
-          id: true,
-          type: true,
-          title: true,
-          authors: true,
-          year: true,
-          venue: true,
-          doi: true,
-          url: true,
-          sourceTitle: true,
-        },
-        orderBy: { year: 'desc' },
-        take: 20,
-      },
-      projects: {
-        where: { deletedAt: null },
-        select: {
-          id: true,
-          title: true,
           acronym: true,
-          status: true,
-          isFunded: true,
-          startYear: true,
-          endYear: true,
         },
-        orderBy: { startYear: 'desc' },
-        take: 20,
       },
-      teaching: {
-        where: { deletedAt: null },
+      researchMemberships: {
+        where: {
+          leftAt: null,
+          researchGroup: {
+            deletedAt: null,
+          },
+        },
+        orderBy: [{ joinedAt: 'asc' }, { researchGroup: { name: 'asc' } }],
+        take: 1,
         select: {
-          id: true,
-          courseCode: true,
-          title: true,
-          sessionYear: true,
-          semester: true,
+          researchGroup: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
         },
-        orderBy: { sessionYear: 'desc' },
-        take: 20,
-      },
-      thesesSupervised: {
-        where: { deletedAt: null },
-        select: {
-          id: true,
-          title: true,
-          studentName: true,
-          programme: true,
-          degreeLevel: true,
-          year: true,
-          status: true,
-        },
-        orderBy: { year: 'desc' },
-        take: 20,
-      },
-      hodAddress: {
-        select: { title: true, body: true },
       },
     },
   });
+
+  if (!staff) {
+    return null;
+  }
+
+  const links = inferLinks(staff.academicLinkUrl);
+
+  return {
+    id: staff.id,
+    computedStaffSlug: slugById.get(staff.id) ?? normalizedSlug,
+    title: staff.title,
+    firstName: staff.firstName,
+    middleName: staff.middleName,
+    lastName: staff.lastName,
+    academicRank: staff.academicRank,
+    designation: staff.designation,
+    institutionalEmail: staff.institutionalEmail,
+    profileImageUrl: staff.profileImageUrl,
+    staffType: staff.staffType,
+    staffStatus: staff.staffStatus,
+    isInMemoriam: staff.isInMemoriam,
+    dateOfBirth: staff.dateOfBirth,
+    dateOfDeath: staff.dateOfDeath,
+    bio: staff.bio,
+    primaryResearchGroup: staff.researchMemberships[0]
+      ? {
+          id: staff.researchMemberships[0].researchGroup.id,
+          name: staff.researchMemberships[0].researchGroup.name,
+          slug: staff.researchMemberships[0].researchGroup.slug,
+        }
+      : null,
+    secondaryAffiliation: staff.secondaryAffiliation,
+    googleScholarUrl: links.googleScholarUrl,
+    orcidUrl: links.orcidUrl,
+  };
+}
+
+export interface PublicTabQueryParams {
+  page?: number;
+  pageSize?: number;
+}
+
+function normalizePaging({ page = 1, pageSize = 8 }: PublicTabQueryParams = {}) {
+  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? Math.floor(pageSize) : 8;
+  const skip = (safePage - 1) * safePageSize;
+  return { safePage, safePageSize, skip };
+}
+
+export async function listPublicResearchOutputsForStaff(staffId: string, params: PublicTabQueryParams = {}) {
+  const { safePage, safePageSize, skip } = normalizePaging(params);
+  const where = { staffId, deletedAt: null };
+
+  const [items, total] = await Promise.all([
+    prisma.researchOutput.findMany({
+      where,
+      select: {
+        id: true,
+        type: true,
+        title: true,
+        authors: true,
+        year: true,
+        venue: true,
+        sourceTitle: true,
+        doi: true,
+        url: true,
+      },
+      orderBy: [{ year: 'desc' }, { createdAt: 'desc' }],
+      skip,
+      take: safePageSize,
+    }),
+    prisma.researchOutput.count({ where }),
+  ]);
+
+  return {
+    items,
+    page: safePage,
+    nextPage: skip + safePageSize < total ? safePage + 1 : undefined,
+    prevPage: safePage > 1 ? safePage - 1 : undefined,
+  };
+}
+
+export async function listPublicProjectsForStaff(staffId: string, params: PublicTabQueryParams = {}) {
+  const { safePage, safePageSize, skip } = normalizePaging(params);
+  const where = { staffId, deletedAt: null };
+
+  const [items, total] = await Promise.all([
+    prisma.project.findMany({
+      where,
+      select: {
+        id: true,
+        title: true,
+        acronym: true,
+        descriptionHtml: true,
+        status: true,
+        startYear: true,
+        endYear: true,
+      },
+      orderBy: [{ startYear: 'desc' }, { createdAt: 'desc' }],
+      skip,
+      take: safePageSize,
+    }),
+    prisma.project.count({ where }),
+  ]);
+
+  return {
+    items,
+    page: safePage,
+    nextPage: skip + safePageSize < total ? safePage + 1 : undefined,
+    prevPage: safePage > 1 ? safePage - 1 : undefined,
+  };
+}
+
+export async function listPublicThesesForStaff(staffId: string, params: PublicTabQueryParams = {}) {
+  const { safePage, safePageSize, skip } = normalizePaging(params);
+  const where = { staffId, deletedAt: null };
+
+  const [items, total] = await Promise.all([
+    prisma.studentThesis.findMany({
+      where,
+      select: {
+        id: true,
+        title: true,
+        studentName: true,
+        degreeLevel: true,
+        programme: true,
+        year: true,
+      },
+      orderBy: [{ year: 'desc' }, { createdAt: 'desc' }],
+      skip,
+      take: safePageSize,
+    }),
+    prisma.studentThesis.count({ where }),
+  ]);
+
+  return {
+    items,
+    page: safePage,
+    nextPage: skip + safePageSize < total ? safePage + 1 : undefined,
+    prevPage: safePage > 1 ? safePage - 1 : undefined,
+  };
+}
+
+export async function listPublicTeachingForStaff(staffId: string, params: PublicTabQueryParams = {}) {
+  const { safePage, safePageSize, skip } = normalizePaging(params);
+  const where = { staffId, deletedAt: null };
+
+  const [items, total] = await Promise.all([
+    prisma.teachingResponsibility.findMany({
+      where,
+      select: {
+        id: true,
+        courseCode: true,
+        title: true,
+        semester: true,
+        sessionYear: true,
+      },
+      orderBy: [{ sessionYear: 'desc' }, { createdAt: 'desc' }],
+      skip,
+      take: safePageSize,
+    }),
+    prisma.teachingResponsibility.count({ where }),
+  ]);
+
+  return {
+    items,
+    page: safePage,
+    nextPage: skip + safePageSize < total ? safePage + 1 : undefined,
+    prevPage: safePage > 1 ? safePage - 1 : undefined,
+  };
+}
+
+export async function getPublicTributesForStaff(staffId: string, params: PublicTabQueryParams = {}) {
+  const { safePage, safePageSize, skip } = normalizePaging(params);
+
+  const [biography, items, total] = await Promise.all([
+    prisma.departmentalTribute.findUnique({
+      where: { staffId },
+      select: {
+        title: true,
+        bodyHtml: true,
+      },
+    }),
+    prisma.tributeTestimonial.findMany({
+      where: {
+        staffId,
+        status: 'APPROVED',
+      },
+      select: {
+        id: true,
+        name: true,
+        relationship: true,
+        tributeHtml: true,
+        submittedAt: true,
+      },
+      orderBy: { submittedAt: 'desc' },
+      skip,
+      take: safePageSize,
+    }),
+    prisma.tributeTestimonial.count({
+      where: {
+        staffId,
+        status: 'APPROVED',
+      },
+    }),
+  ]);
+
+  return {
+    biography,
+    items,
+    page: safePage,
+    nextPage: skip + safePageSize < total ? safePage + 1 : undefined,
+    prevPage: safePage > 1 ? safePage - 1 : undefined,
+  };
 }
 
 /** Current HOD info for public display. */

@@ -16,6 +16,7 @@ import {
   updateMyResearchOutput,
 } from '@/server/actions/profileResearchOutputs';
 import { lookupCrossrefByDoi } from '@/server/actions/crossrefLookup';
+import { linkAuthorsToStaff } from '@/server/actions/authorLinking';
 import { ResearchOutputType } from '@prisma/client';
 import {
   Select,
@@ -135,6 +136,36 @@ export function ResearchOutputEntryForm({
       if (!data) return;
 
       toastSuccess('Metadata loaded');
+      const shouldHydrateAuthors = formData.authorsJson.length === 0;
+      let importedAuthors: AuthorObject[] | null = null;
+
+      if (shouldHydrateAuthors && data.authors && data.authors.length > 0) {
+        const baseImportedAuthors: AuthorObject[] = data.authors.map((a) => ({
+          staffId: null,
+          given_name: a.given_name,
+          family_name: a.family_name,
+        }));
+
+        try {
+          const linked = await linkAuthorsToStaff({
+            authors: baseImportedAuthors.map((author) => ({
+              firstName: author.given_name,
+              lastName: author.family_name,
+              fullName: [author.given_name, author.middle_name, author.family_name]
+                .filter(Boolean)
+                .join(' '),
+            })),
+          });
+
+          importedAuthors = baseImportedAuthors.map((author, idx) => ({
+            ...author,
+            staffId: author.staffId ?? linked[idx]?.staffId ?? null,
+          }));
+        } catch (error) {
+          console.error('Author auto-linking failed:', error);
+          importedAuthors = baseImportedAuthors;
+        }
+      }
 
       setFormData((prev) => {
         const next = { ...prev };
@@ -155,12 +186,8 @@ export function ResearchOutputEntryForm({
           if (data.day) metaJson.day = data.day;
         }
 
-        if (next.authorsJson.length === 0 && data.authors && data.authors.length > 0) {
-          next.authorsJson = data.authors.map((a) => ({
-            staffId: null,
-            given_name: a.given_name,
-            family_name: a.family_name,
-          }));
+        if (next.authorsJson.length === 0 && importedAuthors && importedAuthors.length > 0) {
+          next.authorsJson = importedAuthors;
           next.authors = syncAuthorsString(next.authorsJson);
         }
 
@@ -479,7 +506,7 @@ export function ResearchOutputEntryForm({
 
       {/* DOI */}
       <div className="grid gap-2">
-        <FieldLabel htmlFor="doi">DOI</FieldLabel>
+        <FieldLabel htmlFor="doi">DOI / Url</FieldLabel>
         <Input
           id="doi"
           value={formData.doi}
@@ -488,6 +515,7 @@ export function ResearchOutputEntryForm({
           disabled={dis}
           className="rounded-none"
         />
+        <p className="text-xs text-muted-foreground">Kindly add a Url if DOI is not available.</p>
       </div>
 
       {/* AUTHORS */}
@@ -591,7 +619,7 @@ export function ResearchOutputEntryForm({
           </button>
         )}
 
-        <div className="grid gap-2 pt-2 border-t mt-2">
+        {/* <div className="grid gap-2 pt-2 border-t mt-2">
           <FieldLabel htmlFor="groupAuthor" className="text-xs text-muted-foreground">
             Or Group / Corporate Author
           </FieldLabel>
@@ -602,7 +630,7 @@ export function ResearchOutputEntryForm({
             disabled={dis}
             className="h-8 rounded-none"
           />
-        </div>
+        </div> */}
       </div>
 
       {/* DYNAMIC FIELDS & YEAR */}

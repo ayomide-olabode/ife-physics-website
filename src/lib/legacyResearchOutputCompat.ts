@@ -263,3 +263,38 @@ export function deriveAuthorsString(
   if (groupAuthor && groupAuthor.trim()) return groupAuthor.trim();
   return '';
 }
+
+function toInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => `${part[0]?.toUpperCase()}.`)
+    .join(' ');
+}
+
+function formatSingleAuthorApa(author: AuthorObject): string {
+  if (author.is_group) {
+    const groupName = author.given_name?.trim() || author.family_name?.trim() || '';
+    return groupName;
+  }
+
+  const family = author.family_name?.trim() || '';
+  const initials = toInitials([author.given_name, author.middle_name].filter(Boolean).join(' '));
+  return [family, initials].filter(Boolean).join(', ');
+}
+
+/**
+ * Formats authors to APA-like "Last, F." and joins with commas using "&" before
+ * the final author.
+ */
+export function formatAuthorsForDisplay(authorsJson: AuthorObject[] | null | undefined): string {
+  if (!authorsJson?.length) return '';
+
+  const formatted = authorsJson.map(formatSingleAuthorApa).filter(Boolean);
+  if (formatted.length === 0) return '';
+  if (formatted.length === 1) return formatted[0];
+  if (formatted.length === 2) return `${formatted[0]} & ${formatted[1]}`;
+
+  return `${formatted.slice(0, -1).join(', ')} & ${formatted[formatted.length - 1]}`;
+}

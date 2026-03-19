@@ -11,7 +11,7 @@ export default async function HomePage() {
   const [featuredNews, latestNews, featuredResearchOutputs] = await Promise.all([
     getFeaturedNews(3),
     listPublicNews({ page: 1, pageSize: 3 }),
-    getFeaturedResearchOutputs(3),
+    getFeaturedResearchOutputs(),
   ]);
 
   return (

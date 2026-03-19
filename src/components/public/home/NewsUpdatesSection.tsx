@@ -60,7 +60,7 @@ export function NewsUpdatesSection({ items }: { items: NewsItem[] }) {
 
                 <div className="p-6 flex flex-col flex-1">
                   {/* Date */}
-                  <p className="text-xs font-semibold text-brand-yellow uppercase tracking-wider mb-2">
+                  <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">
                     {new Date(item.date).toLocaleDateString('en-GB', {
                       year: 'numeric',
                       month: '2-digit',
@@ -69,7 +69,7 @@ export function NewsUpdatesSection({ items }: { items: NewsItem[] }) {
                   </p>
 
                   {/* Title */}
-                  <h3 className="font-semibold text-brand-navy leading-snug mb-2 line-clamp-3">
+                  <h3 className="text-xl font-semibold text-brand-navy mb-2 line-clamp-3">
                     {item.title}
                   </h3>
 

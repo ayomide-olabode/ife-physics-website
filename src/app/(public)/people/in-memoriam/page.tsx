@@ -1,7 +1,15 @@
-export default function Page() {
+import { PeopleCategoryPage } from '@/components/public/PeopleCategoryPage';
+
+export default async function InMemoriamPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>;
+}) {
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">In Memoriam</h1>
-    </main>
+    <PeopleCategoryPage
+      title="In Memoriam"
+      category="in-memoriam"
+      searchParams={await searchParams}
+    />
   );
 }

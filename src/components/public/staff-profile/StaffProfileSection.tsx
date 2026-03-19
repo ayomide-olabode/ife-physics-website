@@ -8,7 +8,10 @@ import {
   listPublicTeachingForStaff,
   listPublicThesesForStaff,
 } from '@/server/public/queries/peoplePublic';
-import { type StaffProfileTab, normalizeStaffProfileTab } from '@/components/public/staff-profile/tabConfig';
+import {
+  type StaffProfileTab,
+  normalizeStaffProfileTab,
+} from '@/components/public/staff-profile/tabConfig';
 
 function stripHtml(html: string | null | undefined): string {
   if (!html) return '';
@@ -43,9 +46,12 @@ function SectionPager({
   if (!prevPage && !nextPage) return null;
 
   return (
-    <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+    <div className="mt-6 flex items-center justify-between pt-4">
       {prevPage ? (
-        <Link href={buildTabHref(staffSlug, tab, prevPage)} className="border border-brand-navy px-4 py-2 text-sm font-semibold text-brand-navy hover:bg-brand-navy hover:text-white">
+        <Link
+          href={buildTabHref(staffSlug, tab, prevPage)}
+          className="border border-brand-navy px-4 py-2 text-sm font-semibold text-brand-navy hover:bg-brand-navy hover:text-white"
+        >
           Previous
         </Link>
       ) : (
@@ -53,7 +59,10 @@ function SectionPager({
       )}
       <span className="text-sm text-gray-500">Page {currentPage}</span>
       {nextPage ? (
-        <Link href={buildTabHref(staffSlug, tab, nextPage)} className="border border-brand-navy px-4 py-2 text-sm font-semibold text-brand-navy hover:bg-brand-navy hover:text-white">
+        <Link
+          href={buildTabHref(staffSlug, tab, nextPage)}
+          className="border border-brand-navy px-4 py-2 text-sm font-semibold text-brand-navy hover:bg-brand-navy hover:text-white"
+        >
           Next
         </Link>
       ) : (
@@ -84,8 +93,12 @@ export async function StaffProfileSection({
 
   if (activeTab === 'bio') {
     return (
-      <section className="border border-gray-200 bg-white p-6">
-        {bioHtml ? <Prose html={bioHtml} /> : <p className="text-sm text-gray-600">No biography available yet.</p>}
+      <section className="bg-white p-6">
+        {bioHtml ? (
+          <Prose html={bioHtml} />
+        ) : (
+          <p className="text-sm text-gray-600">No biography available yet.</p>
+        )}
       </section>
     );
   }
@@ -93,11 +106,11 @@ export async function StaffProfileSection({
   if (activeTab === 'research-outputs') {
     const data = await listPublicResearchOutputsForStaff(staffId, { page, pageSize: 8 });
     return (
-      <section className="border border-gray-200 bg-white p-6">
+      <section className="bg-white p-6">
         {data.items.length === 0 ? (
           <p className="text-sm text-gray-600">No research outputs available.</p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 divide-x divider-gray-200">
             {data.items.map((output) => {
               const citation = [
                 output.authors,
@@ -109,7 +122,7 @@ export async function StaffProfileSection({
                 .join('. ');
 
               return (
-                <article key={output.id} className="border border-gray-200 p-4">
+                <article key={output.id} className="">
                   <p className="text-sm leading-6 text-gray-800">{citation}</p>
                 </article>
               );
@@ -144,7 +157,9 @@ export async function StaffProfileSection({
                   {project.endYear ? ` - ${project.endYear}` : ''}
                 </p>
                 {project.descriptionHtml && (
-                  <p className="mt-2 line-clamp-3 text-sm text-gray-700">{stripHtml(project.descriptionHtml)}</p>
+                  <p className="mt-2 line-clamp-3 text-sm text-gray-700">
+                    {stripHtml(project.descriptionHtml)}
+                  </p>
                 )}
               </article>
             ))}
@@ -173,7 +188,8 @@ export async function StaffProfileSection({
               <article key={thesis.id} className="border border-gray-200 p-4">
                 <h3 className="font-semibold text-brand-navy">{thesis.title}</h3>
                 <p className="mt-1 text-sm text-gray-600">
-                  {thesis.year} • {[thesis.degreeLevel, thesis.programme].filter(Boolean).join(' • ')}
+                  {thesis.year} •{' '}
+                  {[thesis.degreeLevel, thesis.programme].filter(Boolean).join(' • ')}
                 </p>
               </article>
             ))}
@@ -200,7 +216,9 @@ export async function StaffProfileSection({
           <div className="space-y-4">
             {data.items.map((record) => (
               <article key={record.id} className="border border-gray-200 p-4">
-                <h3 className="font-semibold text-brand-navy">{record.courseCode ? `${record.courseCode} - ${record.title}` : record.title}</h3>
+                <h3 className="font-semibold text-brand-navy">
+                  {record.courseCode ? `${record.courseCode} - ${record.title}` : record.title}
+                </h3>
                 <p className="mt-1 text-sm text-gray-600">
                   {[record.sessionYear, record.semester].filter(Boolean).join(' • ')}
                 </p>
@@ -233,7 +251,10 @@ export async function StaffProfileSection({
     <section className="space-y-6 border border-gray-200 bg-white p-6">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-brand-navy">Tributes</h2>
-        <Link href={`/people/staff/${staffSlug}/tributes/new`} className="border border-brand-navy px-4 py-2 text-sm font-semibold text-brand-navy hover:bg-brand-navy hover:text-white">
+        <Link
+          href={`/people/staff/${staffSlug}/tributes/new`}
+          className="border border-brand-navy px-4 py-2 text-sm font-semibold text-brand-navy hover:bg-brand-navy hover:text-white"
+        >
           Add Tribute
         </Link>
       </div>
@@ -269,7 +290,9 @@ export async function StaffProfileSection({
                   {testimonial.relationship ? ` (${testimonial.relationship})` : ''}
                   {` • ${formatDate(testimonial.submittedAt)}`}
                 </header>
-                <p className="line-clamp-3 text-sm text-gray-700">{stripHtml(testimonial.tributeHtml)}</p>
+                <p className="line-clamp-3 text-sm text-gray-700">
+                  {stripHtml(testimonial.tributeHtml)}
+                </p>
               </article>
             ))}
             <SectionPager

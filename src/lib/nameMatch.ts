@@ -39,14 +39,17 @@ export function parseAuthorName(author: AuthorNameInput): ParsedAuthorName {
   const explicitLast = author.lastName?.trim() || '';
 
   if (explicitFirst || explicitLast) {
-    const normalizedFirst = normalize(explicitFirst);
+    const firstTokens = splitTokens(explicitFirst);
+    const first = firstTokens[0] || '';
+    const middle = firstTokens.slice(1).join(' ');
+
     const normalizedLast = normalize(explicitLast);
     return {
-      firstName: explicitFirst,
-      middleName: '',
+      firstName: first,
+      middleName: middle,
       lastName: explicitLast,
-      normalizedFirstName: normalizedFirst,
-      normalizedMiddleName: '',
+      normalizedFirstName: normalize(first),
+      normalizedMiddleName: normalize(middle),
       normalizedLastName: normalizedLast,
     };
   }
@@ -96,21 +99,22 @@ export function scoreCandidate(staff: StaffNameCandidate, author: ParsedAuthorNa
 
   if (author.normalizedFirstName && staffFirst) {
     if (staffFirst === author.normalizedFirstName) {
-      score += 60;
+      // First + last exact match is our high-confidence signal (~95%).
+      score += 95;
     } else if (startsWithSameInitial(staffFirst, author.normalizedFirstName)) {
-      score += 35;
+      score += 70;
     } else {
       return -1;
     }
   } else if (!author.normalizedFirstName) {
-    score -= 20;
+    score -= 40;
   }
 
   if (author.normalizedMiddleName && staffMiddle) {
     if (staffMiddle === author.normalizedMiddleName) {
-      score += 10;
-    } else if (startsWithSameInitial(staffMiddle, author.normalizedMiddleName)) {
       score += 5;
+    } else if (startsWithSameInitial(staffMiddle, author.normalizedMiddleName)) {
+      score += 3;
     }
   }
 

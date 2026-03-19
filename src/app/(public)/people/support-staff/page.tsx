@@ -1,7 +1,15 @@
-export default function Page() {
+import { PeopleCategoryPage } from '@/components/public/PeopleCategoryPage';
+
+export default async function SupportStaffPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>;
+}) {
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Support Staff</h1>
-    </main>
+    <PeopleCategoryPage
+      title="Support Staff"
+      category="support-staff"
+      searchParams={await searchParams}
+    />
   );
 }

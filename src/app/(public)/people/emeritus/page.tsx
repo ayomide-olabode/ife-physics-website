@@ -1,7 +1,9 @@
-export default function Page() {
-  return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold">Emeritus Faculty</h1>
-    </main>
-  );
+import { PeopleCategoryPage } from '@/components/public/PeopleCategoryPage';
+
+export default async function EmeritusPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>;
+}) {
+  return <PeopleCategoryPage title="Emeritus" category="emeritus" searchParams={await searchParams} />;
 }

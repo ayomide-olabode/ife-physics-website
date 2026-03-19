@@ -63,7 +63,7 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
     <div className="border border-gray-50 bg-[hsl(220,16%,96%)] flex flex-col h-full min-h-[450px]">
       {/* Top: Type label */}
       <div className="px-5 pt-5 pb-3">
-        <span className="text-sm font-bold uppercase tracking-widest text-gray-500">
+        <span className="text-sm font-medium uppercase tracking-widest text-gray-500">
           {isEvent ? 'EVENT' : 'OPPORTUNITY'}
         </span>
       </div>
@@ -72,14 +72,14 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
 
       {/* Category row */}
       <div className="px-5 pt-4 flex items-center gap-3">
-        <span className="inline-flex items-center justify-center w-fit h-8 bg-brand-navy text-brand-white text-[10px] font-bold tracking-widest shrink-0 uppercase px-2">
+        <span className="inline-flex items-center justify-center w-fit h-8 bg-brand-navy text-brand-white text-[10px] font-semibold tracking-widest shrink-0 uppercase px-2">
           {categoryLabel}
         </span>
       </div>
 
       {/* Title */}
       <div className="px-5 pt-4">
-        <h3 className="text-xl font-bold text-brand-navy leading-snug line-clamp-4">
+        <h3 className="text-xl font-semibold text-brand-navy leading-snug line-clamp-4">
           {item.title}
         </h3>
       </div>

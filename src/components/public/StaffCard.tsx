@@ -1,10 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Building2, Mail } from 'lucide-react';
+import { formatDate } from '@/lib/format-date';
 import { formatFullNameWithMiddleInitial } from '@/lib/name';
-import type { PublicAcademicFacultyItem } from '@/server/public/queries/peoplePublic';
+import type { PublicPeopleCardItem } from '@/server/public/queries/peoplePublic';
 
-function formatAffiliation(item: PublicAcademicFacultyItem): string | null {
+function formatAffiliation(item: PublicPeopleCardItem): string | null {
   if (!item.secondaryAffiliation) return null;
 
   const { name, acronym } = item.secondaryAffiliation;
@@ -12,7 +13,7 @@ function formatAffiliation(item: PublicAcademicFacultyItem): string | null {
   return `${name} (${acronym})`;
 }
 
-export function StaffCard({ item }: { item: PublicAcademicFacultyItem }) {
+export function StaffCard({ item }: { item: PublicPeopleCardItem }) {
   const personName = formatFullNameWithMiddleInitial({
     firstName: item.firstName,
     middleName: item.middleName,
@@ -21,6 +22,11 @@ export function StaffCard({ item }: { item: PublicAcademicFacultyItem }) {
 
   const heading = [item.title, personName].filter(Boolean).join(' ').trim() || item.institutionalEmail;
   const affiliation = formatAffiliation(item);
+  const isMemoriam = item.isInMemoriam || item.staffStatus === 'IN_MEMORIAM';
+  const memoriamMeta =
+    isMemoriam && (item.dateOfBirth || item.dateOfDeath)
+      ? `Born ${formatDate(item.dateOfBirth)}, Died ${formatDate(item.dateOfDeath)}`
+      : null;
 
   return (
     <article className="group flex h-full flex-col border border-gray-200 bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
@@ -51,7 +57,11 @@ export function StaffCard({ item }: { item: PublicAcademicFacultyItem }) {
           </Link>
         </h2>
 
-        <p className="text-sm text-gray-600">{[item.academicRank, item.designation].filter(Boolean).join(', ')}</p>
+        <p className="text-sm text-gray-600">
+          {[item.academicRank, item.designation].filter(Boolean).join(', ') || '—'}
+        </p>
+
+        {memoriamMeta && <p className="text-sm text-gray-600">{memoriamMeta}</p>}
 
         <p className="text-sm text-gray-600">{item.primaryResearchGroup?.name ?? 'Research group not specified'}</p>
 

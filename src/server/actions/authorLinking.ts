@@ -20,7 +20,7 @@ const inputSchema = z.object({
   ),
 });
 
-const LINK_THRESHOLD = 90;
+const LINK_THRESHOLD = 95;
 const MARGIN_THRESHOLD = 10;
 
 export async function linkAuthorsToStaff(input: z.infer<typeof inputSchema>) {
@@ -38,8 +38,8 @@ export async function linkAuthorsToStaff(input: z.infer<typeof inputSchema>) {
 
   const queryLastNames = Array.from(
     new Set(
-      parsed.data.authors
-        .map((author) => (author.lastName || parseAuthorName(author).lastName || '').trim())
+      parsedAuthors
+        .map((author) => author.lastName.trim())
         .filter((lastName) => lastName.length > 0),
     ),
   );
@@ -86,16 +86,27 @@ export async function linkAuthorsToStaff(input: z.infer<typeof inputSchema>) {
       return { staffId: null };
     }
 
+    const loggedInCandidate = session.user.staffId
+      ? candidatesForLastName.find((candidate) => candidate.id === session.user.staffId) || null
+      : null;
+    const loggedInScore = loggedInCandidate
+      ? findBestCandidate([loggedInCandidate], author).bestScore
+      : -1;
+
+    const bestStaffId =
+      loggedInScore >= LINK_THRESHOLD ? loggedInCandidate?.id || best.id : best.id;
+    const bestScoreToUse = loggedInScore >= LINK_THRESHOLD ? loggedInScore : bestScore;
+
     const margin = bestScore - secondScore;
-    const passesThreshold = bestScore >= LINK_THRESHOLD;
-    const passesMargin = margin >= MARGIN_THRESHOLD;
-    const notUsedAlready = !usedStaffIds.has(best.id);
+    const passesThreshold = bestScoreToUse >= LINK_THRESHOLD;
+    const passesMargin = loggedInScore >= LINK_THRESHOLD ? true : margin >= MARGIN_THRESHOLD;
+    const notUsedAlready = !usedStaffIds.has(bestStaffId);
 
     if (!passesThreshold || !passesMargin || !notUsedAlready) {
       return { staffId: null };
     }
 
-    usedStaffIds.add(best.id);
-    return { staffId: best.id };
+    usedStaffIds.add(bestStaffId);
+    return { staffId: bestStaffId };
   });
 }

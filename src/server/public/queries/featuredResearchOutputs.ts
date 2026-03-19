@@ -12,8 +12,7 @@ export type FeaturedResearchOutputItem = {
   outputType: string;
   title: string;
   year: number | null;
-  sourceTitle: string | null;
-  venue: string | null;
+  hostSource: string | null;
   doi: string | null;
   url: string | null;
   authors: string;
@@ -29,6 +28,47 @@ function parseAuthorsJson(value: unknown): AuthorObject[] {
         typeof (entry as { family_name?: unknown }).family_name === 'string')
     );
   });
+}
+
+function pickNonEmpty(...values: Array<unknown>): string | null {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+function resolveHostSource(output: {
+  type: string;
+  sourceTitle: string | null;
+  venue: string | null;
+  publisher: string | null;
+  metaJson: unknown;
+}): string | null {
+  const meta = (output.metaJson && typeof output.metaJson === 'object' ? output.metaJson : {}) as Record<
+    string,
+    unknown
+  >;
+
+  switch (output.type) {
+    case 'JOURNAL_ARTICLE':
+      return pickNonEmpty(meta.journalName, output.sourceTitle, output.venue);
+    case 'BOOK':
+    case 'BOOK_CHAPTER':
+    case 'MONOGRAPH':
+      return pickNonEmpty(meta.publisher, output.publisher, output.sourceTitle);
+    case 'DATA':
+    case 'SOFTWARE':
+      return pickNonEmpty(meta.publisher, output.publisher, output.sourceTitle);
+    case 'PATENT':
+      return pickNonEmpty(meta.issuer, output.publisher, output.sourceTitle, output.venue);
+    case 'REPORT':
+    case 'THESIS':
+      return pickNonEmpty(meta.institution, output.publisher, output.sourceTitle, output.venue);
+    case 'CONFERENCE_PAPER':
+      return pickNonEmpty(meta.proceedingsTitle, output.sourceTitle, output.venue, meta.publisher);
+    default:
+      return pickNonEmpty(output.sourceTitle, output.venue, output.publisher);
+  }
 }
 
 /**
@@ -57,10 +97,12 @@ export async function getFeaturedResearchOutputs(): Promise<FeaturedResearchOutp
           year: true,
           sourceTitle: true,
           venue: true,
+          publisher: true,
           doi: true,
           url: true,
           authors: true,
           authorsJson: true,
+          metaJson: true,
         },
       },
     },
@@ -81,8 +123,7 @@ export async function getFeaturedResearchOutputs(): Promise<FeaturedResearchOutp
         outputType: output.type,
         title: output.title,
         year: output.year,
-        sourceTitle: output.sourceTitle,
-        venue: output.venue,
+        hostSource: resolveHostSource(output),
         doi: output.doi,
         url: output.url,
         authors: formattedAuthors || output.authors || 'Unknown author(s)',

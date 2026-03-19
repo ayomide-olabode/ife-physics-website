@@ -22,7 +22,7 @@ const baseRefNavItems: NavItem[] = [
   { name: 'HOME', href: '/' },
   {
     name: 'OUR DEPARTMENT',
-    href: '/about',
+    href: '',
     dropdown: [
       { name: 'Our History', href: '/about/history' },
       { name: 'Our Leadership', href: '/about/leadership' },
@@ -31,16 +31,16 @@ const baseRefNavItems: NavItem[] = [
   },
   {
     name: 'ACADEMICS',
-    href: '/academics',
+    href: '',
     dropdown: [
       { name: 'Undergraduate', href: '/academics/undergraduate' },
       { name: 'Postgraduate', href: '/academics/postgraduate' },
     ],
   },
-  { name: 'RESEARCH', href: '/research' },
+  { name: 'RESEARCH', href: '' },
   {
     name: 'PEOPLE',
-    href: '/people',
+    href: '',
     dropdown: [
       { name: 'Academic Faculty', href: '/people/academic-faculty' },
       { name: 'Visiting Faculty', href: '/people/visiting-faculty' },
@@ -61,7 +61,7 @@ export function buildRefNavItems(researchGroups: ResearchGroupNavItem[]): NavIte
     }
 
     const dropdown = researchGroups.map((group) => ({
-      name: `${group.abbreviation} - ${group.name}`,
+      name: `${group.name}`,
       href: `/research/${group.slug}`,
     }));
 

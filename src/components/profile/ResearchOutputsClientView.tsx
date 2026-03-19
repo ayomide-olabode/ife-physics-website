@@ -72,20 +72,8 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
       />
 
       <DataTable
-        headers={['Year', 'Type', 'Title', 'Source', 'DOI / URL', 'Actions']}
+        headers={['Year', 'Type', 'Title', 'DOI / URL', 'Actions']}
         rows={data.items.map((item) => {
-          const m = (item.metaJson as Record<string, string>) || {};
-          const metaSource =
-            m.journal_title ||
-            m.book_title ||
-            m.conference_name ||
-            m.publisher ||
-            m.repository ||
-            m.institution ||
-            m.issuing_organization;
-
-          const source = metaSource || item.sourceTitle || item.publisher || item.venue || '—';
-
           return [
             <span key="year" className="text-sm tabular-nums">
               {item.year || '—'}
@@ -96,9 +84,6 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
             <div key="title" className="min-w-[250px]">
               <span className="text-sm font-semibold block line-clamp-2">{item.title}</span>
             </div>,
-            <span key="source" className="text-sm line-clamp-2 max-w-[180px]">
-              {source}
-            </span>,
             <div key="links" className="flex flex-col gap-1">
               {item.doi && (
                 <span className="text-xs text-muted-foreground whitespace-nowrap">

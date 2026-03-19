@@ -118,24 +118,40 @@ export async function listPublicRecentOutputsForGroup(
       url: string | null;
     }[]
   >`
-    SELECT DISTINCT
-      r.id,
-      r.title,
-      r.year,
-      r."fullDate",
-      r.type as "outputType",
-      COALESCE(NULLIF(BTRIM(r.authors), ''), 'Unknown author(s)') as authors,
-      r."sourceTitle",
-      r.venue,
-      r.publisher,
-      r.doi,
-      r.url
-    FROM "ResearchOutput" r,
-         jsonb_array_elements(COALESCE(r."authorsJson", '[]'::jsonb)) as a
-    WHERE r."deletedAt" IS NULL
-      AND (a->>'staffId' IN (${Prisma.join(staffIds)}))
-      ${searchClause}
-    ORDER BY r."fullDate" DESC NULLS LAST, r.year DESC NULLS LAST, r."updatedAt" DESC
+    SELECT
+      deduped.id,
+      deduped.title,
+      deduped.year,
+      deduped."fullDate",
+      deduped."outputType",
+      deduped.authors,
+      deduped."sourceTitle",
+      deduped.venue,
+      deduped.publisher,
+      deduped.doi,
+      deduped.url
+    FROM (
+      SELECT DISTINCT ON (r.id)
+        r.id,
+        r.title,
+        r.year,
+        r."fullDate",
+        r.type as "outputType",
+        COALESCE(NULLIF(BTRIM(r.authors), ''), 'Unknown author(s)') as authors,
+        r."sourceTitle",
+        r.venue,
+        r.publisher,
+        r.doi,
+        r.url,
+        r."updatedAt"
+      FROM "ResearchOutput" r,
+           jsonb_array_elements(COALESCE(r."authorsJson", '[]'::jsonb)) as a
+      WHERE r."deletedAt" IS NULL
+        AND (a->>'staffId' IN (${Prisma.join(staffIds)}))
+        ${searchClause}
+      ORDER BY r.id, r."fullDate" DESC NULLS LAST, r.year DESC NULLS LAST, r."updatedAt" DESC
+    ) as deduped
+    ORDER BY deduped."fullDate" DESC NULLS LAST, deduped.year DESC NULLS LAST, deduped."updatedAt" DESC
     LIMIT ${pageSize}
     OFFSET ${offset};
   `;

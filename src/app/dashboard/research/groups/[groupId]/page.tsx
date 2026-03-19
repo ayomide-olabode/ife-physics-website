@@ -4,10 +4,10 @@ import { BackToParent } from '@/components/dashboard/BackToParent';
 import { requireAuth } from '@/lib/guards';
 import { getResearchGroupByIdForUser } from '@/server/queries/researchGroups';
 import { ResearchGroupFormClient } from '@/components/research/ResearchGroupFormClient';
-import { listRecentResearchOutputsForGroupMembers } from '@/server/queries/researchGroupPublicationsFromMembers';
-import { ResearchGroupFeaturedResearchOutputClient } from '@/components/research/ResearchGroupFeaturedResearchOutputClient';
+import { listResearchOutputsForGroupMembers } from '@/server/queries/researchGroupOutputs';
 import { FocusAreasInlineEditor } from '@/components/research/FocusAreasInlineEditor';
 import { listFocusAreasForGroup } from '@/server/queries/focusAreas';
+import { ResearchGroupOutputsTableClient } from '@/components/research/ResearchGroupOutputsTableClient';
 
 interface PageProps {
   params: Promise<{ groupId: string }>;
@@ -27,9 +27,10 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
     notFound();
   }
 
-  const [eligibleResearchOutputs, focusAreas] = await Promise.all([
-    listRecentResearchOutputsForGroupMembers({
+  const [researchOutputs, focusAreas] = await Promise.all([
+    listResearchOutputsForGroupMembers({
       groupId: resolvedParams.groupId,
+      pageSize: 20,
     }),
     listFocusAreasForGroup({ groupId: resolvedParams.groupId }),
   ]);
@@ -47,11 +48,13 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
 
       <FocusAreasInlineEditor groupId={group.id} initialItems={focusAreas} />
 
-      <ResearchGroupFeaturedResearchOutputClient
-        groupId={group.id}
-        initialFeaturedOutputId={group.featuredResearchOutputId}
-        eligibleResearchOutputs={eligibleResearchOutputs}
-      />
+      <div className="space-y-4">
+        <PageHeader
+          title="Research Outputs"
+          description="Manage and feature research outputs authored by group members."
+        />
+        <ResearchGroupOutputsTableClient groupId={group.id} items={researchOutputs.items} />
+      </div>
     </div>
   );
 }

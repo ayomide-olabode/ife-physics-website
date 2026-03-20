@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { formatPersonName } from '@/lib/name';
+import { formatYearRange } from '@/lib/leadershipFormat';
 import { PastHodModal, type PastHodModalItem } from './PastHodModal';
 
 const INITIAL_LIMIT = 9;
@@ -34,17 +35,10 @@ export function PastHodGrid({ pastHods }: PastHodGridProps) {
             lastName: item.staff.lastName,
           });
           const name = [item.staff.title, baseName].filter(Boolean).join(' ') || 'Unknown Staff';
-          const hasAddress = Boolean(item.address?.title?.trim() || item.address?.body?.trim());
+          const hasAddress = Boolean(item.hasHodAddress);
 
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setSelected(item)}
-              className={`bg-white border border-gray-200 shadow-sm overflow-hidden text-left transition-all ${
-                hasAddress ? 'hover:-translate-y-1 hover:shadow-lg' : 'hover:border-gray-300'
-              }`}
-            >
+          const cardContent = (
+            <>
               <div className="relative w-full aspect-[4/3] bg-gray-100">
                 {item.staff.profileImageUrl ? (
                   <Image
@@ -64,9 +58,34 @@ export function PastHodGrid({ pastHods }: PastHodGridProps) {
               <div className="p-4">
                 <h3 className="font-semibold text-brand-navy">{name}</h3>
                 <span className="inline-block mt-2 bg-brand-navy text-white text-xs font-semibold px-3 py-1">
-                  {item.startYear}–{item.endYear ?? 'Present'}
+                  {formatYearRange(
+                    Number(item.startYear),
+                    item.endYear ? Number(item.endYear) : null,
+                  )}
                 </span>
               </div>
+            </>
+          );
+
+          if (!hasAddress) {
+            return (
+              <div
+                key={item.id}
+                className="bg-white border border-gray-200 shadow-sm overflow-hidden text-left transition-all hover:border-gray-300"
+              >
+                {cardContent}
+              </div>
+            );
+          }
+
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setSelected(item)}
+              className="bg-white border border-gray-200 shadow-sm overflow-hidden text-left transition-all hover:-translate-y-1 hover:shadow-lg"
+            >
+              {cardContent}
             </button>
           );
         })}

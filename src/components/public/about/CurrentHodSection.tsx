@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { formatPersonName } from '@/lib/name';
+import { formatYearRange } from '@/lib/leadershipFormat';
 
 interface CurrentHodProps {
   firstName: string | null;
@@ -42,7 +43,7 @@ export function CurrentHodSection({ hod }: { hod: CurrentHodProps }) {
           {/* Caption under image */}
           <div className="mt-3">
             <h3 className="text-lg font-semibold text-brand-navy">{fullName}</h3>
-            <p className="text-sm text-gray-500">Head, {hod.startYear} –</p>
+            <p className="text-sm text-gray-500">Head, {formatYearRange(hod.startYear, null)}</p>
           </div>
         </div>
 

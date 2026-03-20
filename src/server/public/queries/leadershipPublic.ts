@@ -2,19 +2,30 @@ import 'server-only';
 
 import prisma from '@/lib/prisma';
 
-/** Active academic coordinators (endDate is null). */
-export async function listPublicAcademicCoordinators() {
+type CoordinatorType = 'GENERAL_POSTGRADUATE' | 'GENERAL_UNDERGRADUATE' | 'GENERAL_SLT';
+
+async function findCoordinatorByType(type: CoordinatorType) {
   const now = new Date();
-  const assignments = await prisma.roleAssignment.findMany({
+  const whereByType =
+    type === 'GENERAL_POSTGRADUATE'
+      ? { programmeScope: 'GENERAL' as const, degreeScope: 'POSTGRADUATE' as const }
+      : type === 'GENERAL_UNDERGRADUATE'
+        ? { programmeScope: 'GENERAL' as const, degreeScope: 'UNDERGRADUATE' as const }
+        : { programmeScope: 'SLT' as const, degreeScope: 'GENERAL' as const };
+
+  const assignment = await prisma.roleAssignment.findFirst({
     where: {
       role: 'ACADEMIC_COORDINATOR',
       deletedAt: null,
       OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      ...whereByType,
     },
     select: {
       id: true,
       programmeScope: true,
       degreeScope: true,
+      expiresAt: true,
+      createdAt: true,
       user: {
         select: {
           staff: {
@@ -32,41 +43,41 @@ export async function listPublicAcademicCoordinators() {
         },
       },
     },
+    // Prefer active indefinite records; then latest assignment.
+    orderBy: [{ expiresAt: 'asc' }, { createdAt: 'desc' }],
   });
 
-  const programmeRank = { GENERAL: 0, PHY: 1, EPH: 2, SLT: 3 } as const;
-  const degreeRank = { GENERAL: 0, UNDERGRADUATE: 1, POSTGRADUATE: 2 } as const;
+  if (!assignment?.user.staff || !assignment.programmeScope || !assignment.degreeScope) {
+    return null;
+  }
 
-  const cards = assignments
-    .filter(
-      (assignment) => assignment.programmeScope && assignment.degreeScope && assignment.user.staff,
-    )
-    .map((assignment) => ({
-      id: assignment.id,
-      staff: {
-        id: assignment.user.staff.id,
-        title: assignment.user.staff.title,
-        firstName: assignment.user.staff.firstName,
-        middleName: assignment.user.staff.middleName,
-        lastName: assignment.user.staff.lastName,
-        institutionalEmail: assignment.user.staff.institutionalEmail,
-        designation: assignment.user.staff.designation,
-        profileImageUrl: assignment.user.staff.profileImageUrl,
-      },
-      programmeScope: assignment.programmeScope!,
-      degreeScope: assignment.degreeScope!,
-    }))
-    .sort((a, b) => {
-      const programmeCmp = programmeRank[a.programmeScope] - programmeRank[b.programmeScope];
-      if (programmeCmp !== 0) return programmeCmp;
-      const degreeCmp = degreeRank[a.degreeScope] - degreeRank[b.degreeScope];
-      if (degreeCmp !== 0) return degreeCmp;
-      const aName = `${a.staff.lastName ?? ''} ${a.staff.firstName ?? ''}`.toLowerCase();
-      const bName = `${b.staff.lastName ?? ''} ${b.staff.firstName ?? ''}`.toLowerCase();
-      return aName.localeCompare(bName);
-    });
+  return {
+    id: assignment.id,
+    coordinatorType: type,
+    staff: {
+      id: assignment.user.staff.id,
+      title: assignment.user.staff.title,
+      firstName: assignment.user.staff.firstName,
+      middleName: assignment.user.staff.middleName,
+      lastName: assignment.user.staff.lastName,
+      institutionalEmail: assignment.user.staff.institutionalEmail,
+      designation: assignment.user.staff.designation,
+      profileImageUrl: assignment.user.staff.profileImageUrl,
+    },
+    programmeScope: assignment.programmeScope,
+    degreeScope: assignment.degreeScope,
+  };
+}
 
-  return cards;
+/** Returns only the 3 public coordinator slots required by leadership page rules. */
+export async function getPublicAcademicCoordinatorsTop3() {
+  const [pgGeneral, ugGeneral, sltGeneral] = await Promise.all([
+    findCoordinatorByType('GENERAL_POSTGRADUATE'),
+    findCoordinatorByType('GENERAL_UNDERGRADUATE'),
+    findCoordinatorByType('GENERAL_SLT'),
+  ]);
+
+  return [pgGeneral, ugGeneral, sltGeneral].filter((item) => item !== null).slice(0, 3);
 }
 
 /** Past HOD terms (endDate is NOT null). */
@@ -120,7 +131,7 @@ export async function getPublicLeadership() {
       },
       orderBy: { startDate: 'desc' },
     }),
-    listPublicAcademicCoordinators(),
+    getPublicAcademicCoordinatorsTop3(),
     prisma.leadershipTerm.findMany({
       where: { role: 'HOD', endDate: { not: null } },
       select: {
@@ -171,6 +182,7 @@ export async function getPublicLeadership() {
     address: term.staff.hodAddress
       ? { title: term.staff.hodAddress.title, body: term.staff.hodAddress.body }
       : null,
+    hasHodAddress: Boolean(term.staff.hodAddress?.body?.trim()),
   }));
 
   return {

@@ -18,6 +18,12 @@ const PROGRAMME_SCOPE_LABELS = {
   SLT: 'Science Laboratory Technology',
 } as const;
 
+const COORDINATOR_TITLE_LABELS = {
+  GENERAL_POSTGRADUATE: 'General Postgraduate Coordinator',
+  GENERAL_UNDERGRADUATE: 'General Undergraduate Coordinator',
+  GENERAL_SLT: 'General SLT Coordinator',
+} as const;
+
 export default async function LeadershipPage() {
   const { currentHod, academicCoordinators: coordinators, pastHods } = await getPublicLeadership();
 
@@ -50,6 +56,10 @@ export default async function LeadershipPage() {
                   });
                   const degreeLabel = DEGREE_SCOPE_LABELS[term.degreeScope];
                   const programmeLabel = PROGRAMME_SCOPE_LABELS[term.programmeScope];
+                  const coordinatorTitle =
+                    COORDINATOR_TITLE_LABELS[
+                      term.coordinatorType as keyof typeof COORDINATOR_TITLE_LABELS
+                    ] || `${degreeLabel} Coordinator`;
 
                   return (
                     <div
@@ -73,7 +83,7 @@ export default async function LeadershipPage() {
                       </div>
                       <div className="p-4">
                         <h3 className="font-semibold text-brand-navy">{name}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{degreeLabel} Coordinator</p>
+                        <p className="text-sm text-gray-600 mt-1">{coordinatorTitle}</p>
                         <p className="text-sm text-gray-600 mt-1">{programmeLabel} Programme</p>
                       </div>
                     </div>

@@ -10,11 +10,13 @@ import {
 } from '@/components/ui/dialog';
 import { Prose } from '@/components/public/Prose';
 import { formatPersonName } from '@/lib/name';
+import { formatYearRange } from '@/lib/leadershipFormat';
 
 export interface PastHodModalItem {
   id: string;
   startYear: number | string;
   endYear: number | string | null;
+  hasHodAddress?: boolean;
   staff: {
     title?: string | null;
     firstName?: string | null;
@@ -49,22 +51,26 @@ export function PastHodModal({ open, onOpenChange, item }: PastHodModalProps) {
     lastName: item.staff.lastName,
   });
   const name = [item.staff.title, baseName].filter(Boolean).join(' ') || 'Unknown Staff';
-  const tenure = `${item.startYear}–${item.endYear ?? 'Present'}`;
+  const tenure = formatYearRange(Number(item.startYear), item.endYear ? Number(item.endYear) : null);
   const addressTitle = item.address?.title?.trim();
   const addressBody = item.address?.body?.trim();
-  const hasAddress = Boolean(addressTitle || addressBody);
+  const hasAddress = Boolean(item.hasHodAddress && addressBody);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-none max-w-3xl max-h-[85vh] overflow-y-auto p-0">
+      <DialogContent className="rounded-none max-w-3xl p-0">
         <div className="border-b border-gray-200 px-6 py-4">
           <DialogHeader>
+            <p className="text-xs uppercase tracking-wide font-semibold text-gray-500">
+              Past Head of Department
+            </p>
             <DialogTitle className="text-2xl font-serif text-brand-navy">{name}</DialogTitle>
             <DialogDescription className="text-sm text-gray-600">{tenure}</DialogDescription>
           </DialogHeader>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 p-6">
+        <div className="modal-scroll max-h-[70vh] overflow-auto p-6">
+          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
           <div className="relative w-full aspect-[3/4] bg-gray-100 border border-gray-200">
             {item.staff.profileImageUrl ? (
               <Image
@@ -102,6 +108,7 @@ export function PastHodModal({ open, onOpenChange, item }: PastHodModalProps) {
             ) : (
               <p className="text-gray-500">No address available.</p>
             )}
+          </div>
           </div>
         </div>
       </DialogContent>

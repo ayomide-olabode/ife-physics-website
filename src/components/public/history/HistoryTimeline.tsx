@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HistoryModalClient } from '@/components/public/history/HistoryModalClient';
 
 export type HistoryEntryDTO = {
   id: string;
@@ -27,6 +28,7 @@ export function HistoryTimeline({
   const [activeDecadeKey, setActiveDecadeKey] = useState('all');
   const [windowStart, setWindowStart] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(1);
+  const [selectedItem, setSelectedItem] = useState<HistoryEntryDTO | null>(null);
 
   useEffect(() => {
     const updateCardsPerView = () => {
@@ -63,15 +65,23 @@ export function HistoryTimeline({
   };
 
   const renderCard = (entry: HistoryEntryDTO) => (
-    <article key={entry.id} className="bg-white border border-black/10 shadow-sm p-6">
-      <span className="inline-block bg-brand-navy text-white text-xs font-semibold px-2 py-1 mb-3">
-        {entry.year}
-      </span>
-      <h3 className="text-lg font-semibold text-brand-navy leading-snug">{entry.title}</h3>
-      <p className="mt-2 text-sm text-gray-600 leading-relaxed line-clamp-4">
-        {entry.shortDescription}
-      </p>
-    </article>
+    <button
+      key={entry.id}
+      type="button"
+      onClick={() => setSelectedItem(entry)}
+      className="w-full cursor-pointer text-left transition-transform duration-200 ease-out hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2"
+      aria-label={`View full history entry: ${entry.title}`}
+    >
+      <article className="bg-white border border-black/10 shadow-sm p-6">
+        <span className="inline-block bg-brand-navy text-white text-xs font-semibold px-2 py-1 mb-3">
+          {entry.year}
+        </span>
+        <h3 className="text-lg font-semibold text-brand-navy leading-snug">{entry.title}</h3>
+        <p className="mt-2 text-sm text-gray-600 leading-relaxed line-clamp-4">
+          {entry.shortDescription}
+        </p>
+      </article>
+    </button>
   );
 
   return (
@@ -138,10 +148,9 @@ export function HistoryTimeline({
                 {decades.map((decade) => (
                   <section key={decade.decadeKey} className="space-y-6">
                     <div className="flex items-end gap-4">
-                      <h3 className="text-2xl font-serif font-semibold text-brand-navy">
+                      <h3 className="text-2xl font-serif font-semibold text-brand-navy py-4 border-b-2 border-brand-yellow">
                         {decade.decadeLabel}
                       </h3>
-                      <div className="h-[2px] w-16 bg-brand-yellow" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {decade.entriesFlat.map(renderCard)}
@@ -196,6 +205,8 @@ export function HistoryTimeline({
           </div>
         )}
       </div>
+
+      <HistoryModalClient item={selectedItem} onClose={() => setSelectedItem(null)} />
     </div>
   );
 }

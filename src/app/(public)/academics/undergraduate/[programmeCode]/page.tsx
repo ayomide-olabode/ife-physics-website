@@ -2,6 +2,7 @@ import { ProgrammeCode } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import { PageHero } from '@/components/public/PageHero';
 import { Prose } from '@/components/public/Prose';
+import { SectionSidebar } from '@/components/public/Academics/SectionSidebar';
 import { ProgrammeTabs } from '@/components/public/academics/ProgrammeTabs';
 import { UndergraduateCourseListing } from '@/components/public/academics/UndergraduateCourseListing';
 import {
@@ -37,11 +38,13 @@ function EmptyState({ title, text }: { title: string; text: string }) {
 }
 
 function SectionBlock({
+  id,
   heading,
   html,
   emptyTitle,
   emptyText,
 }: {
+  id: string;
   heading: string;
   html?: string | null;
   emptyTitle: string;
@@ -50,7 +53,7 @@ function SectionBlock({
   const hasContent = hasBodyContent(html);
 
   return (
-    <section className="space-y-4">
+    <section id={id} className="scroll-mt-28 space-y-4">
       <h2 className="text-2xl font-serif font-bold text-brand-navy">{heading}</h2>
       {hasContent ? (
         <Prose html={html || ''} className="text-gray-700" />
@@ -78,13 +81,17 @@ export default async function UndergraduateProgrammePage({ params }: PageProps) 
   ]);
 
   const hasStudyOptions = studyOptions.length > 0;
-  const courseListingIntro = hasBodyContent(program?.courseDescriptionsIntro)
-    ? program?.courseDescriptionsIntro
-    : '<p>Browse the full undergraduate course offerings for this programme by year.</p>';
+  const sidebarItems = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'admission-requirements', label: 'Admission Requirements' },
+    { id: 'course-requirements', label: 'Course Requirements' },
+    { id: 'study-options', label: 'Study Options' },
+    { id: 'course-listing', label: 'Course listing' },
+  ];
 
   return (
     <>
-      <PageHero breadcrumbLabel="Academics / Undergraduate" title="Academics / Undergraduate" />
+      <PageHero breadcrumbLabel="Academics / Undergraduate" title="Undergraduate" />
 
       <section className="py-8 sm:py-10">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
@@ -93,65 +100,75 @@ export default async function UndergraduateProgrammePage({ params }: PageProps) 
       </section>
 
       <section className="pb-20 sm:pb-24">
-        <div className="mx-auto max-w-[1440px] space-y-16 px-4 sm:px-6 lg:px-8">
-          <SectionBlock
-            heading="Overview & Prospects"
-            html={program?.overviewProspects}
-            emptyTitle="Overview unavailable"
-            emptyText="Overview and prospects content has not been published for this programme yet."
-          />
-
-          <SectionBlock
-            heading="Admission Requirements"
-            html={program?.admissionRequirements}
-            emptyTitle="Admission requirements unavailable"
-            emptyText="Admission requirements for this programme will appear here when available."
-          />
-
-          <SectionBlock
-            heading="Course Requirements"
-            html={program?.courseRequirements}
-            emptyTitle="Course requirements unavailable"
-            emptyText="Course requirement details for this programme are not available yet."
-          />
-
-          <section className="space-y-6">
-            <h2 className="text-2xl font-serif font-bold text-brand-navy">Study options</h2>
-            {hasBodyContent(program?.studyOptionsText) ? (
-              <Prose html={program?.studyOptionsText || ''} className="text-gray-700" />
-            ) : null}
-
-            {hasStudyOptions ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {studyOptions.map(({ id, studyOption }) => (
-                  <article key={id} className="border border-brand-navy/20 bg-white p-6">
-                    <h3 className="text-lg font-semibold text-brand-navy">{studyOption.name}</h3>
-                    <p className="mt-2 line-clamp-3 text-sm text-gray-600">
-                      {studyOption.about?.trim() || 'Description coming soon.'}
-                    </p>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                title="No study options yet"
-                text="Study options linked to this programme will be listed here once published."
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_260px]">
+            <main className="space-y-10">
+              <SectionBlock
+                id="overview"
+                heading="Overview & Prospects"
+                html={program?.overviewProspects}
+                emptyTitle="Overview unavailable"
+                emptyText="Overview and prospects content has not been published for this programme yet."
               />
-            )}
-          </section>
+              <hr className="border-brand-navy/10" />
 
-          <section className="space-y-6">
-            <h2 className="text-2xl font-serif font-bold text-brand-navy">Course listing</h2>
-            <Prose html={courseListingIntro || ''} className="text-gray-700" />
-            <UndergraduateCourseListing
-              courses={courses.map((course) => ({
-                code: course.code,
-                title: course.title,
-                units: course.U,
-                year: course.yearLevel,
-              }))}
-            />
-          </section>
+              <SectionBlock
+                id="admission-requirements"
+                heading="Admission Requirements"
+                html={program?.admissionRequirements}
+                emptyTitle="Admission requirements unavailable"
+                emptyText="Admission requirements for this programme will appear here when available."
+              />
+              <hr className="border-brand-navy/10" />
+
+              <SectionBlock
+                id="course-requirements"
+                heading="Course Requirements"
+                html={program?.courseRequirements}
+                emptyTitle="Course requirements unavailable"
+                emptyText="Course requirement details for this programme are not available yet."
+              />
+              <hr className="border-brand-navy/10" />
+
+              <section id="study-options" className="scroll-mt-28 space-y-6">
+                <h2 className="text-2xl font-serif font-bold text-brand-navy">Study options</h2>
+                {hasStudyOptions ? (
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    {studyOptions.map(({ id, studyOption }) => (
+                      <article key={id} className="border border-brand-navy/20 bg-white p-6">
+                        <h3 className="text-lg font-semibold text-brand-navy">{studyOption.name}</h3>
+                        <p className="mt-2 line-clamp-3 text-sm text-gray-600">
+                          {studyOption.about?.trim() || 'Description coming soon.'}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState
+                    title="No study options yet"
+                    text="Study options linked to this programme will be listed here once published."
+                  />
+                )}
+              </section>
+              <hr className="border-brand-navy/10" />
+
+              <section id="course-listing" className="scroll-mt-28 space-y-6">
+                <h2 className="text-2xl font-serif font-bold text-brand-navy">Course listing</h2>
+                <UndergraduateCourseListing
+                  courses={courses.map((course) => ({
+                    code: course.code,
+                    title: course.title,
+                    units: course.U,
+                    year: course.yearLevel,
+                  }))}
+                />
+              </section>
+            </main>
+
+            <aside className="hidden lg:block">
+              <SectionSidebar items={sidebarItems} />
+            </aside>
+          </div>
         </div>
       </section>
     </>

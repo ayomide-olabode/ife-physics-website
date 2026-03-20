@@ -2,6 +2,7 @@ import { DegreeType, ProgrammeCode } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import { PageHero } from '@/components/public/PageHero';
 import { Prose } from '@/components/public/Prose';
+import { SectionSidebar } from '@/components/public/Academics/SectionSidebar';
 import { ProgrammeTabs } from '@/components/public/academics/ProgrammeTabs';
 import { PostgraduateDegreeAccordion } from '@/components/public/academics/PostgraduateDegreeAccordion';
 import {
@@ -38,6 +39,7 @@ function EmptyState({ title, text }: { title: string; text: string }) {
 }
 
 function DegreeSection({
+  id,
   heading,
   introHtml,
   admissionHtml,
@@ -45,6 +47,7 @@ function DegreeSection({
   courseHtml,
   examHtml,
 }: {
+  id: string;
   heading: string;
   introHtml?: string | null;
   admissionHtml?: string | null;
@@ -53,7 +56,7 @@ function DegreeSection({
   examHtml?: string | null;
 }) {
   return (
-    <section className="space-y-6">
+    <section id={id} className="scroll-mt-28 space-y-6">
       <h3 className="text-3xl font-serif font-bold text-brand-navy">{heading}</h3>
       {hasBodyContent(introHtml) ? (
         <Prose html={introHtml || ''} className="text-gray-700" />
@@ -89,10 +92,18 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
   ]);
 
   const sortedCourses = [...courses].sort((a, b) => a.code.localeCompare(b.code));
+  const sidebarItems = [
+    { id: 'overview', label: 'Overview & Prospects' },
+    { id: 'msc', label: 'M.Sc.' },
+    { id: 'mphil', label: 'M.Phil.' },
+    { id: 'phd', label: 'Ph.D.' },
+    { id: 'study-options', label: 'Study Options' },
+    { id: 'course-listing', label: 'Course listing' },
+  ];
 
   return (
     <>
-      <PageHero breadcrumbLabel="Academics / Postgraduate" title="Academics / Postgraduate" />
+      <PageHero breadcrumbLabel="Academics / Postgraduate" title="Postgraduate" />
 
       <section className="py-8 sm:py-10">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
@@ -104,112 +115,128 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
       </section>
 
       <section className="pb-20 sm:pb-24">
-        <div className="mx-auto max-w-[1440px] space-y-16 px-4 sm:px-6 lg:px-8">
-          <section className="space-y-4">
-            <h2 className="text-2xl font-serif font-bold text-brand-navy">Overview & Prospects</h2>
-            {hasBodyContent(program?.overviewProspects) ? (
-              <Prose html={program?.overviewProspects || ''} className="text-gray-700" />
-            ) : (
-              <EmptyState
-                title="Overview unavailable"
-                text="Overview and prospects content has not been published for this programme yet."
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_260px]">
+            <main className="space-y-10">
+              <section id="overview" className="scroll-mt-28 space-y-4">
+                <h2 className="text-2xl font-serif font-bold text-brand-navy">Overview & Prospects</h2>
+                {hasBodyContent(program?.overviewProspects) ? (
+                  <Prose html={program?.overviewProspects || ''} className="text-gray-700" />
+                ) : (
+                  <EmptyState
+                    title="Overview unavailable"
+                    text="Overview and prospects content has not been published for this programme yet."
+                  />
+                )}
+              </section>
+              <hr className="border-brand-navy/10" />
+
+              <DegreeSection
+                id="msc"
+                heading="Master of Science (M.Sc.)"
+                admissionHtml={mscContent?.admissionHtml}
+                periodHtml={mscContent?.periodHtml}
+                courseHtml={mscContent?.courseHtml}
+                examHtml={mscContent?.examHtml}
               />
-            )}
-          </section>
+              <hr className="border-brand-navy/10" />
 
-          <DegreeSection
-            heading="Master of Science (M.Sc.)"
-            admissionHtml={mscContent?.admissionHtml}
-            periodHtml={mscContent?.periodHtml}
-            courseHtml={mscContent?.courseHtml}
-            examHtml={mscContent?.examHtml}
-          />
-
-          <DegreeSection
-            heading="Master of Philosophy (M.Phil.)"
-            admissionHtml={mphilContent?.admissionHtml}
-            periodHtml={mphilContent?.periodHtml}
-            courseHtml={mphilContent?.courseHtml}
-            examHtml={mphilContent?.examHtml}
-          />
-
-          <DegreeSection
-            heading="Doctor of Philosophy (Ph.D.)"
-            admissionHtml={phdContent?.admissionHtml}
-            periodHtml={phdContent?.periodHtml}
-            courseHtml={phdContent?.courseHtml}
-            examHtml={phdContent?.examHtml}
-          />
-
-          <section className="space-y-6">
-            <h2 className="text-2xl font-serif font-bold text-brand-navy">Study options</h2>
-
-            {studyOptions.length > 0 ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {studyOptions.map(({ id, studyOption }) => (
-                  <article key={id} className="border border-brand-navy/20 bg-white p-6">
-                    <h3 className="text-lg font-semibold text-brand-navy">{studyOption.name}</h3>
-                    <p className="mt-2 line-clamp-3 text-sm text-gray-600">
-                      {studyOption.about?.trim() || 'Description coming soon.'}
-                    </p>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                title="No study options yet"
-                text="Study options linked to this programme will be listed here once published."
+              <DegreeSection
+                id="mphil"
+                heading="Master of Philosophy (M.Phil.)"
+                admissionHtml={mphilContent?.admissionHtml}
+                periodHtml={mphilContent?.periodHtml}
+                courseHtml={mphilContent?.courseHtml}
+                examHtml={mphilContent?.examHtml}
               />
-            )}
-          </section>
+              <hr className="border-brand-navy/10" />
 
-          <section className="space-y-6">
-            <h2 className="text-2xl font-serif font-bold text-brand-navy">Course Listing</h2>
+              <DegreeSection
+                id="phd"
+                heading="Doctor of Philosophy (Ph.D.)"
+                admissionHtml={phdContent?.admissionHtml}
+                periodHtml={phdContent?.periodHtml}
+                courseHtml={phdContent?.courseHtml}
+                examHtml={phdContent?.examHtml}
+              />
+              <hr className="border-brand-navy/10" />
 
-            {sortedCourses.length > 0 ? (
-              <div className="overflow-x-auto border border-brand-navy/20 bg-white">
-                <table className="min-w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-slate-50 text-left text-brand-navy">
-                      <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                        Course Code
-                      </th>
-                      <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                        Course Title
-                      </th>
-                      <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                        Semester Taken
-                      </th>
-                      <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                        No of units
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedCourses.map((course) => (
-                      <tr key={course.id} className="bg-white">
-                        <td className="border border-brand-navy/20 px-4 py-3 font-medium text-brand-navy">
-                          {course.code}
-                        </td>
-                        <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                          {course.title}
-                        </td>
-                        <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">—</td>
-                        <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                          {typeof course.U === 'number' ? course.U : '—'}
-                        </td>
-                      </tr>
+              <section id="study-options" className="scroll-mt-28 space-y-6">
+                <h2 className="text-2xl font-serif font-bold text-brand-navy">Study options</h2>
+
+                {studyOptions.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    {studyOptions.map(({ id, studyOption }) => (
+                      <article key={id} className="border border-brand-navy/20 bg-white p-6">
+                        <h3 className="text-lg font-semibold text-brand-navy">{studyOption.name}</h3>
+                        <p className="mt-2 line-clamp-3 text-sm text-gray-600">
+                          {studyOption.about?.trim() || 'Description coming soon.'}
+                        </p>
+                      </article>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <EmptyState
-                title="No courses yet"
-                text="Courses will appear here once added by an academic coordinator."
-              />
-            )}
-          </section>
+                  </div>
+                ) : (
+                  <EmptyState
+                    title="No study options yet"
+                    text="Study options linked to this programme will be listed here once published."
+                  />
+                )}
+              </section>
+              <hr className="border-brand-navy/10" />
+
+              <section id="course-listing" className="scroll-mt-28 space-y-6">
+                <h2 className="text-2xl font-serif font-bold text-brand-navy">Course listing</h2>
+
+                {sortedCourses.length > 0 ? (
+                  <div className="overflow-x-auto border border-brand-navy/20 bg-white">
+                    <table className="min-w-full border-collapse text-sm">
+                      <thead>
+                        <tr className="bg-slate-50 text-left text-brand-navy">
+                          <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                            Course Code
+                          </th>
+                          <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                            Course Title
+                          </th>
+                          <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                            Semester Taken
+                          </th>
+                          <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                            No of units
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sortedCourses.map((course) => (
+                          <tr key={course.id} className="bg-white">
+                            <td className="border border-brand-navy/20 px-4 py-3 font-medium text-brand-navy">
+                              {course.code}
+                            </td>
+                            <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                              {course.title}
+                            </td>
+                            <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">—</td>
+                            <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                              {typeof course.U === 'number' ? course.U : '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <EmptyState
+                    title="No courses yet"
+                    text="Courses will appear here once added by an academic coordinator."
+                  />
+                )}
+              </section>
+            </main>
+
+            <aside className="hidden lg:block">
+              <SectionSidebar items={sidebarItems} />
+            </aside>
+          </div>
         </div>
       </section>
     </>

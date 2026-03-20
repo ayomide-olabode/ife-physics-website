@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const UNDERGRADUATE_TABS = [
@@ -23,6 +24,7 @@ export function ProgrammeTabs({
   activeProgrammeCode,
   level = 'undergraduate',
 }: ProgrammeTabsProps) {
+  const pathname = usePathname();
   const tabs = level === 'postgraduate' ? POSTGRADUATE_TABS : UNDERGRADUATE_TABS;
   const basePath =
     level === 'postgraduate' ? '/academics/postgraduate' : '/academics/undergraduate';
@@ -35,12 +37,13 @@ export function ProgrammeTabs({
       )}
     >
       {tabs.map((tab) => {
-        const isActive = tab.code === activeProgrammeCode;
+        const tabPath = `${basePath}/${tab.code}`;
+        const isActive = pathname?.startsWith(tabPath) || tab.code === activeProgrammeCode;
 
         return (
           <Link
             key={tab.code}
-            href={`${basePath}/${tab.code}`}
+            href={tabPath}
             aria-current={isActive ? 'page' : undefined}
             className={cn(
               'border-b border-brand-navy px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide transition-colors sm:border-b-0 sm:border-r',

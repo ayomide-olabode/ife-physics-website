@@ -80,6 +80,14 @@ export async function createPostgraduateStudyOption(
 
     const validated = studyOptionSchema.parse(data);
     const normalize = (val?: string) => (val && val.trim() !== '' ? val : '');
+    const program = await prisma.academicProgram.findUnique({
+      where: { programmeCode_level: { programmeCode, level: 'POSTGRADUATE' } },
+      select: { id: true },
+    });
+
+    if (!program) {
+      return { success: false, error: 'Programme not found' };
+    }
 
     const studyOption = await prisma.studyOption.create({
       data: {
@@ -92,6 +100,7 @@ export async function createPostgraduateStudyOption(
       data: {
         programmeCode,
         level: 'POSTGRADUATE',
+        academicProgramId: program.id,
         studyOptionId: studyOption.id,
       },
     });

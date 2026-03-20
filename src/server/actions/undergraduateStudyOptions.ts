@@ -41,7 +41,13 @@ export async function createStudyOption(programmeCode: ProgrammeCode, data: Stud
       data: {
         name: validated.name,
         about: normalize(validated.about),
-        programs: { create: { programmeCode, level: 'UNDERGRADUATE' } },
+        programs: {
+          create: {
+            programmeCode,
+            level: 'UNDERGRADUATE',
+            academicProgramId: program.id,
+          },
+        },
       },
     });
 

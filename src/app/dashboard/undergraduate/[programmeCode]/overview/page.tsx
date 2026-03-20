@@ -2,9 +2,10 @@ import { notFound } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { requireAcademicAccess } from '@/lib/guards';
+import prisma from '@/lib/prisma';
 import { getUndergraduateProgram } from '@/server/queries/undergraduateProgram';
 import { UndergraduateOverviewEditor } from '@/components/academics/ug/UndergraduateOverviewEditor';
-import { listStudyOptions } from '@/server/queries/undergraduateStudyOptions';
+import { listAllStudyOptions } from '@/server/queries/studyOptionsUniversal';
 import { StudyOptionsInlineEditor } from '@/components/academics/study-options/StudyOptionsInlineEditor';
 
 interface PageProps {
@@ -25,17 +26,25 @@ export default async function UndergraduateProgrammeOverviewPage({
   const programmeCode = codeStr as ProgrammeCode;
   await requireAcademicAccess({ level: 'UNDERGRADUATE', programmeCode });
 
-  const resolvedSearchParams = await searchParams;
-  const q = resolvedSearchParams.q || '';
-  const page = parseInt(resolvedSearchParams.page || '1', 10);
+  await searchParams;
 
-  // Initialize both the program specifics and the study options list
-  const [programData, studyOptionsList] = await Promise.all([
+  const [programData, programMeta] = await Promise.all([
     getUndergraduateProgram(programmeCode),
-    listStudyOptions({ programmeCode, q, page, pageSize: 50 }),
+    prisma.academicProgram.findUnique({
+      where: { programmeCode_level: { programmeCode, level: 'UNDERGRADUATE' } },
+      select: { id: true },
+    }),
   ]);
 
-  const initialOptions = studyOptionsList.items.map((i) => ({ id: i.id, name: i.name }));
+  if (!programMeta) {
+    notFound();
+  }
+
+  const initialOptions = await listAllStudyOptions({
+    academicProgramId: programMeta.id,
+    page: 1,
+    pageSize: 500,
+  });
 
   return (
     <div className="space-y-6">
@@ -50,8 +59,7 @@ export default async function UndergraduateProgrammeOverviewPage({
 
       <div className="rounded-lg border bg-card p-6">
         <StudyOptionsInlineEditor
-          programmeCode={programmeCode}
-          level="UNDERGRADUATE"
+          academicProgramId={programMeta.id}
           initialOptions={initialOptions}
         />
       </div>

@@ -51,8 +51,17 @@ export async function listPublicUgCourses(programmeCode: ProgrammeCode) {
 
 /** UG study options for a programme. */
 export async function listPublicUgStudyOptions(programmeCode: ProgrammeCode) {
+  const program = await prisma.academicProgram.findUnique({
+    where: { programmeCode_level: { programmeCode, level: 'UNDERGRADUATE' } },
+    select: { id: true },
+  });
+  if (!program) return [];
+
   return prisma.programStudyOption.findMany({
-    where: { programmeCode, level: 'UNDERGRADUATE' },
+    where: {
+      academicProgramId: program.id,
+      studyOption: { deletedAt: null },
+    },
     select: {
       id: true,
       studyOption: {
@@ -71,6 +80,7 @@ export async function listPublicUgStudyOptions(programmeCode: ProgrammeCode) {
         },
       },
     },
+    orderBy: [{ orderIndex: 'asc' }, { studyOption: { name: 'asc' } }],
   });
 }
 
@@ -143,8 +153,17 @@ export async function getPublicPgDegreeContent(
 
 /** PG study options for a programme. */
 export async function listPublicPgStudyOptions(programmeCode: ProgrammeCode) {
+  const program = await prisma.academicProgram.findUnique({
+    where: { programmeCode_level: { programmeCode, level: 'POSTGRADUATE' } },
+    select: { id: true },
+  });
+  if (!program) return [];
+
   return prisma.programStudyOption.findMany({
-    where: { programmeCode, level: 'POSTGRADUATE' },
+    where: {
+      academicProgramId: program.id,
+      studyOption: { deletedAt: null },
+    },
     select: {
       id: true,
       studyOption: {
@@ -163,5 +182,6 @@ export async function listPublicPgStudyOptions(programmeCode: ProgrammeCode) {
         },
       },
     },
+    orderBy: [{ orderIndex: 'asc' }, { studyOption: { name: 'asc' } }],
   });
 }

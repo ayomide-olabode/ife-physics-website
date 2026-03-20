@@ -584,6 +584,7 @@ model AcademicProgram {
   requirementBlocks RequirementBlock[]
 
   courses Course[]
+  studyOptions ProgramStudyOption[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -641,16 +642,22 @@ model StudyOption {
 }
 
 model ProgramStudyOption {
-  id            String        @id @default(cuid())
-  programmeCode ProgrammeCode
-  level         ProgramLevel
-  studyOptionId String
+  id              String        @id @default(cuid())
+  programmeCode   ProgrammeCode // legacy compatibility
+  level           ProgramLevel  // legacy compatibility
+  academicProgramId String
+  studyOptionId   String
+  orderIndex      Int           @default(0)
 
-  studyOption StudyOption @relation(fields: [studyOptionId], references: [id], onDelete: Cascade)
+  academicProgram AcademicProgram @relation(fields: [academicProgramId], references: [id], onDelete: Cascade)
+  studyOption     StudyOption     @relation(fields: [studyOptionId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
   @@unique([programmeCode, level, studyOptionId])
+  @@unique([academicProgramId, studyOptionId])
+  @@index([academicProgramId])
+  @@index([studyOptionId])
 }
 
 model Course {

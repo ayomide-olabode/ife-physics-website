@@ -71,10 +71,20 @@ export async function linkStudyOptionToProgram({
       return { success: false, error: 'Study option not found' };
     }
 
+    const program = await prisma.academicProgram.findUnique({
+      where: { programmeCode_level: { programmeCode, level } },
+      select: { id: true },
+    });
+
+    if (!program) {
+      return { success: false, error: 'Programme not found' };
+    }
+
     const linked = await prisma.programStudyOption.create({
       data: {
         programmeCode,
         level,
+        academicProgramId: program.id,
         studyOptionId,
       },
     });

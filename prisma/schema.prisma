@@ -67,6 +67,11 @@ enum CourseStatus {
   RESTRICTED
 }
 
+enum SemesterTaken {
+  HARMATTAN
+  RAIN
+}
+
 enum ScopedRole {
   // Global role (multiple users allowed)
   ACADEMIC_COORDINATOR
@@ -674,6 +679,7 @@ model Course {
   U Int?
   // UG-only year level (1-4). Null for postgraduate courses.
   yearLevel Int?
+  semesterTaken SemesterTaken?
 
   status CourseStatus @default(CORE)
 
@@ -688,6 +694,7 @@ model Course {
 
   @@index([programId])
   @@index([yearLevel])
+  @@index([semesterTaken])
 }
 
 model CourseOnStudyOption {

@@ -26,6 +26,7 @@ const courseSchema = z.object({
   T: z.coerce.number().int().min(0).max(10),
   P: z.coerce.number().int().min(0).max(10),
   U: z.coerce.number().int().min(0).max(10),
+  semesterTaken: z.enum(['HARMATTAN', 'RAIN']),
   status: z.enum(['CORE', 'RESTRICTED']),
 });
 
@@ -65,6 +66,7 @@ export async function createPostgraduateCourseForProgramme(
       T: validated.T,
       P: validated.P,
       U: validated.U,
+      semesterTaken: validated.semesterTaken,
       yearLevel: null,
       status: validated.status,
       programId: program.id,
@@ -141,6 +143,7 @@ export async function updatePostgraduateCourseForProgramme(
         T: validated.T,
         P: validated.P,
         U: validated.U,
+        semesterTaken: validated.semesterTaken,
         yearLevel: null,
         status: validated.status,
       },
@@ -214,6 +217,7 @@ export async function getCourseByExactCode({ code }: { code: string }) {
       T: true,
       P: true,
       U: true,
+      semesterTaken: true,
       status: true,
       programId: true,
     },

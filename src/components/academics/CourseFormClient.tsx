@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { ProgrammeCode } from '@prisma/client';
+import { ProgrammeCode, SemesterTaken } from '@prisma/client';
 import { Button } from '@/components/ui/button';
-import { COURSE_STATUS_OPTIONS } from '@/lib/options';
+import { COURSE_SEMESTER_OPTIONS, COURSE_STATUS_OPTIONS } from '@/lib/options';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
@@ -33,6 +33,7 @@ export type CourseFormData = {
   P: number | null;
   U: number | null;
   yearLevel: number | null;
+  semesterTaken: SemesterTaken | null;
   status: 'CORE' | 'RESTRICTED';
 };
 
@@ -57,6 +58,9 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
   const [yearLevel, setYearLevel] = useState<string>(
     initialData?.yearLevel ? String(initialData.yearLevel) : '',
   );
+  const [semesterTaken, setSemesterTaken] = useState<SemesterTaken | ''>(
+    initialData?.semesterTaken || '',
+  );
   const [status, setStatus] = useState<'CORE' | 'RESTRICTED'>(initialData?.status || 'CORE');
 
   const onSubmit = (e: React.FormEvent) => {
@@ -66,6 +70,11 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
 
     startTransition(async () => {
       try {
+        if (!semesterTaken) {
+          toastError('Semester is required.');
+          return;
+        }
+
         const payload = {
           code: normalizedCode,
           title,
@@ -76,6 +85,7 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
           P,
           U,
           yearLevel: Number(yearLevel),
+          semesterTaken,
           status,
         };
 
@@ -151,6 +161,24 @@ export function CourseFormClient({ programmeCode, initialData }: CourseFormClien
             <SelectItem value="2">Year 2</SelectItem>
             <SelectItem value="3">Year 3</SelectItem>
             <SelectItem value="4">Year 4</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <FieldLabel required htmlFor="semesterTaken">
+          Semester
+        </FieldLabel>
+        <Select value={semesterTaken} onValueChange={(v) => setSemesterTaken(v as SemesterTaken)}>
+          <SelectTrigger id="semesterTaken">
+            <SelectValue placeholder="Select semester..." />
+          </SelectTrigger>
+          <SelectContent>
+            {COURSE_SEMESTER_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

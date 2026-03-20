@@ -2,14 +2,21 @@
 
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { CourseDetailsModal } from '@/components/public/CourseDetailsModal';
 
 type YearNumber = 1 | 2 | 3 | 4;
 
 interface UndergraduateCourse {
+  id?: string;
   code: string;
   title: string;
-  units?: number | null;
-  semester?: string | null;
+  description?: string | null;
+  prerequisites?: string | null;
+  L?: number | null;
+  T?: number | null;
+  P?: number | null;
+  U?: number | null;
+  semesterTaken?: 'HARMATTAN' | 'RAIN' | null;
   year?: number | null;
 }
 
@@ -71,18 +78,24 @@ function groupCoursesByYear(courses: UndergraduateCourse[]) {
   }));
 }
 
-function displaySemester(value?: string | null) {
-  const normalized = value?.trim();
-  return normalized ? normalized : '—';
+function displaySemester(value?: 'HARMATTAN' | 'RAIN' | null) {
+  if (value === 'HARMATTAN') return 'Harmattan';
+  if (value === 'RAIN') return 'Rain';
+  return '—';
 }
 
-function displayUnits(value?: number | null) {
-  return typeof value === 'number' ? value.toString() : '—';
+function displayLTPU(course: UndergraduateCourse) {
+  const L = typeof course.L === 'number' ? course.L : 0;
+  const T = typeof course.T === 'number' ? course.T : 0;
+  const P = typeof course.P === 'number' ? course.P : 0;
+  const U = typeof course.U === 'number' ? course.U : 0;
+  return `${L} - ${T} - ${P} - ${U}`;
 }
 
 export function UndergraduateCourseListing({ courses }: UndergraduateCourseListingProps) {
   const groups = useMemo(() => groupCoursesByYear(courses), [courses]);
   const [openYear, setOpenYear] = useState<YearNumber>(getDefaultOpenYear(groups));
+  const [selectedCourse, setSelectedCourse] = useState<UndergraduateCourse | null>(null);
 
   if (courses.length === 0) {
     return (
@@ -135,13 +148,17 @@ export function UndergraduateCourseListing({ courses }: UndergraduateCourseListi
                           Semester Taken
                         </th>
                         <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                          No of units
+                          L - T - P - U
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       {group.courses.map((course) => (
-                        <tr key={course.code} className="bg-white">
+                        <tr
+                          key={course.id || course.code}
+                          className="cursor-pointer bg-white transition-colors hover:bg-brand-navy/5"
+                          onClick={() => setSelectedCourse(course)}
+                        >
                           <td className="border border-brand-navy/20 px-4 py-3 font-medium text-brand-navy">
                             {course.code}
                           </td>
@@ -149,10 +166,10 @@ export function UndergraduateCourseListing({ courses }: UndergraduateCourseListi
                             {course.title}
                           </td>
                           <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                            {displaySemester(course.semester)}
+                            {displaySemester(course.semesterTaken)}
                           </td>
                           <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                            {displayUnits(course.units)}
+                            {displayLTPU(course)}
                           </td>
                         </tr>
                       ))}
@@ -168,6 +185,14 @@ export function UndergraduateCourseListing({ courses }: UndergraduateCourseListi
           </section>
         );
       })}
+
+      <CourseDetailsModal
+        open={Boolean(selectedCourse)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedCourse(null);
+        }}
+        course={selectedCourse}
+      />
     </div>
   );
 }

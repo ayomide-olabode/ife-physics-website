@@ -27,6 +27,7 @@ const courseSchema = z.object({
   P: z.coerce.number().int().min(0).max(10),
   U: z.coerce.number().int().min(0).max(10),
   yearLevel: z.coerce.number().int().min(1, 'Year is required').max(4),
+  semesterTaken: z.enum(['HARMATTAN', 'RAIN']),
   status: z.enum(['CORE', 'RESTRICTED']),
 });
 
@@ -84,6 +85,7 @@ export async function createCourseForProgramme(programmeCode: ProgrammeCode, dat
           P: validated.P,
           U: validated.U,
           yearLevel: validated.yearLevel,
+          semesterTaken: validated.semesterTaken,
           status: validated.status,
         },
       });
@@ -99,6 +101,7 @@ export async function createCourseForProgramme(programmeCode: ProgrammeCode, dat
           P: validated.P,
           U: validated.U,
           yearLevel: validated.yearLevel,
+          semesterTaken: validated.semesterTaken,
           status: validated.status,
           programId: program.id,
         },
@@ -170,6 +173,7 @@ export async function updateCourseForProgramme(
         P: validated.P,
         U: validated.U,
         yearLevel: validated.yearLevel,
+        semesterTaken: validated.semesterTaken,
         status: validated.status,
       },
     });
@@ -240,6 +244,7 @@ export async function getCourseByExactCode({ code }: { code: string }) {
       P: true,
       U: true,
       yearLevel: true,
+      semesterTaken: true,
       status: true,
       programId: true,
     },

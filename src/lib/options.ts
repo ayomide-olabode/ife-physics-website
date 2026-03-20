@@ -15,6 +15,7 @@ import {
   StaffStatus,
   StaffType,
   ThesisStatus,
+  SemesterTaken,
 } from '@prisma/client';
 
 export const PROGRAMME_OPTIONS = [
@@ -134,6 +135,11 @@ export const PUBLISH_STATUS_OPTIONS_WITH_ALL = [
 export const COURSE_STATUS_OPTIONS = [
   { value: CourseStatus.CORE, label: 'Core' },
   { value: CourseStatus.RESTRICTED, label: 'Restricted' },
+];
+
+export const COURSE_SEMESTER_OPTIONS = [
+  { value: SemesterTaken.HARMATTAN, label: 'Harmattan' },
+  { value: SemesterTaken.RAIN, label: 'Rain' },
 ];
 export const EVENT_OPPORTUNITY_TYPE_OPTIONS = [
   { value: EventOpportunityType.EVENT, label: 'Event' },

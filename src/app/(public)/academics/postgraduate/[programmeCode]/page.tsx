@@ -4,6 +4,7 @@ import { PageHero } from '@/components/public/PageHero';
 import { Prose } from '@/components/public/Prose';
 import { SectionSidebar } from '@/components/public/Academics/SectionSidebar';
 import { ProgrammeTabs } from '@/components/public/academics/ProgrammeTabs';
+import { PostgraduateCourseListing } from '@/components/public/academics/PostgraduateCourseListing';
 import { PostgraduateDegreeAccordion } from '@/components/public/academics/PostgraduateDegreeAccordion';
 import {
   getPublicPgDegreeContent,
@@ -91,7 +92,6 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
     listPublicPgCourses(prismaProgrammeCode),
   ]);
 
-  const sortedCourses = [...courses].sort((a, b) => a.code.localeCompare(b.code));
   const sidebarItems = [
     { id: 'overview', label: 'Overview & Prospects' },
     { id: 'msc', label: 'M.Sc.' },
@@ -190,52 +190,7 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
 
               <section id="course-listing" className="scroll-mt-28 space-y-6">
                 <h2 className="text-2xl font-serif font-bold text-brand-navy">Course listing</h2>
-
-                {sortedCourses.length > 0 ? (
-                  <div className="overflow-x-auto border border-brand-navy/20 bg-white">
-                    <table className="min-w-full border-collapse text-sm">
-                      <thead>
-                        <tr className="bg-slate-50 text-left text-brand-navy">
-                          <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                            Course Code
-                          </th>
-                          <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                            Course Title
-                          </th>
-                          <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                            Semester Taken
-                          </th>
-                          <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                            No of units
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sortedCourses.map((course) => (
-                          <tr key={course.id} className="bg-white">
-                            <td className="border border-brand-navy/20 px-4 py-3 font-medium text-brand-navy">
-                              {course.code}
-                            </td>
-                            <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                              {course.title}
-                            </td>
-                            <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                              —
-                            </td>
-                            <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                              {typeof course.U === 'number' ? course.U : '—'}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <EmptyState
-                    title="No courses yet"
-                    text="Courses will appear here once added by an academic coordinator."
-                  />
-                )}
+                <PostgraduateCourseListing courses={courses} />
               </section>
             </main>
 

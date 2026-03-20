@@ -158,9 +158,16 @@ export default async function UndergraduateProgrammePage({ params }: PageProps) 
                 <h2 className="text-2xl font-serif font-bold text-brand-navy">Course listing</h2>
                 <UndergraduateCourseListing
                   courses={courses.map((course) => ({
+                    id: course.id,
                     code: course.code,
                     title: course.title,
-                    units: course.U,
+                    description: course.description,
+                    prerequisites: course.prerequisites,
+                    L: course.L,
+                    T: course.T,
+                    P: course.P,
+                    U: course.U,
+                    semesterTaken: course.semesterTaken,
                     year: course.yearLevel,
                   }))}
                 />

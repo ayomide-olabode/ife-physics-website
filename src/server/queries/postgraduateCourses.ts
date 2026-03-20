@@ -46,6 +46,7 @@ export async function listPostgraduateCourses({
         T: true,
         P: true,
         U: true,
+        semesterTaken: true,
         createdAt: true,
       },
       orderBy: [{ code: 'asc' }, { createdAt: 'desc' }],
@@ -118,6 +119,7 @@ export async function getPostgraduateCourseForProgramme({
       T: true,
       P: true,
       U: true,
+      semesterTaken: true,
       status: true,
     },
   });

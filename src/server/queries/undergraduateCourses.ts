@@ -47,6 +47,7 @@ export async function listUndergraduateCourses({
         P: true,
         U: true,
         yearLevel: true,
+        semesterTaken: true,
         createdAt: true,
       },
       orderBy: [{ code: 'asc' }, { createdAt: 'desc' }],
@@ -120,6 +121,7 @@ export async function getCourseForProgramme({
       P: true,
       U: true,
       yearLevel: true,
+      semesterTaken: true,
       status: true,
     },
   });

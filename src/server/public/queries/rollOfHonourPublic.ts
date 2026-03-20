@@ -23,6 +23,9 @@ export async function listPublicRollOfHonour(params: RollOfHonourParams = {}) {
       select: {
         id: true,
         name: true,
+        firstName: true,
+        middleName: true,
+        lastName: true,
         programme: true,
         cgpa: true,
         graduatingYear: true,
@@ -51,6 +54,9 @@ export async function listDistinctProgrammes() {
 
 export type PublicRohEntry = {
   id: string;
+  firstName: string | null;
+  middleName: string | null;
+  lastName: string | null;
   fullName: string;
   registrationNumber: string;
   programme: string;
@@ -88,6 +94,9 @@ export async function listPublicRohByYear({
     select: {
       id: true,
       name: true,
+      firstName: true,
+      middleName: true,
+      lastName: true,
       registrationNumber: true,
       programme: true,
       cgpa: true,
@@ -106,6 +115,9 @@ export async function listPublicRohByYear({
   return {
     entries: pageRows.map((row) => ({
       id: row.id,
+      firstName: row.firstName,
+      middleName: row.middleName,
+      lastName: row.lastName,
       fullName: row.name,
       registrationNumber: row.registrationNumber,
       programme: row.programme,

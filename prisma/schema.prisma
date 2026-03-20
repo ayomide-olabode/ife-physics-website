@@ -789,7 +789,10 @@ model HistoryEntry {
 model RollOfHonourEntry {
   id                 String  @id @default(cuid())
   imageUrl           String?
-  name               String
+  name               String // legacy full name for backward compatibility
+  firstName          String
+  middleName         String?
+  lastName           String
   registrationNumber String
   programme          String // display string ("PHY", etc.)
   cgpa               Float

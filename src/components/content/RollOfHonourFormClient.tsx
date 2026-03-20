@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,9 @@ import { YearSelect } from '@/components/forms/YearSelect';
 import { ROH_PROGRAMME_OPTIONS } from '@/lib/options';
 
 type FormDataState = {
-  name: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
   registrationNumber: string;
   programme: string;
   cgpa: string;
@@ -20,12 +22,36 @@ type FormDataState = {
   imageUrl: string | null;
 };
 
+function parseLegacyFullName(fullName?: string | null) {
+  const tokens = (fullName || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (!tokens.length) {
+    return { firstName: '', middleName: '', lastName: '' };
+  }
+
+  if (tokens.length === 1) {
+    return { firstName: tokens[0], middleName: '', lastName: '' };
+  }
+
+  return {
+    firstName: tokens[0],
+    middleName: tokens.slice(1, -1).join(' '),
+    lastName: tokens[tokens.length - 1],
+  };
+}
+
 export function RollOfHonourFormClient({
   initialData,
 }: {
   initialData?: {
     id: string;
     name: string;
+    firstName?: string | null;
+    middleName?: string | null;
+    lastName?: string | null;
     registrationNumber: string;
     programme: string;
     cgpa: number;
@@ -37,9 +63,17 @@ export function RollOfHonourFormClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEdit = !!initialData?.id;
+  const parsedLegacyName = useMemo(() => parseLegacyFullName(initialData?.name), [initialData?.name]);
+  const didUseLegacySplitFallback = Boolean(
+    initialData &&
+      (!initialData.firstName?.trim() || !initialData.lastName?.trim()) &&
+      initialData.name?.trim(),
+  );
 
   const [formData, setFormData] = useState<FormDataState>(() => ({
-    name: initialData?.name || '',
+    firstName: initialData?.firstName?.trim() || parsedLegacyName.firstName,
+    middleName: initialData?.middleName?.trim() || parsedLegacyName.middleName,
+    lastName: initialData?.lastName?.trim() || parsedLegacyName.lastName,
     registrationNumber: initialData?.registrationNumber || '',
     programme: initialData?.programme || '',
     cgpa: initialData?.cgpa ? String(initialData.cgpa) : '',
@@ -49,7 +83,8 @@ export function RollOfHonourFormClient({
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim()) return toastError('Name is required');
+    if (!formData.firstName.trim()) return toastError('First Name is required');
+    if (!formData.lastName.trim()) return toastError('Last Name is required');
     if (!formData.registrationNumber.trim()) return toastError('Registration Number is required');
     if (!formData.programme.trim()) return toastError('Programme is required');
 
@@ -65,7 +100,9 @@ export function RollOfHonourFormClient({
     }
 
     const payload = {
-      name: formData.name,
+      firstName: formData.firstName,
+      middleName: formData.middleName,
+      lastName: formData.lastName,
       registrationNumber: formData.registrationNumber,
       programme: formData.programme,
       cgpa: cgpaNum,
@@ -98,17 +135,50 @@ export function RollOfHonourFormClient({
     <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8">
       <div className="bg-white p-6 rounded-lg border shadow-sm h-fit">
         <form id="roh-form" onSubmit={onSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <FieldLabel required htmlFor="firstName">
+                First Name
+              </FieldLabel>
+              <Input
+                id="firstName"
+                value={formData.firstName}
+                onChange={(e) => setFormData((prev) => ({ ...prev, firstName: e.target.value }))}
+                placeholder="e.g. John"
+                className="rounded-none"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <FieldLabel htmlFor="middleName">Middle Name</FieldLabel>
+              <Input
+                id="middleName"
+                value={formData.middleName}
+                onChange={(e) => setFormData((prev) => ({ ...prev, middleName: e.target.value }))}
+                placeholder="e.g. Olanrewaju"
+                className="rounded-none"
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <FieldLabel required htmlFor="name">
-              Full Name
+            <FieldLabel required htmlFor="lastName">
+              Last Name
             </FieldLabel>
             <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder="e.g. John Doe Olanrewaju"
+              id="lastName"
+              value={formData.lastName}
+              onChange={(e) => setFormData((prev) => ({ ...prev, lastName: e.target.value }))}
+              placeholder="e.g. Doe"
+              className="rounded-none"
               required
             />
+            {didUseLegacySplitFallback ? (
+              <p className="text-xs text-muted-foreground">
+                We split this from the legacy full name; please confirm.
+              </p>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -123,6 +193,7 @@ export function RollOfHonourFormClient({
                   setFormData((prev) => ({ ...prev, registrationNumber: e.target.value }))
                 }
                 placeholder="e.g. PHY/2012/001"
+                className="rounded-none"
                 required
               />
             </div>
@@ -135,7 +206,7 @@ export function RollOfHonourFormClient({
                 id="programme"
                 value={formData.programme}
                 onChange={(e) => setFormData((prev) => ({ ...prev, programme: e.target.value }))}
-                className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-9 w-full items-center justify-between rounded-none border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 required
               >
                 <option value="" disabled>
@@ -164,6 +235,7 @@ export function RollOfHonourFormClient({
                 value={formData.cgpa}
                 onChange={(e) => setFormData((prev) => ({ ...prev, cgpa: e.target.value }))}
                 placeholder="e.g. 4.56"
+                className="rounded-none"
                 required
               />
             </div>

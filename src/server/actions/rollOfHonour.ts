@@ -8,11 +8,38 @@ import { logAudit } from '@/lib/audit';
 import { ScopedRole, Prisma } from '@prisma/client';
 import { ROH_PROGRAMME_VALUES } from '@/lib/options';
 
+const NAME_MAX_LENGTH = 100;
+
+function collapseNameParts(parts: Array<string | null | undefined>) {
+  return parts
+    .map((part) => part?.trim() ?? '')
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 const rollOfHonourSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
-  registrationNumber: z.string().min(1, 'Registration number is required').max(100),
+  firstName: z
+    .string()
+    .trim()
+    .min(1, 'First name is required')
+    .max(NAME_MAX_LENGTH, 'First name is too long'),
+  middleName: z
+    .string()
+    .trim()
+    .max(NAME_MAX_LENGTH, 'Middle name is too long')
+    .optional()
+    .nullable(),
+  lastName: z
+    .string()
+    .trim()
+    .min(1, 'Last name is required')
+    .max(NAME_MAX_LENGTH, 'Last name is too long'),
+  registrationNumber: z.string().trim().min(1, 'Registration number is required').max(100),
   programme: z
     .string()
+    .trim()
     .min(1, 'Programme is required')
     .refine((val) => ROH_PROGRAMME_VALUES.includes(val as (typeof ROH_PROGRAMME_VALUES)[number]), {
       message: 'Invalid programme',
@@ -29,9 +56,14 @@ export async function createRollOfHonour(data: z.infer<typeof rollOfHonourSchema
   const session = await requireAuth();
   await requireGlobalRole(session, ScopedRole.EDITOR);
   const parsed = rollOfHonourSchema.parse(data);
+  const middleName = parsed.middleName?.trim() ? parsed.middleName.trim() : null;
 
   const entry = await prisma.rollOfHonourEntry.create({
-    data: parsed,
+    data: {
+      ...parsed,
+      middleName,
+      name: collapseNameParts([parsed.firstName, middleName, parsed.lastName]),
+    },
   });
 
   await logAudit({
@@ -54,10 +86,15 @@ export async function updateRollOfHonour(id: string, data: z.infer<typeof rollOf
   const session = await requireAuth();
   await requireGlobalRole(session, ScopedRole.EDITOR);
   const parsed = rollOfHonourSchema.parse(data);
+  const middleName = parsed.middleName?.trim() ? parsed.middleName.trim() : null;
 
   const entry = await prisma.rollOfHonourEntry.update({
     where: { id },
-    data: parsed,
+    data: {
+      ...parsed,
+      middleName,
+      name: collapseNameParts([parsed.firstName, middleName, parsed.lastName]),
+    },
   });
 
   await logAudit({

@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Prose } from '@/components/public/Prose';
-import { formatPersonName } from '@/lib/name';
+import { formatPublicStaffName } from '@/lib/publicName';
 import { formatYearRange } from '@/lib/leadershipFormat';
 
 export interface PastHodModalItem {
@@ -45,7 +45,7 @@ export function PastHodModal({ open, onOpenChange, item }: PastHodModalProps) {
     return null;
   }
 
-  const baseName = formatPersonName({
+  const baseName = formatPublicStaffName({
     firstName: item.staff.firstName,
     middleName: item.staff.middleName,
     lastName: item.staff.lastName,

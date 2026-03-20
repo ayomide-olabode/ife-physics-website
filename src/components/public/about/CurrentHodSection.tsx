@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { formatPersonName } from '@/lib/name';
+import { formatPublicStaffName } from '@/lib/publicName';
 import { formatYearRange } from '@/lib/leadershipFormat';
 
 interface CurrentHodProps {
@@ -13,7 +13,7 @@ interface CurrentHodProps {
 }
 
 export function CurrentHodSection({ hod }: { hod: CurrentHodProps }) {
-  const name = formatPersonName({
+  const name = formatPublicStaffName({
     firstName: hod.firstName,
     middleName: hod.middleName,
     lastName: hod.lastName,

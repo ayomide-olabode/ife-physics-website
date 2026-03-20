@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { formatPersonName } from '@/lib/name';
+import { formatPublicStaffName } from '@/lib/publicName';
 
 interface PastHod {
   id: string;
@@ -37,7 +37,7 @@ export function PastHodsGrid({ hods }: { hods: PastHod[] }) {
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {hods.map((term) => {
-          const name = formatPersonName({
+          const name = formatPublicStaffName({
             firstName: term.staff.firstName,
             middleName: term.staff.middleName,
             lastName: term.staff.lastName,
@@ -97,14 +97,14 @@ export function PastHodsGrid({ hods }: { hods: PastHod[] }) {
               <DialogHeader>
                 <DialogTitle>
                   {selected.staff.hodAddress?.title ??
-                    `Address by ${formatPersonName({
+                    `Address by ${formatPublicStaffName({
                       firstName: selected.staff.firstName,
                       middleName: selected.staff.middleName,
                       lastName: selected.staff.lastName,
                     })}`}
                 </DialogTitle>
                 <DialogDescription>
-                  {formatPersonName({
+                  {formatPublicStaffName({
                     firstName: selected.staff.firstName,
                     middleName: selected.staff.middleName,
                     lastName: selected.staff.lastName,

@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Building2, Mail } from 'lucide-react';
 import { formatDate } from '@/lib/format-date';
-import { formatFullNameWithMiddleInitial } from '@/lib/name';
+import { formatPublicStaffName } from '@/lib/publicName';
 import type { PublicPeopleCardItem } from '@/server/public/queries/peoplePublic';
 
 function formatAffiliation(item: PublicPeopleCardItem): string | null {
@@ -14,7 +14,7 @@ function formatAffiliation(item: PublicPeopleCardItem): string | null {
 }
 
 export function StaffCard({ item }: { item: PublicPeopleCardItem }) {
-  const personName = formatFullNameWithMiddleInitial({
+  const personName = formatPublicStaffName({
     firstName: item.firstName,
     middleName: item.middleName,
     lastName: item.lastName,

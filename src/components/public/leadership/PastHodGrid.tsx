@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { formatPersonName } from '@/lib/name';
+import { formatPublicStaffName } from '@/lib/publicName';
 import { formatYearRange } from '@/lib/leadershipFormat';
 import { PastHodModal, type PastHodModalItem } from './PastHodModal';
 
@@ -29,7 +29,7 @@ export function PastHodGrid({ pastHods }: PastHodGridProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {itemsToShow.map((item) => {
-          const baseName = formatPersonName({
+          const baseName = formatPublicStaffName({
             firstName: item.staff.firstName,
             middleName: item.staff.middleName,
             lastName: item.staff.lastName,

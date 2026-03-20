@@ -2,11 +2,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ExternalLink, Mail } from 'lucide-react';
 import { formatDate } from '@/lib/format-date';
-import { formatFullNameWithMiddleInitial } from '@/lib/name';
+import { formatPublicStaffName } from '@/lib/publicName';
 import type { PublicStaffProfile } from '@/server/public/queries/peoplePublic';
 
 export function StaffProfileHeader({ staff }: { staff: PublicStaffProfile }) {
-  const fullName = formatFullNameWithMiddleInitial({
+  const fullName = formatPublicStaffName({
     firstName: staff.firstName,
     middleName: staff.middleName,
     lastName: staff.lastName,

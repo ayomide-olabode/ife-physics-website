@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { formatFullName } from '@/lib/name';
+import { formatPublicStaffName } from '@/lib/publicName';
 import { getPublicStaffBySlug } from '@/server/public/queries/peoplePublic';
 import { PublicTributeSubmissionForm } from '@/components/public/tributes/PublicTributeSubmissionForm';
 
@@ -23,7 +23,7 @@ export default async function PublicTributeSubmissionPage({
   }
 
   const name =
-    formatFullName({
+    formatPublicStaffName({
       firstName: staff.firstName,
       middleName: staff.middleName,
       lastName: staff.lastName,

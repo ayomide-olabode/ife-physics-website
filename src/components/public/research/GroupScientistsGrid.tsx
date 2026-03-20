@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { formatPersonName } from '@/lib/name';
+import { formatPublicStaffName } from '@/lib/publicName';
 
 type Scientist = {
   id: string;
@@ -24,7 +24,7 @@ export function GroupScientistsGrid({ scientists }: { scientists: Scientist[] })
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {scientists.map((scientist) => {
-        const name = formatPersonName(scientist);
+        const name = formatPublicStaffName(scientist);
         return (
           <article
             key={scientist.id}

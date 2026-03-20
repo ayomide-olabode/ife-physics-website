@@ -3,7 +3,7 @@ import { getPublicLeadership } from '@/server/public/queries/leadershipPublic';
 import { PageHero } from '@/components/public/PageHero';
 import { CurrentHodSection } from '@/components/public/about/CurrentHodSection';
 import { PastHodGrid } from '@/components/public/leadership/PastHodGrid';
-import { formatFullName } from '@/lib/name';
+import { formatPublicStaffName } from '@/lib/publicName';
 
 const DEGREE_SCOPE_LABELS = {
   GENERAL: 'General',
@@ -49,7 +49,7 @@ export default async function LeadershipPage() {
                     return null;
                   }
 
-                  const name = formatFullName({
+                  const name = formatPublicStaffName({
                     firstName: term.staff.firstName,
                     middleName: term.staff.middleName,
                     lastName: term.staff.lastName,

@@ -33,11 +33,11 @@ export async function listHistory({
       select: {
         id: true,
         title: true,
-        date: true,
+        year: true,
         status: true,
         createdAt: true,
       },
-      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+      orderBy: [{ year: 'desc' }, { createdAt: 'desc' }],
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

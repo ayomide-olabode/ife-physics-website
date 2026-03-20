@@ -9,10 +9,10 @@ export async function listPublicHistoryEntries() {
     where: wherePublished(),
     select: {
       id: true,
-      date: true,
+      year: true,
       title: true,
       shortDesc: true,
     },
-    orderBy: { date: 'asc' },
+    orderBy: { year: 'asc' },
   });
 }

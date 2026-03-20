@@ -7,9 +7,16 @@ import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { logAudit } from '@/lib/audit';
 import { PublishStatus, ScopedRole } from '@prisma/client';
 
+const MIN_HISTORY_YEAR = 1960;
+const CURRENT_YEAR = new Date().getFullYear();
+
 const historySchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
-  date: z.coerce.date(),
+  year: z
+    .number()
+    .int()
+    .min(MIN_HISTORY_YEAR, `Year must be at least ${MIN_HISTORY_YEAR}`)
+    .max(CURRENT_YEAR, `Year must be at most ${CURRENT_YEAR}`),
   shortDesc: z
     .string()
     .min(1, 'Description is required')
@@ -23,7 +30,11 @@ export async function createHistory(data: z.infer<typeof historySchema>) {
 
   const entry = await prisma.historyEntry.create({
     data: {
-      ...parsed,
+      title: parsed.title,
+      year: parsed.year,
+      // Keep legacy date field populated for existing consumers.
+      date: new Date(Date.UTC(parsed.year, 0, 1)),
+      shortDesc: parsed.shortDesc,
       status: PublishStatus.DRAFT,
     },
   });
@@ -52,7 +63,12 @@ export async function updateHistory(id: string, data: z.infer<typeof historySche
 
   const entry = await prisma.historyEntry.update({
     where: { id },
-    data: parsed,
+    data: {
+      title: parsed.title,
+      year: parsed.year,
+      date: new Date(Date.UTC(parsed.year, 0, 1)),
+      shortDesc: parsed.shortDesc,
+    },
   });
 
   await logAudit({

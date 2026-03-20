@@ -24,7 +24,7 @@ export default async function Page({
   const mappedData = data.map((d) => ({
     id: d.id,
     title: d.title,
-    date: d.date,
+    year: d.year,
     status: d.status,
     createdAt: d.createdAt,
   }));

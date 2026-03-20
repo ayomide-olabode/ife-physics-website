@@ -769,6 +769,7 @@ model Spotlight {
 model HistoryEntry {
   id        String   @id @default(cuid())
   date      DateTime
+  year      Int
   title     String
   shortDesc String
 
@@ -781,6 +782,7 @@ model HistoryEntry {
   deletedAt DateTime?
 
   @@index([date])
+  @@index([year])
   @@index([status])
 }
 

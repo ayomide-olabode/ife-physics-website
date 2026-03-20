@@ -4,7 +4,6 @@ import { HistoryTimeline, type DecadeGroup } from '@/components/public/history/H
 
 type HistoryEntryDTO = {
   id: string;
-  date: string;
   year: number;
   decade: string;
   title: string;
@@ -24,19 +23,18 @@ function groupByDecade(entries: HistoryEntryDTO[]): DecadeGroup[] {
     .map(([decadeLabel, entriesInDecade]) => ({
       decadeLabel,
       decadeKey: decadeLabel,
-      entriesFlat: [...entriesInDecade].sort((a, b) => a.date.localeCompare(b.date)),
+      entriesFlat: [...entriesInDecade].sort((a, b) => a.year - b.year),
     }));
 }
 
 export default async function HistoryPage() {
   const rawEntries = await listPublicHistoryEntries();
   const entries: HistoryEntryDTO[] = rawEntries.map((entry) => {
-    const year = new Date(entry.date).getFullYear();
+    const year = entry.year;
     const decade = `${Math.floor(year / 10) * 10}s`;
 
     return {
       id: entry.id,
-      date: new Date(entry.date).toISOString(),
       year,
       decade,
       title: entry.title,
@@ -44,7 +42,7 @@ export default async function HistoryPage() {
     };
   });
   const decades = groupByDecade(entries);
-  const allEntries = [...entries].sort((a, b) => a.date.localeCompare(b.date));
+  const allEntries = [...entries].sort((a, b) => a.year - b.year);
 
   return (
     <>

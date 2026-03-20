@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export type HistoryEntryDTO = {
   id: string;
-  date: string;
   year: number;
   decade: string;
   title: string;
@@ -17,14 +16,6 @@ export type DecadeGroup = {
   decadeKey: string;
   entriesFlat: HistoryEntryDTO[];
 };
-
-function formatDate(dateISO: string): string {
-  return new Date(dateISO).toLocaleDateString('en-GB', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-}
 
 export function HistoryTimeline({
   decades,
@@ -73,9 +64,6 @@ export function HistoryTimeline({
 
   const renderCard = (entry: HistoryEntryDTO) => (
     <article key={entry.id} className="bg-white border border-black/10 shadow-sm p-6">
-      <time className="block text-xs font-semibold uppercase tracking-wider text-brand-yellow mb-2">
-        {formatDate(entry.date)}
-      </time>
       <span className="inline-block bg-brand-navy text-white text-xs font-semibold px-2 py-1 mb-3">
         {entry.year}
       </span>

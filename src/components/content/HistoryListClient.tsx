@@ -26,7 +26,7 @@ type HistoryItem = {
   id: string;
   title: string;
   status: PublishStatus;
-  date: Date;
+  year: number;
   createdAt: Date;
 };
 
@@ -78,7 +78,7 @@ export function HistoryListClient({
   const headers = ['Year / Date', 'Title', 'Status', 'Actions'];
   const rows = items.map((item) => [
     <span key={`d-${item.id}`} className="text-sm font-medium">
-      {item.date.getFullYear()}
+      {item.year}
     </span>,
     <span key={`t-${item.id}`} className="font-medium text-primary">
       {item.title}

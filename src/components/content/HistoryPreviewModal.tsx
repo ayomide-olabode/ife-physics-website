@@ -18,7 +18,7 @@ export function HistoryPreviewModal({
   const [data, setData] = useState<{
     id: string;
     title: string;
-    date: Date;
+    year: number;
     shortDesc: string;
     status: PublishStatus;
     createdAt: Date;
@@ -58,7 +58,7 @@ export function HistoryPreviewModal({
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-xl font-bold text-foreground">{data.title}</h3>
-                <p className="text-sm text-primary mt-1 font-medium">{formatDate(data.date)}</p>
+                <p className="text-sm text-primary mt-1 font-medium">{data.year}</p>
               </div>
               <StatusBadge status={data.status} />
             </div>

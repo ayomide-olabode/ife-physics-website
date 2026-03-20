@@ -6,19 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FieldLabel } from '@/components/forms/FieldLabel';
+import { YearGroupedSelect } from '@/components/forms/YearGroupedSelect';
 import { createHistory, updateHistory } from '@/server/actions/history';
 import { toastSuccess, toastError } from '@/lib/toast';
 
 type FormDataState = {
   title: string;
-  date: string;
+  year?: number;
   shortDesc: string;
 };
+
+const MIN_HISTORY_YEAR = 1960;
+const CURRENT_YEAR = new Date().getFullYear();
 
 export function HistoryFormClient({
   initialData,
 }: {
-  initialData?: { id: string; title: string; date: Date; shortDesc: string };
+  initialData?: { id: string; title: string; year: number; shortDesc: string };
 }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,7 +31,7 @@ export function HistoryFormClient({
 
   const [formData, setFormData] = useState<FormDataState>(() => ({
     title: initialData?.title || '',
-    date: initialData?.date ? new Date(initialData.date).toISOString().split('T')[0] : '',
+    year: initialData?.year,
     shortDesc: initialData?.shortDesc || '',
   }));
 
@@ -37,8 +41,12 @@ export function HistoryFormClient({
       toastError('Title is required');
       return;
     }
-    if (!formData.date.trim()) {
-      toastError('Date is required');
+    if (typeof formData.year !== 'number') {
+      toastError('Year is required');
+      return;
+    }
+    if (formData.year < MIN_HISTORY_YEAR || formData.year > CURRENT_YEAR) {
+      toastError(`Year must be between ${MIN_HISTORY_YEAR} and ${CURRENT_YEAR}`);
       return;
     }
     if (!formData.shortDesc.trim()) {
@@ -52,7 +60,7 @@ export function HistoryFormClient({
 
     const payload = {
       title: formData.title,
-      date: new Date(formData.date),
+      year: formData.year,
       shortDesc: formData.shortDesc,
     };
 
@@ -94,19 +102,17 @@ export function HistoryFormClient({
         </div>
 
         <div className="space-y-2">
-          <FieldLabel required htmlFor="date">
-            Date
+          <FieldLabel required htmlFor="year">
+            Year
           </FieldLabel>
-          <Input
-            id="date"
-            type="date"
-            value={formData.date}
-            onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
-            required
+          <YearGroupedSelect
+            id="year"
+            value={formData.year}
+            onChange={(year) => setFormData((prev) => ({ ...prev, year }))}
+            minYear={MIN_HISTORY_YEAR}
+            maxYear={CURRENT_YEAR}
+            placeholder="Year"
           />
-          <p className="text-sm text-muted-foreground mt-1">
-            Select the exact date or an approximate date within the year.
-          </p>
         </div>
 
         <div className="space-y-2">

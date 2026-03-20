@@ -69,10 +69,10 @@ export function HistoryTimeline({
       key={entry.id}
       type="button"
       onClick={() => setSelectedItem(entry)}
-      className="w-full cursor-pointer text-left transition-transform duration-200 ease-out hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2"
+      className="w-full cursor-pointer text-left transition-transform duration-200 ease-out hover:-translate-y-0.5 h-full"
       aria-label={`View full history entry: ${entry.title}`}
     >
-      <article className="bg-white border border-black/10 shadow-sm p-6">
+      <article className="bg-white border border-black/10 shadow-sm p-6 h-full">
         <span className="inline-block bg-brand-navy text-white text-xs font-semibold px-2 py-1 mb-3">
           {entry.year}
         </span>

@@ -90,7 +90,7 @@ export function SectionSidebar({ items, title = 'Table of content' }: SectionSid
       <h2 className="text-sm font-semibold uppercase tracking-wide text-brand-navy">{title}</h2>
 
       <nav className="mt-4" aria-label={title}>
-        <ul className="space-y-2">
+        <ul className="space-y-4">
           {items.map((item) => {
             const isActive = item.id === activeId;
 
@@ -100,7 +100,7 @@ export function SectionSidebar({ items, title = 'Table of content' }: SectionSid
                   href={`#${item.id}`}
                   onClick={(event) => handleClick(event, item.id)}
                   className={cn(
-                    'block border-l-2 pl-3 text-sm transition-colors duration-200 hover:underline',
+                    'block border-l-2 pl-3 text-base transition-colors duration-200 hover:underline',
                     isActive
                       ? 'border-l-brand-yellow text-brand-navy underline'
                       : 'border-l-transparent text-muted-foreground',

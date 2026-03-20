@@ -91,7 +91,7 @@ export default async function UndergraduateProgrammePage({ params }: PageProps) 
 
   return (
     <>
-      <PageHero breadcrumbLabel="Academics / Undergraduate" title="Undergraduate" />
+      <PageHero breadcrumbLabel="Academics" title="Undergraduate" />
 
       <section className="py-8 sm:py-10">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
@@ -136,7 +136,9 @@ export default async function UndergraduateProgrammePage({ params }: PageProps) 
                   <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                     {studyOptions.map(({ id, studyOption }) => (
                       <article key={id} className="border border-brand-navy/20 bg-white p-6">
-                        <h3 className="text-lg font-semibold text-brand-navy">{studyOption.name}</h3>
+                        <h3 className="text-lg font-semibold text-brand-navy">
+                          {studyOption.name}
+                        </h3>
                         <p className="mt-2 line-clamp-3 text-sm text-gray-600">
                           {studyOption.about?.trim() || 'Description coming soon.'}
                         </p>

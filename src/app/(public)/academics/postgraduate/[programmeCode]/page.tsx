@@ -103,7 +103,7 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
 
   return (
     <>
-      <PageHero breadcrumbLabel="Academics / Postgraduate" title="Postgraduate" />
+      <PageHero breadcrumbLabel="Academicse" title="Postgraduate" />
 
       <section className="py-8 sm:py-10">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
@@ -119,7 +119,9 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_260px]">
             <main className="space-y-10">
               <section id="overview" className="scroll-mt-28 space-y-4">
-                <h2 className="text-2xl font-serif font-bold text-brand-navy">Overview & Prospects</h2>
+                <h2 className="text-2xl font-serif font-bold text-brand-navy">
+                  Overview & Prospects
+                </h2>
                 {hasBodyContent(program?.overviewProspects) ? (
                   <Prose html={program?.overviewProspects || ''} className="text-gray-700" />
                 ) : (
@@ -168,7 +170,9 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
                   <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                     {studyOptions.map(({ id, studyOption }) => (
                       <article key={id} className="border border-brand-navy/20 bg-white p-6">
-                        <h3 className="text-lg font-semibold text-brand-navy">{studyOption.name}</h3>
+                        <h3 className="text-lg font-semibold text-brand-navy">
+                          {studyOption.name}
+                        </h3>
                         <p className="mt-2 line-clamp-3 text-sm text-gray-600">
                           {studyOption.about?.trim() || 'Description coming soon.'}
                         </p>
@@ -215,7 +219,9 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
                             <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
                               {course.title}
                             </td>
-                            <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">—</td>
+                            <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                              —
+                            </td>
                             <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
                               {typeof course.U === 'number' ? course.U : '—'}
                             </td>

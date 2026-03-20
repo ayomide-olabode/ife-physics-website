@@ -1,13 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 type HistoryModalItem = {
   id: string;
@@ -42,12 +35,6 @@ export function HistoryModalClient({
                 {item.shortDescription}
               </p>
             </div>
-
-            <DialogFooter className="justify-start">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Close
-              </Button>
-            </DialogFooter>
           </>
         ) : null}
       </DialogContent>

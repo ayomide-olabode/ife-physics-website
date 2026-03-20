@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { PublicRohEntry } from '@/server/public/queries/rollOfHonourPublic';
 import { RollOfHonourCard } from './RollOfHonourCard';
@@ -19,7 +19,7 @@ export function RollOfHonourYears({
 }) {
   const allYears = useMemo(() => [...initialYears, ...remainingYears], [initialYears, remainingYears]);
   const [visibleCount, setVisibleCount] = useState(initialYears.length);
-  const [openYear, setOpenYear] = useState<number | null>(null);
+  const [openYear, setOpenYear] = useState<number | null>(initialYears[0] ?? null);
   const [yearData, setYearData] = useState<Record<number, YearLoadState>>({});
 
   const visibleYears = allYears.slice(0, visibleCount);
@@ -59,6 +59,14 @@ export function RollOfHonourYears({
       await loadYear(year);
     }
   }
+
+  useEffect(() => {
+    if (!openYear) return;
+    const state = yearData[openYear];
+    if (!state || state.status === 'idle' || state.status === 'error') {
+      void loadYear(openYear);
+    }
+  }, [openYear, yearData]);
 
   if (allYears.length === 0) {
     return (

@@ -44,10 +44,10 @@ export function ResearchOutputCard({
 
   return (
     <article className="group flex h-full flex-col border border-gray-200 bg-white p-8 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.08)]">
-      <div className="flex items-center gap-2 text-xs">
+      <div className="flex items-center gap-2 text-sm">
         <span className="font-semibold uppercase tracking-wide text-brand-navy">{groupName}</span>
         <div className="h-full w-px bg-gray-400"></div>
-        <span className="text-gray-500">{formatOutputTypeLabel(outputType)}</span>
+        <span className="text-gray-500 !font-normal">{formatOutputTypeLabel(outputType)}</span>
       </div>
 
       <div className="mt-3 border-t border-gray-200" />

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import { PageHero } from '@/components/public/PageHero';
 import { FocusAreasGrid } from '@/components/public/research/FocusAreasGrid';
 import { GroupScientistsGrid } from '@/components/public/research/GroupScientistsGrid';
+import { ResearchGroupHero } from '@/components/public/research/ResearchGroupHero';
 import { ResearchOutputsList } from '@/components/public/research/ResearchOutputsList';
 import {
   getPublicResearchGroupBySlug,
@@ -31,11 +31,11 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
   return (
     <>
-      <PageHero
-        breadcrumbLabel="Research"
-        title={group.name}
-        backgroundImageSrc={group.imageUrl || undefined}
-        backgroundImageAlt={group.name}
+      <ResearchGroupHero
+        title={group.hero.title}
+        abbreviation={group.hero.abbreviation}
+        overview={group.hero.overview}
+        heroImageUrl={group.hero.heroImageUrl}
       />
 
       <main className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-10 md:py-14 space-y-10">

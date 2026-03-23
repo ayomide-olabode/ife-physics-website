@@ -248,9 +248,17 @@ export function StudyOptionsInlineEditor({
             filteredOptions.map((option) => {
               const isSelected = selectedId === option.id && !isCreatingNew;
               return (
-                <button
+                <div
                   key={option.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleSelect(option.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSelect(option.id);
+                    }
+                  }}
                   className={`w-full rounded-md px-3 py-2 text-left transition-colors ${
                     isSelected
                       ? 'bg-primary/10 text-accent-foreground'
@@ -274,7 +282,7 @@ export function StudyOptionsInlineEditor({
                       ) : null}
                     </div>
                   </div>
-                </button>
+                </div>
               );
             })
           )}

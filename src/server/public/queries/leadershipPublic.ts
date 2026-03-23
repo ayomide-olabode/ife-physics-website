@@ -31,12 +31,13 @@ async function findCoordinatorByType(type: CoordinatorType) {
       createdAt: true,
       user: {
         select: {
-          staff: {
-            select: {
-              id: true,
-              staffStatus: true,
-              isInMemoriam: true,
-              title: true,
+              staff: {
+                select: {
+                  id: true,
+                  isPublicProfile: true,
+                  staffStatus: true,
+                  isInMemoriam: true,
+                  title: true,
               firstName: true,
               middleName: true,
               lastName: true,
@@ -56,6 +57,7 @@ async function findCoordinatorByType(type: CoordinatorType) {
     return null;
   }
   const staffIsPublic =
+    assignment.user.staff.isPublicProfile &&
     assignment.user.staff.staffStatus !== FORMER_STATUS &&
     (PUBLIC_VISIBLE_STAFF_STATUSES.includes(assignment.user.staff.staffStatus) ||
       assignment.user.staff.isInMemoriam);
@@ -99,6 +101,7 @@ export async function listPublicPastHods() {
       role: 'HOD',
       endDate: { not: null },
       staff: {
+        isPublicProfile: true,
         staffStatus: { not: FORMER_STATUS, in: PUBLIC_VISIBLE_STAFF_STATUSES },
       },
     },
@@ -132,6 +135,7 @@ export async function getPublicLeadership() {
         role: 'HOD',
         endDate: null,
         staff: {
+          isPublicProfile: true,
           staffStatus: { not: FORMER_STATUS, in: PUBLIC_VISIBLE_STAFF_STATUSES },
         },
       },
@@ -161,6 +165,7 @@ export async function getPublicLeadership() {
         role: 'HOD',
         endDate: { not: null },
         staff: {
+          isPublicProfile: true,
           staffStatus: { not: FORMER_STATUS, in: PUBLIC_VISIBLE_STAFF_STATUSES },
         },
       },

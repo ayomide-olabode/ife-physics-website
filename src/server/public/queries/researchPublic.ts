@@ -56,7 +56,7 @@ export async function getPublicResearchGroupBySlug(slug: string) {
       },
       featuredResearchOutputId: true,
       memberships: {
-        where: { staff: { deletedAt: null } },
+        where: { staff: { deletedAt: null, isPublicProfile: true } },
         select: {
           leftAt: true,
           staff: {
@@ -106,7 +106,7 @@ export async function listPublicRecentOutputsForGroup(
 
   // Get member staff IDs
   const memberships = await prisma.researchGroupMembership.findMany({
-    where: { researchGroupId: groupId, staff: { deletedAt: null } },
+    where: { researchGroupId: groupId, staff: { deletedAt: null, isPublicProfile: true } },
     select: { staffId: true },
   });
   const staffIds = memberships.map((m) => m.staffId);

@@ -42,6 +42,7 @@ type StaffSlugIdentity = {
 function wherePublicVisibleStaff(): Prisma.StaffWhereInput {
   return {
     deletedAt: null,
+    isPublicProfile: true,
     staffStatus: { not: FORMER_STATUS },
     OR: [{ staffStatus: { in: PUBLIC_VISIBLE_STAFF_STATUSES } }, { isInMemoriam: true }],
   };
@@ -75,6 +76,7 @@ const getCachedPublicStaffSlugIndex = unstable_cache(
   ['public-staff-slug-index'],
   {
     revalidate: 60,
+    tags: ['public:staff-slug-index'],
   },
 );
 
@@ -313,6 +315,7 @@ export async function listPublicAcademicFaculty({
 
   const where: Prisma.StaffWhereInput = {
     deletedAt: null,
+    isPublicProfile: true,
     staffType: 'ACADEMIC',
     staffStatus: 'ACTIVE',
     isInMemoriam: false,
@@ -456,6 +459,7 @@ export async function listPublicPeopleByCategory(
 
   const where: Prisma.StaffWhereInput = {
     deletedAt: null,
+    isPublicProfile: true,
     staffStatus: { not: FORMER_STATUS },
     AND: andFilters,
   };
@@ -530,6 +534,7 @@ export async function getPublicPeopleFilterFacets(category: PublicPeopleCategory
   const rows = await prisma.staff.findMany({
     where: {
       deletedAt: null,
+      isPublicProfile: true,
       staffStatus: { not: FORMER_STATUS },
       AND: [baseCategoryFilter],
     },
@@ -905,7 +910,15 @@ export async function getPublicTributesForStaff(
 /** Current HOD info for public display. */
 export async function getPublicCurrentHod() {
   const term = await prisma.leadershipTerm.findFirst({
-    where: { role: 'HOD', endDate: null },
+    where: {
+      role: 'HOD',
+      endDate: null,
+      staff: {
+        deletedAt: null,
+        isPublicProfile: true,
+        staffStatus: { not: FORMER_STATUS, in: PUBLIC_VISIBLE_STAFF_STATUSES },
+      },
+    },
     select: {
       startDate: true,
       staff: {

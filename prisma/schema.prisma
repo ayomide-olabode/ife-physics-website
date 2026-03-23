@@ -224,6 +224,7 @@ model Staff {
   dateOfBirth       DateTime?
   dateOfDeath       DateTime?
   isInMemoriam      Boolean @default(false)
+  isPublicProfile   Boolean @default(true)
 
   user        User?
   emailTokens EmailToken[]
@@ -248,6 +249,7 @@ model Staff {
 
   @@index([staffStatus])
   @@index([staffType])
+  @@index([isPublicProfile])
   @@index([secondaryAffiliationId])
 }
 

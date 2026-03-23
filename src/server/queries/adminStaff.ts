@@ -37,6 +37,7 @@ export async function listStaff({
         institutionalEmail: true,
         staffType: true,
         staffStatus: true,
+        isPublicProfile: true,
         profileImageUrl: true,
         createdAt: true,
       },
@@ -58,6 +59,7 @@ export async function getStaffById(staffId: string) {
       institutionalEmail: true,
       staffType: true,
       staffStatus: true,
+      isPublicProfile: true,
       profileImageUrl: true,
       createdAt: true,
       user: {

@@ -178,6 +178,57 @@ export async function updateStaffStatus({
   return { success: true, unchanged: false };
 }
 
+export async function updateStaffPublicVisibility({
+  staffId,
+  isPublicProfile,
+}: {
+  staffId: string;
+  isPublicProfile: boolean;
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
+  await requireSuperAdmin(session);
+
+  const existing = await prisma.staff.findUnique({
+    where: { id: staffId },
+    select: { id: true, isPublicProfile: true },
+  });
+
+  if (!existing) {
+    throw new Error('Staff record not found.');
+  }
+
+  if (existing.isPublicProfile === isPublicProfile) {
+    return { success: true, unchanged: true };
+  }
+
+  await prisma.staff.update({
+    where: { id: staffId },
+    data: { isPublicProfile },
+  });
+
+  await logAudit({
+    actorId: session.user.userId,
+    action: 'STAFF_PUBLIC_VISIBILITY_UPDATED',
+    entityType: 'Staff',
+    entityId: staffId,
+    snapshot: {
+      before: { isPublicProfile: existing.isPublicProfile },
+      after: { isPublicProfile },
+    },
+  });
+
+  revalidatePath('/dashboard/admin/staff');
+  revalidatePath(`/dashboard/admin/staff/${staffId}`);
+  revalidatePath('/people');
+  revalidatePath('/about/leadership');
+  revalidatePath('/research');
+
+  return { success: true, unchanged: false };
+}
+
 export async function deleteStaff({ staffId }: { staffId: string }) {
   const session = await getServerSession(authOptions);
   if (!session) {

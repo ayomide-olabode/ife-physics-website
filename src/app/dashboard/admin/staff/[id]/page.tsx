@@ -11,6 +11,7 @@ import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
 import { StaffInviteControls } from '@/components/admin/StaffInviteControls';
 import { StaffStatusManager } from '@/components/admin/StaffStatusManager';
+import { StaffPublicVisibilityManager } from '@/components/admin/StaffPublicVisibilityManager';
 import { DeleteStaffButton } from '@/components/admin/DeleteStaffButton';
 
 export default async function AdminStaffDetailPage({
@@ -55,7 +56,7 @@ export default async function AdminStaffDetailPage({
           <div className="flex items-center gap-3">
             <PageHeader
               title={fullName || staff.institutionalEmail}
-              description={hasName ? staff.institutionalEmail : undefined}
+              description="Manage this staff record."
               actions={
                 <span
                   className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
@@ -92,6 +93,12 @@ export default async function AdminStaffDetailPage({
             <div className="flex justify-between">
               <span className="text-sm">Record Created:</span>
               <span className="text-sm font-medium">{formatDate(staff.createdAt)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm">Public Profile:</span>
+              <span className="text-sm font-medium">
+                {staff.isPublicProfile ? 'Visible' : 'Hidden'}
+              </span>
             </div>
           </div>
         </div>
@@ -151,6 +158,10 @@ export default async function AdminStaffDetailPage({
         </div>
 
         <StaffStatusManager staffId={staff.id} currentStatus={staff.staffStatus} />
+        <StaffPublicVisibilityManager
+          staffId={staff.id}
+          currentIsPublicProfile={staff.isPublicProfile}
+        />
 
         <div className="rounded-lg border border-destructive/30 p-4 space-y-3">
           <h3 className="text-sm font-medium text-destructive">Danger Zone</h3>

@@ -58,7 +58,7 @@ export function ResearchGroupHeroClient({ title, overview }: ResearchGroupHeroCl
     <>
       <p
         ref={overviewRef}
-        className="mt-4 text-sm md:text-base text-slate-200 leading-relaxed line-clamp-3 max-w-3xl"
+        className="mt-4 text-base md:text-lg text-slate-200 leading-relaxed line-clamp-3 max-w-3xl"
       >
         {overviewText}
       </p>

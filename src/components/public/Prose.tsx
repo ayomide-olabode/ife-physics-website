@@ -1,3 +1,5 @@
+import { sanitizeRichHtml } from '@/lib/security/sanitizeHtml';
+
 interface ProseProps {
   html: string;
   className?: string;
@@ -8,6 +10,8 @@ interface ProseProps {
  * Uses @tailwindcss/typography with brand overrides. No rounded corners on images.
  */
 export function Prose({ html, className = '' }: ProseProps) {
+  const sanitized = sanitizeRichHtml(html || '');
+
   return (
     <div
       className={`prose prose-gray max-w-none
@@ -16,7 +20,7 @@ export function Prose({ html, className = '' }: ProseProps) {
         prose-img:rounded-none
         prose-strong:text-brand-navy
         ${className}`}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitized }}
     />
   );
 }

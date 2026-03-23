@@ -21,6 +21,17 @@ function stripHtml(html: string | null | undefined): string {
     .trim();
 }
 
+function looksLikeHtml(value: string): boolean {
+  return /<[^>]+>/.test(value);
+}
+
+function ProfileTextBlock({ value }: { value: string }) {
+  if (looksLikeHtml(value)) {
+    return <Prose html={value} />;
+  }
+  return <p className="whitespace-pre-line text-sm leading-7 text-gray-700">{value}</p>;
+}
+
 function buildTabHref(staffSlug: string, tab: StaffProfileTab, page?: number) {
   const params = new URLSearchParams();
   params.set('tab', tab);
@@ -79,6 +90,9 @@ export async function StaffProfileSection({
   isInMemoriam,
   page,
   bioHtml,
+  education,
+  researchInterests,
+  membershipOfProfessionalOrganizations,
   submitted,
 }: {
   staffId: string;
@@ -87,17 +101,37 @@ export async function StaffProfileSection({
   isInMemoriam: boolean;
   page: number;
   bioHtml: string | null;
+  education: string | null;
+  researchInterests: string | null;
+  membershipOfProfessionalOrganizations: string | null;
   submitted: boolean;
 }) {
   const activeTab = normalizeStaffProfileTab(tab, isInMemoriam);
 
   if (activeTab === 'bio') {
+    const sections = [
+      { title: 'Bio', content: bioHtml },
+      { title: 'Education', content: education },
+      { title: 'Research Interests', content: researchInterests },
+      {
+        title: 'Membership of Professional Organizations',
+        content: membershipOfProfessionalOrganizations,
+      },
+    ].filter((section) => Boolean(section.content?.trim()));
+
     return (
       <section className="bg-white p-6">
-        {bioHtml ? (
-          <Prose html={bioHtml} />
+        {sections.length > 0 ? (
+          <div className="space-y-8">
+            {sections.map((section) => (
+              <article key={section.title} className="space-y-3">
+                <h3 className="text-lg font-semibold text-brand-navy">{section.title}</h3>
+                <ProfileTextBlock value={section.content!.trim()} />
+              </article>
+            ))}
+          </div>
         ) : (
-          <p className="text-sm text-gray-600">No biography available yet.</p>
+          <p className="text-sm text-gray-600">No profile information available yet.</p>
         )}
       </section>
     );

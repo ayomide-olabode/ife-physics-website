@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Building2, Mail } from 'lucide-react';
-import { formatDate } from '@/lib/format-date';
+import { Mail } from 'lucide-react';
 import { formatPublicStaffName } from '@/lib/publicName';
 import type { PublicPeopleCardItem } from '@/server/public/queries/peoplePublic';
 
@@ -11,6 +10,12 @@ function formatAffiliation(item: PublicPeopleCardItem): string | null {
   const { name, acronym } = item.secondaryAffiliation;
   if (!acronym) return name;
   return `${name} (${acronym})`;
+}
+
+function formatYearForCard(date: Date | null): string | null {
+  if (!date) return null;
+  const year = String(date.getUTCFullYear());
+  return year;
 }
 
 export function StaffCard({ item }: { item: PublicPeopleCardItem }) {
@@ -23,10 +28,11 @@ export function StaffCard({ item }: { item: PublicPeopleCardItem }) {
   const heading = [item.title, personName].filter(Boolean).join(' ').trim() || item.institutionalEmail;
   const affiliation = formatAffiliation(item);
   const isMemoriam = item.isInMemoriam || item.staffStatus === 'IN_MEMORIAM';
-  const memoriamMeta =
-    isMemoriam && (item.dateOfBirth || item.dateOfDeath)
-      ? `Born ${formatDate(item.dateOfBirth)}, Died ${formatDate(item.dateOfDeath)}`
-      : null;
+  const canOpenProfile = item.staffStatus !== 'FORMER';
+  const birthDate = isMemoriam ? formatYearForCard(item.dateOfBirth) : null;
+  const deathDate = isMemoriam ? formatYearForCard(item.dateOfDeath) : null;
+  const memoriamLifespan =
+    birthDate && deathDate ? `${birthDate} – ${deathDate}` : deathDate ?? birthDate;
 
   return (
     <article className="group flex h-full flex-col border border-gray-200 bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
@@ -49,33 +55,40 @@ export function StaffCard({ item }: { item: PublicPeopleCardItem }) {
 
       <div className="flex flex-1 flex-col gap-3 p-4 text-sm text-gray-700">
         <h2 className="text-lg font-bold leading-snug text-brand-navy">
-          <Link
-            href={`/people/staff/${item.computedStaffSlug}`}
-            className="transition group-hover:underline group-hover:underline-offset-4"
-          >
-            {heading}
-          </Link>
+          {canOpenProfile ? (
+            <Link
+              href={`/people/staff/${item.computedStaffSlug}`}
+              className="transition group-hover:underline group-hover:underline-offset-4"
+            >
+              {heading}
+            </Link>
+          ) : (
+            heading
+          )}
         </h2>
 
         <p className="text-sm text-gray-600">
-          {[item.academicRank, item.designation].filter(Boolean).join(', ') || '—'}
+          {isMemoriam
+            ? item.academicRank || '—'
+            : [item.academicRank, item.designation].filter(Boolean).join(', ') || '—'}
         </p>
 
-        {memoriamMeta && <p className="text-sm text-gray-600">{memoriamMeta}</p>}
+        {memoriamLifespan ? (
+          <p className="mt-1 text-sm text-gray-600">{memoriamLifespan}</p>
+        ) : null}
 
         <p className="text-sm text-gray-600">{item.primaryResearchGroup?.name ?? 'Research group not specified'}</p>
 
-        <p className="flex items-start gap-2 text-sm text-gray-600">
-          <Building2 className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{affiliation ?? 'Secondary affiliation not specified'}</span>
-        </p>
+        {affiliation ? <p className="text-sm text-gray-600">{affiliation}</p> : null}
 
-        <p className="mt-auto flex items-start gap-2 text-sm text-gray-700">
-          <Mail className="mt-0.5 h-4 w-4 shrink-0" />
-          <a href={`mailto:${item.institutionalEmail}`} className="break-all hover:underline">
-            {item.institutionalEmail}
-          </a>
-        </p>
+        {!isMemoriam ? (
+          <p className="mt-auto flex items-start gap-2 text-sm text-gray-700">
+            <Mail className="mt-0.5 h-4 w-4 shrink-0" />
+            <a href={`mailto:${item.institutionalEmail}`} className="break-all hover:underline">
+              {item.institutionalEmail}
+            </a>
+          </p>
+        ) : null}
       </div>
     </article>
   );

@@ -26,7 +26,7 @@ const baseRefNavItems: NavItem[] = [
     dropdown: [
       { name: 'Our History', href: '/about/history' },
       { name: 'Our Leadership', href: '/about/leadership' },
-      { name: 'Roll of Honours', href: '/about/roll-of-honour' },
+      { name: 'Roll of Honour', href: '/about/roll-of-honour' },
     ],
   },
   {
@@ -44,10 +44,10 @@ const baseRefNavItems: NavItem[] = [
     dropdown: [
       { name: 'Academic Faculty', href: '/people/academic-faculty' },
       { name: 'Visiting Faculty', href: '/people/visiting-faculty' },
-      { name: 'Emeritus', href: '/people/emeritus' },
-      { name: 'Retired Faculty', href: '/people/retired-faculty' },
+      { name: 'Emeritus Faculty', href: '/people/emeritus-faculty' },
       { name: 'Technical Staff', href: '/people/technical-staff' },
       { name: 'Support Staff', href: '/people/support-staff' },
+      { name: 'Retired Staff', href: '/people/retired-staff' },
       { name: 'In Memoriam', href: '/people/in-memoriam' },
     ],
   },

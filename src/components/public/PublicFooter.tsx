@@ -3,11 +3,11 @@ import Image from 'next/image';
 import { Linkedin, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
 
 const socialLinks = [
-  { icon: Linkedin, href: '#', label: 'LinkedIn' },
-  { icon: Facebook, href: '#', label: 'Facebook' },
-  { icon: Twitter, href: '#', label: 'X (Twitter)' },
-  { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Youtube, href: '#', label: 'YouTube' },
+  { icon: Linkedin, href: '/under-construction', label: 'LinkedIn' },
+  { icon: Facebook, href: '/under-construction', label: 'Facebook' },
+  { icon: Twitter, href: '/under-construction', label: 'X (Twitter)' },
+  { icon: Instagram, href: '/under-construction', label: 'Instagram' },
+  { icon: Youtube, href: '/under-construction', label: 'YouTube' },
 ];
 
 const aboutLinks = [
@@ -18,10 +18,10 @@ const aboutLinks = [
 ];
 
 const quickLinks = [
-  { label: 'PEPSA', href: '#' },
+  { label: 'PEPSA', href: '/under-construction' },
   { label: 'News', href: '/news' },
   { label: 'Events', href: '/events' },
-  { label: 'Alumni', href: '#' },
+  { label: 'Alumni', href: '/under-construction' },
   { label: 'Resources', href: '/resources' },
 ];
 
@@ -32,14 +32,14 @@ export function PublicFooter() {
     <footer className="relative isolate overflow-hidden text-brand-white text-center md:text-left outline-[40px] outline outline-brand-navy mt-4">
       <div className="absolute inset-0 -z-20">
         <Image
-          src="/assets/whitehouse-sunset.png"
+          src="/assets/whitehouse-footer.png"
           alt=""
           fill
           className="object-cover object-[20%_0%]  md:object-center"
         />
       </div>
       <div
-        className="absolute inset-0 -z-10 bg-gradient-to-t from-black/95 via-black/75 to-black/50"
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-black via-black/75 to-black/50"
         aria-hidden="true"
       />
 
@@ -73,7 +73,7 @@ export function PublicFooter() {
             </div>
 
             <Link
-              href="#"
+              href="/under-construction"
               className="inline-block bg-brand-yellow text-brand-ink text-sm font-semibold px-6 py-2.5 hover:bg-yellow-500 transition-colors w-fit"
             >
               GIVE TO PHYSICS
@@ -151,21 +151,21 @@ export function PublicFooter() {
           </p>
           <div className="flex items-center gap-4">
             <Link
-              href="#"
+              href="/under-construction"
               className="hover:text-white hover:underline underline-offset-4 transition-colors"
             >
               Privacy Policy
             </Link>
             <span className="text-white/50">/</span>
             <Link
-              href="#"
+              href="/under-construction"
               className="hover:text-white hover:underline underline-offset-4 transition-colors"
             >
               Terms of Use
             </Link>
             <span className="text-white/50">/</span>
             <Link
-              href="#"
+              href="/under-construction"
               className="hover:text-white hover:underline underline-offset-4 transition-colors"
             >
               Accessibility Statement

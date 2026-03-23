@@ -5,5 +5,11 @@ export default async function EmeritusPage({
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  return <PeopleCategoryPage title="Emeritus" category="emeritus" searchParams={await searchParams} />;
+  return (
+    <PeopleCategoryPage
+      title="Emeritus Faculty"
+      category="emeritus-faculty"
+      searchParams={await searchParams}
+    />
+  );
 }

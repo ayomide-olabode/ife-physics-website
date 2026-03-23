@@ -81,8 +81,8 @@ export function RefMobileMenu({ researchGroups }: { researchGroups: ResearchGrou
   const utilityLinks = [
     { name: 'ePortal', href: 'https://eportal.oauife.edu.ng' },
     { name: 'NetQue', href: 'https://netque.oauife.edu.ng' },
-    { name: 'PEPSA', href: '#' },
-    { name: 'Our Alumni', href: '#' },
+    { name: 'PEPSA', href: '/under-construction' },
+    { name: 'Our Alumni', href: '/under-construction' },
   ];
 
   return (
@@ -127,7 +127,7 @@ export function RefMobileMenu({ researchGroups }: { researchGroups: ResearchGrou
                 return (
                   <Link
                     key={link.name}
-                    href={link.href ?? '#'}
+                    href={link.href || '/under-construction'}
                     onClick={close}
                     className={cn(
                       'text-lg font-bold py-3 border-b border-white/10 transition-colors',
@@ -156,7 +156,7 @@ export function RefMobileMenu({ researchGroups }: { researchGroups: ResearchGrou
               ))}
 
               <Link
-                href="#"
+                href="/under-construction"
                 onClick={close}
                 className="mt-4 px-6 py-3 bg-brand-yellow text-brand-navy text-center font-bold hover:bg-yellow-500 transition-colors"
               >

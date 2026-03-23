@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { UserRound } from 'lucide-react';
 
 const utilityLinks = [
   { name: 'ePortal', href: 'https://eportal.oauife.edu.ng' },
   { name: 'NetQue', href: 'https://netque.oauife.edu.ng' },
-  { name: 'PEPSA', href: '#' },
-  { name: 'Our Alumni', href: '#' },
+  { name: 'PEPSA', href: '/under-construction' },
+  { name: 'Our Alumni', href: '/under-construction' },
 ];
 
 export function RefHeaderTop() {
@@ -41,10 +42,19 @@ export function RefHeaderTop() {
           </nav>
 
           <Link
-            href="#"
+            href="/under-construction"
             className="px-6 py-2 bg-brand-yellow text-brand-navy text-base font-bold hover:bg-yellow-500 transition-colors"
           >
             Give to Physics
+          </Link>
+
+          <div className="h-10 w-px bg-brand-navy/30" aria-hidden="true" />
+          <Link
+            href="/login"
+            aria-label="User account"
+            className="inline-flex items-center justify-center text-brand-navy hover:text-brand-yellow transition-colors"
+          >
+            <UserRound className="h-7 w-7" strokeWidth={1.8} />
           </Link>
         </div>
       </div>

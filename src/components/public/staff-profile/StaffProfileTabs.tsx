@@ -39,7 +39,7 @@ export function StaffProfileTabs({
                   const params = new URLSearchParams(searchParams.toString());
                   params.set('tab', tab);
                   params.delete('page');
-                  router.push(`${pathname}?${params.toString()}`);
+                  router.push(`${pathname}?${params.toString()}`, { scroll: false });
                 }}
               >
                 {STAFF_PROFILE_TAB_LABELS[tab]}

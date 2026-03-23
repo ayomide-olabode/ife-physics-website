@@ -19,15 +19,15 @@ function parsePositiveInt(value?: string): number {
 
 function getActiveSidebarCategory(staff: {
   staffType: 'ACADEMIC' | 'VISITING' | 'EMERITUS' | 'TECHNICAL' | 'SUPPORT';
-  staffStatus: 'ACTIVE' | 'RESIGNED' | 'RETIRED' | 'IN_MEMORIAM';
+  staffStatus: 'ACTIVE' | 'FORMER' | 'RETIRED' | 'IN_MEMORIAM';
   isInMemoriam: boolean;
 }): PublicPeopleCategory {
   if (staff.isInMemoriam || staff.staffStatus === 'IN_MEMORIAM') return 'in-memoriam';
-  if (staff.staffStatus === 'RETIRED') return 'retired-faculty';
+  if (staff.staffStatus === 'RETIRED') return 'retired-staff';
 
   if (staff.staffType === 'ACADEMIC') return 'academic-faculty';
   if (staff.staffType === 'VISITING') return 'visiting-faculty';
-  if (staff.staffType === 'EMERITUS') return 'emeritus';
+  if (staff.staffType === 'EMERITUS') return 'emeritus-faculty';
   if (staff.staffType === 'TECHNICAL') return 'technical-staff';
 
   return 'support-staff';
@@ -73,6 +73,11 @@ export default async function StaffProfilePage({
                   isInMemoriam={isInMemoriam}
                   page={page}
                   bioHtml={staff.bio}
+                  education={staff.education}
+                  researchInterests={staff.researchInterests}
+                  membershipOfProfessionalOrganizations={
+                    staff.membershipOfProfessionalOrganizations
+                  }
                   submitted={submitted}
                 />
               </div>

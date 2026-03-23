@@ -14,14 +14,7 @@ interface SectionSidebarProps {
 }
 
 export function SectionSidebar({ items, title = 'Table of content' }: SectionSidebarProps) {
-  const [activeId, setActiveId] = useState<string>(() => {
-    if (typeof window === 'undefined') {
-      return items[0]?.id ?? '';
-    }
-
-    const hashId = window.location.hash.replace('#', '');
-    return items.some((item) => item.id === hashId) ? hashId : (items[0]?.id ?? '');
-  });
+  const [activeId, setActiveId] = useState<string>(items[0]?.id ?? '');
   const ratiosRef = useRef<Record<string, number>>({});
 
   const itemIds = useMemo(() => items.map((item) => item.id), [items]);
@@ -86,33 +79,36 @@ export function SectionSidebar({ items, title = 'Table of content' }: SectionSid
   };
 
   return (
-    <div className="sticky top-[120px] w-[260px] border border-brand-navy/15 bg-white p-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-brand-navy">{title}</h2>
+    <nav
+      className="sticky top-[120px] max-h-[calc(100vh-8rem)] overflow-y-auto border border-black/10 bg-white"
+      aria-label={title}
+    >
+      <div className="border-b border-black/10 p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{title}</h2>
+      </div>
 
-      <nav className="mt-4" aria-label={title}>
-        <ul className="space-y-4">
-          {items.map((item) => {
-            const isActive = item.id === activeId;
+      <ul className="space-y-1 p-2">
+        {items.map((item) => {
+          const isActive = item.id === activeId;
 
-            return (
-              <li key={item.id}>
-                <a
-                  href={`#${item.id}`}
-                  onClick={(event) => handleClick(event, item.id)}
-                  className={cn(
-                    'block border-l-2 pl-3 text-base transition-colors duration-200 hover:underline',
-                    isActive
-                      ? 'border-l-brand-yellow text-brand-navy underline'
-                      : 'border-l-transparent text-muted-foreground',
-                  )}
-                >
-                  {item.label}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-    </div>
+          return (
+            <li key={item.id}>
+              <a
+                href={`#${item.id}`}
+                onClick={(event) => handleClick(event, item.id)}
+                className={cn(
+                  'block w-full px-3 py-2 text-left text-sm font-semibold transition-colors duration-200 ',
+                  isActive
+                    ? 'bg-brand-navy text-white'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-brand-navy',
+                )}
+              >
+                {item.label}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

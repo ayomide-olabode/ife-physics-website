@@ -49,25 +49,24 @@ export function CourseDetailsModal({
   }
 
   const prerequisites = normalizePrerequisites(course.prerequisites);
-  const lineOne = `${course.code}: ${course.title} ${num(course.L)} - ${num(course.T)} - ${num(course.P)} ${num(course.U)} Units - ${semesterLabel(course.semesterTaken)} Semester`;
+  const lineOne = `${course.code}: ${course.title} (${num(course.L)} - ${num(course.T)} - ${num(course.P)}) ${num(course.U)} Units - ${semesterLabel(course.semesterTaken)} Semester`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl sm:rounded-none">
         <DialogHeader>
-          <DialogTitle className="text-base leading-relaxed text-brand-navy">{lineOne}</DialogTitle>
+          <DialogTitle className="text-lg leading-relaxed text-brand-navy">{lineOne}</DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-3 text-sm text-gray-700">
+        <div className="space-y-3 text-base text-gray-700">
           <p>{(course.description || '').trim() || 'No description provided.'}</p>
-          {prerequisites ? <p>Prerequisites: {prerequisites}</p> : null}
         </div>
-
-        <DialogFooter className="justify-start">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-        </DialogFooter>
+        {prerequisites ? (
+          <DialogFooter className="justify-start border-t pt-4">
+            <div className="space-y-3 text-sm text-gray-500">
+              <p>Prerequisites: {prerequisites}</p>
+            </div>
+          </DialogFooter>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

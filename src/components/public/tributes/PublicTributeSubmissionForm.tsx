@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
@@ -14,19 +13,23 @@ interface PublicTributeSubmissionFormProps {
 }
 
 export function PublicTributeSubmissionForm({ staffSlug }: PublicTributeSubmissionFormProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [name, setName] = useState('');
   const [relationship, setRelationship] = useState('');
   const [tributeHtml, setTributeHtml] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setErrorMessage(null);
+    if (isSubmitting || isRedirecting) return;
 
-    startTransition(async () => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setIsSubmitting(true);
+
+    try {
       const res = await submitTestimonial({
         staffSlug,
         name,
@@ -36,12 +39,17 @@ export function PublicTributeSubmissionForm({ staffSlug }: PublicTributeSubmissi
 
       if (!res.success) {
         setErrorMessage(res.error || 'Failed to submit tribute.');
+        setIsSubmitting(false);
         return;
       }
 
-      router.push(`/people/staff/${staffSlug}?tab=tributes&submitted=1`);
-      router.refresh();
-    });
+      setSuccessMessage('Tribute submitted successfully. Redirecting to tributes...');
+      setIsRedirecting(true);
+      window.location.assign(`/people/staff/${staffSlug}?tab=tributes&submitted=1`);
+    } catch {
+      setErrorMessage('Failed to submit tribute. Please try again.');
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -80,15 +88,20 @@ export function PublicTributeSubmissionForm({ staffSlug }: PublicTributeSubmissi
           {errorMessage}
         </div>
       )}
+      {successMessage && (
+        <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {successMessage}
+        </div>
+      )}
 
       <div className="flex items-center justify-end gap-2 border-t pt-4">
         <Link href={`/people/staff/${staffSlug}?tab=tributes`}>
-          <Button type="button" variant="outline">
+          <Button type="button" variant="outline" disabled={isSubmitting || isRedirecting}>
             Cancel
           </Button>
         </Link>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Submitting...' : 'Submit Tribute'}
+        <Button type="submit" disabled={isSubmitting || isRedirecting}>
+          {isSubmitting || isRedirecting ? 'Submitting...' : 'Submit Tribute'}
         </Button>
       </div>
     </form>

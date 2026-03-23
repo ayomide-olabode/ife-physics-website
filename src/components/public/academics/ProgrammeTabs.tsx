@@ -30,12 +30,7 @@ export function ProgrammeTabs({
     level === 'postgraduate' ? '/academics/postgraduate' : '/academics/undergraduate';
 
   return (
-    <div
-      className={cn(
-        'grid grid-cols-1 border border-brand-navy',
-        level === 'postgraduate' ? 'sm:grid-cols-2' : 'sm:grid-cols-3',
-      )}
-    >
+    <div className="w-full border-b border-brand-navy md:flex md:flex-wrap">
       {tabs.map((tab) => {
         const tabPath = `${basePath}/${tab.code}`;
         const isActive = pathname?.startsWith(tabPath) || tab.code === activeProgrammeCode;
@@ -46,8 +41,7 @@ export function ProgrammeTabs({
             href={tabPath}
             aria-current={isActive ? 'page' : undefined}
             className={cn(
-              'border-b border-brand-navy px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide transition-colors sm:border-b-0 sm:border-r',
-              tab.code === tabs[tabs.length - 1]?.code && 'sm:border-r-0',
+              'block w-full border-b border-brand-navy px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide transition-colors md:w-fit md:border-b-0',
               isActive
                 ? 'bg-brand-navy text-white'
                 : 'bg-white text-brand-navy hover:bg-brand-navy hover:text-white',

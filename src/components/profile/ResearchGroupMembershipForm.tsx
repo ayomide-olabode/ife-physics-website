@@ -75,7 +75,7 @@ export function ResearchGroupMembershipForm({ initialGroupId, options, lastUpdat
         </p>
       </div>
 
-      <div className="space-y-4 max-w-lg">
+      <div className="space-y-4 w-full">
         <div className="flex items-center justify-between">
           <p className="text-xs text-muted-foreground">
             Last updated: {formatShortDate(lastUpdatedAt ?? null)}
@@ -114,7 +114,12 @@ export function ResearchGroupMembershipForm({ initialGroupId, options, lastUpdat
             </div>
 
             <div className="flex items-center gap-3 pt-2">
-              <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button

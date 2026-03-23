@@ -551,6 +551,7 @@ export function ResearchOutputEntryForm({
                   value={manualAuthorGiven}
                   onChange={(e) => setManualAuthorGiven(e.target.value)}
                   disabled={dis}
+                  placeholder="Firstname"
                   className="h-8 text-sm rounded-none"
                 />
               </div>
@@ -563,7 +564,7 @@ export function ResearchOutputEntryForm({
                   value={manualAuthorMiddle}
                   onChange={(e) => setManualAuthorMiddle(e.target.value)}
                   disabled={dis}
-                  placeholder="Optional"
+                  placeholder="Middlename"
                   className="h-8 text-sm rounded-none"
                 />
               </div>
@@ -576,6 +577,7 @@ export function ResearchOutputEntryForm({
                   value={manualAuthorFamily}
                   onChange={(e) => setManualAuthorFamily(e.target.value)}
                   disabled={dis}
+                  placeholder="Lastname"
                   className="h-8 text-sm rounded-none"
                 />
               </div>
@@ -737,6 +739,7 @@ export function ResearchOutputEntryForm({
                       value={manualEditorGiven}
                       onChange={(e) => setManualEditorGiven(e.target.value)}
                       disabled={dis}
+                      placeholder="Firstname"
                       className="h-8 text-sm rounded-none"
                     />
                   </div>
@@ -749,7 +752,7 @@ export function ResearchOutputEntryForm({
                       value={manualEditorMiddle}
                       onChange={(e) => setManualEditorMiddle(e.target.value)}
                       disabled={dis}
-                      placeholder="Optional"
+                      placeholder="Middlename"
                       className="h-8 text-sm rounded-none"
                     />
                   </div>
@@ -762,6 +765,7 @@ export function ResearchOutputEntryForm({
                       value={manualEditorFamily}
                       onChange={(e) => setManualEditorFamily(e.target.value)}
                       disabled={dis}
+                      placeholder="Lastname"
                       className="h-8 text-sm rounded-none"
                     />
                   </div>

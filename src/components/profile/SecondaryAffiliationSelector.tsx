@@ -67,7 +67,7 @@ export function SecondaryAffiliationSelector({
   }
 
   return (
-    <div className="space-y-4 max-w-xl">
+    <div className="space-y-4 w-full">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
           Last updated: {formatShortDate(lastUpdatedAt ?? null)}

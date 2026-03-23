@@ -77,8 +77,8 @@ export function DashboardSidebar({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 shrink-0 py-6 pr-6 border-r min-h-[calc(100vh-4rem)]">
-      <nav className="flex-1 flex flex-col gap-1">
+    <aside className="hidden md:flex sticky top-16 h-[calc(100vh-4rem)] self-start flex-col w-64 shrink-0 py-6 pr-6 border-r">
+      <nav className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 pr-1">
         {items.map((item) =>
           item.children?.length ? (
             <NavGroup key={item.href} item={item} pathname={pathname} />

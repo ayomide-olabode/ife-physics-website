@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ACADEMIC_RANK_OPTIONS, STAFF_TITLE_OPTIONS } from '@/lib/options';
+import type { StaffType } from '@prisma/client';
+import { getStaffRankOptionsByType, STAFF_TITLE_OPTIONS } from '@/lib/options';
 import { updateStaffProfile } from '@/server/actions/profile/update';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { FieldLabel } from '@/components/forms/FieldLabel';
@@ -20,24 +21,28 @@ function RichTextPreview({ html }: { html: string }) {
 }
 
 export function EditProfileForm({
+  staffType,
   initialTitle,
   initialFirstName,
   initialMiddleName,
   initialLastName,
   initialAcademicRank,
   initialDesignation,
+  initialRoomNumber,
   initialBio,
   initialEducation,
   initialResearchInterests,
   initialMembershipOfProfessionalOrganizations,
   lastUpdatedAt,
 }: {
+  staffType: StaffType;
   initialTitle?: string | null;
   initialFirstName?: string | null;
   initialMiddleName?: string | null;
   initialLastName?: string | null;
   initialAcademicRank?: string | null;
   initialDesignation?: string | null;
+  initialRoomNumber?: string | null;
   initialBio?: string | null;
   initialEducation?: string | null;
   initialResearchInterests?: string | null;
@@ -53,6 +58,7 @@ export function EditProfileForm({
     lastName: initialLastName || '',
     academicRank: initialAcademicRank || '',
     designation: initialDesignation || '',
+    roomNumber: initialRoomNumber || '',
     bio: initialBio || '',
     education: initialEducation || '',
     researchInterests: initialResearchInterests || '',
@@ -65,12 +71,18 @@ export function EditProfileForm({
   const [lastName, setLastName] = useState(initialValues.lastName);
   const [academicRank, setAcademicRank] = useState(initialValues.academicRank);
   const [designation, setDesignation] = useState(initialValues.designation);
+  const [roomNumber, setRoomNumber] = useState(initialValues.roomNumber);
   const [bio, setBio] = useState(initialValues.bio);
   const [education, setEducation] = useState(initialValues.education);
   const [researchInterests, setResearchInterests] = useState(initialValues.researchInterests);
   const [professionalMemberships, setProfessionalMemberships] = useState(
     initialValues.professionalMemberships,
   );
+  const scopedStaffRankOptions = getStaffRankOptionsByType(staffType);
+  const staffRankOptions =
+    academicRank && !scopedStaffRankOptions.some((option) => option.value === academicRank)
+      ? [{ value: academicRank, label: academicRank }, ...scopedStaffRankOptions]
+      : scopedStaffRankOptions;
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,6 +94,7 @@ export function EditProfileForm({
     setLastName(initialValues.lastName);
     setAcademicRank(initialValues.academicRank);
     setDesignation(initialValues.designation);
+    setRoomNumber(initialValues.roomNumber);
     setBio(initialValues.bio);
     setEducation(initialValues.education);
     setResearchInterests(initialValues.researchInterests);
@@ -91,11 +104,6 @@ export function EditProfileForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!title) {
-      toastError('Title is required.');
-      return;
-    }
-
     if (!firstName.trim() || !lastName.trim()) {
       toastError('Both first and last names are required.');
       return;
@@ -104,12 +112,13 @@ export function EditProfileForm({
     setIsSubmitting(true);
     try {
       const res = await updateStaffProfile({
-        title,
+        title: title.trim(),
         firstName: firstName.trim(),
         middleName: middleName.trim(),
         lastName: lastName.trim(),
         academicRank,
         designation: designation.trim(),
+        roomNumber: roomNumber.trim(),
         bio: bio.trim(),
         education: education.trim(),
         researchInterests: researchInterests.trim(),
@@ -131,7 +140,7 @@ export function EditProfileForm({
   }
 
   return (
-    <div className="space-y-4 max-w-3xl">
+    <div className="space-y-4 w-full">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
           Last updated: {formatShortDate(lastUpdatedAt ?? null)}
@@ -147,43 +156,67 @@ export function EditProfileForm({
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Title</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Title
+              </p>
               <p className="text-sm">{title || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">First Name</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                First Name
+              </p>
               <p className="text-sm">{firstName || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Middle Name</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Middle Name
+              </p>
               <p className="text-sm">{middleName || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Last Name</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Last Name
+              </p>
               <p className="text-sm">{lastName || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Academic Rank</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Staff Rank
+              </p>
               <p className="text-sm">{academicRank || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Designation</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Designation
+              </p>
               <p className="text-sm">{designation || 'Not provided.'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Office Room Number
+              </p>
+              <p className="text-sm">{roomNumber || 'Not provided.'}</p>
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">About Me</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              About Me
+            </p>
             <RichTextPreview html={bio} />
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Education</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Education
+            </p>
             <RichTextPreview html={education} />
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Research Interests</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Research Interests
+            </p>
             <RichTextPreview html={researchInterests} />
           </div>
 
@@ -199,7 +232,7 @@ export function EditProfileForm({
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <FieldLabel required htmlFor="title">
+                <FieldLabel htmlFor="title">
                   Title
                 </FieldLabel>
                 <select
@@ -207,9 +240,8 @@ export function EditProfileForm({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="flex h-9 w-full rounded-none border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  required
                 >
-                  <option value="">Select title</option>
+                  <option value="">Select title (optional)</option>
                   {STAFF_TITLE_OPTIONS.map((option) => (
                     <option key={option} value={option}>
                       {option}
@@ -227,7 +259,7 @@ export function EditProfileForm({
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
-                  placeholder="John"
+                  placeholder="Firstname"
                   className="rounded-none"
                 />
               </div>
@@ -240,7 +272,7 @@ export function EditProfileForm({
                   id="middleName"
                   value={middleName}
                   onChange={(e) => setMiddleName(e.target.value)}
-                  placeholder="Optional"
+                  placeholder="Middlename"
                   className="rounded-none"
                 />
               </div>
@@ -254,7 +286,7 @@ export function EditProfileForm({
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required
-                  placeholder="Doe"
+                  placeholder="Lastname"
                   className="rounded-none"
                 />
               </div>
@@ -262,15 +294,15 @@ export function EditProfileForm({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <FieldLabel htmlFor="academicRank">Academic Rank</FieldLabel>
+                <FieldLabel htmlFor="academicRank">Staff Rank</FieldLabel>
                 <select
                   id="academicRank"
                   value={academicRank}
                   onChange={(e) => setAcademicRank(e.target.value)}
                   className="flex h-9 w-full rounded-none border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="">Select rank</option>
-                  {ACADEMIC_RANK_OPTIONS.map((option) => (
+                  <option value="">Select staff rank</option>
+                  {staffRankOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -287,6 +319,20 @@ export function EditProfileForm({
                   placeholder="e.g., Postgraduate Chairman, Examination Officer..."
                   className="rounded-none"
                   maxLength={200}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <FieldLabel htmlFor="roomNumber">Office Room Number</FieldLabel>
+                <Input
+                  id="roomNumber"
+                  value={roomNumber}
+                  onChange={(e) => setRoomNumber(e.target.value)}
+                  placeholder="e.g., Room B12"
+                  className="rounded-none"
+                  maxLength={50}
                 />
               </div>
             </div>

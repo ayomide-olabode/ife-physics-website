@@ -144,7 +144,7 @@ export function RollOfHonourFormClient({
                 id="firstName"
                 value={formData.firstName}
                 onChange={(e) => setFormData((prev) => ({ ...prev, firstName: e.target.value }))}
-                placeholder="e.g. John"
+                placeholder="Firstname"
                 className="rounded-none"
                 required
               />
@@ -156,7 +156,7 @@ export function RollOfHonourFormClient({
                 id="middleName"
                 value={formData.middleName}
                 onChange={(e) => setFormData((prev) => ({ ...prev, middleName: e.target.value }))}
-                placeholder="e.g. Olanrewaju"
+                placeholder="Middlename"
                 className="rounded-none"
               />
             </div>
@@ -170,7 +170,7 @@ export function RollOfHonourFormClient({
               id="lastName"
               value={formData.lastName}
               onChange={(e) => setFormData((prev) => ({ ...prev, lastName: e.target.value }))}
-              placeholder="e.g. Doe"
+              placeholder="Lastname"
               className="rounded-none"
               required
             />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -59,6 +59,14 @@ export function ProjectEditor({ open, onOpenChange, initialData }: ProjectEditor
     ...initialData,
   }));
 
+  useEffect(() => {
+    if (!open) return;
+    setFormData({
+      ...defaultValues,
+      ...initialData,
+    });
+  }, [open, initialData]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -95,6 +103,9 @@ export function ProjectEditor({ open, onOpenChange, initialData }: ProjectEditor
 
       if (res.success) {
         toastSuccess(`Project ${isEdit ? 'updated' : 'added'} successfully.`);
+        if (!isEdit) {
+          setFormData(defaultValues);
+        }
         onOpenChange(false);
         router.refresh();
       } else {

@@ -25,7 +25,7 @@ export default async function ProfileOverviewPage({
   if (!staffId) {
     return (
       <main className="container mx-auto px-4 py-12">
-        <PageHeader title="My Profile" />
+        <PageHeader title="My Profile" description="Manage your profile details." />
         <p className="text-muted-foreground mt-4">
           Error: No underlying staff record located for this account.
         </p>
@@ -41,8 +41,10 @@ export default async function ProfileOverviewPage({
       middleName: true,
       lastName: true,
       title: true,
+      staffType: true,
       academicRank: true,
       designation: true,
+      roomNumber: true,
       bio: true,
       education: true,
       researchInterests: true,
@@ -71,29 +73,30 @@ export default async function ProfileOverviewPage({
 
   const params = await searchParams;
   const showOnboarding = params.onboarding === '1';
+  const canManageAcademicAffiliations =
+    staff.staffType !== 'TECHNICAL' && staff.staffType !== 'SUPPORT';
 
   const completeness = await getProfileCompleteness(staffId);
-  const options = await listResearchGroupOptions();
-  const currentGroupId = staff.researchMemberships[0]?.researchGroupId || null;
-  const secondaryAffiliationOptions = await listSecondaryAffiliationOptions();
-  const currentSecondaryAffiliation = await getMySecondaryAffiliation(staffId);
+  const options = canManageAcademicAffiliations ? await listResearchGroupOptions() : [];
+  const currentGroupId =
+    canManageAcademicAffiliations && staff.researchMemberships[0]?.researchGroupId
+      ? staff.researchMemberships[0].researchGroupId
+      : null;
+  const secondaryAffiliationOptions = canManageAcademicAffiliations
+    ? await listSecondaryAffiliationOptions()
+    : [];
+  const currentSecondaryAffiliation = canManageAcademicAffiliations
+    ? await getMySecondaryAffiliation(staffId)
+    : null;
 
   return (
     <main className="container mx-auto px-4 py-12 space-y-8 max-w-4xl">
-      {showOnboarding && (
-        <div className="rounded-md bg-blue-50/50 p-4 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 text-blue-800 dark:text-blue-300">
-          <p className="text-sm font-medium">
-            Welcome! Please take a moment to complete your profile identity to proceed securely.
-          </p>
-        </div>
-      )}
-
       {!completeness.isComplete && (
         <ProfileCompletenessCard completeness={completeness} emphasizeRequired={showOnboarding} />
       )}
 
       <div>
-        <PageHeader title="My Profile" description="Manage your personal details" />
+        <PageHeader title="My Profile" description="Manage your profile details." />
       </div>
 
       <div className="rounded-lg border bg-card p-6">
@@ -110,12 +113,14 @@ export default async function ProfileOverviewPage({
           Personal &amp; Appointment Details
         </h2>
         <EditProfileForm
+          staffType={staff.staffType}
           initialTitle={staff.title}
           initialFirstName={staff.firstName}
           initialMiddleName={staff.middleName}
           initialLastName={staff.lastName}
           initialAcademicRank={staff.academicRank}
           initialDesignation={staff.designation}
+          initialRoomNumber={staff.roomNumber}
           initialBio={staff.bio}
           initialEducation={staff.education}
           initialResearchInterests={staff.researchInterests}
@@ -126,27 +131,31 @@ export default async function ProfileOverviewPage({
         />
       </div>
 
-      <div className="rounded-none border bg-card p-6">
-        <div className="mb-6 border-b pb-2">
-          <h2 className="text-xl font-semibold">Secondary Affiliation</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Optional — select a centre/unit you&apos;re affiliated with.
-          </p>
-        </div>
-        <SecondaryAffiliationSelector
-          initialSecondaryAffiliationId={
-            currentSecondaryAffiliation?.secondaryAffiliationId ?? null
-          }
-          options={secondaryAffiliationOptions}
-          lastUpdatedAt={staff.updatedAt}
-        />
-      </div>
+      {canManageAcademicAffiliations ? (
+        <>
+          <div className="rounded-none border bg-card p-6">
+            <div className="mb-6 border-b pb-2">
+              <h2 className="text-xl font-semibold">Secondary Affiliation</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Optional — select a centre/unit you&apos;re affiliated with.
+              </p>
+            </div>
+            <SecondaryAffiliationSelector
+              initialSecondaryAffiliationId={
+                currentSecondaryAffiliation?.secondaryAffiliationId ?? null
+              }
+              options={secondaryAffiliationOptions}
+              lastUpdatedAt={staff.updatedAt}
+            />
+          </div>
 
-      <ResearchGroupMembershipForm
-        initialGroupId={currentGroupId}
-        options={options}
-        lastUpdatedAt={staff.updatedAt}
-      />
+          <ResearchGroupMembershipForm
+            initialGroupId={currentGroupId}
+            options={options}
+            lastUpdatedAt={staff.updatedAt}
+          />
+        </>
+      ) : null}
     </main>
   );
 }

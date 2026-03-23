@@ -79,7 +79,7 @@ export const RESEARCH_OUTPUT_TYPE_OPTIONS = [
   { value: ResearchOutputType.THESIS, label: 'Thesis' },
 ];
 
-export const ACADEMIC_RANK_VALUES = [
+const ACADEMIC_FACULTY_RANK_VALUES = [
   'Professor',
   'Reader',
   'Senior Lecturer',
@@ -89,10 +89,57 @@ export const ACADEMIC_RANK_VALUES = [
   'Graduate Assistant',
 ] as const;
 
-export const ACADEMIC_RANK_OPTIONS = ACADEMIC_RANK_VALUES.map((rank) => ({
-  value: rank,
-  label: rank,
-}));
+const TECHNICAL_STAFF_RANK_VALUES = [
+  'Principal Chief Technologist',
+  'Senior Chief Technologist',
+  'Chief Technologist',
+  'Assistant Chief Technologist',
+  'Principal Technologist',
+  'Senior Technologist',
+  'Technologist I',
+  'Technologist II',
+  'Senior Laboratory Technician',
+  'Senior Laboratory Superintendent',
+  'Laboratory Superintendent',
+  'Senior Laboratory Supervisor',
+  'Laboratory Supervisor',
+  'Senior Laboratory Assistant',
+  'Laboratory Assistant',
+] as const;
+
+const SUPPORT_STAFF_RANK_VALUES = [
+  'Confidential Secretary',
+  'Executive Officer',
+  'Clerical Officer',
+  'Office Assistant',
+] as const;
+
+export const ACADEMIC_RANK_VALUES = ACADEMIC_FACULTY_RANK_VALUES;
+
+export const STAFF_RANK_VALUES_BY_TYPE: Record<StaffType, readonly string[]> = {
+  [StaffType.ACADEMIC]: ACADEMIC_FACULTY_RANK_VALUES,
+  [StaffType.VISITING]: ACADEMIC_FACULTY_RANK_VALUES,
+  [StaffType.EMERITUS]: ['Professor'],
+  [StaffType.TECHNICAL]: TECHNICAL_STAFF_RANK_VALUES,
+  [StaffType.SUPPORT]: SUPPORT_STAFF_RANK_VALUES,
+};
+
+export const STAFF_RANK_VALUES = Array.from(
+  new Set(Object.values(STAFF_RANK_VALUES_BY_TYPE).flat()),
+);
+
+export function getStaffRankValuesByType(staffType: StaffType): readonly string[] {
+  return STAFF_RANK_VALUES_BY_TYPE[staffType] ?? [];
+}
+
+export function getStaffRankOptionsByType(staffType: StaffType) {
+  return getStaffRankValuesByType(staffType).map((rank) => ({
+    value: rank,
+    label: rank,
+  }));
+}
+
+export const ACADEMIC_RANK_OPTIONS = getStaffRankOptionsByType(StaffType.ACADEMIC);
 
 export const STAFF_TITLE_OPTIONS = [
   'Prof.',

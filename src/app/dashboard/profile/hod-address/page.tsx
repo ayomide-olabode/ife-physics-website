@@ -34,7 +34,7 @@ export default async function Page() {
       <div className="space-y-6">
         <PageHeader
           title="HOD Address"
-          description="Manage the Head of Department welcome address displayed on the homepage."
+          description="Manage the Head of Department welcome address."
         />
         <EmptyState
           title="No active HOD yet"
@@ -51,10 +51,14 @@ export default async function Page() {
     <div className="space-y-6">
       <PageHeader
         title="HOD Address"
-        description="Manage the Head of Department welcome address displayed on the homepage."
+        description="Manage the Head of Department welcome address."
       />
       <div className="rounded-lg border bg-card p-6">
-        <HodAddressClientForm initialTitle={existingData?.title} initialBody={existingData?.body} />
+        <HodAddressClientForm
+          initialTitle={existingData?.title}
+          initialBody={existingData?.body}
+          lastUpdatedAt={existingData?.updatedAt}
+        />
       </div>
     </div>
   );

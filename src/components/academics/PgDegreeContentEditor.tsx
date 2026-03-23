@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProgrammeCode, DegreeType } from '@prisma/client';
 import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
@@ -24,41 +24,43 @@ interface Props {
 
 export function PgDegreeContentEditor({ programmeCode, degreeType, initialData }: Props) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [admissionHtml, setAdmissionHtml] = useState(initialData?.admissionHtml || '');
   const [periodHtml, setPeriodHtml] = useState(initialData?.periodHtml || '');
   const [courseHtml, setCourseHtml] = useState(initialData?.courseHtml || '');
   const [examHtml, setExamHtml] = useState(initialData?.examHtml || '');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
     if (!admissionHtml || !periodHtml || !courseHtml || !examHtml) {
       toastError('All fields are required.');
       return;
     }
 
-    startTransition(async () => {
-      try {
-        const payload = {
-          admissionHtml,
-          periodHtml,
-          courseHtml,
-          examHtml,
-        };
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        admissionHtml,
+        periodHtml,
+        courseHtml,
+        examHtml,
+      };
 
-        const res = await updatePgDegreeContent(programmeCode, degreeType, payload);
-        if (res.success) {
-          toastSuccess('Degree content updated.');
-          router.refresh();
-        } else {
-          toastError(res.error || 'Failed to update content.');
-        }
-      } catch {
-        toastError('An unexpected error occurred.');
+      const res = await updatePgDegreeContent(programmeCode, degreeType, payload);
+      if (res.success) {
+        toastSuccess('Degree content updated.');
+        router.refresh();
+      } else {
+        toastError(res.error || 'Failed to update content.');
       }
-    });
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -84,8 +86,8 @@ export function PgDegreeContentEditor({ programmeCode, degreeType, initialData }
       </div>
 
       <div className="pt-4 border-t">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : 'Save Changes'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : 'Save Changes'}
         </Button>
       </div>
     </form>

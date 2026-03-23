@@ -107,17 +107,17 @@ export const STAFF_TITLE_OPTIONS = [
 ] as const;
 
 export const STAFF_TYPE_OPTIONS = [
-  { value: StaffType.ACADEMIC, label: 'Academic' },
-  { value: StaffType.EMERITUS, label: 'Emeritus' },
-  { value: StaffType.SUPPORT, label: 'Support' },
-  { value: StaffType.TECHNICAL, label: 'Technical' },
-  { value: StaffType.VISITING, label: 'Visiting' },
+  { value: StaffType.ACADEMIC, label: 'Academic Faculty' },
+  { value: StaffType.VISITING, label: 'Visiting Faculty' },
+  { value: StaffType.EMERITUS, label: 'Emeritus Faculty' },
+  { value: StaffType.TECHNICAL, label: 'Technical Staff' },
+  { value: StaffType.SUPPORT, label: 'Support Staff' },
 ];
 
 export const STAFF_STATUS_OPTIONS = [
   { value: StaffStatus.ACTIVE, label: 'Active' },
   { value: StaffStatus.IN_MEMORIAM, label: 'In Memoriam' },
-  { value: StaffStatus.RESIGNED, label: 'Resigned' },
+  { value: StaffStatus.FORMER, label: 'Former Staff' },
   { value: StaffStatus.RETIRED, label: 'Retired' },
 ];
 

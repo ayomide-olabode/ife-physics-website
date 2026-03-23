@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { updatePostgraduateProgram } from '@/server/actions/postgraduateProgram';
@@ -23,30 +23,32 @@ export function PostgraduateProgramEditor({
   initialData,
 }: PostgraduateProgramEditorProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [overviewProspects, setOverviewProspects] = useState(initialData?.overviewProspects || '');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    startTransition(async () => {
-      try {
-        const payload = {
-          overviewProspects,
-        };
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        overviewProspects,
+      };
 
-        const res = await updatePostgraduateProgram(programmeCode, payload);
-        if (res.success) {
-          toastSuccess('Postgraduate programme sections updated.');
-          router.refresh();
-        } else {
-          toastError(res.error || 'Failed to update sections.');
-        }
-      } catch {
-        toastError('An unexpected error occurred.');
+      const res = await updatePostgraduateProgram(programmeCode, payload);
+      if (res.success) {
+        toastSuccess('Postgraduate programme sections updated.');
+        router.refresh();
+      } else {
+        toastError(res.error || 'Failed to update sections.');
       }
-    });
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -57,8 +59,8 @@ export function PostgraduateProgramEditor({
       </div>
 
       <div className="pt-4 border-t">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : 'Save Changes'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : 'Save Changes'}
         </Button>
       </div>
     </form>

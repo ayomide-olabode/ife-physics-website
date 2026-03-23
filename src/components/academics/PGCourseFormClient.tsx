@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProgrammeCode, SemesterTaken } from '@prisma/client';
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,7 @@ interface PGCourseFormClientProps {
 
 export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormClientProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = Boolean(initialData?.id);
 
   const [code, setCode] = useState(initialData?.code || '');
@@ -59,51 +59,54 @@ export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormC
   );
   const [status, setStatus] = useState<'CORE' | 'RESTRICTED'>(initialData?.status || 'CORE');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     const normalizedCode = normalizeCourseCode(code);
     setCode(normalizedCode);
 
-    startTransition(async () => {
-      try {
-        if (!semesterTaken) {
-          toastError('Semester is required.');
+    if (!semesterTaken) {
+      toastError('Semester is required.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        code: normalizedCode,
+        title,
+        description: description || undefined,
+        prerequisites: prerequisites || undefined,
+        L,
+        T,
+        P,
+        U,
+        semesterTaken,
+        status,
+      };
+
+      const res = isEditing
+        ? await updatePostgraduateCourseForProgramme(programmeCode, initialData!.id!, payload)
+        : await createPostgraduateCourseForProgramme(programmeCode, payload);
+
+      if (res.success) {
+        toastSuccess(isEditing ? 'Course updated.' : 'Course created.');
+        if (!isEditing && res.courseId) {
+          window.location.assign(
+            `/dashboard/postgraduate/${programmeCode.toLowerCase()}/courses/${res.courseId}`,
+          );
           return;
         }
-
-        const payload = {
-          code: normalizedCode,
-          title,
-          description: description || undefined,
-          prerequisites: prerequisites || undefined,
-          L,
-          T,
-          P,
-          U,
-          semesterTaken,
-          status,
-        };
-
-        const res = isEditing
-          ? await updatePostgraduateCourseForProgramme(programmeCode, initialData!.id!, payload)
-          : await createPostgraduateCourseForProgramme(programmeCode, payload);
-
-        if (res.success) {
-          toastSuccess(isEditing ? 'Course updated.' : 'Course created.');
-          if (!isEditing && res.courseId) {
-            router.push(
-              `/dashboard/postgraduate/${programmeCode.toLowerCase()}/courses/${res.courseId}`,
-            );
-          } else {
-            router.refresh();
-          }
-        } else {
-          toastError(res.error || 'Something went wrong.');
-        }
-      } catch {
-        toastError('An unexpected error occurred.');
+        router.refresh();
+      } else {
+        toastError(res.error || 'Something went wrong.');
       }
-    });
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -246,8 +249,8 @@ export function PGCourseFormClient({ programmeCode, initialData }: PGCourseFormC
       </div>
 
       <div className="pt-4 border-t">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : isEditing ? 'Update Course' : 'Create Course'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : isEditing ? 'Update Course' : 'Create Course'}
         </Button>
       </div>
     </form>

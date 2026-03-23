@@ -37,7 +37,7 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <BackToParent href="/dashboard/research/groups" label="Back to Groups" />
+      <BackToParent href="/dashboard/research/groups" label="Back to Research Groups" />
 
       <PageHeader
         title={`Edit Research Group — ${group.name}`}

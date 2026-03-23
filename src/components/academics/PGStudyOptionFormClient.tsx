@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProgrammeCode } from '@prisma/client';
 import { Button } from '@/components/ui/button';
@@ -23,28 +23,31 @@ interface Props {
 
 export function PGStudyOptionFormClient({ programmeCode, initialData }: Props) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [name, setName] = useState(initialData.name || '');
   const [about, setAbout] = useState(initialData.about || '');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    startTransition(async () => {
-      try {
-        const payload = { name, about: about || undefined };
-        const res = await updatePostgraduateStudyOption(programmeCode, initialData.id!, payload);
+    if (isSubmitting) return;
 
-        if (res.success) {
-          toastSuccess('Study option updated.');
-          router.refresh();
-        } else {
-          toastError(res.error || 'Something went wrong.');
-        }
-      } catch {
-        toastError('An unexpected error occurred.');
+    setIsSubmitting(true);
+    try {
+      const payload = { name, about: about || undefined };
+      const res = await updatePostgraduateStudyOption(programmeCode, initialData.id!, payload);
+
+      if (res.success) {
+        toastSuccess('Study option updated.');
+        router.refresh();
+      } else {
+        toastError(res.error || 'Something went wrong.');
       }
-    });
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -74,8 +77,8 @@ export function PGStudyOptionFormClient({ programmeCode, initialData }: Props) {
         />
       </div>
       <div className="pt-4 border-t">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : 'Update Study Option'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : 'Update Study Option'}
         </Button>
       </div>
     </form>

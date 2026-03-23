@@ -9,7 +9,7 @@ export default async function NewResearchGroupPage() {
 
   return (
     <div className="space-y-6">
-      <BackToParent href="/dashboard/research/groups" label="Back to Groups" />
+      <BackToParent href="/dashboard/research/groups" label="Back to Research Groups" />
 
       <PageHeader
         title="New Research Group"

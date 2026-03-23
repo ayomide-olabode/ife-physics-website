@@ -10,6 +10,7 @@ import { BackToParent } from '@/components/dashboard/BackToParent';
 import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
 import { StaffInviteControls } from '@/components/admin/StaffInviteControls';
+import { StaffStatusManager } from '@/components/admin/StaffStatusManager';
 
 export default async function AdminStaffDetailPage({
   params,
@@ -147,6 +148,8 @@ export default async function AdminStaffDetailPage({
             </p>
           )}
         </div>
+
+        <StaffStatusManager staffId={staff.id} currentStatus={staff.staffStatus} />
       </div>
 
       <div className="space-y-4">

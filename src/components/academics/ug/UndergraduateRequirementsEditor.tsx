@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { updateUndergraduateProgram } from '@/server/actions/undergraduateProgram';
@@ -29,7 +29,7 @@ export function UndergraduateRequirementsEditor({
   initialData,
 }: UndergraduateRequirementsEditorProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [admissionRequirements, setAdmissionRequirements] = useState(
     initialData?.admissionRequirements || '',
@@ -38,33 +38,35 @@ export function UndergraduateRequirementsEditor({
     initialData?.courseRequirements || '',
   );
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    startTransition(async () => {
-      try {
-        // Preserve all other fields by sending their initial values back
-        const payload = {
-          overviewProspects: initialData?.overviewProspects || '',
-          admissionRequirements,
-          courseRequirements,
-          curriculum: initialData?.curriculum || '',
-          programmeStructure: initialData?.programmeStructure || '',
-          studyOptionsText: initialData?.studyOptionsText || '',
-          courseDescriptionsIntro: initialData?.courseDescriptionsIntro || '',
-        };
+    setIsSubmitting(true);
+    try {
+      // Preserve all other fields by sending their initial values back
+      const payload = {
+        overviewProspects: initialData?.overviewProspects || '',
+        admissionRequirements,
+        courseRequirements,
+        curriculum: initialData?.curriculum || '',
+        programmeStructure: initialData?.programmeStructure || '',
+        studyOptionsText: initialData?.studyOptionsText || '',
+        courseDescriptionsIntro: initialData?.courseDescriptionsIntro || '',
+      };
 
-        const res = await updateUndergraduateProgram(programmeCode, payload);
-        if (res.success) {
-          toastSuccess('Requirements updated.');
-          router.refresh();
-        } else {
-          toastError(res.error || 'Failed to update requirements.');
-        }
-      } catch {
-        toastError('An unexpected error occurred.');
+      const res = await updateUndergraduateProgram(programmeCode, payload);
+      if (res.success) {
+        toastSuccess('Requirements updated.');
+        router.refresh();
+      } else {
+        toastError(res.error || 'Failed to update requirements.');
       }
-    });
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -90,8 +92,8 @@ export function UndergraduateRequirementsEditor({
       </div>
 
       <div className="pt-4 border-t flex justify-end">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : 'Save Changes'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : 'Save Changes'}
         </Button>
       </div>
     </form>

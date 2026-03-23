@@ -42,7 +42,7 @@ export default async function AdminStaffPage({
         className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
           staff.staffStatus === 'ACTIVE'
             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500'
-            : staff.staffStatus === 'RESIGNED' || staff.staffStatus === 'RETIRED'
+            : staff.staffStatus === 'FORMER' || staff.staffStatus === 'RETIRED'
               ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500'
               : 'bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-400'
         }`}

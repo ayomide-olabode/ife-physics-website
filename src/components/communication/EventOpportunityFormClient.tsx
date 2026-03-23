@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   createEventOpportunity,
@@ -42,7 +42,7 @@ function toDateInput(val?: string | Date | null): string {
 
 export function EventOpportunityFormClient({ initial }: { initial?: FormInitial }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!initial?.id;
 
   const [title, setTitle] = useState(initial?.title || '');
@@ -71,45 +71,51 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
     setOpportunityCategory('');
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    startTransition(async () => {
-      try {
-        const payload = {
-          title,
-          type: type as 'EVENT' | 'OPPORTUNITY',
-          eventCategory: type === 'EVENT' && eventCategory ? (eventCategory as never) : null,
-          opportunityCategory:
-            type === 'OPPORTUNITY' && opportunityCategory ? (opportunityCategory as never) : null,
-          description: description || '',
-          startDate: startDate || '',
-          endDate: endDate || '',
-          venue: venue || '',
-          linkUrl: linkUrl || '',
-          deadline: deadline || '',
-        };
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
-        if (isEditing && initial?.id) {
-          const res = await updateEventOpportunity(initial.id, payload);
-          if (res.success) {
-            toastSuccess('Updated successfully.');
-            router.refresh();
-          } else {
-            toastError(res.error || 'Failed to update.');
-          }
+    try {
+      const payload = {
+        title,
+        type: type as 'EVENT' | 'OPPORTUNITY',
+        eventCategory: type === 'EVENT' && eventCategory ? (eventCategory as never) : null,
+        opportunityCategory:
+          type === 'OPPORTUNITY' && opportunityCategory ? (opportunityCategory as never) : null,
+        description: description || '',
+        startDate: startDate || '',
+        endDate: endDate || '',
+        venue: venue || '',
+        linkUrl: linkUrl || '',
+        deadline: deadline || '',
+      };
+
+      if (isEditing && initial?.id) {
+        const res = await updateEventOpportunity(initial.id, payload);
+        if (res.success) {
+          toastSuccess('Updated successfully.');
+          router.refresh();
         } else {
-          const res = await createEventOpportunity(payload);
-          if (res.success && res.data?.id) {
-            toastSuccess('Created as draft.');
-            router.push(`/dashboard/communication/events-opportunities/${res.data.id}`);
-          } else {
-            toastError(res.error || 'Failed to create.');
-          }
+          toastError(res.error || 'Failed to update.');
         }
-      } catch {
-        toastError('An unexpected error occurred.');
+        setIsSubmitting(false);
+        return;
       }
-    });
+
+      const res = await createEventOpportunity(payload);
+      if (res.success && res.data?.id) {
+        toastSuccess('Created as draft.');
+        window.location.assign(`/dashboard/communication/events-opportunities/${res.data.id}`);
+        return;
+      }
+
+      toastError(res.error || 'Failed to create.');
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -227,8 +233,8 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
       </div>
 
       <div className="pt-2">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : isEditing ? 'Update' : 'Create Draft'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : isEditing ? 'Update' : 'Create Draft'}
         </Button>
       </div>
     </form>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateMyHodAddress } from '@/server/actions/profileHodAddress';
 import { toastSuccess, toastError } from '@/lib/toast';
@@ -16,32 +16,34 @@ type HodAddressClientFormProps = {
 
 export function HodAddressClientForm({ initialTitle, initialBody }: HodAddressClientFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [title, setTitle] = useState(initialTitle || '');
   const [body, setBody] = useState(initialBody || '');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
     if (!title.trim() || !body.trim()) {
       toastError('Both title and body are required.');
       return;
     }
 
-    startTransition(async () => {
-      try {
-        const res = await updateMyHodAddress({ title, body });
-        if (res.success) {
-          toastSuccess('HOD Address updated.');
-          router.refresh();
-        } else {
-          toastError(res.error || 'Validation payload checks failed structurally.');
-        }
-      } catch {
-        toastError('Unexpected mapping error mutating identity block settings.');
+    setIsSubmitting(true);
+    try {
+      const res = await updateMyHodAddress({ title, body });
+      if (res.success) {
+        toastSuccess('HOD Address updated.');
+        router.refresh();
+      } else {
+        toastError(res.error || 'Validation payload checks failed structurally.');
       }
-    });
+    } catch {
+      toastError('Unexpected mapping error mutating identity block settings.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -80,8 +82,8 @@ export function HodAddressClientForm({ initialTitle, initialBody }: HodAddressCl
       </div>
 
       <div className="pt-2">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving...' : 'Save HOD Address'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save HOD Address'}
         </Button>
       </div>
     </form>

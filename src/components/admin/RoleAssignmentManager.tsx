@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { assignRole, revokeRole } from '@/server/actions/roleAssignments';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,6 @@ export function RoleAssignmentManager({
   researchGroups: ResearchGroupOption[];
 }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
 
   // Form state
   const [role, setRole] = useState<ScopedRole | ''>('');
@@ -48,6 +47,7 @@ export function RoleAssignmentManager({
   const [programmeScope, setProgrammeScope] = useState<ProgrammeScope | ''>('');
   const [degreeScope, setDegreeScope] = useState<DegreeScope | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRevoking, setIsRevoking] = useState(false);
 
   // Revoke state
   const [revokeId, setRevokeId] = useState<string | null>(null);
@@ -89,9 +89,7 @@ export function RoleAssignmentManager({
         setScopeId('');
         setProgrammeScope('');
         setDegreeScope('');
-        startTransition(() => {
-          router.refresh();
-        });
+        router.refresh();
       }
     } catch {
       toastError('An unexpected error occurred.');
@@ -101,19 +99,21 @@ export function RoleAssignmentManager({
   };
 
   const handleRevoke = async () => {
-    if (!revokeId) return;
+    if (!revokeId || isRevoking) return;
+    setIsRevoking(true);
     try {
       const res = await revokeRole({ roleAssignmentId: revokeId });
       if (res.error) {
         toastError(res.error);
       } else {
         toastSuccess('Role revoked successfully.');
-        startTransition(() => {
-          router.refresh();
-        });
+        router.refresh();
+        setRevokeId(null);
       }
     } catch {
       toastError('Failed to revoke role.');
+    } finally {
+      setIsRevoking(false);
     }
   };
 
@@ -143,14 +143,14 @@ export function RoleAssignmentManager({
     </span>,
     <span key="actions">
       {!ra.deletedAt && (
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => setRevokeId(ra.id)}
-          disabled={isPending}
-        >
-          Revoke
-        </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setRevokeId(ra.id)}
+            disabled={isRevoking}
+          >
+            Revoke
+          </Button>
       )}
     </span>,
   ]);
@@ -263,7 +263,7 @@ export function RoleAssignmentManager({
               type="submit"
               disabled={
                 isSubmitting ||
-                isPending ||
+                isRevoking ||
                 (role === 'RESEARCH_LEAD' && researchGroups.length === 0) ||
                 (role === 'ACADEMIC_COORDINATOR' && (!programmeScope || !degreeScope))
               }

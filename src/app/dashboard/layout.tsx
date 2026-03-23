@@ -19,7 +19,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // Build role-aware nav items server-side
   const navItems: NavItem[] = [
-    { label: 'Overview', href: '/dashboard' },
     { label: 'Profile', href: '/dashboard/profile/overview' },
   ];
 

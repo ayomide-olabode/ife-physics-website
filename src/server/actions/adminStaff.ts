@@ -12,16 +12,14 @@ import { requestRegistrationLink } from '@/server/actions/onboardingRegister';
 export async function createStaff({
   institutionalEmail,
   staffType,
-  staffStatus,
   designation,
   academicRank,
   isSuperAdminShell = false,
 }: {
   institutionalEmail: string;
   staffType: StaffType;
-  staffStatus: StaffStatus;
   designation?: string;
-  academicRank?: string;
+  academicRank: string;
   isSuperAdminShell?: boolean;
 }) {
   const session = await getServerSession(authOptions);
@@ -32,6 +30,11 @@ export async function createStaff({
   const adminUserId = session.user.userId;
 
   const emailLower = institutionalEmail.toLowerCase().trim();
+  const staffRank = academicRank.trim();
+
+  if (!staffRank) {
+    throw new Error('Staff rank is required.');
+  }
 
   // Validate unique email
   const existingStaff = await prisma.staff.findUnique({
@@ -48,9 +51,9 @@ export async function createStaff({
       data: {
         institutionalEmail: emailLower,
         staffType,
-        staffStatus,
+        staffStatus: StaffStatus.ACTIVE,
         designation: designation?.trim() || null,
-        academicRank: academicRank?.trim() || null,
+        academicRank: staffRank,
       },
     });
 
@@ -115,4 +118,62 @@ export async function createStaff({
     inviteMinutesRemaining: inviteResult.success ? inviteResult.minutesRemaining : undefined,
     inviteError: inviteResult.success ? undefined : inviteResult.error,
   };
+}
+
+export async function updateStaffStatus({
+  staffId,
+  staffStatus,
+}: {
+  staffId: string;
+  staffStatus: StaffStatus;
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
+  await requireSuperAdmin(session);
+
+  const existing = await prisma.staff.findUnique({
+    where: { id: staffId },
+    select: { id: true, staffStatus: true, isInMemoriam: true },
+  });
+
+  if (!existing) {
+    throw new Error('Staff record not found.');
+  }
+
+  if (existing.staffStatus === staffStatus) {
+    return { success: true, unchanged: true };
+  }
+
+  await prisma.staff.update({
+    where: { id: staffId },
+    data: {
+      staffStatus,
+      isInMemoriam: staffStatus === StaffStatus.IN_MEMORIAM,
+    },
+  });
+
+  await logAudit({
+    actorId: session.user.userId,
+    action: 'STAFF_STATUS_UPDATED',
+    entityType: 'Staff',
+    entityId: staffId,
+    snapshot: {
+      before: {
+        staffStatus: existing.staffStatus,
+        isInMemoriam: existing.isInMemoriam,
+      },
+      after: {
+        staffStatus,
+        isInMemoriam: staffStatus === StaffStatus.IN_MEMORIAM,
+      },
+    },
+  });
+
+  revalidatePath('/dashboard/admin/staff');
+  revalidatePath(`/dashboard/admin/staff/${staffId}`);
+  revalidatePath('/people');
+
+  return { success: true, unchanged: false };
 }

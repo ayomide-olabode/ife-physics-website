@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { formatShortDate } from '@/lib/format-date';
 
 interface ResearchGroupOption {
   id: string;
@@ -24,12 +25,22 @@ interface ResearchGroupOption {
 interface Props {
   initialGroupId: string | null;
   options: ResearchGroupOption[];
+  lastUpdatedAt?: Date | string | null;
 }
 
-export function ResearchGroupMembershipForm({ initialGroupId, options }: Props) {
+export function ResearchGroupMembershipForm({ initialGroupId, options, lastUpdatedAt }: Props) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string>(initialGroupId || 'none');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const currentGroup = options.find((opt) => opt.id === selectedId);
+  const currentGroupLabel =
+    selectedId === 'none'
+      ? 'Not set.'
+      : currentGroup
+        ? `${currentGroup.name} (${currentGroup.abbreviation})`
+        : 'Not set.';
 
   const handleSave = async () => {
     setIsSubmitting(true);
@@ -40,6 +51,7 @@ export function ResearchGroupMembershipForm({ initialGroupId, options }: Props) 
         toastError(res.error);
       } else {
         toastSuccess('Research group membership updated.');
+        setIsEditing(false);
         router.refresh();
       }
     } catch {
@@ -49,8 +61,9 @@ export function ResearchGroupMembershipForm({ initialGroupId, options }: Props) 
     }
   };
 
-  const handleClear = () => {
-    setSelectedId('none');
+  const handleCancel = () => {
+    setSelectedId(initialGroupId || 'none');
+    setIsEditing(false);
   };
 
   return (
@@ -63,37 +76,57 @@ export function ResearchGroupMembershipForm({ initialGroupId, options }: Props) 
       </div>
 
       <div className="space-y-4 max-w-lg">
-        <div className="space-y-2">
-          <Label htmlFor="research-group">Research Group</Label>
-          <Select value={selectedId} onValueChange={setSelectedId} disabled={isSubmitting}>
-            <SelectTrigger id="research-group">
-              <SelectValue placeholder="Select a research group" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">None</SelectItem>
-              {options.map((opt) => (
-                <SelectItem key={opt.id} value={opt.id}>
-                  {opt.name} ({opt.abbreviation})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-3 pt-4">
-          <Button
-            onClick={handleSave}
-            disabled={isSubmitting || selectedId === (initialGroupId || 'none')}
-          >
-            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Save Selection
-          </Button>
-          {selectedId !== 'none' && (
-            <Button type="button" variant="outline" onClick={handleClear} disabled={isSubmitting}>
-              Clear membership
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            Last updated: {formatShortDate(lastUpdatedAt ?? null)}
+          </p>
+          {!isEditing && (
+            <Button type="button" variant="outline" onClick={() => setIsEditing(true)}>
+              Edit
             </Button>
           )}
         </div>
+
+        {!isEditing ? (
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Research Group
+            </p>
+            <p className="text-sm">{currentGroupLabel}</p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="research-group">Research Group</Label>
+              <Select value={selectedId} onValueChange={setSelectedId} disabled={isSubmitting}>
+                <SelectTrigger id="research-group">
+                  <SelectValue placeholder="Select a research group" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {options.map((opt) => (
+                    <SelectItem key={opt.id} value={opt.id}>
+                      {opt.name} ({opt.abbreviation})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isSubmitting || selectedId === (initialGroupId || 'none')}
+              >
+                {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                Save Selection
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

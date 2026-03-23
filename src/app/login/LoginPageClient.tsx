@@ -68,7 +68,7 @@ export function LoginPageClient({ isNewAccount }: Props) {
             <Input
               id="email"
               type="email"
-              placeholder="name@oauife.edu.ng"
+              placeholder="username@oauife.edu.ng"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="rounded-none bg-white"

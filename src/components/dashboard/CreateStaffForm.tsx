@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Checkbox } from '@/components/ui/checkbox';
 import { createStaff } from '@/server/actions/adminStaff';
-import { STAFF_TYPE_OPTIONS, STAFF_STATUS_OPTIONS } from '@/lib/options';
-import { StaffType, StaffStatus } from '@prisma/client';
+import { STAFF_TYPE_OPTIONS } from '@/lib/options';
+import { StaffType } from '@prisma/client';
 import { toast } from 'sonner';
 
 export function CreateStaffForm() {
@@ -19,7 +19,6 @@ export function CreateStaffForm() {
   // Form State
   const [email, setEmail] = useState('');
   const [staffType, setStaffType] = useState<StaffType>('ACADEMIC');
-  const [staffStatus, setStaffStatus] = useState<StaffStatus>('ACTIVE');
   const [designation, setDesignation] = useState('');
   const [academicRank, setAcademicRank] = useState('');
   const [isSuperAdminShell, setIsSuperAdminShell] = useState(false);
@@ -33,7 +32,6 @@ export function CreateStaffForm() {
       const result = await createStaff({
         institutionalEmail: email,
         staffType,
-        staffStatus,
         designation,
         academicRank,
         isSuperAdminShell,
@@ -64,7 +62,7 @@ export function CreateStaffForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl">
+    <form onSubmit={handleSubmit} className="space-y-8 w-full">
       <div className="space-y-4">
         <h3 className="text-lg font-medium border-b pb-2">1. Identity Information</h3>
         <p className="text-sm text-muted-foreground mb-4">
@@ -77,7 +75,7 @@ export function CreateStaffForm() {
           <Input
             id="email"
             type="email"
-            placeholder="johndoe@oauife.edu.ng"
+            placeholder="username@oauife.edu.ng"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -87,7 +85,7 @@ export function CreateStaffForm() {
 
       <div className="space-y-4">
         <h3 className="text-lg font-medium border-b pb-2">2. Staff Classification</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <FieldLabel htmlFor="staffType">Staff Type</FieldLabel>
             <select
@@ -104,39 +102,28 @@ export function CreateStaffForm() {
               ))}
             </select>
           </div>
-          <div className="space-y-2">
-            <FieldLabel htmlFor="staffStatus">Initial Status</FieldLabel>
-            <select
-              id="staffStatus"
-              value={staffStatus}
-              onChange={(e) => setStaffStatus(e.target.value as StaffStatus)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              required
-            >
-              {STAFF_STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            New staff records are created as <strong>Active</strong> by default. You can update
+            lifecycle status later on the staff detail page.
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="space-y-2">
-            <FieldLabel htmlFor="academicRank">Academic Rank (Optional)</FieldLabel>
+            <FieldLabel htmlFor="academicRank">Staff Rank</FieldLabel>
             <Input
               id="academicRank"
-              placeholder="e.g. Professor, Lecturer I"
+              placeholder="e.g. Professor, Technologist I, Confidential Secretary"
               value={academicRank}
               onChange={(e) => setAcademicRank(e.target.value)}
+              required
             />
           </div>
           <div className="space-y-2">
             <FieldLabel htmlFor="designation">Designation (Optional)</FieldLabel>
             <Input
               id="designation"
-              placeholder="e.g. Lab Technician"
+              placeholder="e.g. Examination Officer, Timetable Officer"
               value={designation}
               onChange={(e) => setDesignation(e.target.value)}
             />

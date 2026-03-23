@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { updateUndergraduateProgram } from '@/server/actions/undergraduateProgram';
@@ -29,37 +29,39 @@ export function UndergraduateOverviewEditor({
   initialData,
 }: UndergraduateOverviewEditorProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [overviewProspects, setOverviewProspects] = useState(initialData?.overviewProspects || '');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    startTransition(async () => {
-      try {
-        // We preserve all other fields by sending their initial values back
-        const payload = {
-          overviewProspects,
-          admissionRequirements: initialData?.admissionRequirements || '',
-          courseRequirements: initialData?.courseRequirements || '',
-          curriculum: initialData?.curriculum || '',
-          programmeStructure: initialData?.programmeStructure || '',
-          studyOptionsText: initialData?.studyOptionsText || '',
-          courseDescriptionsIntro: initialData?.courseDescriptionsIntro || '',
-        };
+    setIsSubmitting(true);
+    try {
+      // We preserve all other fields by sending their initial values back
+      const payload = {
+        overviewProspects,
+        admissionRequirements: initialData?.admissionRequirements || '',
+        courseRequirements: initialData?.courseRequirements || '',
+        curriculum: initialData?.curriculum || '',
+        programmeStructure: initialData?.programmeStructure || '',
+        studyOptionsText: initialData?.studyOptionsText || '',
+        courseDescriptionsIntro: initialData?.courseDescriptionsIntro || '',
+      };
 
-        const res = await updateUndergraduateProgram(programmeCode, payload);
-        if (res.success) {
-          toastSuccess('Undergraduate overview updated.');
-          router.refresh();
-        } else {
-          toastError(res.error || 'Failed to update overview.');
-        }
-      } catch {
-        toastError('An unexpected error occurred.');
+      const res = await updateUndergraduateProgram(programmeCode, payload);
+      if (res.success) {
+        toastSuccess('Undergraduate overview updated.');
+        router.refresh();
+      } else {
+        toastError(res.error || 'Failed to update overview.');
       }
-    });
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -76,8 +78,8 @@ export function UndergraduateOverviewEditor({
       </div>
 
       <div className="pt-4 border-t flex justify-end">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : 'Save Changes'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : 'Save Changes'}
         </Button>
       </div>
     </form>

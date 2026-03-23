@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSpotlight, updateSpotlight } from '@/server/actions/spotlight';
 import { toastSuccess, toastError } from '@/lib/toast';
@@ -26,7 +26,7 @@ function toDateInput(val?: string | Date | null): string {
 
 export function SpotlightFormClient({ initial }: { initial?: FormInitial }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!initial?.id;
 
   const [title, setTitle] = useState(initial?.title || '');
@@ -34,38 +34,44 @@ export function SpotlightFormClient({ initial }: { initial?: FormInitial }) {
   const [text, setText] = useState(initial?.text || '');
   const [imageUrl, setImageUrl] = useState(initial?.imageUrl || '');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    startTransition(async () => {
-      try {
-        const payload = {
-          title,
-          date: date || '',
-          text: text || '',
-          imageUrl: imageUrl || '',
-        };
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
-        if (isEditing && initial?.id) {
-          const res = await updateSpotlight(initial.id, payload);
-          if (res.success) {
-            toastSuccess('Updated successfully.');
-            router.refresh();
-          } else {
-            toastError(res.error || 'Failed to update.');
-          }
+    try {
+      const payload = {
+        title,
+        date: date || '',
+        text: text || '',
+        imageUrl: imageUrl || '',
+      };
+
+      if (isEditing && initial?.id) {
+        const res = await updateSpotlight(initial.id, payload);
+        if (res.success) {
+          toastSuccess('Updated successfully.');
+          router.refresh();
         } else {
-          const res = await createSpotlight(payload);
-          if (res.success && res.data?.id) {
-            toastSuccess('Created as draft.');
-            router.push(`/dashboard/communication/spotlight/${res.data.id}`);
-          } else {
-            toastError(res.error || 'Failed to create.');
-          }
+          toastError(res.error || 'Failed to update.');
         }
-      } catch {
-        toastError('An unexpected error occurred.');
+        setIsSubmitting(false);
+        return;
       }
-    });
+
+      const res = await createSpotlight(payload);
+      if (res.success && res.data?.id) {
+        toastSuccess('Created as draft.');
+        window.location.assign(`/dashboard/communication/spotlight/${res.data.id}`);
+        return;
+      }
+
+      toastError(res.error || 'Failed to create.');
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -121,8 +127,8 @@ export function SpotlightFormClient({ initial }: { initial?: FormInitial }) {
       </div>
 
       <div className="pt-2">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : isEditing ? 'Update' : 'Create Draft'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : isEditing ? 'Update' : 'Create Draft'}
         </Button>
       </div>
     </form>

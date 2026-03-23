@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { createNews, updateNews } from '@/server/actions/news';
@@ -25,7 +25,7 @@ type NewsFormData = {
 
 export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!initial?.id;
 
   const [title, setTitle] = useState(initial?.title || '');
@@ -51,42 +51,47 @@ export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
     setBody(html);
   }, []);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
-    startTransition(async () => {
-      try {
-        const payload = {
-          title,
-          slug,
-          body,
-          imageUrl: imageUrl || '',
-          date,
-          buttonLabel: buttonLabel || '',
-          buttonLink: buttonLink || '',
-        };
+    try {
+      const payload = {
+        title,
+        slug,
+        body,
+        imageUrl: imageUrl || '',
+        date,
+        buttonLabel: buttonLabel || '',
+        buttonLink: buttonLink || '',
+      };
 
-        if (isEditing && initial?.id) {
-          const res = await updateNews(initial.id, payload);
-          if (res.success) {
-            toastSuccess('Article updated.');
-            router.refresh();
-          } else {
-            toastError(res.error || 'Failed to update article.');
-          }
+      if (isEditing && initial?.id) {
+        const res = await updateNews(initial.id, payload);
+        if (res.success) {
+          toastSuccess('Article updated.');
+          router.refresh();
         } else {
-          const res = await createNews(payload);
-          if (res.success && res.data?.id) {
-            toastSuccess('Article created as draft.');
-            router.push(`/dashboard/communication/news/${res.data.id}`);
-          } else {
-            toastError(res.error || 'Failed to create article.');
-          }
+          toastError(res.error || 'Failed to update article.');
         }
-      } catch {
-        toastError('An unexpected error occurred.');
+        setIsSubmitting(false);
+        return;
       }
-    });
+
+      const res = await createNews(payload);
+      if (res.success && res.data?.id) {
+        toastSuccess('Article created as draft.');
+        window.location.assign(`/dashboard/communication/news/${res.data.id}`);
+        return;
+      }
+
+      toastError(res.error || 'Failed to create article.');
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -175,8 +180,8 @@ export function NewsFormClient({ initial }: { initial?: NewsFormData }) {
       </div>
 
       <div className="pt-2">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : isEditing ? 'Update Article' : 'Create Draft'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : isEditing ? 'Update Article' : 'Create Draft'}
         </Button>
       </div>
     </form>

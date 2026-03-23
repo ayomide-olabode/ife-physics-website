@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="name@oauife.edu.ng"
+            placeholder="username@oauife.edu.ng"
             className="rounded-none bg-white"
             required
           />

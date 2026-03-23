@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useMemo, useState, useTransition } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TestimonialStatus } from '@prisma/client';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,10 @@ interface TestimonialsModerationTableProps {
   status?: TestimonialStatus;
 }
 
+function stripHtml(input: string): string {
+  return input.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 function getStatusBadgeClass(status: TestimonialStatus): string {
   if (status === 'APPROVED') {
     return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500';
@@ -57,7 +61,7 @@ export function TestimonialsModerationTable({
   status,
 }: TestimonialsModerationTableProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [declineModalOpen, setDeclineModalOpen] = useState(false);
   const [declineTarget, setDeclineTarget] = useState<TestimonialRow | null>(null);
   const [declineReason, setDeclineReason] = useState('');
@@ -69,8 +73,11 @@ export function TestimonialsModerationTable({
     return status ? `&status=${encodeURIComponent(status)}` : '';
   }, [status]);
 
-  function handleApprove(id: string) {
-    startTransition(async () => {
+  async function handleApprove(id: string) {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
       const res = await approveTestimonial(id);
       if (!res.success) {
         toastError(res.error || 'Failed to approve tribute.');
@@ -78,20 +85,24 @@ export function TestimonialsModerationTable({
       }
       toastSuccess('Tribute approved.');
       router.refresh();
-    });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function openDeclineModal(row: TestimonialRow) {
+    if (isSubmitting) return;
     setDeclineTarget(row);
     setDeclineReason('');
     setDeclineModalOpen(true);
   }
 
-  function submitDecline(e: FormEvent) {
+  async function submitDecline(e: FormEvent) {
     e.preventDefault();
-    if (!declineTarget) return;
+    if (!declineTarget || isSubmitting) return;
 
-    startTransition(async () => {
+    setIsSubmitting(true);
+    try {
       const res = await declineTestimonial(declineTarget.id, declineReason || undefined);
       if (!res.success) {
         toastError(res.error || 'Failed to decline tribute.');
@@ -102,7 +113,9 @@ export function TestimonialsModerationTable({
       setDeclineTarget(null);
       setDeclineReason('');
       router.refresh();
-    });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const rows = items.map((row) => [
@@ -111,10 +124,7 @@ export function TestimonialsModerationTable({
       <p className="text-muted-foreground">{row.relationship}</p>
     </div>,
     <div key="tribute" className="text-sm text-muted-foreground max-w-xl">
-      <div
-        className="[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3] prose prose-sm max-w-none"
-        dangerouslySetInnerHTML={{ __html: row.tributeHtml }}
-      />
+      <p className="line-clamp-3">{stripHtml(row.tributeHtml)}</p>
     </div>,
     <span key="submittedAt" className="text-sm">
       {formatDate(row.submittedAt)}
@@ -131,7 +141,7 @@ export function TestimonialsModerationTable({
         size="sm"
         variant="outline"
         onClick={() => openDeclineModal(row)}
-        disabled={isPending}
+        disabled={isSubmitting}
       >
         Decline
       </Button>
@@ -139,7 +149,7 @@ export function TestimonialsModerationTable({
         type="button"
         size="sm"
         onClick={() => handleApprove(row.id)}
-        disabled={isPending || row.status === 'APPROVED'}
+        disabled={isSubmitting || row.status === 'APPROVED'}
       >
         Approve
       </Button>
@@ -220,8 +230,8 @@ export function TestimonialsModerationTable({
               <Button type="button" variant="outline" onClick={() => setDeclineModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" variant="destructive" disabled={isPending}>
-                {isPending ? 'Declining...' : 'Decline'}
+              <Button type="submit" variant="destructive" disabled={isSubmitting}>
+                {isSubmitting ? 'Declining...' : 'Decline'}
               </Button>
             </DialogFooter>
           </form>

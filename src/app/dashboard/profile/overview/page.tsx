@@ -43,7 +43,12 @@ export default async function ProfileOverviewPage({
       title: true,
       academicRank: true,
       designation: true,
+      bio: true,
+      education: true,
+      researchInterests: true,
+      membershipOfProfessionalOrganizations: true,
       profileImageUrl: true,
+      updatedAt: true,
       researchMemberships: {
         select: {
           researchGroupId: true,
@@ -88,7 +93,7 @@ export default async function ProfileOverviewPage({
       )}
 
       <div>
-        <PageHeader title="My Profile" description="Manage your foundational registry details." />
+        <PageHeader title="My Profile" description="Manage your personal details" />
       </div>
 
       <div className="rounded-lg border bg-card p-6">
@@ -96,6 +101,7 @@ export default async function ProfileOverviewPage({
         <AvatarUpload
           currentImageUrl={staff.profileImageUrl}
           fallbackText={staff.firstName?.[0] || 'S'}
+          lastUpdatedAt={staff.updatedAt}
         />
       </div>
 
@@ -110,6 +116,13 @@ export default async function ProfileOverviewPage({
           initialLastName={staff.lastName}
           initialAcademicRank={staff.academicRank}
           initialDesignation={staff.designation}
+          initialBio={staff.bio}
+          initialEducation={staff.education}
+          initialResearchInterests={staff.researchInterests}
+          initialMembershipOfProfessionalOrganizations={
+            staff.membershipOfProfessionalOrganizations
+          }
+          lastUpdatedAt={staff.updatedAt}
         />
       </div>
 
@@ -125,10 +138,15 @@ export default async function ProfileOverviewPage({
             currentSecondaryAffiliation?.secondaryAffiliationId ?? null
           }
           options={secondaryAffiliationOptions}
+          lastUpdatedAt={staff.updatedAt}
         />
       </div>
 
-      <ResearchGroupMembershipForm initialGroupId={currentGroupId} options={options} />
+      <ResearchGroupMembershipForm
+        initialGroupId={currentGroupId}
+        options={options}
+        lastUpdatedAt={staff.updatedAt}
+      />
     </main>
   );
 }

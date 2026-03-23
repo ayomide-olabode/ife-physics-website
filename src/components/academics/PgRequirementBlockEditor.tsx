@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProgrammeCode, DegreeType, RequirementType } from '@prisma/client';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,7 @@ export function PgRequirementBlockEditor({
   onClose,
 }: Props) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = Boolean(initialData?.id);
 
   const [title, setTitle] = useState(initialData?.title || '');
@@ -54,26 +54,29 @@ export function PgRequirementBlockEditor({
   const [orderIndex, setOrderIndex] = useState(initialData?.orderIndex ?? 0);
   const [contentHtml, setContentHtml] = useState(initialData?.contentHtml || '');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    startTransition(async () => {
-      try {
-        const payload = { title, requirementType, orderIndex, contentHtml };
-        const res = isEditing
-          ? await updateRequirementBlock(programmeCode, degreeType, initialData!.id!, payload)
-          : await createRequirementBlock(programmeCode, degreeType, payload);
+    if (isSubmitting) return;
 
-        if (res.success) {
-          toastSuccess(isEditing ? 'Block updated.' : 'Block created.');
-          router.refresh();
-          onClose();
-        } else {
-          toastError(res.error || 'Something went wrong.');
-        }
-      } catch {
-        toastError('An unexpected error occurred.');
+    setIsSubmitting(true);
+    try {
+      const payload = { title, requirementType, orderIndex, contentHtml };
+      const res = isEditing
+        ? await updateRequirementBlock(programmeCode, degreeType, initialData!.id!, payload)
+        : await createRequirementBlock(programmeCode, degreeType, payload);
+
+      if (res.success) {
+        toastSuccess(isEditing ? 'Block updated.' : 'Block created.');
+        router.refresh();
+        onClose();
+      } else {
+        toastError(res.error || 'Something went wrong.');
       }
-    });
+    } catch {
+      toastError('An unexpected error occurred.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -133,11 +136,11 @@ export function PgRequirementBlockEditor({
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? 'Saving…' : isEditing ? 'Update Block' : 'Create Block'}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving…' : isEditing ? 'Update Block' : 'Create Block'}
           </Button>
         </div>
       </form>
@@ -154,25 +157,27 @@ interface DeleteProps {
 
 export function PgReqBlockDeleteButton({ programmeCode, degreeType, blockId }: DeleteProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
-  const handleDelete = () => {
-    startTransition(async () => {
-      try {
-        const res = await deleteRequirementBlock(programmeCode, degreeType, blockId);
-        if (res.success) {
-          toastSuccess('Block deleted.');
-          router.refresh();
-        } else {
-          toastError(res.error || 'Failed to delete.');
-        }
-      } catch {
-        toastError('An unexpected error occurred.');
-      } finally {
-        setConfirming(false);
+  const handleDelete = async () => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const res = await deleteRequirementBlock(programmeCode, degreeType, blockId);
+      if (res.success) {
+        toastSuccess('Block deleted.');
+        router.refresh();
+      } else {
+        toastError(res.error || 'Failed to delete.');
       }
-    });
+    } catch {
+      toastError('An unexpected error occurred.');
+    } finally {
+      setConfirming(false);
+      setIsSubmitting(false);
+    }
   };
 
   if (confirming) {
@@ -181,8 +186,8 @@ export function PgReqBlockDeleteButton({ programmeCode, degreeType, blockId }: D
         <Button variant="outline" size="sm" onClick={() => setConfirming(false)}>
           ✕
         </Button>
-        <Button variant="destructive" size="sm" disabled={isPending} onClick={handleDelete}>
-          {isPending ? '…' : 'Confirm'}
+        <Button variant="destructive" size="sm" disabled={isSubmitting} onClick={handleDelete}>
+          {isSubmitting ? '…' : 'Confirm'}
         </Button>
       </span>
     );

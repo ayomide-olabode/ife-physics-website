@@ -53,7 +53,8 @@ export function StudyOptionsInlineEditor({
 
     return options.filter(
       (option) =>
-        option.name.toLowerCase().includes(normalized) || option.about.toLowerCase().includes(normalized),
+        option.name.toLowerCase().includes(normalized) ||
+        option.about.toLowerCase().includes(normalized),
     );
   }, [options, searchQuery]);
 
@@ -132,7 +133,9 @@ export function StudyOptionsInlineEditor({
           isEnabledForProgram: true,
         };
 
-        setOptions((current) => [...current, newOption].sort((a, b) => a.name.localeCompare(b.name)));
+        setOptions((current) =>
+          [...current, newOption].sort((a, b) => a.name.localeCompare(b.name)),
+        );
         setSelectedId(createdId);
         setIsCreatingNew(false);
 
@@ -162,7 +165,9 @@ export function StudyOptionsInlineEditor({
       setOptions((current) =>
         current
           .map((option) =>
-            option.id === selectedId ? { ...option, name: title.trim(), about: description.trim() } : option,
+            option.id === selectedId
+              ? { ...option, name: title.trim(), about: description.trim() }
+              : option,
           )
           .sort((a, b) => a.name.localeCompare(b.name)),
       );
@@ -258,12 +263,14 @@ export function StudyOptionsInlineEditor({
                       onClick={(e) => e.stopPropagation()}
                       onCheckedChange={(checked) => handleToggle(option.id, Boolean(checked))}
                       aria-label={`Enable ${option.name} for this programme`}
-                      className="mt-0.5"
+                      className="mt-0.5 border-brand-navy data-[state=checked]:border-brand-navy data-[state=checked]:bg-brand-navy data-[state=checked]:text-white"
                     />
                     <div>
                       <p className="text-sm font-medium">{option.name}</p>
                       {option.about ? (
-                        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{option.about}</p>
+                        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                          {option.about}
+                        </p>
                       ) : null}
                     </div>
                   </div>

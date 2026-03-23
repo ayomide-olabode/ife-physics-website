@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState, useTransition } from 'react';
+import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,7 @@ export function DepartmentalTributeFormClient({
   initialBodyHtml = '',
 }: DepartmentalTributeFormClientProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [title, setTitle] = useState(initialTitle);
   const [bodyHtml, setBodyHtml] = useState(initialBodyHtml);
@@ -31,10 +31,12 @@ export function DepartmentalTributeFormClient({
     setBodyHtml(initialBodyHtml);
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    startTransition(async () => {
+    setIsSubmitting(true);
+    try {
       const result = await upsertDepartmentalTribute({
         staffId,
         title,
@@ -43,12 +45,17 @@ export function DepartmentalTributeFormClient({
 
       if (!result.success) {
         toastError(result.error || 'Failed to save tribute.');
+        setIsSubmitting(false);
         return;
       }
 
       toastSuccess('Departmental tribute saved.');
       router.refresh();
-    });
+    } catch {
+      toastError('Failed to save tribute.');
+    }
+
+    setIsSubmitting(false);
   }
 
   return (
@@ -73,11 +80,11 @@ export function DepartmentalTributeFormClient({
       </div>
 
       <div className="flex items-center justify-end gap-2 border-t pt-4">
-        <Button type="button" variant="outline" onClick={handleCancel} disabled={isPending}>
+        <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving...' : 'Save Tribute'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Tribute'}
         </Button>
       </div>
     </form>

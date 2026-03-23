@@ -37,7 +37,7 @@ export default async function EditPGCoursePage({ params }: PageProps) {
 
       <PageHeader
         title={`Edit PG Course — ${course.code}`}
-        description={`Edit the details for ${course.code}: ${course.title}.`}
+        description={`Update details for ${course.code}.`}
       />
 
       <PGCourseFormClient programmeCode={programmeCode} initialData={course} />

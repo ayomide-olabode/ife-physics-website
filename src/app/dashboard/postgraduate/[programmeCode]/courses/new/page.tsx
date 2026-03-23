@@ -27,7 +27,7 @@ export default async function NewPGCoursePage({ params }: PageProps) {
 
       <PageHeader
         title={`New PG Course — ${programmeCode}`}
-        description="Create a new course for this postgraduate programme."
+        description={`Create a course for ${programmeCode}.`}
       />
 
       <PGCourseFormClient programmeCode={programmeCode} />

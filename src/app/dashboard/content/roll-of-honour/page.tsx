@@ -31,7 +31,7 @@ export default async function Page({
     <div className="space-y-6">
       <PageHeader
         title="Roll of Honour"
-        description="Manage top-performing graduating students."
+        description="Manage roll of honour entries."
         actions={<AddNewButton href="/dashboard/content/roll-of-honour/new" label="New Entry" />}
       />
       <RollOfHonourListClient

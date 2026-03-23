@@ -46,7 +46,7 @@ export default async function EditResearchOutputPage({
         <BackToParent href="/dashboard/profile/research-outputs" label="Back to Research Outputs" />
         <PageHeader
           title="Edit Research Output"
-          description="Update the details of this research output."
+          description="Update this research output."
         />
       </div>
 

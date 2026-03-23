@@ -65,7 +65,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
     <>
       <PageHeader
         title="Research Outputs"
-        description="Manage your publications, reports, and conference proceedings securely."
+        description="Manage your publications and reports."
         actions={
           <AddNewButton href="/dashboard/profile/research-outputs/new" label="Add New Output" />
         }

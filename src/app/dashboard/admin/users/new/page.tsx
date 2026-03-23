@@ -12,7 +12,7 @@ export default function CreateUserPage() {
         <BackToParent href="/dashboard/admin/users" label="Back to Users" />
         <PageHeader
           title="Create User"
-          description="Provision a new user account linked to an existing staff record."
+          description="Create a user account."
           actions={
             <Button size="sm" variant="outline" asChild>
               <Link href="/dashboard/admin/staff/new">

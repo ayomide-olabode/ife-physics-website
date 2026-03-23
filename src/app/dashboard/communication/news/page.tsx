@@ -18,7 +18,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
     <div className="space-y-6">
       <PageHeader
         title="News"
-        description="Manage news articles for the department website."
+        description="Manage news articles."
         actions={<AddNewButton href="/dashboard/communication/news/new" label="New Article" />}
       />
       <NewsListClient items={items} pagination={{ page, totalPages, total }} />

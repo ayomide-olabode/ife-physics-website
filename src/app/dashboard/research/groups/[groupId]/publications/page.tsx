@@ -31,7 +31,7 @@ export default async function PublicationsIndexPage({ params, searchParams }: Pa
 
       <PageHeader
         title="Research Outputs"
-        description="Manage research outputs for this group."
+        description="Manage this group's research outputs."
         actions={
           <AddNewButton
             href={`/dashboard/research/groups/${groupId}/publications/new`}

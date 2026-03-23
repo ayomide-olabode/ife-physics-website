@@ -8,7 +8,7 @@ export default function NewLeadershipTermPage() {
       <BackToParent href="/dashboard/admin/leadership" label="Back to Leadership" />
       <PageHeader
         title="Update HOD"
-        description="Assign a Head of Department term using staff search and date range."
+        description="Assign a Head of Department term."
       />
 
       <div className="max-w-3xl">

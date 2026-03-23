@@ -24,7 +24,7 @@ export default async function MphilDegreePage({ params }: PageProps) {
     <div className="space-y-6">
       <PageHeader
         title={`${programmeCode} / M.Phil.`}
-        description="Manage the academic requirements and content for the Master of Philosophy programme."
+        description="Manage M.Phil. programme content."
       />
 
       <div className="rounded-lg border bg-card p-6">

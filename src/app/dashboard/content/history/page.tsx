@@ -33,7 +33,7 @@ export default async function Page({
     <div className="space-y-6">
       <PageHeader
         title="History"
-        description="Manage department history timeline entries."
+        description="Manage history entries."
         actions={<AddNewButton href="/dashboard/content/history/new" label="New Entry" />}
       />
       <HistoryListClient items={mappedData} pagination={meta} searchQ={q} searchStatus={status} />

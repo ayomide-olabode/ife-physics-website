@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         label="Back to Events & Opportunities"
       />
       <div className="flex items-start justify-between flex-wrap gap-4">
-        <PageHeader title="Edit Event / Opportunity" description={`Editing "${item.title}"`} />
+        <PageHeader title="Edit Event / Opportunity" description={`Update "${item.title}".`} />
         <EventOpportunityStatusActions id={item.id} status={item.status} />
       </div>
       <div className="rounded-lg border bg-card p-6">

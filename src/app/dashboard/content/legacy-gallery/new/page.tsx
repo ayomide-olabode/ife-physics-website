@@ -14,7 +14,7 @@ export default async function Page() {
         <BackToParent href="/dashboard/content/legacy-gallery" label="Legacy Gallery" />
         <PageHeader
           title="New Legacy Item"
-          description="Add a new historical item or distinguished leader biography to the gallery."
+          description="Create a legacy gallery item."
         />
       </div>
 

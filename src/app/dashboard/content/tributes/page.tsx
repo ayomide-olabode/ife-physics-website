@@ -62,7 +62,7 @@ export default async function TributesDashboardPage({
     <div className="space-y-6">
       <PageHeader
         title="Tributes"
-        description="Manage staff memorial profiles and tribute records."
+        description="Manage tribute records."
         actions={
           <div className="flex items-center gap-4">
             <form

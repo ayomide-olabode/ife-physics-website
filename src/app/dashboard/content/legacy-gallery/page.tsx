@@ -33,7 +33,7 @@ export default async function Page({
     <div className="space-y-6">
       <PageHeader
         title="Legacy Gallery"
-        description="Manage historical milestones, legacy biographies, and department milestones."
+        description="Manage legacy gallery entries."
         actions={<AddNewButton href="/dashboard/content/legacy-gallery/new" label="Add New Item" />}
       />
 

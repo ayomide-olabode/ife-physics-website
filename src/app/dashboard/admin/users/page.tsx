@@ -122,7 +122,7 @@ export default async function AdminUsersPage({
     <div className="space-y-6">
       <PageHeader
         title="Users"
-        description="Manage system users and their roles."
+        description="Manage user accounts and roles."
         actions={
           <div className="flex items-center gap-4">
             <form method="GET" action="/dashboard/admin/users" className="flex items-center gap-2">

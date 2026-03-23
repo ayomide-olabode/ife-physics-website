@@ -24,7 +24,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     <div className="space-y-6">
       <BackToParent href={BASE_PATH} label="Back to Spotlight" />
       <div className="flex items-start justify-between flex-wrap gap-4">
-        <PageHeader title="Edit Spotlight Item" description={`Editing "${item.title}"`} />
+        <PageHeader title="Edit Spotlight Item" description={`Update "${item.title}".`} />
         <SpotlightStatusActions id={item.id} status={item.status} />
       </div>
       <div className="rounded-lg border bg-card p-6">

@@ -38,7 +38,7 @@ export default async function AuditLogsPage({
     <div className="space-y-6">
       <PageHeader
         title="Audit Logs"
-        description="Monitor system-wide administrative actions cleanly spanning multiple objects transparently tracking explicit payloads directly capturing context automatically internally."
+        description="Review recent admin activity."
       />
 
       <div className="bg-card text-card-foreground shadow-sm rounded-lg border p-4 space-y-4">

@@ -13,7 +13,7 @@ export default async function AdminLeadershipPage() {
     <div className="space-y-8">
       <PageHeader
         title="Leadership"
-        description="Manage Head of Department records."
+        description="Manage Head of Department terms."
         actions={<AddNewButton href="/dashboard/admin/leadership/new" label="Update HOD" />}
       />
 

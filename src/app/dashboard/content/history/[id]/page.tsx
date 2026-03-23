@@ -19,7 +19,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   return (
     <div className="space-y-6">
       <BackToParent href="/dashboard/content/history" label="Back to History" />
-      <PageHeader title="Edit History Entry" />
+      <PageHeader title="Edit History Entry" description="Update this history entry." />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">

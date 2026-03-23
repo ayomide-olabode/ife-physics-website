@@ -40,7 +40,7 @@ export default async function ResearchGroupsListPage({ searchParams }: PageProps
     <div className="space-y-6">
       <PageHeader
         title="Research Groups"
-        description="Manage the research groups in the department."
+        description="Manage research groups."
         actions={
           isAdmin ? (
             <Button asChild>

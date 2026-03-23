@@ -23,7 +23,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
     <div className="space-y-6">
       <PageHeader
         title="Events & Opportunities"
-        description="Manage events, seminars, grants, and other opportunities."
+        description="Manage events and opportunities."
         actions={<AddNewButton href={`${BASE_PATH}/new`} label="New Item" />}
       />
       <EventOpportunityListClient

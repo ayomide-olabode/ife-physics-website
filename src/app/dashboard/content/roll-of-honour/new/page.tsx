@@ -11,7 +11,7 @@ export default async function Page() {
   return (
     <div className="space-y-6">
       <BackToParent href="/dashboard/content/roll-of-honour" label="Back to Roll of Honour" />
-      <PageHeader title="New Roll of Honour Entry" />
+      <PageHeader title="New Roll of Honour Entry" description="Create a roll of honour entry." />
 
       <RollOfHonourFormClient />
     </div>

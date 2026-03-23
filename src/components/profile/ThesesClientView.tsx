@@ -119,7 +119,7 @@ export function ThesesClientView({ data, staffId }: { data: PaginatedData; staff
     <>
       <PageHeader
         title="Student Theses"
-        description="Manage the student theses and dissertations you have supervised or are currently supervising."
+        description="Manage the theses you supervise."
         actions={
           <Button onClick={handleAdd} size="sm">
             <Plus className="h-4 w-4" />

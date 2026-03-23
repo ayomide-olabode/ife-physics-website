@@ -65,7 +65,7 @@ export default async function UndergraduateCoursesPage({ params, searchParams }:
     <div className="space-y-6">
       <PageHeader
         title={`${programmeCode} / Courses`}
-        description={`Manage the list of courses offered for the ${programmeCode} undergraduate programme.`}
+        description={`Manage courses for ${programmeCode}.`}
         actions={
           <Button asChild>
             <Link href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}/courses/new`}>

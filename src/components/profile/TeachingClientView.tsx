@@ -98,7 +98,7 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
     <>
       <PageHeader
         title="Teaching Responsibilities"
-        description="Log down academic courses and subjects you are actively managing."
+        description="Manage your teaching assignments."
         actions={
           <Button onClick={handleAdd} size="sm">
             <Plus className="h-4 w-4" />

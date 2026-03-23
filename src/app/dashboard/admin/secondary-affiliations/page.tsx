@@ -52,7 +52,7 @@ export default async function SecondaryAffiliationsIndexPage({
     <div className="space-y-6">
       <PageHeader
         title="Secondary Affiliations"
-        description="Manage secondary affiliations available to staff profiles."
+        description="Manage secondary affiliations."
         actions={
           <div className="flex items-center gap-4">
             <form

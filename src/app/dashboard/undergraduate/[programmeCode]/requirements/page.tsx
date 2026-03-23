@@ -24,7 +24,7 @@ export default async function UndergraduateRequirementsPage({ params }: PageProp
     <div className="space-y-6">
       <PageHeader
         title={`${programmeCode} / Requirements`}
-        description={`Manage admission and course requirements for the ${programmeCode} undergraduate programme.`}
+        description={`Manage requirements for ${programmeCode}.`}
       />
 
       <div className="rounded-lg border bg-card p-6">

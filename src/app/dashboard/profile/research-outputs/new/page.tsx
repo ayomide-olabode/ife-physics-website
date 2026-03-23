@@ -20,7 +20,7 @@ export default async function NewResearchOutputPage() {
         <BackToParent href="/dashboard/profile/research-outputs" label="Back to Research Outputs" />
         <PageHeader
           title="New Research Output"
-          description="Add a new research output to your profile."
+          description="Add a research output."
         />
       </div>
 

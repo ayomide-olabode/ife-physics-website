@@ -11,7 +11,7 @@ export default async function Page() {
   return (
     <div className="space-y-6">
       <BackToParent href="/dashboard/communication/news" label="Back to News" />
-      <PageHeader title="New Article" description="Create a new news article as a draft." />
+      <PageHeader title="New Article" description="Create a news article." />
       <div className="rounded-lg border bg-card p-6">
         <NewsFormClient />
       </div>

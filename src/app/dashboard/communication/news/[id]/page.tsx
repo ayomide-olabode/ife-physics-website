@@ -22,7 +22,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     <div className="space-y-6">
       <BackToParent href="/dashboard/communication/news" label="Back to News" />
       <div className="flex items-start justify-between flex-wrap gap-4">
-        <PageHeader title="Edit Article" description={`Editing "${article.title}"`} />
+        <PageHeader title="Edit Article" description={`Update "${article.title}".`} />
         <NewsStatusActions id={article.id} status={article.status} />
       </div>
       <div className="rounded-lg border bg-card p-6">

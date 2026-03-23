@@ -26,7 +26,7 @@ export default async function SecondaryAffiliationDetailPage({
       <BackToParent href="/dashboard/admin/secondary-affiliations" label="Back to affiliations" />
       <PageHeader
         title={affiliation.name}
-        description="Update this affiliation and review linked staff."
+        description="Update this secondary affiliation."
       />
 
       <SecondaryAffiliationFormClient

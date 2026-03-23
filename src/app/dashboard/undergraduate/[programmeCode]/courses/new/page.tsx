@@ -29,7 +29,7 @@ export default async function NewCoursePage({ params }: PageProps) {
 
       <PageHeader
         title={`New Course — ${programmeCode}`}
-        description="Create a new course for this undergraduate programme."
+        description={`Create a course for ${programmeCode}.`}
       />
 
       <CourseFormClient programmeCode={programmeCode} />

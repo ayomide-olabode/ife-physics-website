@@ -24,7 +24,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         </div>
 
         <div className="flex items-center justify-between">
-          <PageHeader title="Edit Legacy Item" />
+          <PageHeader title="Edit Legacy Item" description="Update this legacy item." />
           <LegacyGalleryStatusActions itemId={data.id} currentStatus={data.status} />
         </div>
       </div>

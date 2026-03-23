@@ -45,7 +45,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         <BackToParent href="/dashboard/admin/users" label="Back to Users" />
         <PageHeader
           title={fullName}
-          description={user.staff.institutionalEmail}
+          description="Manage this user account."
           actions={
             user.isSuperAdmin && (
               <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">

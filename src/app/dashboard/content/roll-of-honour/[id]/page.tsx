@@ -18,7 +18,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   return (
     <div className="space-y-6">
       <BackToParent href="/dashboard/content/roll-of-honour" label="Back to Roll of Honour" />
-      <PageHeader title="Edit Roll of Honour Entry" />
+      <PageHeader title="Edit Roll of Honour Entry" description="Update this roll of honour entry." />
 
       <RollOfHonourFormClient
         initialData={{

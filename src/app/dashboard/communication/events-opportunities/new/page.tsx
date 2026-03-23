@@ -16,7 +16,7 @@ export default async function Page() {
       />
       <PageHeader
         title="New Event / Opportunity"
-        description="Create a new event or opportunity as a draft."
+        description="Create an event or opportunity."
       />
       <div className="rounded-lg border bg-card p-6">
         <EventOpportunityFormClient />

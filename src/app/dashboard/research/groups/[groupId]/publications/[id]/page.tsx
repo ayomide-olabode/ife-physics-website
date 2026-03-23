@@ -24,7 +24,7 @@ export default async function EditPublicationPage({ params }: PageProps) {
         label="Research Outputs"
       />
 
-      <PageHeader title="Edit Research Output" />
+      <PageHeader title="Edit Research Output" description="Update this research output." />
 
       <PublicationFormClient
         groupId={groupId}

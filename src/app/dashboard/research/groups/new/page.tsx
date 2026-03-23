@@ -13,7 +13,7 @@ export default async function NewResearchGroupPage() {
 
       <PageHeader
         title="New Research Group"
-        description="Create a new research group for the department."
+        description="Create a research group."
       />
 
       <ResearchGroupFormClient />

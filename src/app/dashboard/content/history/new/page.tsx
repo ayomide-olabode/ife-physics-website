@@ -11,7 +11,7 @@ export default async function Page() {
   return (
     <div className="space-y-6">
       <BackToParent href="/dashboard/content/history" label="Back to History" />
-      <PageHeader title="New History Entry" />
+      <PageHeader title="New History Entry" description="Create a history entry." />
 
       <HistoryFormClient />
     </div>

@@ -66,7 +66,7 @@ export default async function AdminStaffPage({
     <div className="space-y-6">
       <PageHeader
         title="Staff Records"
-        description="Manage departmental staff records and directories."
+        description="Manage staff records."
         actions={
           <div className="flex items-center gap-4">
             <form method="GET" action="/dashboard/admin/staff" className="flex items-center gap-2">

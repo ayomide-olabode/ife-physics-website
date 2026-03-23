@@ -116,7 +116,7 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
     <>
       <PageHeader
         title="Projects"
-        description="Manage your ongoing and completed projects natively mapping identities efficiently."
+        description="Manage your ongoing and completed projects."
         actions={
           <Button onClick={handleAdd} size="sm">
             <Plus className="h-4 w-4" />

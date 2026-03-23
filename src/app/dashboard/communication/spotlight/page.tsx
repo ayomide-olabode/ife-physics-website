@@ -29,7 +29,7 @@ export default async function Page({
     <div className="space-y-6">
       <PageHeader
         title="Spotlight"
-        description="Manage 'In the Spotlight' cards for the public homepage."
+        description="Manage spotlight items."
         actions={<AddNewButton href={`${BASE_PATH}/new`} label="New Spotlight" />}
       />
       <SpotlightListClient

@@ -12,7 +12,7 @@ export default async function NewSecondaryAffiliationPage() {
       <BackToParent href="/dashboard/admin/secondary-affiliations" label="Back to affiliations" />
       <PageHeader
         title="New Secondary Affiliation"
-        description="Create a new secondary affiliation for staff profiles."
+        description="Create a secondary affiliation."
       />
 
       <SecondaryAffiliationFormClient mode="create" />

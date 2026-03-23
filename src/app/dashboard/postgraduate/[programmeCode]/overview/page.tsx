@@ -50,7 +50,7 @@ export default async function PostgraduateProgrammeOverviewPage({
     <div className="space-y-6">
       <PageHeader
         title={`${programmeCode} / Overview`}
-        description={`Manage the content sections and study options mapped for the ${programmeCode} postgraduate programme.`}
+        description={`Manage overview content for ${programmeCode}.`}
       />
 
       <div className="rounded-lg border bg-card p-6">

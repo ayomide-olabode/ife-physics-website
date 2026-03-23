@@ -40,7 +40,7 @@ export default async function EditCoursePage({ params }: PageProps) {
 
       <PageHeader
         title={`Edit Course — ${course.code}`}
-        description={`Edit the details for ${course.code}: ${course.title}.`}
+        description={`Update details for ${course.code}.`}
       />
 
       <CourseFormClient programmeCode={programmeCode} initialData={course} />

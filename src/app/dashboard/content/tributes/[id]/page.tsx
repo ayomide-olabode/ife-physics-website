@@ -5,7 +5,6 @@ import prisma from '@/lib/prisma';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { Button } from '@/components/ui/button';
-import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
 import { DepartmentalTributeFormClient } from '@/components/tributes/DepartmentalTributeFormClient';
 import { TestimonialsModerationTable } from '@/components/tributes/TestimonialsModerationTable';
@@ -84,7 +83,7 @@ export default async function TributeDetailPage({
       <BackToParent href="/dashboard/content/tributes" label="Back to Tributes" />
       <PageHeader
         title={displayName}
-        description={`In memoriam record • Died: ${formatDate(staff.dateOfDeath)}${staff.dateOfBirth ? ` • Born: ${formatDate(staff.dateOfBirth)}` : ''}`}
+        description="Manage this tribute profile."
       />
 
       <section className="space-y-4">

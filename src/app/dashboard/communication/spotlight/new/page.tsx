@@ -13,7 +13,7 @@ export default async function Page() {
   return (
     <div className="space-y-6">
       <BackToParent href={BASE_PATH} label="Back to Spotlight" />
-      <PageHeader title="New Spotlight Item" description="Create a new feature for the homepage." />
+      <PageHeader title="New Spotlight Item" description="Create a spotlight item." />
       <div className="rounded-lg border bg-card p-6">
         <SpotlightFormClient />
       </div>

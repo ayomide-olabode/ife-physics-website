@@ -59,7 +59,7 @@ export default async function PostgraduateCoursesPage({ params, searchParams }: 
     <div className="space-y-6">
       <PageHeader
         title={`${programmeCode} / Courses`}
-        description={`Manage the list of courses offered for the ${programmeCode} postgraduate programme.`}
+        description={`Manage courses for ${programmeCode}.`}
         actions={
           <Button asChild>
             <Link href={`/dashboard/postgraduate/${code}/courses/new`}>Add New</Link>

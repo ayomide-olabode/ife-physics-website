@@ -16,7 +16,7 @@ export default async function NewPublicationPage({ params }: PageProps) {
         label="Research Outputs"
       />
 
-      <PageHeader title="New Research Output" />
+      <PageHeader title="New Research Output" description="Add a research output." />
 
       <PublicationFormClient groupId={groupId} />
     </div>

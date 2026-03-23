@@ -8,7 +8,7 @@ export default function NewStaffPage() {
       <BackToParent href="/dashboard/admin/staff" label="Back to Staff" />
       <PageHeader
         title="Add New Staff"
-        description="Create a new staff record and provision system access."
+        description="Create a staff record."
       />
       <div className="rounded-lg border p-8 bg-card">
         <CreateStaffForm />

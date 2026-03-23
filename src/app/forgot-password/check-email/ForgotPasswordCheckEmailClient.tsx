@@ -10,7 +10,6 @@ type Props = {
 export function ForgotPasswordCheckEmailClient({ email }: Props) {
   return (
     <CheckEmailActions
-      email={email}
       backHref="/login"
       onResend={async () => {
         const result = await requestPasswordResetLink(email);

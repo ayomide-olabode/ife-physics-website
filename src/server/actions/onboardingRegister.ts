@@ -18,7 +18,7 @@ import {
 
 const requestSchema = z.string().email();
 type RegistrationRequestStatus = 'SENT' | 'THROTTLED' | 'ALREADY_ACTIVE' | 'NO_STAFF';
-const INVITE_FROM_NAME = 'Department of Physics amd Engineering Physics, OAU';
+const INVITE_FROM_NAME = 'OAU Ife | Physics';
 
 type RequestRegistrationResult =
   | {

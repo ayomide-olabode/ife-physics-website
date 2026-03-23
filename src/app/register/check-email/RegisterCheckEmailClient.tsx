@@ -10,7 +10,6 @@ type Props = {
 export function RegisterCheckEmailClient({ email }: Props) {
   return (
     <CheckEmailActions
-      email={email}
       backHref="/register"
       onResend={async () => {
         const result = await requestRegistrationLink(email);

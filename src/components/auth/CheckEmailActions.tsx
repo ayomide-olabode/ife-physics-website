@@ -11,7 +11,6 @@ type ResendResult = {
 };
 
 type CheckEmailActionsProps = {
-  email: string;
   onResend: () => Promise<ResendResult>;
   backHref: string;
 };
@@ -28,7 +27,7 @@ function formatCountdown(totalSeconds: number): string {
   return `${minutes}:${seconds}`;
 }
 
-export function CheckEmailActions({ email, onResend, backHref }: CheckEmailActionsProps) {
+export function CheckEmailActions({ onResend, backHref }: CheckEmailActionsProps) {
   const [isSending, setIsSending] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(DEFAULT_COOLDOWN_SECONDS);
 
@@ -65,8 +64,6 @@ export function CheckEmailActions({ email, onResend, backHref }: CheckEmailActio
     }
   }
 
-  const mailtoLink = `mailto:${encodeURIComponent(email)}`;
-
   return (
     <div className="space-y-2">
       <div className="grid gap-3 sm:grid-cols-3">
@@ -74,40 +71,11 @@ export function CheckEmailActions({ email, onResend, backHref }: CheckEmailActio
           <Link href={backHref}>Back</Link>
         </Button>
 
-        <details className="relative">
-          <summary className="flex h-9 cursor-pointer list-none items-center justify-center rounded-none border border-input bg-background px-3 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground">
+        <Button asChild variant="outline" className="w-full rounded-none">
+          <Link href="https://mail.google.com" target="_blank" rel="noreferrer">
             Open email
-          </summary>
-          <div className="absolute left-0 right-0 z-10 mt-1 space-y-1 border bg-background p-2 shadow-md">
-            <Link
-              href="https://mail.google.com"
-              target="_blank"
-              rel="noreferrer"
-              className="block px-2 py-1 text-sm hover:bg-accent"
-            >
-              Gmail
-            </Link>
-            <Link
-              href="https://outlook.office.com/mail"
-              target="_blank"
-              rel="noreferrer"
-              className="block px-2 py-1 text-sm hover:bg-accent"
-            >
-              Outlook
-            </Link>
-            <Link
-              href="https://mail.yahoo.com"
-              target="_blank"
-              rel="noreferrer"
-              className="block px-2 py-1 text-sm hover:bg-accent"
-            >
-              Yahoo Mail
-            </Link>
-            <Link href={mailtoLink} className="block px-2 py-1 text-sm hover:bg-accent">
-              Open Mail App
-            </Link>
-          </div>
-        </details>
+          </Link>
+        </Button>
 
         <Button
           type="button"

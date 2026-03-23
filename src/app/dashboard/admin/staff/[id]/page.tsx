@@ -11,6 +11,7 @@ import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
 import { StaffInviteControls } from '@/components/admin/StaffInviteControls';
 import { StaffStatusManager } from '@/components/admin/StaffStatusManager';
+import { DeleteStaffButton } from '@/components/admin/DeleteStaffButton';
 
 export default async function AdminStaffDetailPage({
   params,
@@ -150,6 +151,17 @@ export default async function AdminStaffDetailPage({
         </div>
 
         <StaffStatusManager staffId={staff.id} currentStatus={staff.staffStatus} />
+
+        <div className="rounded-lg border border-destructive/30 p-4 space-y-3">
+          <h3 className="text-sm font-medium text-destructive">Danger Zone</h3>
+          <p className="text-sm text-muted-foreground">
+            Delete this staff record and its linked user account from the system.
+          </p>
+          <DeleteStaffButton
+            staffId={staff.id}
+            staffDisplayName={fullName || staff.institutionalEmail}
+          />
+        </div>
       </div>
 
       <div className="space-y-4">

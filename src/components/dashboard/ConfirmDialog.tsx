@@ -39,6 +39,8 @@ export function ConfirmDialog({
       setLoading(true);
       await onConfirm();
       onOpenChange(false);
+    } catch {
+      // Keep dialog open when the confirm action fails.
     } finally {
       setLoading(false);
     }

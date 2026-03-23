@@ -177,3 +177,51 @@ export async function updateStaffStatus({
 
   return { success: true, unchanged: false };
 }
+
+export async function deleteStaff({ staffId }: { staffId: string }) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
+  await requireSuperAdmin(session);
+
+  if (session.user.staffId === staffId) {
+    throw new Error('You cannot delete your own staff record.');
+  }
+
+  const existing = await prisma.staff.findUnique({
+    where: { id: staffId },
+    select: {
+      id: true,
+      institutionalEmail: true,
+      user: {
+        select: { id: true },
+      },
+    },
+  });
+
+  if (!existing) {
+    throw new Error('Staff record not found.');
+  }
+
+  await prisma.staff.delete({
+    where: { id: staffId },
+  });
+
+  await logAudit({
+    actorId: session.user.userId,
+    action: 'STAFF_DELETED',
+    entityType: 'Staff',
+    entityId: staffId,
+    snapshot: {
+      email: existing.institutionalEmail,
+      hadUserAccount: Boolean(existing.user),
+    },
+  });
+
+  revalidatePath('/dashboard/admin/staff');
+  revalidatePath('/dashboard/admin/users');
+  revalidatePath('/people');
+
+  return { success: true };
+}

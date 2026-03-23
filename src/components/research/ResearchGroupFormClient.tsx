@@ -23,9 +23,17 @@ export type ResearchGroupFormData = {
 
 interface Props {
   initialData?: ResearchGroupFormData;
+  onCancel?: () => void;
+  onSaveSuccess?: () => void;
+  submitLabel?: string;
 }
 
-export function ResearchGroupFormClient({ initialData }: Props) {
+export function ResearchGroupFormClient({
+  initialData,
+  onCancel,
+  onSaveSuccess,
+  submitLabel,
+}: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = Boolean(initialData?.id);
@@ -63,6 +71,7 @@ export function ResearchGroupFormClient({ initialData }: Props) {
           window.location.assign(`/dashboard/research/groups/${res.groupId}`);
           return;
         }
+        onSaveSuccess?.();
         router.refresh();
       } else {
         toastError(res.error || 'Something went wrong.');
@@ -156,9 +165,18 @@ export function ResearchGroupFormClient({ initialData }: Props) {
       </div>
 
       <div className="pt-4 border-t">
-        <Button type="submit" disabled={isSubmitting} className="rounded-none">
-          {isSubmitting ? 'Saving…' : isEditing ? 'Update Group' : 'Create Group'}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button type="submit" disabled={isSubmitting} className="rounded-none">
+            {isSubmitting
+              ? 'Saving…'
+              : submitLabel || (isEditing ? 'Update Group' : 'Create Group')}
+          </Button>
+          {onCancel ? (
+            <Button type="button" variant="outline" disabled={isSubmitting} onClick={onCancel}>
+              Cancel
+            </Button>
+          ) : null}
+        </div>
       </div>
     </form>
   );

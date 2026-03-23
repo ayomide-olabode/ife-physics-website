@@ -1,11 +1,11 @@
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
+import { validateImageUpload } from '@/lib/security/imageUpload';
 import { ScopedRole } from '.prisma/client';
 import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export async function POST(request: Request) {
   const session = await requireAuth();
@@ -19,29 +19,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'No file provided.' }, { status: 400 });
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid file type. Allowed: JPEG, PNG, WebP.' },
-        { status: 400 },
-      );
+    const validated = await validateImageUpload(file, { maxSizeBytes: MAX_SIZE });
+    if (!validated.ok) {
+      return NextResponse.json({ ok: false, error: validated.error }, { status: 400 });
     }
 
-    if (file.size > MAX_SIZE) {
-      return NextResponse.json(
-        { ok: false, error: 'File too large. Maximum size is 2MB.' },
-        { status: 400 },
-      );
-    }
-
-    const ext = file.type.split('/')[1] === 'jpeg' ? 'jpg' : file.type.split('/')[1];
+    const ext = validated.format.ext;
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
     const uploadDir = join(process.cwd(), 'public', 'uploads', 'news');
     await mkdir(uploadDir, { recursive: true });
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(join(uploadDir, filename), buffer);
+    await writeFile(join(uploadDir, filename), validated.buffer);
 
     const url = `/uploads/news/${filename}`;
     return NextResponse.json({ ok: true, url });

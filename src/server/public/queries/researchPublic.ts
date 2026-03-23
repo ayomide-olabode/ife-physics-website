@@ -6,6 +6,13 @@ import { unstable_cache } from 'next/cache';
 import { whereNotDeleted } from '../published';
 export { getFeaturedResearchOutputs } from './featuredResearchOutputs';
 
+export type PublicResearchGroupHeroDto = {
+  title: string;
+  abbreviation: string;
+  overview: string | null;
+  heroImageUrl: string | null;
+};
+
 const listPublicResearchGroupsCached = unstable_cache(
   async () =>
     prisma.researchGroup.findMany({
@@ -29,14 +36,14 @@ export async function listPublicResearchGroups() {
 
 /** Full research group detail by slug (public). */
 export async function getPublicResearchGroupBySlug(slug: string) {
-  return prisma.researchGroup.findFirst({
+  const group = await prisma.researchGroup.findFirst({
     where: { slug, ...whereNotDeleted() },
     select: {
       id: true,
       name: true,
       abbreviation: true,
       slug: true,
-      imageUrl: true,
+      heroImageUrl: true,
       overview: true,
       focusAreas: {
         where: { deletedAt: null },
@@ -49,11 +56,13 @@ export async function getPublicResearchGroupBySlug(slug: string) {
       },
       featuredResearchOutputId: true,
       memberships: {
-        where: { leftAt: null, staff: { deletedAt: null } },
+        where: { staff: { deletedAt: null } },
         select: {
+          leftAt: true,
           staff: {
             select: {
               id: true,
+              staffStatus: true,
               firstName: true,
               middleName: true,
               lastName: true,
@@ -67,6 +76,22 @@ export async function getPublicResearchGroupBySlug(slug: string) {
       },
     },
   });
+
+  if (!group) {
+    return null;
+  }
+
+  const hero: PublicResearchGroupHeroDto = {
+    title: group.name,
+    abbreviation: group.abbreviation,
+    overview: group.overview,
+    heroImageUrl: group.heroImageUrl,
+  };
+
+  return {
+    ...group,
+    hero,
+  };
 }
 
 /** Recent research outputs authored by group members (reuses authorsJson staffId logic). */
@@ -81,7 +106,7 @@ export async function listPublicRecentOutputsForGroup(
 
   // Get member staff IDs
   const memberships = await prisma.researchGroupMembership.findMany({
-    where: { researchGroupId: groupId, leftAt: null, staff: { deletedAt: null } },
+    where: { researchGroupId: groupId, staff: { deletedAt: null } },
     select: { staffId: true },
   });
   const staffIds = memberships.map((m) => m.staffId);

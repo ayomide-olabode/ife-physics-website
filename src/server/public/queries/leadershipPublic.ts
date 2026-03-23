@@ -1,8 +1,11 @@
 import 'server-only';
 
 import prisma from '@/lib/prisma';
+import { StaffStatus } from '@prisma/client';
 
 type CoordinatorType = 'GENERAL_POSTGRADUATE' | 'GENERAL_UNDERGRADUATE' | 'GENERAL_SLT';
+const PUBLIC_VISIBLE_STAFF_STATUSES: StaffStatus[] = ['ACTIVE', 'RETIRED', 'IN_MEMORIAM'];
+const FORMER_STATUS: StaffStatus = 'FORMER';
 
 async function findCoordinatorByType(type: CoordinatorType) {
   const now = new Date();
@@ -31,6 +34,8 @@ async function findCoordinatorByType(type: CoordinatorType) {
           staff: {
             select: {
               id: true,
+              staffStatus: true,
+              isInMemoriam: true,
               title: true,
               firstName: true,
               middleName: true,
@@ -48,6 +53,13 @@ async function findCoordinatorByType(type: CoordinatorType) {
   });
 
   if (!assignment?.user.staff || !assignment.programmeScope || !assignment.degreeScope) {
+    return null;
+  }
+  const staffIsPublic =
+    assignment.user.staff.staffStatus !== FORMER_STATUS &&
+    (PUBLIC_VISIBLE_STAFF_STATUSES.includes(assignment.user.staff.staffStatus) ||
+      assignment.user.staff.isInMemoriam);
+  if (!staffIsPublic) {
     return null;
   }
 
@@ -83,7 +95,13 @@ export async function getPublicAcademicCoordinatorsTop3() {
 /** Past HOD terms (endDate is NOT null). */
 export async function listPublicPastHods() {
   const terms = await prisma.leadershipTerm.findMany({
-    where: { role: 'HOD', endDate: { not: null } },
+    where: {
+      role: 'HOD',
+      endDate: { not: null },
+      staff: {
+        staffStatus: { not: FORMER_STATUS, in: PUBLIC_VISIBLE_STAFF_STATUSES },
+      },
+    },
     select: {
       id: true,
       startDate: true,
@@ -110,7 +128,13 @@ export async function listPublicPastHods() {
 export async function getPublicLeadership() {
   const [currentHodTerm, academicCoordinators, pastHodTerms] = await Promise.all([
     prisma.leadershipTerm.findFirst({
-      where: { role: 'HOD', endDate: null },
+      where: {
+        role: 'HOD',
+        endDate: null,
+        staff: {
+          staffStatus: { not: FORMER_STATUS, in: PUBLIC_VISIBLE_STAFF_STATUSES },
+        },
+      },
       select: {
         startDate: true,
         staff: {
@@ -133,7 +157,13 @@ export async function getPublicLeadership() {
     }),
     getPublicAcademicCoordinatorsTop3(),
     prisma.leadershipTerm.findMany({
-      where: { role: 'HOD', endDate: { not: null } },
+      where: {
+        role: 'HOD',
+        endDate: { not: null },
+        staff: {
+          staffStatus: { not: FORMER_STATUS, in: PUBLIC_VISIBLE_STAFF_STATUSES },
+        },
+      },
       select: {
         id: true,
         startDate: true,

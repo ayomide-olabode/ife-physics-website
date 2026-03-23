@@ -42,6 +42,7 @@ export async function listResearchGroupsForUser({
         abbreviation: true,
         slug: true,
         imageUrl: true,
+        heroImageUrl: true,
         updatedAt: true,
       },
       orderBy: { name: 'asc' },
@@ -80,6 +81,7 @@ export async function getResearchGroupByIdForUser({
       abbreviation: true,
       slug: true,
       imageUrl: true,
+      heroImageUrl: true,
       overview: true,
       focusAreas: {
         where: { deletedAt: null },

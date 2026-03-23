@@ -21,7 +21,7 @@ enum StaffType {
 
 enum StaffStatus {
   ACTIVE
-  RESIGNED
+  FORMER
   RETIRED
   IN_MEMORIAM
 }
@@ -217,7 +217,9 @@ model Staff {
 
   phoneNumber       String?
   bio               String?
+  education         String?
   researchInterests String?
+  membershipOfProfessionalOrganizations String?
   profileImageUrl   String?
   dateOfBirth       DateTime?
   dateOfDeath       DateTime?
@@ -353,6 +355,7 @@ model ResearchGroup {
   abbreviation String
   slug         String  @unique
   imageUrl     String?
+  heroImageUrl String?
   overview     String?
   focusAreas   FocusArea[]
 

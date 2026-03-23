@@ -3,20 +3,32 @@ import 'server-only';
 import prisma from '@/lib/prisma';
 import { getAcademicRankSortValue } from '@/lib/rankOrder';
 import { buildStaffSlug, slugify } from '@/lib/slug';
-import { StaffStatus, StaffType } from '@prisma/client';
+import { unstable_cache } from 'next/cache';
+import { Prisma, StaffStatus, StaffType } from '@prisma/client';
+
+const PUBLIC_VISIBLE_STAFF_STATUSES: StaffStatus[] = ['ACTIVE', 'RETIRED', 'IN_MEMORIAM'];
+const FORMER_STATUS: StaffStatus = 'FORMER';
 
 // Map public route categories to StaffType + StaffStatus filters
 const CATEGORY_MAP: Record<string, { staffType?: StaffType; staffStatus?: StaffStatus }> = {
   'academic-faculty': { staffType: 'ACADEMIC', staffStatus: 'ACTIVE' },
   'visiting-faculty': { staffType: 'VISITING', staffStatus: 'ACTIVE' },
-  emeritus: { staffType: 'EMERITUS', staffStatus: 'ACTIVE' },
+  'emeritus-faculty': { staffType: 'EMERITUS', staffStatus: 'ACTIVE' },
   'technical-staff': { staffType: 'TECHNICAL', staffStatus: 'ACTIVE' },
   'support-staff': { staffType: 'SUPPORT', staffStatus: 'ACTIVE' },
-  'retired-faculty': { staffStatus: 'RETIRED' },
+  'retired-staff': { staffStatus: 'RETIRED' },
   'in-memoriam': { staffStatus: 'IN_MEMORIAM' },
 };
 
 export type PublicPeopleCategory = keyof typeof CATEGORY_MAP;
+export type PublicPeopleSort = 'default' | 'name-asc' | 'name-desc';
+export type PublicPeopleFilters = {
+  rank?: string;
+  researchGroupSlug?: string;
+  secondaryAffiliationId?: string;
+  formerStaffType?: StaffType;
+  alpha?: string;
+};
 
 type StaffSlugIdentity = {
   id: string;
@@ -26,6 +38,56 @@ type StaffSlugIdentity = {
   lastName: string | null;
   institutionalEmail: string;
 };
+
+function wherePublicVisibleStaff(): Prisma.StaffWhereInput {
+  return {
+    deletedAt: null,
+    staffStatus: { not: FORMER_STATUS },
+    OR: [{ staffStatus: { in: PUBLIC_VISIBLE_STAFF_STATUSES } }, { isInMemoriam: true }],
+  };
+}
+
+const getCachedPublicStaffSlugIndex = unstable_cache(
+  async () => {
+    const slugRows = await prisma.staff.findMany({
+      where: wherePublicVisibleStaff(),
+      select: {
+        id: true,
+        title: true,
+        firstName: true,
+        middleName: true,
+        lastName: true,
+        institutionalEmail: true,
+      },
+    });
+
+    const slugById = buildUniqueStaffSlugs(slugRows);
+    const idBySlug: Record<string, string> = {};
+    const computedSlugById: Record<string, string> = {};
+
+    for (const [staffId, computedSlug] of slugById.entries()) {
+      computedSlugById[staffId] = computedSlug;
+      idBySlug[computedSlug] = staffId;
+    }
+
+    return { idBySlug, computedSlugById };
+  },
+  ['public-staff-slug-index'],
+  {
+    revalidate: 60,
+  },
+);
+
+async function resolvePublicStaffSlug(slug: string): Promise<{ staffId: string; computedSlug: string } | null> {
+  const normalizedSlug = slugify(slug);
+  if (!normalizedSlug) return null;
+
+  const index = await getCachedPublicStaffSlugIndex();
+  const staffId = index.idBySlug[normalizedSlug];
+  if (!staffId) return null;
+
+  return { staffId, computedSlug: normalizedSlug };
+}
 
 function buildUniqueStaffSlugs(staff: StaffSlugIdentity[]): Map<string, string> {
   const grouped = new Map<string, StaffSlugIdentity[]>();
@@ -60,11 +122,17 @@ function buildUniqueStaffSlugs(staff: StaffSlugIdentity[]): Map<string, string> 
   return slugByStaffId;
 }
 
-function compareNullableStrings(a: string | null | undefined, b: string | null | undefined): number {
+function compareNullableStrings(
+  a: string | null | undefined,
+  b: string | null | undefined,
+): number {
   return (a ?? '').localeCompare(b ?? '', undefined, { sensitivity: 'base' });
 }
 
-function inferLinks(url: string | null): { googleScholarUrl: string | null; orcidUrl: string | null } {
+function inferLinks(url: string | null): {
+  googleScholarUrl: string | null;
+  orcidUrl: string | null;
+} {
   if (!url) {
     return { googleScholarUrl: null, orcidUrl: null };
   }
@@ -80,6 +148,8 @@ export interface PublicAcademicFacultyParams {
   q?: string;
   page?: number;
   pageSize?: number;
+  sort?: PublicPeopleSort;
+  filters?: PublicPeopleFilters;
 }
 
 export interface PublicPeopleCardItem {
@@ -194,27 +264,59 @@ export async function listPublicAcademicFaculty({
   q,
   page = 1,
   pageSize = 9,
+  sort = 'default',
+  filters = {},
 }: PublicAcademicFacultyParams = {}) {
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
   const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? Math.floor(pageSize) : 9;
 
   const query = q?.trim();
+  const andFilters: Prisma.StaffWhereInput[] = [];
 
-  const where = {
+  if (query) {
+    andFilters.push({
+      OR: [
+        { firstName: { contains: query, mode: 'insensitive' } },
+        { middleName: { contains: query, mode: 'insensitive' } },
+        { lastName: { contains: query, mode: 'insensitive' } },
+        { institutionalEmail: { contains: query, mode: 'insensitive' } },
+      ],
+    });
+  }
+  if (filters.rank) {
+    andFilters.push({ academicRank: filters.rank });
+  }
+  if (filters.researchGroupSlug) {
+    andFilters.push({
+      researchMemberships: {
+        some: {
+          leftAt: null,
+          researchGroup: { deletedAt: null, slug: filters.researchGroupSlug },
+        },
+      },
+    });
+  }
+  if (filters.secondaryAffiliationId) {
+    andFilters.push({ secondaryAffiliationId: filters.secondaryAffiliationId });
+  }
+  if (filters.formerStaffType) {
+    andFilters.push({ staffType: filters.formerStaffType });
+  }
+  if (filters.alpha) {
+    andFilters.push({
+      OR: [
+        { lastName: { startsWith: filters.alpha, mode: 'insensitive' } },
+        { firstName: { startsWith: filters.alpha, mode: 'insensitive' } },
+      ],
+    });
+  }
+
+  const where: Prisma.StaffWhereInput = {
     deletedAt: null,
-    staffType: 'ACADEMIC' as const,
-    staffStatus: 'ACTIVE' as const,
+    staffType: 'ACADEMIC',
+    staffStatus: 'ACTIVE',
     isInMemoriam: false,
-    ...(query
-      ? {
-          OR: [
-            { firstName: { contains: query, mode: 'insensitive' as const } },
-            { middleName: { contains: query, mode: 'insensitive' as const } },
-            { lastName: { contains: query, mode: 'insensitive' as const } },
-            { institutionalEmail: { contains: query, mode: 'insensitive' as const } },
-          ],
-        }
-      : {}),
+    AND: andFilters,
   };
 
   const [rows, activeHodTerm] = await Promise.all([
@@ -275,9 +377,16 @@ export async function listPublicAcademicFaculty({
   const computedSlugById = buildUniqueStaffSlugs(rows);
   const currentHodStaffId = activeHodTerm?.staffId ?? null;
 
-  const sorted = rows
-    .map<PublicAcademicFacultyItem>((row) => buildCardItem(row, computedSlugById, currentHodStaffId))
-    .sort(sortAcademicFaculty);
+  const mapped = rows.map<PublicAcademicFacultyItem>((row) =>
+    buildCardItem(row, computedSlugById, currentHodStaffId),
+  );
+
+  const sorted =
+    sort === 'name-asc'
+      ? mapped.sort(sortByName)
+      : sort === 'name-desc'
+        ? mapped.sort((a, b) => sortByName(b, a))
+        : mapped.sort(sortAcademicFaculty);
 
   const start = (safePage - 1) * safePageSize;
   const end = start + safePageSize;
@@ -291,10 +400,10 @@ export async function listPublicAcademicFaculty({
 
 export async function listPublicPeopleByCategory(
   category: PublicPeopleCategory,
-  { q, page = 1, pageSize = 9 }: PublicAcademicFacultyParams = {},
+  { q, page = 1, pageSize = 9, sort = 'default', filters = {} }: PublicAcademicFacultyParams = {},
 ) {
   if (category === 'academic-faculty') {
-    return listPublicAcademicFaculty({ q, page, pageSize });
+    return listPublicAcademicFaculty({ q, page, pageSize, sort, filters });
   }
 
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
@@ -306,23 +415,49 @@ export async function listPublicPeopleByCategory(
     ? { OR: [{ staffStatus: 'IN_MEMORIAM' as const }, { isInMemoriam: true }] }
     : { ...filter };
 
-  const where = {
+  const andFilters: Prisma.StaffWhereInput[] = [baseCategoryFilter];
+  if (query) {
+    andFilters.push({
+      OR: [
+        { firstName: { contains: query, mode: 'insensitive' } },
+        { middleName: { contains: query, mode: 'insensitive' } },
+        { lastName: { contains: query, mode: 'insensitive' } },
+        { institutionalEmail: { contains: query, mode: 'insensitive' } },
+      ],
+    });
+  }
+  if (filters.rank) {
+    andFilters.push({ academicRank: filters.rank });
+  }
+  if (filters.researchGroupSlug) {
+    andFilters.push({
+      researchMemberships: {
+        some: {
+          leftAt: null,
+          researchGroup: { deletedAt: null, slug: filters.researchGroupSlug },
+        },
+      },
+    });
+  }
+  if (filters.secondaryAffiliationId) {
+    andFilters.push({ secondaryAffiliationId: filters.secondaryAffiliationId });
+  }
+  if (filters.formerStaffType) {
+    andFilters.push({ staffType: filters.formerStaffType });
+  }
+  if (filters.alpha) {
+    andFilters.push({
+      OR: [
+        { lastName: { startsWith: filters.alpha, mode: 'insensitive' } },
+        { firstName: { startsWith: filters.alpha, mode: 'insensitive' } },
+      ],
+    });
+  }
+
+  const where: Prisma.StaffWhereInput = {
     deletedAt: null,
-    AND: [
-      baseCategoryFilter,
-      ...(query
-        ? [
-            {
-              OR: [
-                { firstName: { contains: query, mode: 'insensitive' as const } },
-                { middleName: { contains: query, mode: 'insensitive' as const } },
-                { lastName: { contains: query, mode: 'insensitive' as const } },
-                { institutionalEmail: { contains: query, mode: 'insensitive' as const } },
-              ],
-            },
-          ]
-        : []),
-    ],
+    staffStatus: { not: FORMER_STATUS },
+    AND: andFilters,
   };
 
   const rows = await prisma.staff.findMany({
@@ -369,9 +504,11 @@ export async function listPublicPeopleByCategory(
   });
 
   const computedSlugById = buildUniqueStaffSlugs(rows);
-  const sorted = rows
-    .map<PublicPeopleCardItem>((row) => buildCardItem(row, computedSlugById, null))
-    .sort(sortByName);
+  const mapped = rows.map<PublicPeopleCardItem>((row) =>
+    buildCardItem(row, computedSlugById, null),
+  );
+  const sorted =
+    sort === 'name-desc' ? mapped.sort((a, b) => sortByName(b, a)) : mapped.sort(sortByName);
 
   const start = (safePage - 1) * safePageSize;
   const end = start + safePageSize;
@@ -381,6 +518,71 @@ export async function listPublicPeopleByCategory(
     items,
     nextPage: end < sorted.length ? safePage + 1 : undefined,
   };
+}
+
+export async function getPublicPeopleFilterFacets(category: PublicPeopleCategory) {
+  const filter = CATEGORY_MAP[category];
+  const isInMemoriamCategory = category === 'in-memoriam';
+  const baseCategoryFilter = isInMemoriamCategory
+    ? { OR: [{ staffStatus: 'IN_MEMORIAM' as const }, { isInMemoriam: true }] }
+    : { ...filter };
+
+  const rows = await prisma.staff.findMany({
+    where: {
+      deletedAt: null,
+      staffStatus: { not: FORMER_STATUS },
+      AND: [baseCategoryFilter],
+    },
+    select: {
+      academicRank: true,
+      staffType: true,
+      secondaryAffiliation: { select: { id: true, name: true } },
+      researchMemberships: {
+        where: {
+          leftAt: null,
+          researchGroup: { deletedAt: null },
+        },
+        select: {
+          researchGroup: {
+            select: {
+              slug: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const ranks = Array.from(
+    new Set(rows.map((r) => r.academicRank?.trim()).filter((v): v is string => Boolean(v))),
+  ).sort((a, b) => a.localeCompare(b));
+
+  const groupsMap = new Map<string, string>();
+  for (const row of rows) {
+    for (const membership of row.researchMemberships) {
+      groupsMap.set(membership.researchGroup.slug, membership.researchGroup.name);
+    }
+  }
+  const researchGroups = Array.from(groupsMap.entries())
+    .map(([slug, name]) => ({ slug, name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const affiliationsMap = new Map<string, string>();
+  for (const row of rows) {
+    if (row.secondaryAffiliation?.id && row.secondaryAffiliation?.name) {
+      affiliationsMap.set(row.secondaryAffiliation.id, row.secondaryAffiliation.name);
+    }
+  }
+  const affiliations = Array.from(affiliationsMap.entries())
+    .map(([id, name]) => ({ id, name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const formerStaffTypes = Array.from(new Set(rows.map((r) => r.staffType))).sort((a, b) =>
+    a.localeCompare(b),
+  );
+
+  return { ranks, researchGroups, affiliations, formerStaffTypes };
 }
 
 export interface PublicStaffProfile {
@@ -400,6 +602,9 @@ export interface PublicStaffProfile {
   dateOfBirth: Date | null;
   dateOfDeath: Date | null;
   bio: string | null;
+  education: string | null;
+  researchInterests: string | null;
+  membershipOfProfessionalOrganizations: string | null;
   primaryResearchGroup: { id: string; name: string; slug: string } | null;
   secondaryAffiliation: { id: string; name: string; acronym: string | null } | null;
   googleScholarUrl: string | null;
@@ -408,30 +613,16 @@ export interface PublicStaffProfile {
 
 /** Full staff profile by staff name slug. */
 export async function getPublicStaffBySlug(slug: string): Promise<PublicStaffProfile | null> {
-  const normalizedSlug = slugify(slug);
-  if (!normalizedSlug) return null;
-
-  const slugRows = await prisma.staff.findMany({
-    where: { deletedAt: null },
-    select: {
-      id: true,
-      title: true,
-      firstName: true,
-      middleName: true,
-      lastName: true,
-      institutionalEmail: true,
-    },
-  });
-
-  const slugById = buildUniqueStaffSlugs(slugRows);
-  const matched = slugRows.find((row) => slugById.get(row.id) === normalizedSlug);
-
-  if (!matched) {
+  const resolved = await resolvePublicStaffSlug(slug);
+  if (!resolved) {
     return null;
   }
 
   const staff = await prisma.staff.findFirst({
-    where: { id: matched.id, deletedAt: null },
+    where: {
+      id: resolved.staffId,
+      ...wherePublicVisibleStaff(),
+    },
     select: {
       id: true,
       title: true,
@@ -445,6 +636,9 @@ export async function getPublicStaffBySlug(slug: string): Promise<PublicStaffPro
       designation: true,
       academicLinkUrl: true,
       bio: true,
+      education: true,
+      researchInterests: true,
+      membershipOfProfessionalOrganizations: true,
       profileImageUrl: true,
       isInMemoriam: true,
       dateOfBirth: true,
@@ -486,7 +680,7 @@ export async function getPublicStaffBySlug(slug: string): Promise<PublicStaffPro
 
   return {
     id: staff.id,
-    computedStaffSlug: slugById.get(staff.id) ?? normalizedSlug,
+    computedStaffSlug: resolved.computedSlug,
     title: staff.title,
     firstName: staff.firstName,
     middleName: staff.middleName,
@@ -501,6 +695,9 @@ export async function getPublicStaffBySlug(slug: string): Promise<PublicStaffPro
     dateOfBirth: staff.dateOfBirth,
     dateOfDeath: staff.dateOfDeath,
     bio: staff.bio,
+    education: staff.education,
+    researchInterests: staff.researchInterests,
+    membershipOfProfessionalOrganizations: staff.membershipOfProfessionalOrganizations,
     primaryResearchGroup: staff.researchMemberships[0]
       ? {
           id: staff.researchMemberships[0].researchGroup.id,
@@ -526,7 +723,10 @@ function normalizePaging({ page = 1, pageSize = 8 }: PublicTabQueryParams = {}) 
   return { safePage, safePageSize, skip };
 }
 
-export async function listPublicResearchOutputsForStaff(staffId: string, params: PublicTabQueryParams = {}) {
+export async function listPublicResearchOutputsForStaff(
+  staffId: string,
+  params: PublicTabQueryParams = {},
+) {
   const { safePage, safePageSize, skip } = normalizePaging(params);
   const where = { staffId, deletedAt: null };
 
@@ -559,7 +759,10 @@ export async function listPublicResearchOutputsForStaff(staffId: string, params:
   };
 }
 
-export async function listPublicProjectsForStaff(staffId: string, params: PublicTabQueryParams = {}) {
+export async function listPublicProjectsForStaff(
+  staffId: string,
+  params: PublicTabQueryParams = {},
+) {
   const { safePage, safePageSize, skip } = normalizePaging(params);
   const where = { staffId, deletedAt: null };
 
@@ -620,7 +823,10 @@ export async function listPublicThesesForStaff(staffId: string, params: PublicTa
   };
 }
 
-export async function listPublicTeachingForStaff(staffId: string, params: PublicTabQueryParams = {}) {
+export async function listPublicTeachingForStaff(
+  staffId: string,
+  params: PublicTabQueryParams = {},
+) {
   const { safePage, safePageSize, skip } = normalizePaging(params);
   const where = { staffId, deletedAt: null };
 
@@ -649,7 +855,10 @@ export async function listPublicTeachingForStaff(staffId: string, params: Public
   };
 }
 
-export async function getPublicTributesForStaff(staffId: string, params: PublicTabQueryParams = {}) {
+export async function getPublicTributesForStaff(
+  staffId: string,
+  params: PublicTabQueryParams = {},
+) {
   const { safePage, safePageSize, skip } = normalizePaging(params);
 
   const [biography, items, total] = await Promise.all([

@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
+import { getPublicStaffBySlug } from '@/server/public/queries/peoplePublic';
 
 const submitTestimonialSchema = z.object({
   staffSlug: z.string().trim().min(1, 'Staff slug is required.'),
@@ -29,17 +30,7 @@ export async function submitTestimonial(input: SubmitTestimonialInput) {
   const { staffSlug, name, relationship, tributeHtml } = parsed.data;
 
   try {
-    const staff = await prisma.staff.findFirst({
-      where: {
-        institutionalEmail: staffSlug,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        isInMemoriam: true,
-        staffStatus: true,
-      },
-    });
+    const staff = await getPublicStaffBySlug(staffSlug);
 
     if (!staff) {
       return { success: false, error: 'Staff profile not found.' };

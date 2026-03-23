@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { useSlugField } from '@/lib/useSlugField';
 import { createResearchGroup, updateResearchGroup } from '@/server/actions/researchGroups';
+import { ResearchGroupHeroImageUploader } from '@/components/research/ResearchGroupHeroImageUploader';
 import { RefreshCw } from 'lucide-react';
 
 export type ResearchGroupFormData = {
@@ -16,6 +17,7 @@ export type ResearchGroupFormData = {
   name: string;
   abbreviation: string;
   slug: string;
+  heroImageUrl?: string | null;
   overview: string | null;
 };
 
@@ -25,7 +27,7 @@ interface Props {
 
 export function ResearchGroupFormClient({ initialData }: Props) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = Boolean(initialData?.id);
 
   const [name, setName] = useState(initialData?.name || '');
@@ -34,37 +36,42 @@ export function ResearchGroupFormClient({ initialData }: Props) {
     initialSlug: initialData?.slug,
     isEditing,
   });
+  const [heroImageUrl, setHeroImageUrl] = useState(initialData?.heroImageUrl || '');
   const [overview, setOverview] = useState(initialData?.overview || '');
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    startTransition(async () => {
-      try {
-        const payload = {
-          name,
-          abbreviation,
-          slug,
-          overview: overview || undefined,
-        };
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
-        const res = isEditing
-          ? await updateResearchGroup(initialData!.id!, payload)
-          : await createResearchGroup(payload);
+    try {
+      const payload = {
+        name,
+        abbreviation,
+        slug,
+        heroImageUrl: heroImageUrl || undefined,
+        overview: overview || undefined,
+      };
 
-        if (res.success) {
-          toastSuccess(isEditing ? 'Group updated.' : 'Group created.');
-          if (!isEditing && 'groupId' in res && res.groupId) {
-            router.push(`/dashboard/research/groups/${res.groupId}`);
-          } else {
-            router.refresh();
-          }
-        } else {
-          toastError(res.error || 'Something went wrong.');
+      const res = isEditing
+        ? await updateResearchGroup(initialData!.id!, payload)
+        : await createResearchGroup(payload);
+
+      if (res.success) {
+        toastSuccess(isEditing ? 'Group updated.' : 'Group created.');
+        if (!isEditing && 'groupId' in res && res.groupId) {
+          window.location.assign(`/dashboard/research/groups/${res.groupId}`);
+          return;
         }
-      } catch {
-        toastError('An unexpected error occurred.');
+        router.refresh();
+      } else {
+        toastError(res.error || 'Something went wrong.');
       }
-    });
+    } catch {
+      toastError('An unexpected error occurred.');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -136,13 +143,21 @@ export function ResearchGroupFormClient({ initialData }: Props) {
       </div>
 
       <div className="space-y-2">
+        <ResearchGroupHeroImageUploader
+          value={heroImageUrl || null}
+          groupId={initialData?.id}
+          onChange={(url) => setHeroImageUrl(url || '')}
+        />
+      </div>
+
+      <div className="space-y-2">
         <FieldLabel>Overview</FieldLabel>
         <RichTextEditor value={overview} onChange={setOverview} />
       </div>
 
       <div className="pt-4 border-t">
-        <Button type="submit" disabled={isPending} className="rounded-none">
-          {isPending ? 'Saving…' : isEditing ? 'Update Group' : 'Create Group'}
+        <Button type="submit" disabled={isSubmitting} className="rounded-none">
+          {isSubmitting ? 'Saving…' : isEditing ? 'Update Group' : 'Create Group'}
         </Button>
       </div>
     </form>

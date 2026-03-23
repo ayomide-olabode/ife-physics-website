@@ -2,11 +2,27 @@
 
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { Prisma } from '@prisma/client';
 import { requireAuth, requireSuperAdmin, requireResearchLeadForGroup } from '@/lib/guards';
 import { isSuperAdmin } from '@/lib/rbac';
 import { logAudit } from '@/lib/audit';
+
+const heroImageUrlSchema = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(''))
+  .transform((v) => (v === '' ? null : v))
+  .refine(
+    (v) =>
+      v === undefined ||
+      v === null ||
+      v.startsWith('/') ||
+      v.startsWith('https://') ||
+      v.startsWith('http://'),
+    { message: 'Hero image URL must be a valid URL or a site path starting with /' },
+  );
 
 const researchGroupSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
@@ -19,6 +35,7 @@ const researchGroupSchema = z.object({
     .min(1, 'Slug is required')
     .max(100)
     .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+  heroImageUrl: heroImageUrlSchema,
   overview: z.string().max(50000).optional(),
 });
 
@@ -45,13 +62,14 @@ export async function createResearchGroup(data: ResearchGroupInput) {
 
     const validated = researchGroupSchema.parse(data);
 
-    const normalize = (val?: string) => (val && val.trim() !== '' ? val : null);
+    const normalize = (val?: string | null) => (val && val.trim() !== '' ? val : null);
 
     const group = await prisma.researchGroup.create({
       data: {
         name: validated.name,
         abbreviation: validated.abbreviation,
         slug: validated.slug,
+        heroImageUrl: normalize(validated.heroImageUrl),
         overview: normalize(validated.overview),
       },
     });
@@ -68,6 +86,8 @@ export async function createResearchGroup(data: ResearchGroupInput) {
     revalidateTag('research-groups');
     // @ts-expect-error Next Canary Type definition bug
     revalidateTag('public:research-groups');
+    revalidatePath('/research');
+    revalidatePath(`/research/${validated.slug}`);
 
     return { success: true, groupId: group.id };
   } catch (error: unknown) {
@@ -94,14 +114,14 @@ export async function updateResearchGroup(groupId: string, data: ResearchGroupIn
 
     const existing = await prisma.researchGroup.findFirst({
       where: { id: groupId, deletedAt: null },
-      select: { id: true },
+      select: { id: true, slug: true },
     });
 
     if (!existing) {
       return { success: false, error: 'Research group not found' };
     }
 
-    const normalize = (val?: string) => (val && val.trim() !== '' ? val : null);
+    const normalize = (val?: string | null) => (val && val.trim() !== '' ? val : null);
 
     await prisma.researchGroup.update({
       where: { id: groupId },
@@ -109,6 +129,7 @@ export async function updateResearchGroup(groupId: string, data: ResearchGroupIn
         name: validated.name,
         abbreviation: validated.abbreviation,
         slug: validated.slug,
+        heroImageUrl: normalize(validated.heroImageUrl),
         overview: normalize(validated.overview),
       },
     });
@@ -125,6 +146,9 @@ export async function updateResearchGroup(groupId: string, data: ResearchGroupIn
     revalidateTag('research-groups');
     // @ts-expect-error Next Canary Type definition bug
     revalidateTag('public:research-groups');
+    revalidatePath('/research');
+    revalidatePath(`/research/${existing.slug}`);
+    revalidatePath(`/research/${validated.slug}`);
 
     return { success: true };
   } catch (error: unknown) {

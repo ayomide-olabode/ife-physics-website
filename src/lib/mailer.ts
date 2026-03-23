@@ -5,6 +5,7 @@ type SendMailInput = {
   subject: string;
   html?: string;
   text?: string;
+  fromName?: string;
 };
 
 type SendMailResult =
@@ -62,6 +63,20 @@ function extractUrls(content?: string): string[] {
   return matches ? Array.from(new Set(matches)) : [];
 }
 
+function extractEmailAddress(from: string): string {
+  const bracketMatch = from.match(/<([^>]+)>/);
+  if (bracketMatch?.[1]) {
+    return bracketMatch[1].trim();
+  }
+  return from.trim();
+}
+
+function formatFromHeader(from: string, fromName?: string): string {
+  if (!fromName?.trim()) return from;
+  const address = extractEmailAddress(from);
+  return `${fromName.trim()} <${address}>`;
+}
+
 function getSmtpConfig(): SmtpConfig | null {
   const host = process.env.SMTP_HOST;
   const portRaw = process.env.SMTP_PORT;
@@ -101,6 +116,7 @@ export async function sendMail({
   subject,
   html,
   text,
+  fromName,
 }: SendMailInput): Promise<SendMailResult> {
   const smtpConfig = getSmtpConfig();
 
@@ -151,7 +167,7 @@ export async function sendMail({
     });
 
     await transport.sendMail({
-      from: smtpConfig.from,
+      from: formatFromHeader(smtpConfig.from, fromName),
       to,
       subject,
       html,

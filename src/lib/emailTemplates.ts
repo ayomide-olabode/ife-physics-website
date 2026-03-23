@@ -12,19 +12,20 @@ type EmailTemplateOutput = {
 };
 
 function buildBaseTemplate({
+  subject,
   heading,
   intro,
   actionLabel,
   link,
   expiresMinutes,
 }: {
-  heading: string;
+  subject: string;
+  heading?: string;
   intro: string;
   actionLabel: string;
   link: string;
   expiresMinutes: number;
 }): EmailTemplateOutput {
-  const subject = heading;
   const text = [
     `${intro}`,
     '',
@@ -35,7 +36,7 @@ function buildBaseTemplate({
 
   const html = `
     <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #111;">
-      <h2>${heading}</h2>
+      ${heading ? `<h2>${heading}</h2>` : ''}
       <p>${intro}</p>
       <p>
         <a href="${link}" style="display:inline-block;padding:10px 14px;background:#0b5fff;color:#fff;text-decoration:none;border-radius:6px;">
@@ -58,7 +59,7 @@ export function buildInviteEmail({
   expiresMinutes,
 }: EmailTemplateInput): EmailTemplateOutput {
   return buildBaseTemplate({
-    heading: 'Your IFE Physics account invite link',
+    subject: 'Staff Account Invite Link',
     intro: 'Use the link below to finish setting up your account.',
     actionLabel: 'Complete account setup',
     link,
@@ -68,6 +69,7 @@ export function buildInviteEmail({
 
 export function buildResetEmail({ link, expiresMinutes }: EmailTemplateInput): EmailTemplateOutput {
   return buildBaseTemplate({
+    subject: 'Your IFE Physics password reset link',
     heading: 'Your IFE Physics password reset link',
     intro: 'Use the link below to reset your password.',
     actionLabel: 'Reset password',

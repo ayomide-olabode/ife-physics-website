@@ -18,6 +18,7 @@ import {
 
 const requestSchema = z.string().email();
 type RegistrationRequestStatus = 'SENT' | 'THROTTLED' | 'ALREADY_ACTIVE' | 'NO_STAFF';
+const INVITE_FROM_NAME = 'Department of Physics amd Engineering Physics, OAU';
 
 type RequestRegistrationResult =
   | {
@@ -162,6 +163,7 @@ export async function requestRegistrationLink(email: string): Promise<RequestReg
 
     await sendMail({
       to: normalizedEmail,
+      fromName: INVITE_FROM_NAME,
       subject: template.subject,
       text: template.text,
       html: template.html,

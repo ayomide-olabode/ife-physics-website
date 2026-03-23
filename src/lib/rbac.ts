@@ -6,6 +6,7 @@ import {
   ProgrammeScope,
   ScopedRole,
   ScopeType,
+  StaffType,
 } from '.prisma/client';
 import { Session } from 'next-auth';
 
@@ -17,9 +18,14 @@ const PROGRAMME_PRIORITY: ProgrammeCode[] = [
   ProgrammeCode.EPH,
   ProgrammeCode.SLT,
 ];
+const FULL_PROFILE_TAB_STAFF_TYPES: StaffType[] = ['ACADEMIC', 'VISITING', 'EMERITUS'];
 
 export function isSuperAdmin(session: Session | null): boolean {
   return session?.user?.isSuperAdmin === true;
+}
+
+export function hasFullProfileTabAccessByStaffType(staffType: StaffType | undefined): boolean {
+  return staffType ? FULL_PROFILE_TAB_STAFF_TYPES.includes(staffType) : false;
 }
 
 export async function isCurrentHod(session: Session | null): Promise<boolean> {

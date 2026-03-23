@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireFullProfileTabAccess } from '@/lib/guards';
 import { listMyResearchOutputs } from '@/server/queries/profileResearchOutputs';
 import { ResearchOutputsClientView } from '@/components/profile/ResearchOutputsClientView';
 
@@ -8,6 +8,7 @@ export default async function ProfileResearchOutputsPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const session = await requireAuth();
+  await requireFullProfileTabAccess(session);
   const staffId = session.user?.staffId;
 
   if (!staffId) {

@@ -9,6 +9,7 @@ import {
   getScopedResearchGroupIds,
   canEditStaff,
   hasTributesAccess,
+  hasFullProfileTabAccessByStaffType,
 } from '@/lib/rbac';
 import { ProgrammeCode, ScopedRole } from '.prisma/client';
 import { Session } from 'next-auth';
@@ -70,6 +71,17 @@ export async function requireAnyAcademicLevelAccess(level: 'UNDERGRADUATE' | 'PO
   if (!canAccess) {
     notFound();
   }
+  return session;
+}
+
+export async function requireFullProfileTabAccess(sessionArg?: Session) {
+  const session = sessionArg ?? (await requireAuth());
+  const canAccess = hasFullProfileTabAccessByStaffType(session.user?.staffType);
+
+  if (!canAccess) {
+    redirect('/dashboard/profile/overview');
+  }
+
   return session;
 }
 

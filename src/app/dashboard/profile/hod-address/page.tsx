@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireFullProfileTabAccess } from '@/lib/guards';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { getMyHodAddress } from '@/server/queries/profileHodAddress';
@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/dashboard/EmptyState';
 
 export default async function Page() {
   const session = await requireAuth();
+  await requireFullProfileTabAccess(session);
   const isSuperAdmin = session.user?.isSuperAdmin === true;
   const sessionStaffId = session.user?.staffId;
 

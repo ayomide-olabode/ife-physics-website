@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireFullProfileTabAccess } from '@/lib/guards';
 import { listMyProjects } from '@/server/queries/profileProjects';
 import { ProjectsClientView } from '@/components/profile/ProjectsClientView';
 
@@ -8,6 +8,7 @@ export default async function ProfileProjectsPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const session = await requireAuth();
+  await requireFullProfileTabAccess(session);
   const staffId = session.user?.staffId;
 
   if (!staffId) {

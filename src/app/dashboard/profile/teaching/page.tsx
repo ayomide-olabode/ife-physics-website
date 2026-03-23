@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireFullProfileTabAccess } from '@/lib/guards';
 import { listMyTeaching } from '@/server/queries/profileTeaching';
 import { TeachingClientView } from '@/components/profile/TeachingClientView';
 
@@ -8,6 +8,7 @@ export default async function ProfileTeachingPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const session = await requireAuth();
+  await requireFullProfileTabAccess(session);
   const staffId = session.user?.staffId;
 
   if (!staffId) {

@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { AuthCardShell } from '@/components/auth/AuthCardShell';
+import { STAFF_TYPE_OPTIONS } from '@/lib/options';
 import { PasswordInput } from '@/components/forms/PasswordInput';
 import { PasswordStrength } from '@/components/forms/PasswordStrength';
 import { Button } from '@/components/ui/button';
 import { toastError } from '@/lib/toast';
 import { completeRegistration } from '@/server/actions/onboardingRegister';
+import { StaffType } from '@prisma/client';
 
 type Props = {
   token: string;
@@ -19,6 +21,7 @@ export function ConfirmRegistrationClient({ token }: Props) {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [staffType, setStaffType] = useState<StaffType | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!token) {
@@ -41,7 +44,13 @@ export function ConfirmRegistrationClient({ token }: Props) {
 
     setIsSubmitting(true);
     try {
-      const result = await completeRegistration(token, password, confirmPassword);
+      if (!staffType) {
+        toastError('Please select your staff type.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const result = await completeRegistration(token, staffType, password, confirmPassword);
 
       if (!result.success) {
         toastError(result.error ?? 'Link expired or invalid');
@@ -70,6 +79,26 @@ export function ConfirmRegistrationClient({ token }: Props) {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-2">
+          <label htmlFor="staffType" className="block text-sm font-medium text-foreground">
+            Staff Type
+          </label>
+          <select
+            id="staffType"
+            value={staffType}
+            onChange={(e) => setStaffType(e.target.value as StaffType)}
+            className="flex h-10 w-full rounded-none border border-input bg-white px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            required
+          >
+            <option value="">Select your staff type</option>
+            {STAFF_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="space-y-2">
           <label htmlFor="password" className="block text-sm font-medium text-foreground">
             Create Password
@@ -101,7 +130,11 @@ export function ConfirmRegistrationClient({ token }: Props) {
           />
         </div>
 
-        <Button type="submit" className="w-full rounded-none" disabled={isSubmitting || !token}>
+        <Button
+          type="submit"
+          className="w-full rounded-none"
+          disabled={isSubmitting || !token || !staffType}
+        >
           {isSubmitting ? 'Setting password...' : 'Set password'}
         </Button>
       </form>

@@ -1,10 +1,11 @@
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireFullProfileTabAccess } from '@/lib/guards';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { ResearchOutputEntryForm } from '@/components/profile/ResearchOutputEntryForm';
 
 export default async function NewResearchOutputPage() {
   const session = await requireAuth();
+  await requireFullProfileTabAccess(session);
   const staffId = session.user?.staffId;
 
   if (!staffId) {

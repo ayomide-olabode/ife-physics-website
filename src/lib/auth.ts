@@ -69,6 +69,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id, // NextAuth expects "id" conventionally
           userId: user.id,
           staffId: staff.id,
+          staffType: staff.staffType,
           isSuperAdmin: user.isSuperAdmin,
           firstLogin,
           email: staff.institutionalEmail,
@@ -81,15 +82,26 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.userId = user.userId;
         token.staffId = user.staffId;
+        token.staffType = user.staffType;
         token.isSuperAdmin = user.isSuperAdmin;
         token.firstLogin = user.firstLogin;
       }
+
+      if (!token.staffType && token.staffId) {
+        const staff = await prisma.staff.findUnique({
+          where: { id: token.staffId },
+          select: { staffType: true },
+        });
+        token.staffType = staff?.staffType;
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (token) {
         session.user.userId = token.userId;
         session.user.staffId = token.staffId;
+        session.user.staffType = token.staffType;
         session.user.isSuperAdmin = token.isSuperAdmin;
         session.user.firstLogin = token.firstLogin;
       }

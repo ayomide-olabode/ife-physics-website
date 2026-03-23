@@ -33,6 +33,7 @@ type RequestRegistrationResult =
 const completeSchema = z
   .object({
     tokenRaw: z.string().min(1, 'Invalid registration link.'),
+    staffType: z.nativeEnum(StaffType, { message: 'Please select your staff type.' }),
     password: z.string().min(8, 'Password must be at least 8 characters long.'),
     confirmPassword: z.string().min(8, 'Confirm password is required.'),
   })
@@ -175,10 +176,11 @@ export async function requestRegistrationLink(email: string): Promise<RequestReg
 
 export async function completeRegistration(
   tokenRaw: string,
+  staffType: StaffType,
   password: string,
   confirmPassword: string,
 ) {
-  const parsed = completeSchema.safeParse({ tokenRaw, password, confirmPassword });
+  const parsed = completeSchema.safeParse({ tokenRaw, staffType, password, confirmPassword });
   if (!parsed.success) {
     return {
       success: false,
@@ -238,9 +240,18 @@ export async function completeRegistration(
       return { success: false, error: 'Link expired or invalid' };
     }
 
+    const resolvedStaffId = inviteToken.staffId ?? user.staffId;
+    if (!resolvedStaffId) {
+      return { success: false, error: 'Link expired or invalid' };
+    }
+
     const passwordHash = await bcrypt.hash(parsed.data.password, 12);
 
     await prisma.$transaction([
+      prisma.staff.update({
+        where: { id: resolvedStaffId },
+        data: { staffType: parsed.data.staffType },
+      }),
       prisma.user.update({
         where: { id: user.id },
         data: {

@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireFullProfileTabAccess } from '@/lib/guards';
 import { getMyResearchOutputById } from '@/server/queries/profileResearchOutputs';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { PageHeader } from '@/components/dashboard/PageHeader';
@@ -12,6 +12,7 @@ export default async function EditResearchOutputPage({
   params: Promise<{ id: string }>;
 }) {
   const session = await requireAuth();
+  await requireFullProfileTabAccess(session);
   const staffId = session.user?.staffId;
 
   if (!staffId) {

@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireFullProfileTabAccess } from '@/lib/guards';
 import { listMyTheses } from '@/server/queries/profileTheses';
 import { ThesesClientView } from '@/components/profile/ThesesClientView';
 
@@ -8,6 +8,7 @@ export default async function ProfileThesesPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const session = await requireAuth();
+  await requireFullProfileTabAccess(session);
   const staffId = session.user?.staffId;
 
   if (!staffId) {

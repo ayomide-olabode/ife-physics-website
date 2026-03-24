@@ -7,6 +7,7 @@ export type ThesisRow = {
   year: number;
   title: string;
   studentName: string | null;
+  registrationNumber?: string | null;
   status: string;
   createdAt: Date;
 };
@@ -69,6 +70,7 @@ export async function getMyThesisById({ staffId, id }: { staffId: string; id: st
       year: true,
       title: true,
       studentName: true,
+      registrationNumber: true,
       programme: true,
       degreeLevel: true,
       externalUrl: true,

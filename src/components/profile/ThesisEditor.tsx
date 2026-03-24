@@ -23,6 +23,7 @@ type FormDataState = {
   year: string;
   title: string;
   studentName: string;
+  registrationNumber: string;
   programme: string;
   degreeLevel: string;
   externalUrl: string;
@@ -33,6 +34,7 @@ const defaultValues: FormDataState = {
   year: new Date().getFullYear().toString(),
   title: '',
   studentName: '',
+  registrationNumber: '',
   programme: '',
   degreeLevel: '',
   externalUrl: '',
@@ -83,6 +85,7 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
       year: yearNum,
       title: formData.title,
       studentName: formData.studentName || undefined,
+      registrationNumber: formData.registrationNumber || undefined,
       programme: formData.programme,
       degreeLevel: formData.degreeLevel,
       externalUrl: formData.externalUrl || undefined,
@@ -183,29 +186,19 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <FieldLabel required htmlFor="programme">
-                Programme
-              </FieldLabel>
-              <select
-                id="programme"
-                value={formData.programme}
-                onChange={(e) => setFormData((prev) => ({ ...prev, programme: e.target.value }))}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                required
-              >
-                <option value="" disabled>
-                  Select Programme
-                </option>
-                {PROGRAMME_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="space-y-2">
+            <FieldLabel htmlFor="registrationNumber">Registration Number</FieldLabel>
+            <Input
+              id="registrationNumber"
+              value={formData.registrationNumber}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, registrationNumber: e.target.value }))
+              }
+              placeholder="e.g. PHY/2024/001"
+            />
+          </div>
 
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <FieldLabel required htmlFor="degreeLevel">
                 Degree Level
@@ -221,6 +214,28 @@ export function ThesisEditor({ open, onOpenChange, initialData }: ThesisEditorPr
                   Select Degree
                 </option>
                 {DEGREE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <FieldLabel required htmlFor="programme">
+                Programme
+              </FieldLabel>
+              <select
+                id="programme"
+                value={formData.programme}
+                onChange={(e) => setFormData((prev) => ({ ...prev, programme: e.target.value }))}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
+              >
+                <option value="" disabled>
+                  Select Programme
+                </option>
+                {PROGRAMME_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>

@@ -1,3 +1,5 @@
+import type { StaffType } from '@prisma/client';
+
 export const STAFF_PROFILE_TABS = [
   'tributes',
   'bio',
@@ -13,17 +15,56 @@ export function isStaffProfileTab(value: string | undefined): value is StaffProf
   return !!value && STAFF_PROFILE_TABS.includes(value as StaffProfileTab);
 }
 
-export function getDefaultStaffProfileTab(isInMemoriam: boolean): StaffProfileTab {
-  return isInMemoriam ? 'tributes' : 'bio';
+const ACADEMIC_STAFF_PROFILE_TABS: StaffProfileTab[] = [
+  'bio',
+  'research-outputs',
+  'projects',
+  'student-theses',
+  'teaching',
+];
+
+const TECHNICAL_SUPPORT_STAFF_PROFILE_TABS: StaffProfileTab[] = ['bio'];
+
+export function getVisibleStaffProfileTabs({
+  isInMemoriam,
+  staffType,
+}: {
+  isInMemoriam: boolean;
+  staffType: StaffType;
+}): StaffProfileTab[] {
+  const nonMemoriamTabs =
+    staffType === 'TECHNICAL' || staffType === 'SUPPORT'
+      ? TECHNICAL_SUPPORT_STAFF_PROFILE_TABS
+      : ACADEMIC_STAFF_PROFILE_TABS;
+
+  return isInMemoriam ? (['tributes', ...nonMemoriamTabs] as StaffProfileTab[]) : nonMemoriamTabs;
+}
+
+export function getDefaultStaffProfileTab({
+  isInMemoriam,
+  staffType,
+}: {
+  isInMemoriam: boolean;
+  staffType: StaffType;
+}): StaffProfileTab {
+  const visibleTabs = getVisibleStaffProfileTabs({ isInMemoriam, staffType });
+  return visibleTabs[0] ?? 'bio';
 }
 
 export function normalizeStaffProfileTab(
   value: string | undefined,
-  isInMemoriam: boolean,
+  {
+    isInMemoriam,
+    staffType,
+  }: {
+    isInMemoriam: boolean;
+    staffType: StaffType;
+  },
 ): StaffProfileTab {
-  const defaultTab = getDefaultStaffProfileTab(isInMemoriam);
+  const visibleTabs = getVisibleStaffProfileTabs({ isInMemoriam, staffType });
+  const defaultTab = getDefaultStaffProfileTab({ isInMemoriam, staffType });
   if (!isStaffProfileTab(value)) return defaultTab;
-  if (value === 'tributes' && !isInMemoriam) return 'bio';
+  if (!visibleTabs.includes(value)) return defaultTab;
   return value;
 }
 

@@ -47,7 +47,10 @@ export default async function StaffProfilePage({
   if (!staff) notFound();
 
   const isInMemoriam = staff.isInMemoriam || staff.staffStatus === 'IN_MEMORIAM';
-  const activeTab = normalizeStaffProfileTab(query.tab, isInMemoriam);
+  const activeTab = normalizeStaffProfileTab(query.tab, {
+    isInMemoriam,
+    staffType: staff.staffType,
+  });
   const page = parsePositiveInt(query.page);
   const submitted = query.submitted === '1';
   const activeSidebarCategory = getActiveSidebarCategory(staff);
@@ -65,12 +68,17 @@ export default async function StaffProfilePage({
               <StaffProfileHeader staff={staff} />
 
               <div className="space-y-4 border border-gray-200 bg-gray-50 p-4">
-                <StaffProfileTabs isInMemoriam={isInMemoriam} activeTab={activeTab} />
+                <StaffProfileTabs
+                  isInMemoriam={isInMemoriam}
+                  staffType={staff.staffType}
+                  activeTab={activeTab}
+                />
                 <StaffProfileSection
                   staffId={staff.id}
                   staffSlug={staff.computedStaffSlug}
                   tab={activeTab}
                   isInMemoriam={isInMemoriam}
+                  staffType={staff.staffType}
                   page={page}
                   bioHtml={staff.bio}
                   education={staff.education}

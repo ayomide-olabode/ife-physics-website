@@ -1,24 +1,27 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import type { StaffType } from '@prisma/client';
 import {
+  getVisibleStaffProfileTabs,
   STAFF_PROFILE_TAB_LABELS,
-  STAFF_PROFILE_TABS,
   type StaffProfileTab,
 } from '@/components/public/staff-profile/tabConfig';
 
 export function StaffProfileTabs({
   isInMemoriam,
+  staffType,
   activeTab,
 }: {
   isInMemoriam: boolean;
+  staffType: StaffType;
   activeTab: StaffProfileTab;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const visibleTabs = STAFF_PROFILE_TABS.filter((tab) => (isInMemoriam ? true : tab !== 'tributes'));
+  const visibleTabs = getVisibleStaffProfileTabs({ isInMemoriam, staffType });
 
   return (
     <nav className="border border-gray-200 bg-white" aria-label="Profile sections">

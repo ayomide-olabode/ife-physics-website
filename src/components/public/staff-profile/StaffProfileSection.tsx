@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import type { StaffType } from '@prisma/client';
 import { Prose } from '@/components/public/Prose';
 import { formatDate } from '@/lib/format-date';
+import { StudentThesesByYear } from '@/components/public/staff-profile/StudentThesesByYear';
 import {
   getPublicTributesForStaff,
   listPublicProjectsForStaff,
@@ -88,6 +90,7 @@ export async function StaffProfileSection({
   staffSlug,
   tab,
   isInMemoriam,
+  staffType,
   page,
   bioHtml,
   education,
@@ -99,6 +102,7 @@ export async function StaffProfileSection({
   staffSlug: string;
   tab: StaffProfileTab;
   isInMemoriam: boolean;
+  staffType: StaffType;
   page: number;
   bioHtml: string | null;
   education: string | null;
@@ -106,7 +110,7 @@ export async function StaffProfileSection({
   membershipOfProfessionalOrganizations: string | null;
   submitted: boolean;
 }) {
-  const activeTab = normalizeStaffProfileTab(tab, isInMemoriam);
+  const activeTab = normalizeStaffProfileTab(tab, { isInMemoriam, staffType });
 
   if (activeTab === 'bio') {
     const sections = [
@@ -211,30 +215,13 @@ export async function StaffProfileSection({
   }
 
   if (activeTab === 'student-theses') {
-    const data = await listPublicThesesForStaff(staffId, { page, pageSize: 8 });
+    const data = await listPublicThesesForStaff(staffId, { page: 1, pageSize: 200 });
     return (
       <section className="border border-gray-200 bg-white p-6">
         {data.items.length === 0 ? (
           <p className="text-sm text-gray-600">No student theses available.</p>
         ) : (
-          <div className="space-y-4">
-            {data.items.map((thesis) => (
-              <article key={thesis.id} className="border border-gray-200 p-4">
-                <h3 className="font-semibold text-brand-navy">{thesis.title}</h3>
-                <p className="mt-1 text-sm text-gray-600">
-                  {thesis.year} •{' '}
-                  {[thesis.degreeLevel, thesis.programme].filter(Boolean).join(' • ')}
-                </p>
-              </article>
-            ))}
-            <SectionPager
-              staffSlug={staffSlug}
-              tab={activeTab}
-              prevPage={data.prevPage}
-              nextPage={data.nextPage}
-              currentPage={data.page}
-            />
-          </div>
+          <StudentThesesByYear items={data.items} />
         )}
       </section>
     );

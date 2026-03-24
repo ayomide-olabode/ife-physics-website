@@ -163,7 +163,7 @@ export default async function AdminStaffDetailPage({
           currentIsPublicProfile={staff.isPublicProfile}
         />
 
-        <div className="rounded-lg border border-destructive/30 p-4 space-y-3">
+        <div className="rounded-lg border border-destructive p-4 space-y-3">
           <h3 className="text-sm font-medium text-destructive">Danger Zone</h3>
           <p className="text-sm text-muted-foreground">
             Delete this staff record and its linked user account from the system.

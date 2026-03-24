@@ -40,7 +40,9 @@ export function ThesesClientView({ data, staffId }: { data: PaginatedData; staff
   const handleEdit = async (id: string) => {
     try {
       const dbDoc = await getMyThesisById({ staffId, id });
-      const fullDoc = dbDoc as typeof dbDoc & { externalUrl: string | null };
+      const fullDoc = dbDoc as
+        | (typeof dbDoc & { externalUrl: string | null; registrationNumber: string | null })
+        | null;
       if (!fullDoc) {
         toastError('Thesis not found or inaccessible.');
         return;
@@ -50,6 +52,7 @@ export function ThesesClientView({ data, staffId }: { data: PaginatedData; staff
         year: fullDoc.year.toString(),
         title: fullDoc.title,
         studentName: fullDoc.studentName || '',
+        registrationNumber: fullDoc.registrationNumber || '',
         programme: fullDoc.programme || '',
         degreeLevel: fullDoc.degreeLevel || '',
         externalUrl: fullDoc.externalUrl || '',

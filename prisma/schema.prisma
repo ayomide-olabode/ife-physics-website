@@ -522,13 +522,14 @@ model StudentThesis {
   staffId String
   staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  year        Int
-  title       String
-  studentName String?
-  programme   String?
-  degreeLevel String?
-  externalUrl String?
-  status      ThesisStatus
+  year               Int
+  title              String
+  studentName        String?
+  registrationNumber String?
+  programme          String?
+  degreeLevel        String?
+  externalUrl        String?
+  status             ThesisStatus
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

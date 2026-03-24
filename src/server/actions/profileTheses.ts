@@ -15,6 +15,11 @@ const thesisSchema = z.object({
     .max(new Date().getFullYear() + 1),
   title: z.string().min(1, 'Title is required.'),
   studentName: z.string().max(200, 'Student name too long.').optional().or(z.literal('')),
+  registrationNumber: z
+    .string()
+    .max(100, 'Registration number too long.')
+    .optional()
+    .or(z.literal('')),
   programme: z
     .string()
     .min(1, 'Programme is required.')
@@ -57,6 +62,7 @@ export async function createMyThesis(data: z.infer<typeof thesisSchema>): Promis
         year: validated.year,
         title: validated.title,
         studentName: validated.studentName || null,
+        registrationNumber: validated.registrationNumber || null,
         programme: validated.programme,
         degreeLevel: validated.degreeLevel,
         externalUrl: validated.externalUrl || null,
@@ -114,6 +120,7 @@ export async function updateMyThesis(
         year: validated.year,
         title: validated.title,
         studentName: validated.studentName || null,
+        registrationNumber: validated.registrationNumber || null,
         programme: validated.programme,
         degreeLevel: validated.degreeLevel,
         externalUrl: validated.externalUrl || null,

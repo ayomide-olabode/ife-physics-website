@@ -22,7 +22,7 @@ type GroupedYear = {
   items: ThesisItem[];
 };
 
-const THESIS_STATUS_LABELS = new Map(
+const THESIS_STATUS_LABELS = new Map<string, string>(
   THESIS_STATUS_OPTIONS.map((option) => [option.value, option.label]),
 );
 

@@ -57,7 +57,9 @@ export async function listEventsOpportunities({
     if (q) {
       where.OR = [
         { title: { contains: q, mode: 'insensitive' } },
-        ...(includeDurationSearch ? [{ duration: { contains: q, mode: 'insensitive' } }] : []),
+        ...(includeDurationSearch
+          ? [{ duration: { contains: q, mode: Prisma.QueryMode.insensitive } }]
+          : []),
         { venue: { contains: q, mode: 'insensitive' } },
       ];
     }

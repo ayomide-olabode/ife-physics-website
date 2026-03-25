@@ -20,7 +20,7 @@ type ResearchOutputItem = {
   sourceTitle: string | null;
   venue: string | null;
   publisher: string | null;
-  metaJson: Record<string, unknown> | null;
+  metaJson: unknown;
   doi: string | null;
   url: string | null;
 };
@@ -66,7 +66,11 @@ function pickFirst(...values: Array<string | null | undefined>): string | null {
 }
 
 function getMeta(item: ResearchOutputItem, key: string): string | null {
-  const value = item.metaJson?.[key];
+  const meta =
+    item.metaJson && typeof item.metaJson === 'object' && !Array.isArray(item.metaJson)
+      ? (item.metaJson as Record<string, unknown>)
+      : null;
+  const value = meta?.[key];
   if (typeof value !== 'string') return null;
   const normalized = value.trim();
   return normalized || null;

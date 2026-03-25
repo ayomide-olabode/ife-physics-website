@@ -58,7 +58,9 @@ export async function listPublicEventOpportunities({
         OR: [
           { title: { contains: query, mode: 'insensitive' } },
           { description: { contains: query, mode: 'insensitive' } },
-          ...(includeDurationSearch ? [{ duration: { contains: query, mode: 'insensitive' } }] : []),
+          ...(includeDurationSearch
+            ? [{ duration: { contains: query, mode: Prisma.QueryMode.insensitive } }]
+            : []),
           { venue: { contains: query, mode: 'insensitive' } },
         ],
       });

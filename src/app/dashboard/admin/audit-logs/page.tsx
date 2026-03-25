@@ -8,15 +8,16 @@ import Link from 'next/link';
 export default async function AuditLogsPage({
   searchParams,
 }: {
-  searchParams: { q?: string; entityType?: string; actorId?: string; page?: string };
+  searchParams: Promise<{ q?: string; entityType?: string; actorId?: string; page?: string }>;
 }) {
-  const page = parseInt(searchParams.page || '1', 10);
+  const query = await searchParams;
+  const page = parseInt(query.page || '1', 10);
   const pageSize = 20;
 
   const { items, total } = await listAuditLogs({
-    q: searchParams.q,
-    entityType: searchParams.entityType,
-    actorId: searchParams.actorId,
+    q: query.q,
+    entityType: query.entityType,
+    actorId: query.actorId,
     page,
     pageSize,
   });
@@ -26,12 +27,12 @@ export default async function AuditLogsPage({
 
   // Render URL construction securely
   const buildPaginationUrl = (newPage: number) => {
-    const params = new URLSearchParams();
-    if (searchParams.q) params.set('q', searchParams.q);
-    if (searchParams.entityType) params.set('entityType', searchParams.entityType);
-    if (searchParams.actorId) params.set('actorId', searchParams.actorId);
-    params.set('page', newPage.toString());
-    return `/dashboard/admin/audit-logs?${params.toString()}`;
+    const paginationParams = new URLSearchParams();
+    if (query.q) paginationParams.set('q', query.q);
+    if (query.entityType) paginationParams.set('entityType', query.entityType);
+    if (query.actorId) paginationParams.set('actorId', query.actorId);
+    paginationParams.set('page', newPage.toString());
+    return `/dashboard/admin/audit-logs?${paginationParams.toString()}`;
   };
 
   return (
@@ -45,24 +46,24 @@ export default async function AuditLogsPage({
         <form className="flex flex-col sm:flex-row gap-4">
           <Input
             name="q"
-            defaultValue={searchParams.q || ''}
+            defaultValue={query.q || ''}
             placeholder="Search action or entity..."
             className="sm:max-w-[200px]"
           />
           <Input
             name="entityType"
-            defaultValue={searchParams.entityType || ''}
+            defaultValue={query.entityType || ''}
             placeholder="Entity Type (e.g., User)"
             className="sm:max-w-[180px]"
           />
           <Input
             name="actorId"
-            defaultValue={searchParams.actorId || ''}
+            defaultValue={query.actorId || ''}
             placeholder="Actor ID"
             className="sm:max-w-[180px]"
           />
           <Button type="submit">Filter</Button>
-          {(searchParams.q || searchParams.entityType || searchParams.actorId) && (
+          {(query.q || query.entityType || query.actorId) && (
             <Button variant="outline" asChild>
               <Link href="/dashboard/admin/audit-logs">Clear</Link>
             </Button>

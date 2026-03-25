@@ -15,7 +15,7 @@ const aboutLinks = [
   { label: 'Strategy Document', href: '/about' },
   { label: 'Handbook', href: '/resources' },
   { label: 'Legacy Gallery', href: '/about' },
-  { label: 'Academic Calendar', href: '/under-construction' },
+  { label: 'Academic Calendar', href: '/resources/academic-calendar' },
 ];
 
 const quickLinks = [

@@ -1,15 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Prose } from '@/components/public/Prose';
 
 interface ResearchGroupHeroClientProps {
@@ -67,7 +59,7 @@ export function ResearchGroupHeroClient({ title, overview }: ResearchGroupHeroCl
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="mt-3 text-xs md:text-sm tracking-wide font-bold uppercase text-brand-yellow hover:underline"
+          className="mt-3 text-base md:text-base tracking-wide font-bold uppercase text-brand-yellow hover:underline"
         >
           Discover More →
         </button>
@@ -81,13 +73,6 @@ export function ResearchGroupHeroClient({ title, overview }: ResearchGroupHeroCl
           <div className="max-h-[70vh] overflow-y-auto border border-black/10 bg-white p-5">
             <Prose html={overview || ''} className="text-gray-700" />
           </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline" className="rounded-none">
-                Close
-              </Button>
-            </DialogClose>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

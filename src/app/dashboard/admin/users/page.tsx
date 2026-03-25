@@ -74,7 +74,7 @@ export default async function AdminUsersPage({
     const uniqueRoleLabels = Array.from(new Set(roleLabels));
 
     return [
-      <div key="name" className="text-sm">
+      <div key="name" className="text-base">
         <p className="font-medium text-foreground">
           {formatFullName({
             firstName: user.staff.firstName,
@@ -83,20 +83,20 @@ export default async function AdminUsersPage({
           }) || user.staff.institutionalEmail}
         </p>
         {user.isSuperAdmin && (
-          <span className="mt-1 inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-500">
+          <span className="mt-1 inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-sm font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-500">
             SUPER_ADMIN
           </span>
         )}
       </div>,
-      <div key="email" className="text-sm text-muted-foreground">
+      <div key="email" className="text-base text-muted-foreground">
         {user.staff.institutionalEmail}
       </div>,
-      <span key="roles" className="text-sm flex flex-wrap gap-1">
+      <span key="roles" className="text-base flex flex-wrap gap-1">
         {uniqueRoleLabels.length > 0 ? (
           uniqueRoleLabels.map((label) => (
             <span
               key={label}
-              className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground"
+              className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-sm font-medium text-foreground"
             >
               {label}
             </span>
@@ -105,13 +105,13 @@ export default async function AdminUsersPage({
           <span className="text-muted-foreground">No roles</span>
         )}
       </span>,
-      <span key="lastLogin" className="text-sm">
+      <span key="lastLogin" className="text-base">
         {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never'}
       </span>,
       <Link
         key="actions"
         href={`/dashboard/admin/users/${user.id}`}
-        className="text-sm font-medium text-primary hover:underline"
+        className="text-base font-medium text-primary hover:underline"
       >
         View Details
       </Link>,
@@ -131,7 +131,7 @@ export default async function AdminUsersPage({
                 name="q"
                 defaultValue={q}
                 placeholder="Search users..."
-                className="h-9 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-9 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-base file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
               <Button type="submit" variant="secondary" size="sm">
                 Search
@@ -152,7 +152,7 @@ export default async function AdminUsersPage({
         }
         footer={
           total > pageSize ? (
-            <div className="flex items-center justify-between text-sm text-muted-foreground pt-4">
+            <div className="flex items-center justify-between text-base text-muted-foreground pt-4">
               <div>
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total}{' '}
                 users

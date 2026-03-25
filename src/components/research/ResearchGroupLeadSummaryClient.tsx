@@ -18,7 +18,7 @@ export function ResearchGroupLeadSummaryClient({ group }: ResearchGroupLeadSumma
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold">Group Summary</h2>
-          <p className="text-sm text-muted-foreground">Review and update this research group.</p>
+          <p className="text-base text-muted-foreground">Review and update this research group.</p>
         </div>
         {!isEditing ? (
           <Button type="button" variant="outline" onClick={() => setIsEditing(true)}>
@@ -31,27 +31,27 @@ export function ResearchGroupLeadSummaryClient({ group }: ResearchGroupLeadSumma
         <div className="space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Name
               </p>
-              <p className="text-sm">{group.name}</p>
+              <p className="text-base">{group.name}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Abbreviation
               </p>
-              <p className="text-sm">{group.abbreviation}</p>
+              <p className="text-base">{group.abbreviation}</p>
             </div>
             <div className="sm:col-span-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Slug
               </p>
-              <p className="text-sm font-mono">{group.slug}</p>
+              <p className="text-base font-mono">{group.slug}</p>
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-2">
               Overview
             </p>
             {sanitizedOverview ? (
@@ -60,7 +60,7 @@ export function ResearchGroupLeadSummaryClient({ group }: ResearchGroupLeadSumma
                 dangerouslySetInnerHTML={{ __html: sanitizedOverview }}
               />
             ) : (
-              <p className="text-sm text-muted-foreground">No overview provided yet.</p>
+              <p className="text-base text-muted-foreground">No overview provided yet.</p>
             )}
           </div>
         </div>

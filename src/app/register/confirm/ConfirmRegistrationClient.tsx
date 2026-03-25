@@ -28,7 +28,7 @@ export function ConfirmRegistrationClient({ token }: Props) {
     return (
       <AuthCardShell title="Registration link missing">
         <div className="space-y-4 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             We could not find a valid registration token in this link.
           </p>
           <Button asChild className="rounded-none">
@@ -80,14 +80,14 @@ export function ConfirmRegistrationClient({ token }: Props) {
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <label htmlFor="staffType" className="block text-sm font-medium text-foreground">
+          <label htmlFor="staffType" className="block text-base font-medium text-foreground">
             Staff Type
           </label>
           <select
             id="staffType"
             value={staffType}
             onChange={(e) => setStaffType(e.target.value as StaffType)}
-            className="flex h-10 w-full rounded-none border border-input bg-white px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="flex h-10 w-full rounded-none border border-input bg-white px-3 py-2 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             required
           >
             <option value="">Select your staff type</option>
@@ -100,7 +100,7 @@ export function ConfirmRegistrationClient({ token }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="password" className="block text-sm font-medium text-foreground">
+          <label htmlFor="password" className="block text-base font-medium text-foreground">
             Create Password
           </label>
           <PasswordInput
@@ -116,7 +116,7 @@ export function ConfirmRegistrationClient({ token }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
+          <label htmlFor="confirmPassword" className="block text-base font-medium text-foreground">
             Confirm Password
           </label>
           <PasswordInput

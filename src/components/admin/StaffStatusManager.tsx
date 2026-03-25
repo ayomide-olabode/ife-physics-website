@@ -41,14 +41,14 @@ export function StaffStatusManager({
 
   return (
     <div className="rounded-lg border p-4 space-y-3">
-      <h3 className="text-sm font-medium text-muted-foreground">Lifecycle Status</h3>
+      <h3 className="text-base font-medium text-muted-foreground">Lifecycle Status</h3>
       <div className="space-y-2">
         <FieldLabel htmlFor="staff-status">Staff Status</FieldLabel>
         <select
           id="staff-status"
           value={nextStatus}
           onChange={(e) => setNextStatus(e.target.value as StaffStatus)}
-          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           {STAFF_STATUS_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>

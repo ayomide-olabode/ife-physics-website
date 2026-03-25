@@ -22,7 +22,7 @@ export function ProfileCompletenessCard({
       <div className=" flex items-center gap-2">
         <h2 className="text-xl font-semibold">Profile Status</h2>
         <span
-          className={`text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold ${
+          className={`text-sm px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold ${
             isComplete
               ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
               : emphasizeRequired

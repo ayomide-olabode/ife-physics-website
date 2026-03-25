@@ -15,7 +15,7 @@ import { Prose } from '@/components/public/Prose';
 
 function RichTextPreview({ html }: { html: string }) {
   if (!html.trim()) {
-    return <p className="text-sm text-muted-foreground">Not provided.</p>;
+    return <p className="text-base text-muted-foreground">Not provided.</p>;
   }
   return <Prose html={html} className="prose-sm max-w-none" />;
 }
@@ -142,7 +142,7 @@ export function EditProfileForm({
   return (
     <div className="space-y-4 w-full">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Last updated: {formatShortDate(lastUpdatedAt ?? null)}
         </p>
         {!isEditing && (
@@ -156,72 +156,72 @@ export function EditProfileForm({
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Title
               </p>
-              <p className="text-sm">{title || 'Not provided.'}</p>
+              <p className="text-base">{title || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 First Name
               </p>
-              <p className="text-sm">{firstName || 'Not provided.'}</p>
+              <p className="text-base">{firstName || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Middle Name
               </p>
-              <p className="text-sm">{middleName || 'Not provided.'}</p>
+              <p className="text-base">{middleName || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Last Name
               </p>
-              <p className="text-sm">{lastName || 'Not provided.'}</p>
+              <p className="text-base">{lastName || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Staff Rank
               </p>
-              <p className="text-sm">{academicRank || 'Not provided.'}</p>
+              <p className="text-base">{academicRank || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Designation
               </p>
-              <p className="text-sm">{designation || 'Not provided.'}</p>
+              <p className="text-base">{designation || 'Not provided.'}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Office Room Number
               </p>
-              <p className="text-sm">{roomNumber || 'Not provided.'}</p>
+              <p className="text-base">{roomNumber || 'Not provided.'}</p>
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
               About Me
             </p>
             <RichTextPreview html={bio} />
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
               Education
             </p>
             <RichTextPreview html={education} />
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
               Research Interests
             </p>
             <RichTextPreview html={researchInterests} />
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
               Membership of Professional Organizations
             </p>
             <RichTextPreview html={professionalMemberships} />
@@ -239,7 +239,7 @@ export function EditProfileForm({
                   id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="flex h-9 w-full rounded-none border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="flex h-9 w-full rounded-none border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
                   <option value="">Select title (optional)</option>
                   {STAFF_TITLE_OPTIONS.map((option) => (
@@ -299,7 +299,7 @@ export function EditProfileForm({
                   id="academicRank"
                   value={academicRank}
                   onChange={(e) => setAcademicRank(e.target.value)}
-                  className="flex h-9 w-full rounded-none border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="flex h-9 w-full rounded-none border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
                   <option value="">Select staff rank</option>
                   {staffRankOptions.map((option) => (

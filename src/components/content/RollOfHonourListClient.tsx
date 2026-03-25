@@ -9,8 +9,7 @@ import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { deleteRollOfHonour } from '@/server/actions/rollOfHonour';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { Pencil, Trash2, Eye, Search } from 'lucide-react';
-import { RollOfHonourPreviewModal } from './RollOfHonourPreviewModal';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 type RollOfHonourItem = {
@@ -47,7 +46,6 @@ export function RollOfHonourListClient({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [previewTarget, setPreviewTarget] = useState<string | null>(null);
 
   // Filters state
   const [q, setQ] = useState(searchQ || '');
@@ -80,43 +78,36 @@ export function RollOfHonourListClient({
 
   const headers = ['Year', 'Name', 'Reg No.', 'Programme', 'CGPA', 'Actions'];
   const rows = items.map((item) => [
-    <span key={`y-${item.id}`} className="text-sm font-medium">
+    <span key={`y-${item.id}`} className="text-base font-medium">
       {item.graduatingYear}
     </span>,
     <span key={`n-${item.id}`} className="font-medium text-primary">
       {item.name}
     </span>,
-    <span key={`r-${item.id}`} className="text-sm">
+    <span key={`r-${item.id}`} className="text-base">
       {item.registrationNumber}
     </span>,
-    <span key={`p-${item.id}`} className="text-sm text-muted-foreground whitespace-nowrap">
+    <span key={`p-${item.id}`} className="text-base text-muted-foreground whitespace-nowrap">
       {item.programme}
     </span>,
-    <span key={`c-${item.id}`} className="text-sm font-medium">
+    <span key={`c-${item.id}`} className="text-base font-medium">
       {item.cgpa}
     </span>,
     <div key={`a-${item.id}`} className="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setPreviewTarget(item.id)}
-        className="text-muted-foreground hover:text-primary"
+      <Link
+        href={`/dashboard/content/roll-of-honour/${item.id}`}
+        className="text-base text-blue-600 hover:text-blue-800 font-medium"
       >
-        <Eye className="h-4 w-4" />
-      </Button>
-      <Link href={`/dashboard/content/roll-of-honour/${item.id}`}>
-        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-          <Pencil className="h-4 w-4" />
-        </Button>
+        Edit
       </Link>
-      <Button
-        variant="ghost"
-        size="sm"
+      <span className="text-muted-foreground">|</span>
+      <button
+        type="button"
         onClick={() => setDeleteTarget(item.id)}
-        className="text-destructive hover:text-destructive"
+        className="text-base text-destructive hover:text-red-800 font-medium"
       >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+        Delete
+      </button>
     </div>,
   ]);
 
@@ -167,7 +158,7 @@ export function RollOfHonourListClient({
         }
         footer={
           pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-base text-muted-foreground">
               <span>
                 Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
               </span>
@@ -213,10 +204,6 @@ export function RollOfHonourListClient({
         onConfirm={handleDelete}
         destructive
       />
-
-      {previewTarget && (
-        <RollOfHonourPreviewModal entryId={previewTarget} onClose={() => setPreviewTarget(null)} />
-      )}
     </div>
   );
 }

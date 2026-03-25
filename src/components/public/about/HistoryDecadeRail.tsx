@@ -16,7 +16,7 @@ export function HistoryDecadeRail({ decades }: DecadeRailProps) {
                 {/* Dot */}
                 <span className="relative z-10 flex h-4 w-4 items-center justify-center bg-brand-navy border-2 border-brand-navy flex-shrink-0" />
                 {/* Label */}
-                <span className="text-sm font-semibold text-brand-navy group-hover:text-brand-yellow transition-colors">
+                <span className="text-base font-semibold text-brand-navy group-hover:text-brand-yellow transition-colors">
                   {decade}
                 </span>
               </a>

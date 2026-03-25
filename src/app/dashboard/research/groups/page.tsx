@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AddNewButton } from '@/components/dashboard/AddNewButton';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,16 +44,14 @@ export default async function ResearchGroupsListPage({ searchParams }: PageProps
         description="Manage research groups."
         actions={
           isAdmin ? (
-            <Button asChild>
-              <Link href="/dashboard/research/groups/new">Add New</Link>
-            </Button>
+            <AddNewButton href="/dashboard/research/groups/new" />
           ) : undefined
         }
       />
 
       <form className="flex flex-col sm:flex-row gap-4 items-end">
         <div className="space-y-1 w-full sm:w-64">
-          <label htmlFor="q" className="text-sm font-medium">
+          <label htmlFor="q" className="text-base font-medium">
             Search
           </label>
           <Input id="q" name="q" defaultValue={q} placeholder="Name or abbreviation..." />
@@ -106,7 +105,7 @@ export default async function ResearchGroupsListPage({ searchParams }: PageProps
               <span>Previous</span>
             )}
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-base text-muted-foreground">
             Page {page} of {totalPages}
           </span>
           <Button

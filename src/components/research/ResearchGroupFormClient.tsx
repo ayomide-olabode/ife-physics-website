@@ -146,7 +146,7 @@ export function ResearchGroupFormClient({
             </Button>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           URL-friendly identifier. Use lowercase letters, numbers, and hyphens only.
         </p>
       </div>

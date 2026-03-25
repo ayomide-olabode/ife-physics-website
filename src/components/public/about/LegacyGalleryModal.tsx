@@ -46,11 +46,11 @@ export function LegacyGalleryModal({ items }: { items: GalleryItem[] }) {
             <div className="p-4">
               <h3 className="font-semibold text-brand-navy line-clamp-1">{item.title}</h3>
               {(item.year || item.datesText) && (
-                <p className="text-xs text-brand-yellow font-medium mt-1">
+                <p className="text-sm text-brand-yellow font-medium mt-1">
                   {item.datesText ?? item.year}
                 </p>
               )}
-              <p className="text-sm text-gray-600 mt-2 line-clamp-2">{item.bioText}</p>
+              <p className="text-base text-gray-600 mt-2 line-clamp-2">{item.bioText}</p>
             </div>
           </button>
         ))}

@@ -73,11 +73,11 @@ export function HistoryTimeline({
       aria-label={`View full history entry: ${entry.title}`}
     >
       <article className="bg-white border border-black/10 shadow-sm p-6 h-full">
-        <span className="inline-block bg-brand-navy text-white text-xs font-semibold px-2 py-1 mb-3">
+        <span className="inline-block bg-brand-navy text-white text-sm font-semibold px-2 py-1 mb-3">
           {entry.year}
         </span>
         <h3 className="text-lg font-semibold text-brand-navy leading-snug">{entry.title}</h3>
-        <p className="mt-2 text-sm text-gray-600 leading-relaxed line-clamp-4">
+        <p className="mt-2 text-base text-gray-600 leading-relaxed line-clamp-4">
           {entry.shortDescription}
         </p>
       </article>
@@ -92,7 +92,7 @@ export function HistoryTimeline({
           aria-label="Decade navigation"
         >
           <div className="p-4 border-b border-black/10">
-            <h3 className="text-xs uppercase tracking-wider text-gray-500 font-semibold">
+            <h3 className="text-sm uppercase tracking-wider text-gray-500 font-semibold">
               Decades
             </h3>
           </div>
@@ -102,7 +102,7 @@ export function HistoryTimeline({
               <button
                 type="button"
                 onClick={() => selectPeriod('all')}
-                className={`w-full px-3 py-2 text-left text-sm font-semibold transition-colors ${
+                className={`w-full px-3 py-2 text-left text-base font-semibold transition-colors ${
                   activeDecadeKey === 'all'
                     ? 'bg-brand-navy text-white'
                     : 'text-gray-500 hover:text-brand-navy hover:bg-gray-50'
@@ -118,7 +118,7 @@ export function HistoryTimeline({
                   <button
                     type="button"
                     onClick={() => selectPeriod(decade.decadeKey)}
-                    className={`w-full px-3 py-2 text-left text-sm font-semibold transition-colors ${
+                    className={`w-full px-3 py-2 text-left text-base font-semibold transition-colors ${
                       isActive
                         ? 'bg-brand-navy text-white'
                         : 'text-gray-500 hover:text-brand-navy hover:bg-gray-50'
@@ -140,7 +140,7 @@ export function HistoryTimeline({
               All Periods
             </h2>
             {allEntries.length === 0 ? (
-              <p className="text-sm text-gray-500 border border-gray-200 bg-white p-6">
+              <p className="text-base text-gray-500 border border-gray-200 bg-white p-6">
                 No history entries available for this period.
               </p>
             ) : (
@@ -194,7 +194,7 @@ export function HistoryTimeline({
             </div>
 
             {selectedEntries.length === 0 ? (
-              <p className="text-sm text-gray-500 border border-gray-200 bg-white p-6">
+              <p className="text-base text-gray-500 border border-gray-200 bg-white p-6">
                 No history entries available for this period.
               </p>
             ) : (

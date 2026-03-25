@@ -24,22 +24,22 @@ export default async function AdminStaffPage({
   const hasPrevPage = page > 1;
 
   const rows = staffMembers.map((staff) => [
-    <div key="name" className="text-sm font-medium">
+    <div key="name" className="text-base font-medium">
       {formatFullName({
         firstName: staff.firstName,
         middleName: staff.middleName,
         lastName: staff.lastName,
       }) || staff.institutionalEmail}
     </div>,
-    <div key="email" className="text-sm text-muted-foreground">
+    <div key="email" className="text-base text-muted-foreground">
       {staff.institutionalEmail}
     </div>,
-    <span key="type" className="text-sm">
+    <span key="type" className="text-base">
       {staff.staffType.replace(/_/g, ' ')}
     </span>,
-    <span key="status" className="text-sm">
+    <span key="status" className="text-base">
       <span
-        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+        className={`inline-flex items-center rounded-full px-2 py-0.5 text-sm font-medium ${
           staff.staffStatus === 'ACTIVE'
             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500'
             : staff.staffStatus === 'FORMER' || staff.staffStatus === 'RETIRED'
@@ -50,13 +50,13 @@ export default async function AdminStaffPage({
         {staff.staffStatus.replace(/_/g, ' ')}
       </span>
     </span>,
-    <span key="joined" className="text-sm">
+    <span key="joined" className="text-base">
       {formatDate(staff.createdAt)}
     </span>,
     <Link
       key="actions"
       href={`/dashboard/admin/staff/${staff.id}`}
-      className="text-sm font-medium text-primary hover:underline"
+      className="text-base font-medium text-primary hover:underline"
     >
       View Details
     </Link>,
@@ -75,7 +75,7 @@ export default async function AdminStaffPage({
                 name="q"
                 defaultValue={q}
                 placeholder="Search staff..."
-                className="h-9 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-9 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-base file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
               <Button type="submit" variant="secondary" size="sm">
                 Search
@@ -98,7 +98,7 @@ export default async function AdminStaffPage({
         }
         footer={
           total > pageSize ? (
-            <div className="flex items-center justify-between text-sm text-muted-foreground pt-4">
+            <div className="flex items-center justify-between text-base text-muted-foreground pt-4">
               <div>
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total}{' '}
                 staff records

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_NG',
-    siteName: 'OAU Physics',
+    siteName: 'OAU Ife | Physics',
   },
 };
 

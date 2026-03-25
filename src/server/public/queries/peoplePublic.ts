@@ -5,6 +5,7 @@ import { getAcademicRankSortValue } from '@/lib/rankOrder';
 import { buildStaffSlug, slugify } from '@/lib/slug';
 import { unstable_cache } from 'next/cache';
 import { Prisma, StaffStatus, StaffType } from '@prisma/client';
+import type { AuthorObject } from '@/lib/researchOutputTypes';
 
 const PUBLIC_VISIBLE_STAFF_STATUSES: StaffStatus[] = ['ACTIVE', 'RETIRED', 'IN_MEMORIAM'];
 const FORMER_STATUS: StaffStatus = 'FORMER';
@@ -89,6 +90,22 @@ async function resolvePublicStaffSlug(slug: string): Promise<{ staffId: string; 
   if (!staffId) return null;
 
   return { staffId, computedSlug: normalizedSlug };
+}
+
+export async function getPublicStaffSlugsByIds(staffIds: string[]): Promise<Map<string, string>> {
+  if (staffIds.length === 0) return new Map();
+
+  const index = await getCachedPublicStaffSlugIndex();
+  const slugById = new Map<string, string>();
+
+  for (const staffId of staffIds) {
+    const computedSlug = index.computedSlugById[staffId];
+    if (computedSlug) {
+      slugById.set(staffId, computedSlug);
+    }
+  }
+
+  return slugById;
 }
 
 function buildUniqueStaffSlugs(staff: StaffSlugIdentity[]): Map<string, string> {
@@ -728,6 +745,38 @@ function normalizePaging({ page = 1, pageSize = 8 }: PublicTabQueryParams = {}) 
   return { safePage, safePageSize, skip };
 }
 
+function parseAuthorsJson(value: unknown): AuthorObject[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((entry): entry is AuthorObject => {
+    return (
+      typeof entry === 'object' &&
+      entry !== null &&
+      (typeof (entry as { given_name?: unknown }).given_name === 'string' ||
+        typeof (entry as { family_name?: unknown }).family_name === 'string')
+    );
+  });
+}
+
+function toInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => `${part[0]?.toUpperCase()}.`)
+    .join(' ');
+}
+
+function formatSingleAuthorApa(author: AuthorObject): string {
+  if (author.is_group) {
+    const groupName = author.given_name?.trim() || author.family_name?.trim() || '';
+    return groupName;
+  }
+
+  const family = author.family_name?.trim() || '';
+  const initials = toInitials([author.given_name, author.middle_name].filter(Boolean).join(' '));
+  return [family, initials].filter(Boolean).join(', ');
+}
+
 export async function listPublicResearchOutputsForStaff(
   staffId: string,
   params: PublicTabQueryParams = {},
@@ -735,7 +784,7 @@ export async function listPublicResearchOutputsForStaff(
   const { safePage, safePageSize, skip } = normalizePaging(params);
   const where = { staffId, deletedAt: null };
 
-  const [items, total] = await Promise.all([
+  const [rows, total] = await Promise.all([
     prisma.researchOutput.findMany({
       where,
       select: {
@@ -743,9 +792,13 @@ export async function listPublicResearchOutputsForStaff(
         type: true,
         title: true,
         authors: true,
+        authorsJson: true,
         year: true,
+        fullDate: true,
         venue: true,
         sourceTitle: true,
+        publisher: true,
+        metaJson: true,
         doi: true,
         url: true,
       },
@@ -755,6 +808,35 @@ export async function listPublicResearchOutputsForStaff(
     }),
     prisma.researchOutput.count({ where }),
   ]);
+
+  const authorStaffIds = Array.from(
+    new Set(
+      rows.flatMap((row) =>
+        parseAuthorsJson(row.authorsJson).flatMap((author) =>
+          typeof author.staffId === 'string' && author.staffId.trim() ? [author.staffId.trim()] : [],
+        ),
+      ),
+    ),
+  );
+  const authorSlugById = await getPublicStaffSlugsByIds(authorStaffIds);
+
+  const items = rows.map((row) => {
+    const parsedAuthors = parseAuthorsJson(row.authorsJson);
+    const authorsStructured = parsedAuthors
+      .map((author) => ({
+        label: formatSingleAuthorApa(author),
+        staffSlug:
+          typeof author.staffId === 'string'
+            ? authorSlugById.get(author.staffId.trim()) || null
+            : null,
+      }))
+      .filter((author) => author.label.trim().length > 0);
+
+    return {
+      ...row,
+      authorsStructured,
+    };
+  });
 
   return {
     items,
@@ -779,7 +861,9 @@ export async function listPublicProjectsForStaff(
         title: true,
         acronym: true,
         descriptionHtml: true,
+        url: true,
         status: true,
+        isFunded: true,
         startYear: true,
         endYear: true,
       },
@@ -809,8 +893,11 @@ export async function listPublicThesesForStaff(staffId: string, params: PublicTa
         id: true,
         title: true,
         studentName: true,
+        registrationNumber: true,
         degreeLevel: true,
         programme: true,
+        externalUrl: true,
+        status: true,
         year: true,
       },
       orderBy: [{ year: 'desc' }, { createdAt: 'desc' }],
@@ -835,25 +922,145 @@ export async function listPublicTeachingForStaff(
   const { safePage, safePageSize, skip } = normalizePaging(params);
   const where = { staffId, deletedAt: null };
 
-  const [items, total] = await Promise.all([
-    prisma.teachingResponsibility.findMany({
-      where,
-      select: {
-        id: true,
-        courseCode: true,
-        title: true,
-        semester: true,
-        sessionYear: true,
-      },
-      orderBy: [{ sessionYear: 'desc' }, { createdAt: 'desc' }],
-      skip,
-      take: safePageSize,
+  const allItems = await prisma.teachingResponsibility.findMany({
+    where,
+    select: {
+      id: true,
+      courseCode: true,
+      title: true,
+      semester: true,
+      sessionYear: true,
+    },
+    orderBy: [{ createdAt: 'desc' }],
+  });
+  const total = allItems.length;
+
+  const courseCodes = Array.from(
+    new Set(
+      allItems
+        .map((item) => item.courseCode?.trim())
+        .filter((code): code is string => Boolean(code)),
+    ),
+  );
+
+  const courses = courseCodes.length
+    ? await prisma.course.findMany({
+        where: {
+          code: { in: courseCodes },
+          deletedAt: null,
+        },
+        select: {
+          code: true,
+          title: true,
+          description: true,
+          prerequisites: true,
+          L: true,
+          T: true,
+          P: true,
+          U: true,
+          semesterTaken: true,
+          yearLevel: true,
+          program: {
+            select: {
+              level: true,
+              programmeCode: true,
+            },
+          },
+        },
+      })
+    : [];
+
+  const priorityByProgrammeCode = {
+    PHY: 0,
+    EPH: 1,
+    SLT: 2,
+  } as const;
+
+  const courseMetaByCode = new Map(
+    courses.map((course) => {
+      const levelBase = course.program.level === 'POSTGRADUATE' ? 0 : 3;
+      const programmePriority =
+        priorityByProgrammeCode[
+          course.program.programmeCode as keyof typeof priorityByProgrammeCode
+        ] ?? 99;
+      const levelProgrammePriority = levelBase + programmePriority;
+      const yearPriority =
+        course.program.level === 'UNDERGRADUATE' && typeof course.yearLevel === 'number'
+          ? 5 - course.yearLevel
+          : 99;
+      return [
+        course.code,
+        {
+          levelProgrammePriority,
+          yearPriority,
+        },
+      ] as const;
     }),
-    prisma.teachingResponsibility.count({ where }),
-  ]);
+  );
+
+  const sortedItems = [...allItems].sort((left, right) => {
+    const leftCode = left.courseCode?.trim() ?? '';
+    const rightCode = right.courseCode?.trim() ?? '';
+    const leftMeta = leftCode ? courseMetaByCode.get(leftCode) : null;
+    const rightMeta = rightCode ? courseMetaByCode.get(rightCode) : null;
+
+    const levelProgrammeDiff =
+      (leftMeta?.levelProgrammePriority ?? 999) - (rightMeta?.levelProgrammePriority ?? 999);
+    if (levelProgrammeDiff !== 0) return levelProgrammeDiff;
+
+    const yearDiff = (leftMeta?.yearPriority ?? 999) - (rightMeta?.yearPriority ?? 999);
+    if (yearDiff !== 0) return yearDiff;
+
+    const sessionYearDiff = (right.sessionYear ?? -1) - (left.sessionYear ?? -1);
+    if (sessionYearDiff !== 0) return sessionYearDiff;
+
+    const codeDiff = leftCode.localeCompare(rightCode);
+    if (codeDiff !== 0) return codeDiff;
+
+    return left.id.localeCompare(right.id);
+  });
+
+  const courseHrefByCode = new Map(
+    courses.map((course) => {
+      const levelSegment = course.program.level === 'UNDERGRADUATE' ? 'undergraduate' : 'postgraduate';
+      const programmeCode = course.program.programmeCode.toLowerCase();
+      const href = `/academics/${levelSegment}/${programmeCode}?course=${encodeURIComponent(course.code)}#course-listing`;
+      return [course.code, href];
+    }),
+  );
+  const courseDetailsByCode = new Map(
+    courses.map((course) => [
+      course.code,
+      {
+        code: course.code,
+        title: course.title,
+        description: course.description,
+        prerequisites: course.prerequisites,
+        L: course.L,
+        T: course.T,
+        P: course.P,
+        U: course.U,
+        semesterTaken: course.semesterTaken,
+      },
+    ]),
+  );
+
+  const pagedItems = sortedItems.slice(skip, skip + safePageSize);
 
   return {
-    items,
+    items: pagedItems.map((item) => {
+      const normalizedCourseCode = item.courseCode?.trim() || null;
+      return {
+        ...item,
+        courseCode: normalizedCourseCode,
+        publicCourseHref: normalizedCourseCode
+          ? courseHrefByCode.get(normalizedCourseCode) ?? null
+          : null,
+        modalCourse: normalizedCourseCode
+          ? courseDetailsByCode.get(normalizedCourseCode) ?? null
+          : null,
+      };
+    }),
     page: safePage,
     nextPage: skip + safePageSize < total ? safePage + 1 : undefined,
     prevPage: safePage > 1 ? safePage - 1 : undefined,

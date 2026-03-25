@@ -6,8 +6,10 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function updateMyResearchGroupMembership({
   researchGroupId,
+  focusAreaIds = [],
 }: {
   researchGroupId: string | null;
+  focusAreaIds?: string[];
 }) {
   try {
     const session = await requireAuth();
@@ -17,6 +19,18 @@ export async function updateMyResearchGroupMembership({
       return { error: 'No staff record linked to this user.' };
     }
 
+    const normalizedFocusAreaIds = Array.from(
+      new Set(
+        focusAreaIds
+          .map((id) => id.trim())
+          .filter((id) => id.length > 0),
+      ),
+    );
+
+    if (!researchGroupId && normalizedFocusAreaIds.length > 0) {
+      return { error: 'Select a research group before selecting focus areas.' };
+    }
+
     if (researchGroupId) {
       const groupExists = await prisma.researchGroup.findUnique({
         where: { id: researchGroupId },
@@ -24,11 +38,34 @@ export async function updateMyResearchGroupMembership({
       if (!groupExists || groupExists.deletedAt) {
         return { error: 'Selected research group does not exist.' };
       }
+
+      if (normalizedFocusAreaIds.length > 0) {
+        const validFocusAreas = await prisma.focusArea.findMany({
+          where: {
+            id: { in: normalizedFocusAreaIds },
+            researchGroupId,
+            deletedAt: null,
+            researchGroup: {
+              deletedAt: null,
+            },
+          },
+          select: { id: true },
+        });
+        if (validFocusAreas.length !== normalizedFocusAreaIds.length) {
+          return {
+            error: 'One or more selected focus areas are invalid for the selected research group.',
+          };
+        }
+      }
     }
 
     await prisma.$transaction(async (tx) => {
       // Remove all current memberships to enforce a single primary group
       await tx.researchGroupMembership.deleteMany({
+        where: { staffId },
+      });
+
+      await tx.staffFocusAreaSelection.deleteMany({
         where: { staffId },
       });
 
@@ -41,6 +78,15 @@ export async function updateMyResearchGroupMembership({
             joinedAt: new Date(),
           },
         });
+
+        if (normalizedFocusAreaIds.length > 0) {
+          await tx.staffFocusAreaSelection.createMany({
+            data: normalizedFocusAreaIds.map((focusAreaId) => ({
+              staffId,
+              focusAreaId,
+            })),
+          });
+        }
       }
 
       await tx.auditLog.create({
@@ -49,7 +95,7 @@ export async function updateMyResearchGroupMembership({
           action: 'STAFF_RESEARCH_GROUP_UPDATED',
           entityType: 'Staff',
           entityId: staffId,
-          snapshot: { researchGroupId },
+          snapshot: { researchGroupId, focusAreaIds: normalizedFocusAreaIds },
         },
       });
     });

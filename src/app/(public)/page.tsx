@@ -5,13 +5,13 @@ import { ResearchOutputsSection } from '@/components/public/home/ResearchOutputs
 import { NewsUpdatesSection } from '@/components/public/home/NewsUpdatesSection';
 import { UpcomingEventsSection } from '@/components/public/home/UpcomingEventsSection';
 import { getFeaturedNews, listPublicNews } from '@/server/public/queries/newsPublic';
-import { getFeaturedResearchOutputs } from '@/server/public/queries/researchPublic';
+import { getRecentResearchOutputs } from '@/server/public/queries/researchPublic';
 
 export default async function HomePage() {
-  const [featuredNews, latestNews, featuredResearchOutputs] = await Promise.all([
+  const [featuredNews, latestNews, recentResearchOutputs] = await Promise.all([
     getFeaturedNews(3),
     listPublicNews({ page: 1, pageSize: 3 }),
-    getFeaturedResearchOutputs(),
+    getRecentResearchOutputs(9),
   ]);
 
   return (
@@ -26,7 +26,7 @@ export default async function HomePage() {
       <AcademicProgrammesSection />
 
       {/* 4) Research outputs */}
-      <ResearchOutputsSection items={featuredResearchOutputs} />
+      <ResearchOutputsSection items={recentResearchOutputs} />
 
       {/* 5) News updates */}
       <NewsUpdatesSection items={latestNews.items} />

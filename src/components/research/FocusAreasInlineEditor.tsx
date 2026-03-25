@@ -179,7 +179,7 @@ export function FocusAreasInlineEditor({ groupId, initialItems }: FocusAreasInli
 
         <div className="p-2 space-y-1 max-h-[360px] overflow-y-auto">
           {filteredItems.length === 0 ? (
-            <div className="text-center py-6 text-sm text-muted-foreground">
+            <div className="text-center py-6 text-base text-muted-foreground">
               No focus areas found.
             </div>
           ) : (
@@ -188,7 +188,7 @@ export function FocusAreasInlineEditor({ groupId, initialItems }: FocusAreasInli
                 key={item.id}
                 type="button"
                 onClick={() => selectExisting(item.id)}
-                className={`w-full text-left px-3 py-2 text-sm rounded-none transition-colors ${
+                className={`w-full text-left px-3 py-2 text-base rounded-none transition-colors ${
                   selectedId === item.id
                     ? 'bg-primary/10 text-accent-foreground font-medium'
                     : 'hover:bg-primary/5 hover:text-accent-foreground'
@@ -199,7 +199,7 @@ export function FocusAreasInlineEditor({ groupId, initialItems }: FocusAreasInli
             ))
           )}
           {selectedId === 'new' && (
-            <div className="w-full text-left px-3 py-2 text-sm rounded-none bg-primary/10 text-accent-foreground font-medium">
+            <div className="w-full text-left px-3 py-2 text-base rounded-none bg-primary/10 text-accent-foreground font-medium">
               New Focus Area
             </div>
           )}

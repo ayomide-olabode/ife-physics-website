@@ -8,11 +8,9 @@ import { StatusBadge, type PublishStatus } from '@/components/dashboard/StatusBa
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
-import { PreviewModal } from '@/components/dashboard/PreviewModal';
 import { Button } from '@/components/ui/button';
 import { deleteSpotlight } from '@/server/actions/spotlight';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { formatDate } from '@/lib/format-date';
 
 type ListItem = {
@@ -41,7 +39,6 @@ export function SpotlightListClient({
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [previewTarget, setPreviewTarget] = useState<ListItem | null>(null);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -63,12 +60,12 @@ export function SpotlightListClient({
       {item.imageUrl ? (
         <Image src={item.imageUrl} alt={item.title} fill className="object-cover" sizes="48px" />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+        <div className="w-full h-full flex items-center justify-center text-sm text-muted-foreground">
           No img
         </div>
       )}
     </div>,
-    <span key={`date-${item.id}`} className="text-sm text-muted-foreground whitespace-nowrap">
+    <span key={`date-${item.id}`} className="text-base text-muted-foreground whitespace-nowrap">
       {formatDate(item.date)}
     </span>,
     <span key={`t-${item.id}`} className="font-medium text-primary line-clamp-2 max-w-sm">
@@ -76,22 +73,20 @@ export function SpotlightListClient({
     </span>,
     <StatusBadge key={`s-${item.id}`} status={item.status} />,
     <div key={`a-${item.id}`} className="flex items-center gap-2">
-      <Button variant="ghost" size="sm" onClick={() => setPreviewTarget(item)}>
-        <Eye className="h-4 w-4" />
-      </Button>
-      <Link href={`${basePath}/${item.id}`}>
-        <Button variant="ghost" size="sm">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </Link>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setDeleteTarget(item.id)}
-        className="text-destructive hover:text-destructive"
+      <Link
+        href={`${basePath}/${item.id}`}
+        className="text-base text-blue-600 hover:text-blue-800 font-medium"
       >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+        Edit
+      </Link>
+      <span className="text-muted-foreground">|</span>
+      <button
+        type="button"
+        onClick={() => setDeleteTarget(item.id)}
+        className="text-base text-destructive hover:text-red-800 font-medium"
+      >
+        Delete
+      </button>
     </div>,
   ]);
 
@@ -108,7 +103,7 @@ export function SpotlightListClient({
         }
         footer={
           pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-base text-muted-foreground">
               <span>
                 Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
               </span>
@@ -142,32 +137,6 @@ export function SpotlightListClient({
         onConfirm={handleDelete}
         destructive
       />
-
-      <PreviewModal
-        title={previewTarget?.title || 'Preview'}
-        open={!!previewTarget}
-        onOpenChange={(open) => !open && setPreviewTarget(null)}
-      >
-        <div className="space-y-4">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>{formatDate(previewTarget?.date || null)}</span>
-            {previewTarget?.status && <StatusBadge status={previewTarget.status} />}
-          </div>
-          {previewTarget?.imageUrl && (
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden border bg-muted">
-              <Image
-                src={previewTarget.imageUrl}
-                alt={previewTarget.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
-          <div className="prose dark:prose-invert max-w-none">
-            <h3 className="text-xl font-bold mt-2">{previewTarget?.title}</h3>
-          </div>
-        </div>
-      </PreviewModal>
     </>
   );
 }

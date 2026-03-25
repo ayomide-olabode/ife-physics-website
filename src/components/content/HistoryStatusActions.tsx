@@ -36,7 +36,7 @@ export function HistoryStatusActions({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground">Current Status</span>
+        <span className="text-base font-medium text-muted-foreground">Current Status</span>
         <StatusBadge status={status} />
       </div>
 

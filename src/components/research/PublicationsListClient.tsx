@@ -7,9 +7,9 @@ import { EmptyState } from '@/components/dashboard/EmptyState';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { deletePublication, toggleFeatured } from '@/server/actions/publications';
+import { deletePublication } from '@/server/actions/publications';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { Pencil, Trash2, Search, Star } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 type PublicationItem = {
   id: string;
@@ -19,7 +19,6 @@ type PublicationItem = {
   venue: string | null;
   doi: string | null;
   url: string | null;
-  isFeatured: boolean;
   createdAt: Date;
 };
 
@@ -48,7 +47,6 @@ export function PublicationsListClient({
   const [q, setQ] = useState(searchQuery);
   const [year, setYear] = useState(yearQuery);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -83,23 +81,6 @@ export function PublicationsListClient({
     }
   };
 
-  const handleToggleFeatured = async (id: string, currentFeatured: boolean) => {
-    setTogglingId(id);
-    try {
-      const res = await toggleFeatured(groupId, id, !currentFeatured);
-      if (res.success) {
-        toastSuccess(currentFeatured ? 'Removed from featured.' : 'Marked as featured.');
-        router.refresh();
-      } else {
-        toastError(res.error || 'Failed to toggle featured.');
-      }
-    } catch (err: unknown) {
-      toastError(err instanceof Error ? err.message : 'Failed to toggle.');
-    } finally {
-      setTogglingId(null);
-    }
-  };
-
   const columns = [
     {
       header: 'Year',
@@ -120,47 +101,30 @@ export function PublicationsListClient({
       header: 'Venue',
       accessor: (row: PublicationItem) =>
         row.venue ? (
-          <span className="text-sm text-muted-foreground line-clamp-1">{row.venue}</span>
+          <span className="text-base text-muted-foreground line-clamp-1">{row.venue}</span>
         ) : (
           <span className="text-muted-foreground italic">—</span>
         ),
     },
     {
-      header: 'Featured',
-      accessor: (row: PublicationItem) => (
-        <Button
-          variant="ghost"
-          size="icon"
-          disabled={togglingId === row.id}
-          onClick={() => handleToggleFeatured(row.id, row.isFeatured)}
-          title={row.isFeatured ? 'Remove from featured' : 'Mark as featured'}
-        >
-          <Star
-            className={`w-4 h-4 ${row.isFeatured ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`}
-          />
-        </Button>
-      ),
-    },
-    {
       header: 'Actions',
       accessor: (row: PublicationItem) => (
-        <div className="flex items-center gap-1 justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
+        <div className="flex items-center gap-2 justify-end">
+          <button
+            type="button"
             onClick={() => router.push(`${basePath}/${row.id}`)}
-            title="Edit"
+            className="text-base text-blue-600 hover:text-blue-800 font-medium"
           >
-            <Pencil className="w-4 h-4 text-muted-foreground" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
+            Edit
+          </button>
+          <span className="text-muted-foreground">|</span>
+          <button
+            type="button"
             onClick={() => setDeleteTarget(row.id)}
-            title="Delete"
+            className="text-base text-destructive hover:text-red-800 font-medium"
           >
-            <Trash2 className="w-4 h-4 text-destructive" />
-          </Button>
+            Delete
+          </button>
         </div>
       ),
     },
@@ -219,7 +183,7 @@ export function PublicationsListClient({
           rows={data.map((row) => columns.map((col) => col.accessor(row)))}
           footer={
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-base text-muted-foreground">
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total}
               </span>
               <div className="flex gap-2">

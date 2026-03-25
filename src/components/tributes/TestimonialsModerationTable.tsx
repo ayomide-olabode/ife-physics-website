@@ -119,19 +119,19 @@ export function TestimonialsModerationTable({
   }
 
   const rows = items.map((row) => [
-    <div key="name" className="text-sm">
+    <div key="name" className="text-base">
       <p className="font-medium text-foreground">{row.name}</p>
       <p className="text-muted-foreground">{row.relationship}</p>
     </div>,
-    <div key="tribute" className="text-sm text-muted-foreground max-w-xl">
+    <div key="tribute" className="text-base text-muted-foreground max-w-xl">
       <p className="line-clamp-3">{stripHtml(row.tributeHtml)}</p>
     </div>,
-    <span key="submittedAt" className="text-sm">
+    <span key="submittedAt" className="text-base">
       {formatDate(row.submittedAt)}
     </span>,
     <span
       key="status"
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getStatusBadgeClass(row.status)}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-sm font-medium ${getStatusBadgeClass(row.status)}`}
     >
       {row.status}
     </span>,
@@ -169,7 +169,7 @@ export function TestimonialsModerationTable({
         }
         footer={
           total > pageSize ? (
-            <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between pt-4 text-base text-muted-foreground">
               <div>
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total}{' '}
                 tributes
@@ -222,7 +222,7 @@ export function TestimonialsModerationTable({
                 onChange={(e) => setDeclineReason(e.target.value)}
                 rows={4}
                 maxLength={500}
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 placeholder="Optional explanation..."
               />
             </div>

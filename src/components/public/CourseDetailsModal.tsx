@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -54,7 +53,7 @@ export function CourseDetailsModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl sm:rounded-none">
-        <DialogHeader>
+        <DialogHeader className="pr-12 text-left sm:pr-0">
           <DialogTitle className="text-lg leading-relaxed text-brand-navy">{lineOne}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 text-base text-gray-700">
@@ -62,7 +61,7 @@ export function CourseDetailsModal({
         </div>
         {prerequisites ? (
           <DialogFooter className="justify-start border-t pt-4">
-            <div className="space-y-3 text-sm text-gray-500">
+            <div className="space-y-3 text-base text-gray-500">
               <p>Prerequisites: {prerequisites}</p>
             </div>
           </DialogFooter>

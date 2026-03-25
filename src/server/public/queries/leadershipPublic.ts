@@ -143,6 +143,7 @@ export async function getPublicLeadership() {
         startDate: true,
         staff: {
           select: {
+            title: true,
             firstName: true,
             middleName: true,
             lastName: true,

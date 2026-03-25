@@ -154,7 +154,7 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
               className="bg-gray-50"
               placeholder="Auto-filled when course is selected..."
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Title is tied directly to the selected course.
             </p>
           </div>

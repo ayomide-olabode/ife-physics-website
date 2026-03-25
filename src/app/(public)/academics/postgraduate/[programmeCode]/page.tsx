@@ -33,8 +33,8 @@ function hasBodyContent(value?: string | null) {
 function EmptyState({ title, text }: { title: string; text: string }) {
   return (
     <div className="border border-brand-navy/20 bg-white px-4 py-3">
-      <p className="text-sm font-semibold text-brand-navy">{title}</p>
-      <p className="mt-1 text-sm text-gray-600">{text}</p>
+      <p className="text-base font-semibold text-brand-navy">{title}</p>
+      <p className="mt-1 text-base text-gray-600">{text}</p>
     </div>
   );
 }
@@ -103,7 +103,7 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
 
   return (
     <>
-      <PageHero breadcrumbLabel="Academicse" title="Postgraduate" />
+      <PageHero breadcrumbLabel="Academics" title="Postgraduate" />
 
       <section className="py-8 sm:py-10">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
@@ -173,7 +173,7 @@ export default async function PostgraduateProgrammePage({ params }: PageProps) {
                         <h3 className="text-lg font-semibold text-brand-navy">
                           {studyOption.name}
                         </h3>
-                        <p className="mt-2 line-clamp-3 text-sm text-gray-600">
+                        <p className="mt-2 line-clamp-3 text-base text-gray-600">
                           {studyOption.about?.trim() || 'Description coming soon.'}
                         </p>
                       </article>

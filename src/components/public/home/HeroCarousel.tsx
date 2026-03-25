@@ -145,11 +145,11 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
       <h1 className="text-2xl md:text-4xl font-serif font-bold text-brand-navy leading-tight mb-4">
         {slide.title}
       </h1>
-      <p className="text-sm md:text-base text-slate-700 mb-6 line-clamp-4">{slide.subtitle}</p>
+      <p className="text-base md:text-base text-slate-700 mb-6 line-clamp-4">{slide.subtitle}</p>
       <div className="grow h-auto" />
       <Link
         href={slide.href}
-        className="inline-flex items-center justify-center bg-brand-yellow text-brand-ink font-semibold px-6 py-3 text-sm transition-colors hover:bg-yellow-500"
+        className="inline-flex items-center justify-center bg-brand-yellow text-brand-ink font-semibold px-6 py-3 text-base transition-colors hover:bg-yellow-500"
       >
         {slide.buttonLabel}
       </Link>

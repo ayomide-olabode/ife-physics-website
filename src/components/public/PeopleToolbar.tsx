@@ -174,7 +174,7 @@ export function PeopleToolbar({
           className="border border-gray-200 bg-white p-3 space-y-3"
         >
           <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-            <p className="text-sm font-semibold text-brand-navy">Filters</p>
+            <p className="text-base font-semibold text-brand-navy">Filters</p>
             <Button
               type="button"
               variant="outline"
@@ -189,7 +189,7 @@ export function PeopleToolbar({
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             <div className="space-y-1">
-              <label className="text-sm text-gray-700" htmlFor="people-sort">
+              <label className="text-base text-gray-700" htmlFor="people-sort">
                 Sort by
               </label>
               <select
@@ -198,7 +198,7 @@ export function PeopleToolbar({
                 onChange={(event) =>
                   setSort(event.target.value as 'default' | 'name-asc' | 'name-desc')
                 }
-                className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-sm"
+                className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-base"
               >
                 <option value="default">Default</option>
                 <option value="name-asc">Name (A-Z)</option>
@@ -208,14 +208,14 @@ export function PeopleToolbar({
 
             {showRankFilter ? (
               <div className="space-y-1">
-                <label className="text-sm text-gray-700" htmlFor="people-rank">
+                <label className="text-base text-gray-700" htmlFor="people-rank">
                   Staff rank
                 </label>
                 <select
                   id="people-rank"
                   value={rank}
                   onChange={(event) => setRank(event.target.value)}
-                  className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-sm"
+                  className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-base"
                 >
                   <option value="">All ranks</option>
                   {facets.ranks.map((value) => (
@@ -229,14 +229,14 @@ export function PeopleToolbar({
 
             {showResearchGroupFilter ? (
               <div className="space-y-1">
-                <label className="text-sm text-gray-700" htmlFor="people-group">
+                <label className="text-base text-gray-700" htmlFor="people-group">
                   Research group
                 </label>
                 <select
                   id="people-group"
                   value={researchGroupSlug}
                   onChange={(event) => setResearchGroupSlug(event.target.value)}
-                  className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-sm"
+                  className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-base"
                 >
                   <option value="">All research groups</option>
                   {facets.researchGroups.map((group) => (
@@ -250,14 +250,14 @@ export function PeopleToolbar({
 
             {showAffiliationFilter ? (
               <div className="space-y-1">
-                <label className="text-sm text-gray-700" htmlFor="people-affiliation">
+                <label className="text-base text-gray-700" htmlFor="people-affiliation">
                   Secondary affiliation
                 </label>
                 <select
                   id="people-affiliation"
                   value={secondaryAffiliationId}
                   onChange={(event) => setSecondaryAffiliationId(event.target.value)}
-                  className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-sm"
+                  className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-base"
                 >
                   <option value="">All affiliations</option>
                   {facets.affiliations.map((value) => (
@@ -271,14 +271,14 @@ export function PeopleToolbar({
 
             {showFormerTypeFilter ? (
               <div className="space-y-1">
-                <label className="text-sm text-gray-700" htmlFor="people-former-type">
+                <label className="text-base text-gray-700" htmlFor="people-former-type">
                   {isRetired ? 'Staff category' : 'Former staff category'}
                 </label>
                 <select
                   id="people-former-type"
                   value={formerStaffType}
                   onChange={(event) => setFormerStaffType(event.target.value)}
-                  className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-sm"
+                  className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-base"
                 >
                   <option value="">All categories</option>
                   {facets.formerStaffTypes.map((value) => (
@@ -294,14 +294,14 @@ export function PeopleToolbar({
             ) : null}
 
             <div className="space-y-1">
-              <label className="text-sm text-gray-700" htmlFor="people-alpha">
+              <label className="text-base text-gray-700" htmlFor="people-alpha">
                 Alphabetical grouping
               </label>
               <select
                 id="people-alpha"
                 value={alpha}
                 onChange={(event) => setAlpha(event.target.value)}
-                className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-sm"
+                className="h-10 w-full rounded-none border border-gray-300 bg-white px-3 text-base"
               >
                 <option value="">All letters</option>
                 {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => (
@@ -327,34 +327,34 @@ export function PeopleToolbar({
       {hasActiveFilters ? (
         <div className="flex flex-wrap gap-2">
           {sort !== 'default' ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-brand-navy text-white">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-brand-navy text-white">
               Sort:{' '}
               {sort === 'name-asc' ? 'Name A-Z' : sort === 'name-desc' ? 'Name Z-A' : 'Default'}
             </span>
           ) : null}
           {rank ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-gray-100 text-gray-700">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-gray-100 text-gray-700">
               Rank: {rank}
             </span>
           ) : null}
           {researchGroupSlug ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-gray-100 text-gray-700">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-gray-100 text-gray-700">
               Research group selected
             </span>
           ) : null}
           {secondaryAffiliationId ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-gray-100 text-gray-700">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-gray-100 text-gray-700">
               Affiliation selected
             </span>
           ) : null}
           {formerStaffType ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-gray-100 text-gray-700">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-gray-100 text-gray-700">
               {isRetired ? 'Staff category' : 'Former category'}:{' '}
               {formerStaffType.replace('_', ' ')}
             </span>
           ) : null}
           {alpha ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-gray-100 text-gray-700">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-gray-100 text-gray-700">
               Letter: {alpha}
             </span>
           ) : null}

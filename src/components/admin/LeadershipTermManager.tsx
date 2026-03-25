@@ -80,20 +80,20 @@ export function LeadershipTermManager({
 
   const renderRoles = (terms: TermRow[], emptyTitle: string) => {
     const rows = terms.map((term) => [
-      <div key={`name-${term.id}`} className="text-sm font-medium">
+      <div key={`name-${term.id}`} className="text-base font-medium">
         {formatFullName({
           firstName: term.staff.firstName,
           middleName: term.staff.middleName,
           lastName: term.staff.lastName,
         }) || term.staff.institutionalEmail}
       </div>,
-      <div key={`prog-${term.id}`} className="text-sm text-muted-foreground">
+      <div key={`prog-${term.id}`} className="text-base text-muted-foreground">
         {term.programmeCode || '-'}
       </div>,
-      <span key={`start-${term.id}`} className="text-sm">
+      <span key={`start-${term.id}`} className="text-base">
         {formatDate(term.startDate)}
       </span>,
-      <span key={`end-${term.id}`} className="text-sm">
+      <span key={`end-${term.id}`} className="text-base">
         {term.endDate ? formatDate(term.endDate) : 'Present'}
       </span>,
       <div key={`actions-${term.id}`}>

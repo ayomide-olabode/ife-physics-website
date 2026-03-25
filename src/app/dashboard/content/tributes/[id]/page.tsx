@@ -89,7 +89,7 @@ export default async function TributeDetailPage({
       <section className="space-y-4">
         <div>
           <h2 className="text-lg font-semibold">Biography</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             Write and maintain the department biography for this in-memoriam profile.
           </p>
         </div>
@@ -104,7 +104,7 @@ export default async function TributeDetailPage({
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-lg font-semibold">Tributes Moderation</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               Review public tributes submitted for this staff member.
             </p>
           </div>
@@ -116,7 +116,7 @@ export default async function TributeDetailPage({
             <select
               name="status"
               defaultValue={status || ''}
-              className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <option value="">All statuses</option>
               <option value="PENDING">Pending</option>

@@ -69,7 +69,7 @@ export function SecondaryAffiliationSelector({
   return (
     <div className="space-y-4 w-full">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Last updated: {formatShortDate(lastUpdatedAt ?? null)}
         </p>
         {!isEditing && (
@@ -81,10 +81,10 @@ export function SecondaryAffiliationSelector({
 
       {!isEditing ? (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
             Secondary Affiliation
           </p>
-          <p className="text-sm">{currentLabel}</p>
+          <p className="text-base">{currentLabel}</p>
         </div>
       ) : (
         <>
@@ -95,7 +95,7 @@ export function SecondaryAffiliationSelector({
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
               disabled={isSubmitting}
-              className="flex h-9 w-full rounded-none border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-9 w-full rounded-none border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="none">None</option>
               {options.map((option) => (

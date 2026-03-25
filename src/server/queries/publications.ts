@@ -47,7 +47,6 @@ export async function listPublicationsForGroup({
         venue: true,
         doi: true,
         url: true,
-        isFeatured: true,
         createdAt: true,
       },
       orderBy: [{ year: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],

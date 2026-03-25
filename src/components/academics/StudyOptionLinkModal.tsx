@@ -148,12 +148,12 @@ export function StudyOptionLinkModal({ programmeCode, level }: Props) {
 
             <div className="space-y-2 border rounded-md p-2 max-h-60 overflow-y-auto">
               {results.length === 0 && !isSearching && q.length > 0 && (
-                <div className="text-sm text-center py-4 text-muted-foreground">
+                <div className="text-base text-center py-4 text-muted-foreground">
                   No options found matching &quot;{q}&quot;.
                 </div>
               )}
               {results.length === 0 && !isSearching && q.length === 0 && (
-                <div className="text-sm text-center py-4 text-muted-foreground">
+                <div className="text-base text-center py-4 text-muted-foreground">
                   Type to search...
                 </div>
               )}
@@ -162,7 +162,7 @@ export function StudyOptionLinkModal({ programmeCode, level }: Props) {
                   key={opt.id}
                   className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-md"
                 >
-                  <span className="font-medium text-sm">{opt.name}</span>
+                  <span className="font-medium text-base">{opt.name}</span>
                   <Button
                     size="sm"
                     variant="outline"
@@ -176,7 +176,7 @@ export function StudyOptionLinkModal({ programmeCode, level }: Props) {
             </div>
 
             <div className="pt-4 border-t text-center">
-              <p className="text-sm text-muted-foreground mb-2">
+              <p className="text-base text-muted-foreground mb-2">
                 Can&apos;t find what you&apos;re looking for?
               </p>
               <Button variant="secondary" onClick={() => setIsCreatingNew(true)}>

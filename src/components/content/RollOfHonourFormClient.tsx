@@ -175,7 +175,7 @@ export function RollOfHonourFormClient({
               required
             />
             {didUseLegacySplitFallback ? (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 We split this from the legacy full name; please confirm.
               </p>
             ) : null}
@@ -206,7 +206,7 @@ export function RollOfHonourFormClient({
                 id="programme"
                 value={formData.programme}
                 onChange={(e) => setFormData((prev) => ({ ...prev, programme: e.target.value }))}
-                className="flex h-9 w-full items-center justify-between rounded-none border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-9 w-full items-center justify-between rounded-none border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 required
               >
                 <option value="" disabled>
@@ -257,7 +257,7 @@ export function RollOfHonourFormClient({
 
       <div className="space-y-6">
         <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
-          <h3 className="text-sm font-semibold">Student Photo</h3>
+          <h3 className="text-base font-semibold">Student Photo</h3>
           <RollOfHonourImageUploader
             value={formData.imageUrl}
             onChange={(url) => setFormData((prev) => ({ ...prev, imageUrl: url }))}

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { toastSuccess, toastError } from '@/lib/toast';
 import {
@@ -34,7 +33,6 @@ const publicationFormSchema = z.object({
   doi: z.string().max(200).optional().nullable(),
   url: z.string().url('Must be a valid URL').max(2000).optional().nullable().or(z.literal('')),
   abstract: z.string().max(5000).optional().nullable(),
-  isFeatured: z.boolean().optional(),
 });
 
 export type PublicationFormData = {
@@ -46,7 +44,6 @@ export type PublicationFormData = {
   doi: string | null;
   url: string | null;
   abstract: string | null;
-  isFeatured: boolean;
 };
 
 interface Props {
@@ -70,7 +67,6 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
     doi: initialData?.doi || '',
     url: initialData?.url || '',
     abstract: initialData?.abstract || '',
-    isFeatured: initialData?.isFeatured ?? false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,7 +82,6 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
         doi: data.doi || null,
         url: data.url || null,
         abstract: data.abstract || null,
-        isFeatured: data.isFeatured,
       };
 
       // Validate client-side
@@ -223,17 +218,6 @@ export function PublicationFormClient({ groupId, initialData }: Props) {
             />
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="isFeatured"
-              checked={data.isFeatured}
-              onCheckedChange={(checked) => setData({ ...data, isFeatured: checked === true })}
-              disabled={isSubmitting}
-            />
-            <FieldLabel htmlFor="isFeatured" className="cursor-pointer">
-              Featured research output
-            </FieldLabel>
-          </div>
         </div>
 
         <div className="flex items-center gap-4">

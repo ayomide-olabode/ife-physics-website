@@ -92,7 +92,6 @@ export async function getResearchGroupByIdForUser({
         },
         orderBy: { createdAt: 'asc' },
       },
-      featuredResearchOutputId: true,
     },
   });
 }

@@ -62,7 +62,7 @@ export function LoginPageClient({ isNewAccount }: Props) {
       <form onSubmit={handleLogin} className="space-y-6">
         <div className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-foreground">
+            <label htmlFor="email" className="block text-base font-medium text-foreground">
               Email
             </label>
             <Input
@@ -77,12 +77,12 @@ export function LoginPageClient({ isNewAccount }: Props) {
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium text-foreground">
+              <label htmlFor="password" className="block text-base font-medium text-foreground">
                 Password
               </label>
               <Link
                 href="/forgot-password"
-                className="text-sm text-muted-foreground hover:text-foreground"
+                className="text-base text-muted-foreground hover:text-foreground"
               >
                 Forgot?
               </Link>
@@ -96,7 +96,7 @@ export function LoginPageClient({ isNewAccount }: Props) {
             />
           </div>
         </div>
-        {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+        {error && <p className="text-base font-medium text-destructive">{error}</p>}
         <Button type="submit" className="w-full rounded-none" disabled={isLoading}>
           {isLoading ? 'Logging in...' : 'Login'}
         </Button>

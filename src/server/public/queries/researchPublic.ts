@@ -1,10 +1,13 @@
 import 'server-only';
 
 import prisma from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma, type ResearchOutputType } from '@prisma/client';
 import { unstable_cache } from 'next/cache';
+import { getPublicStaffSlugsByIds } from './peoplePublic';
 import { whereNotDeleted } from '../published';
-export { getFeaturedResearchOutputs } from './featuredResearchOutputs';
+import type { AuthorObject } from '@/lib/researchOutputTypes';
+import { formatAuthorsForDisplay } from '@/lib/legacyResearchOutputCompat';
+export { getRecentResearchOutputs } from './recentResearchOutputs';
 
 export type PublicResearchGroupHeroDto = {
   title: string;
@@ -12,6 +15,43 @@ export type PublicResearchGroupHeroDto = {
   overview: string | null;
   heroImageUrl: string | null;
 };
+
+type LinkedAuthor = {
+  label: string;
+  staffSlug: string | null;
+};
+
+function parseAuthorsJson(value: unknown): AuthorObject[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((entry): entry is AuthorObject => {
+    return (
+      typeof entry === 'object' &&
+      entry !== null &&
+      (typeof (entry as { given_name?: unknown }).given_name === 'string' ||
+        typeof (entry as { family_name?: unknown }).family_name === 'string')
+    );
+  });
+}
+
+function toInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => `${part[0]?.toUpperCase()}.`)
+    .join(' ');
+}
+
+function formatSingleAuthorDisplay(author: AuthorObject): string {
+  if (author.is_group) {
+    const groupName = author.given_name?.trim() || author.family_name?.trim() || '';
+    return groupName;
+  }
+
+  const family = author.family_name?.trim() || '';
+  const initials = toInitials([author.given_name, author.middle_name].filter(Boolean).join(' '));
+  return [family, initials].filter(Boolean).join(', ');
+}
 
 const listPublicResearchGroupsCached = unstable_cache(
   async () =>
@@ -54,7 +94,6 @@ export async function getPublicResearchGroupBySlug(slug: string) {
         },
         orderBy: { createdAt: 'asc' },
       },
-      featuredResearchOutputId: true,
       memberships: {
         where: { staff: { deletedAt: null, isPublicProfile: true } },
         select: {
@@ -66,10 +105,24 @@ export async function getPublicResearchGroupBySlug(slug: string) {
               firstName: true,
               middleName: true,
               lastName: true,
-              academicRank: true,
-              designation: true,
               institutionalEmail: true,
               profileImageUrl: true,
+              focusAreaSelections: {
+                where: {
+                  focusArea: {
+                    deletedAt: null,
+                    researchGroup: { slug },
+                  },
+                },
+                select: {
+                  focusArea: {
+                    select: {
+                      id: true,
+                      title: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -81,6 +134,26 @@ export async function getPublicResearchGroupBySlug(slug: string) {
     return null;
   }
 
+  const now = new Date();
+  const headAssignment = await prisma.roleAssignment.findFirst({
+    where: {
+      role: 'RESEARCH_LEAD',
+      scopeType: 'RESEARCH_GROUP',
+      scopeId: group.id,
+      deletedAt: null,
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    },
+    orderBy: { createdAt: 'asc' },
+    select: {
+      user: {
+        select: {
+          staffId: true,
+        },
+      },
+    },
+  });
+  const headStaffId = headAssignment?.user.staffId ?? null;
+
   const hero: PublicResearchGroupHeroDto = {
     title: group.name,
     abbreviation: group.abbreviation,
@@ -88,8 +161,20 @@ export async function getPublicResearchGroupBySlug(slug: string) {
     heroImageUrl: group.heroImageUrl,
   };
 
+  const staffIds = Array.from(new Set(group.memberships.map((membership) => membership.staff.id)));
+  const slugByStaffId = await getPublicStaffSlugsByIds(staffIds);
+  const memberships = group.memberships.map((membership) => ({
+    ...membership,
+    staff: {
+      ...membership.staff,
+      computedStaffSlug: slugByStaffId.get(membership.staff.id) ?? null,
+      isResearchGroupHead: membership.staff.id === headStaffId,
+    },
+  }));
+
   return {
     ...group,
+    memberships,
     hero,
   };
 }
@@ -97,12 +182,13 @@ export async function getPublicResearchGroupBySlug(slug: string) {
 /** Recent research outputs authored by group members (reuses authorsJson staffId logic). */
 export async function listPublicRecentOutputsForGroup(
   groupId: string,
-  params?: { page?: number; pageSize?: number; q?: string },
+  params?: { page?: number; pageSize?: number; q?: string; type?: ResearchOutputType },
 ) {
   const page = Math.max(1, params?.page ?? 1);
   const pageSize = Math.max(1, Math.min(50, params?.pageSize ?? 10));
   const offset = (page - 1) * pageSize;
   const q = params?.q?.trim() ?? '';
+  const outputType = params?.type;
 
   // Get member staff IDs
   const memberships = await prisma.researchGroupMembership.findMany({
@@ -128,6 +214,10 @@ export async function listPublicRecentOutputsForGroup(
         `
       : Prisma.empty;
 
+  const outputTypeClause = outputType
+    ? Prisma.sql`AND r.type = ${outputType}::"ResearchOutputType"`
+    : Prisma.empty;
+
   const researchOutputs = await prisma.$queryRaw<
     {
       id: string;
@@ -139,6 +229,8 @@ export async function listPublicRecentOutputsForGroup(
       sourceTitle: string | null;
       venue: string | null;
       publisher: string | null;
+      metaJson: Prisma.JsonValue | null;
+      authorsJson: Prisma.JsonValue | null;
       doi: string | null;
       url: string | null;
     }[]
@@ -153,6 +245,8 @@ export async function listPublicRecentOutputsForGroup(
       deduped."sourceTitle",
       deduped.venue,
       deduped.publisher,
+      deduped."metaJson",
+      deduped."authorsJson",
       deduped.doi,
       deduped.url
     FROM (
@@ -166,6 +260,8 @@ export async function listPublicRecentOutputsForGroup(
         r."sourceTitle",
         r.venue,
         r.publisher,
+        r."metaJson",
+        r."authorsJson",
         r.doi,
         r.url,
         r."updatedAt"
@@ -173,6 +269,7 @@ export async function listPublicRecentOutputsForGroup(
            jsonb_array_elements(COALESCE(r."authorsJson", '[]'::jsonb)) as a
       WHERE r."deletedAt" IS NULL
         AND (a->>'staffId' IN (${Prisma.join(staffIds)}))
+        ${outputTypeClause}
         ${searchClause}
       ORDER BY r.id, r."fullDate" DESC NULLS LAST, r.year DESC NULLS LAST, r."updatedAt" DESC
     ) as deduped
@@ -189,13 +286,41 @@ export async function listPublicRecentOutputsForGroup(
            jsonb_array_elements(COALESCE(r."authorsJson", '[]'::jsonb)) as a
       WHERE r."deletedAt" IS NULL
         AND (a->>'staffId' IN (${Prisma.join(staffIds)}))
+        ${outputTypeClause}
         ${searchClause}
     ) as deduped;
   `;
   const total = countRows[0]?.total ?? 0;
+  const authorStaffIds = Array.from(
+    new Set(
+      researchOutputs.flatMap((output) =>
+        parseAuthorsJson(output.authorsJson).flatMap((author) =>
+          typeof author.staffId === 'string' && author.staffId.trim() ? [author.staffId.trim()] : [],
+        ),
+      ),
+    ),
+  );
+  const authorSlugById = await getPublicStaffSlugsByIds(authorStaffIds);
 
   return {
-    items: researchOutputs,
+    items: researchOutputs.map((output) => {
+      const parsedAuthors = parseAuthorsJson(output.authorsJson);
+      const authorsStructured = parsedAuthors
+        .map((author) => ({
+          label: formatSingleAuthorDisplay(author),
+          staffSlug:
+            typeof author.staffId === 'string'
+              ? authorSlugById.get(author.staffId.trim()) || null
+              : null,
+        }))
+        .filter((author): author is LinkedAuthor => author.label.trim().length > 0);
+      const formattedAuthors = formatAuthorsForDisplay(parsedAuthors);
+      return {
+        ...output,
+        authors: formattedAuthors || output.authors || 'Unknown author(s)',
+        authorsStructured,
+      };
+    }),
     total,
     page,
     pageSize,

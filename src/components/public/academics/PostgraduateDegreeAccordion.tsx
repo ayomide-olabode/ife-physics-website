@@ -26,8 +26,8 @@ function hasBodyContent(value?: string | null) {
 function EmptyBody({ title, text }: { title: string; text: string }) {
   return (
     <div className="border border-brand-navy/20 bg-white px-4 py-3">
-      <p className="text-sm font-semibold text-brand-navy">{title}</p>
-      <p className="mt-1 text-sm text-gray-600">{text}</p>
+      <p className="text-base font-semibold text-brand-navy">{title}</p>
+      <p className="mt-1 text-base text-gray-600">{text}</p>
     </div>
   );
 }

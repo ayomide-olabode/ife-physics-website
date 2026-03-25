@@ -104,11 +104,11 @@ export function StaffAuthorAutocomplete({ onSelect, disabled }: StaffAuthorAutoc
               <li key={staff.id}>
                 <button
                   type="button"
-                  className="flex w-full flex-col items-start rounded-sm px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  className="flex w-full flex-col items-start rounded-sm px-3 py-2 text-left text-base hover:bg-accent hover:text-accent-foreground transition-colors"
                   onClick={() => handleSelect(staff)}
                 >
                   <span className="font-medium">{displayName}</span>
-                  <span className="text-xs text-muted-foreground">{staff.institutionalEmail}</span>
+                  <span className="text-sm text-muted-foreground">{staff.institutionalEmail}</span>
                 </button>
               </li>
             );
@@ -117,7 +117,7 @@ export function StaffAuthorAutocomplete({ onSelect, disabled }: StaffAuthorAutoc
       )}
 
       {open && !loading && search.length >= 2 && results.length === 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover p-3 text-sm text-muted-foreground shadow-md">
+        <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover p-3 text-base text-muted-foreground shadow-md">
           No staff found
         </div>
       )}

@@ -4,7 +4,7 @@ import { requireAuth, requireStaffOwnership } from '@/lib/guards';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { ThesisStatus } from '@prisma/client';
+import { Prisma, ThesisStatus } from '@prisma/client';
 import { PROGRAMME_OPTIONS, DEGREE_OPTIONS } from '@/lib/options';
 
 const thesisSchema = z.object({
@@ -43,6 +43,21 @@ type ActionResponse = {
   data?: unknown;
 };
 
+function isMissingRegistrationNumberColumn(error: unknown): boolean {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) return false;
+  if (error.code !== 'P2022') return false;
+  const meta = error.meta as { column?: unknown; modelName?: unknown } | undefined;
+  const column = String(meta?.column ?? '').toLowerCase();
+  const modelName = String(meta?.modelName ?? '').toLowerCase();
+  const message = String(error.message ?? '').toLowerCase();
+
+  return (
+    column.includes('registrationnumber') ||
+    message.includes('registrationnumber') ||
+    (modelName.includes('studentthesis') && message.includes('does not exist'))
+  );
+}
+
 export async function createMyThesis(data: z.infer<typeof thesisSchema>): Promise<ActionResponse> {
   const session = await requireAuth();
 
@@ -56,22 +71,43 @@ export async function createMyThesis(data: z.infer<typeof thesisSchema>): Promis
 
     await requireStaffOwnership(session, staffId);
 
-    const newDoc = await prisma.studentThesis.create({
-      data: {
-        staffId,
-        year: validated.year,
-        title: validated.title,
-        studentName: validated.studentName || null,
-        registrationNumber: validated.registrationNumber || null,
-        programme: validated.programme,
-        degreeLevel: validated.degreeLevel,
-        externalUrl: validated.externalUrl || null,
-        status: validated.status,
-      },
-      select: { id: true },
-    });
+    let newDoc: { id: string };
+    try {
+      newDoc = await prisma.studentThesis.create({
+        data: {
+          staffId,
+          year: validated.year,
+          title: validated.title,
+          studentName: validated.studentName || null,
+          registrationNumber: validated.registrationNumber || null,
+          programme: validated.programme,
+          degreeLevel: validated.degreeLevel,
+          externalUrl: validated.externalUrl || null,
+          status: validated.status,
+        },
+        select: { id: true },
+      });
+    } catch (error) {
+      if (!isMissingRegistrationNumberColumn(error)) {
+        throw error;
+      }
 
-    revalidatePath('/dashboard/profile/theses');
+      newDoc = await prisma.studentThesis.create({
+        data: {
+          staffId,
+          year: validated.year,
+          title: validated.title,
+          studentName: validated.studentName || null,
+          programme: validated.programme,
+          degreeLevel: validated.degreeLevel,
+          externalUrl: validated.externalUrl || null,
+          status: validated.status,
+        },
+        select: { id: true },
+      });
+    }
+
+    revalidatePath('/dashboard/profile/thesis-supervision');
     return { success: true, data: newDoc };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -114,21 +150,42 @@ export async function updateMyThesis(
       };
     }
 
-    await prisma.studentThesis.update({
-      where: { id },
-      data: {
-        year: validated.year,
-        title: validated.title,
-        studentName: validated.studentName || null,
-        registrationNumber: validated.registrationNumber || null,
-        programme: validated.programme,
-        degreeLevel: validated.degreeLevel,
-        externalUrl: validated.externalUrl || null,
-        status: validated.status,
-      },
-    });
+    try {
+      await prisma.studentThesis.update({
+        where: { id },
+        data: {
+          year: validated.year,
+          title: validated.title,
+          studentName: validated.studentName || null,
+          registrationNumber: validated.registrationNumber || null,
+          programme: validated.programme,
+          degreeLevel: validated.degreeLevel,
+          externalUrl: validated.externalUrl || null,
+          status: validated.status,
+        },
+        select: { id: true },
+      });
+    } catch (error) {
+      if (!isMissingRegistrationNumberColumn(error)) {
+        throw error;
+      }
 
-    revalidatePath('/dashboard/profile/theses');
+      await prisma.studentThesis.update({
+        where: { id },
+        data: {
+          year: validated.year,
+          title: validated.title,
+          studentName: validated.studentName || null,
+          programme: validated.programme,
+          degreeLevel: validated.degreeLevel,
+          externalUrl: validated.externalUrl || null,
+          status: validated.status,
+        },
+        select: { id: true },
+      });
+    }
+
+    revalidatePath('/dashboard/profile/thesis-supervision');
     return { success: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -169,9 +226,10 @@ export async function deleteMyThesis(id: string): Promise<ActionResponse> {
       data: {
         deletedAt: new Date(),
       },
+      select: { id: true },
     });
 
-    revalidatePath('/dashboard/profile/theses');
+    revalidatePath('/dashboard/profile/thesis-supervision');
     return { success: true };
   } catch (error) {
     console.error('Failed to delete thesis:', error);

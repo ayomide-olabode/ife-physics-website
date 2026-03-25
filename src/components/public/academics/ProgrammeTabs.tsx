@@ -41,7 +41,7 @@ export function ProgrammeTabs({
             href={tabPath}
             aria-current={isActive ? 'page' : undefined}
             className={cn(
-              'block w-full border-b border-brand-navy px-6 py-4 text-center text-sm font-semibold uppercase tracking-wide transition-colors md:w-fit md:border-b-0',
+              'block w-full border-b border-brand-navy px-6 py-4 text-center text-base font-semibold uppercase tracking-wide transition-colors md:w-fit md:border-b-0',
               isActive
                 ? 'bg-brand-navy text-white'
                 : 'bg-white text-brand-navy hover:bg-brand-navy hover:text-white',

@@ -16,7 +16,7 @@ export function ProgrammeDegreeLinks({ degrees }: ProgrammeDegreeLinksProps) {
         <Link
           key={`${d.label}-${d.href}`}
           href={d.href}
-          className="text-xs font-medium text-brand-navy border border-brand-navy px-3 py-1 hover:bg-brand-navy hover:text-brand-white transition-colors"
+          className="text-sm font-medium text-brand-navy border border-brand-navy px-3 py-1 hover:bg-brand-navy hover:text-brand-white transition-colors"
         >
           {d.label}
         </Link>

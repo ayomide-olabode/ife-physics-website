@@ -34,7 +34,7 @@ export function RefHeaderTop() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-brand-navy text-sm font-bold hover:text-brand-yellow transition-colors"
+                className="text-brand-navy text-base font-bold hover:text-brand-yellow transition-colors"
               >
                 {link.name}
               </Link>

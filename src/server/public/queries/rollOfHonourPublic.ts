@@ -8,6 +8,32 @@ interface RollOfHonourParams extends PaginationParams {
   programme?: string;
 }
 
+function programmePriority(programme: string): number {
+  const normalized = programme.trim().toLowerCase();
+
+  if (normalized === 'physics' || normalized === 'phy') return 0;
+  if (normalized === 'engineering physics' || normalized === 'eph') return 1;
+  if (
+    normalized === 'science laboratory technology' ||
+    normalized === 'science lab technology' ||
+    normalized === 'slt'
+  ) {
+    return 2;
+  }
+
+  if (normalized.includes('engineering physics')) return 1;
+  if (
+    normalized.includes('science laboratory technology') ||
+    normalized.includes('science lab technology') ||
+    normalized.includes('slt')
+  ) {
+    return 2;
+  }
+  if (normalized.includes('physics')) return 0;
+
+  return 99;
+}
+
 /** Paginated roll of honour (no status field, soft-delete only). */
 export async function listPublicRollOfHonour(params: RollOfHonourParams = {}) {
   const { skip, take, page, pageSize } = paginationArgs(params);
@@ -103,13 +129,20 @@ export async function listPublicRohByYear({
       imageUrl: true,
       graduatingYear: true,
     },
-    orderBy: [{ cgpa: 'desc' }, { name: 'asc' }],
-    take: Math.max(1, Math.min(take, 60)) + 1,
-    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+    orderBy: [{ name: 'asc' }],
   });
 
-  const hasMore = rows.length > Math.max(1, Math.min(take, 60));
-  const pageRows = hasMore ? rows.slice(0, -1) : rows;
+  const sortedRows = [...rows].sort((a, b) => {
+    const programmeDiff = programmePriority(a.programme) - programmePriority(b.programme);
+    if (programmeDiff !== 0) return programmeDiff;
+    if (a.cgpa !== b.cgpa) return b.cgpa - a.cgpa;
+    return a.name.localeCompare(b.name);
+  });
+
+  const pageSize = Math.max(1, Math.min(take, 60));
+  const startIndex = cursor ? Math.max(0, sortedRows.findIndex((row) => row.id === cursor) + 1) : 0;
+  const pageRows = sortedRows.slice(startIndex, startIndex + pageSize);
+  const hasMore = startIndex + pageSize < sortedRows.length;
   const nextCursor = hasMore ? pageRows[pageRows.length - 1]?.id ?? null : null;
 
   return {

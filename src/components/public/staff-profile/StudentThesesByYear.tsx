@@ -2,12 +2,17 @@
 
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { THESIS_STATUS_OPTIONS } from '@/lib/options';
 
 type ThesisItem = {
   id: string;
   title: string;
+  status: string;
+  externalUrl: string | null;
   degreeLevel: string | null;
   programme: string | null;
+  studentName: string | null;
+  registrationNumber: string | null;
   year: number | null;
 };
 
@@ -16,6 +21,50 @@ type GroupedYear = {
   label: string;
   items: ThesisItem[];
 };
+
+const THESIS_STATUS_LABELS = new Map(
+  THESIS_STATUS_OPTIONS.map((option) => [option.value, option.label]),
+);
+
+const DEGREE_LEVEL_LABELS: Record<string, string> = {
+  BSC: 'B.S.c.',
+  MSC: 'M.Sc.',
+  MPHIL: 'M.Phil.',
+  PHD: 'Ph.D.',
+};
+
+const PROGRAMME_LABELS: Record<string, string> = {
+  PHY: 'Physics',
+  EPH: 'Engineering Physics',
+  SLT: 'Science Laboratory Trech',
+};
+
+function normalizeToken(value: string) {
+  return value.replace(/\./g, '').replace(/\s+/g, '').trim().toUpperCase();
+}
+
+function formatThesisStatus(status: string) {
+  return (
+    THESIS_STATUS_LABELS.get(status) ||
+    status
+      .toLowerCase()
+      .split('_')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
+  );
+}
+
+function formatDegreeLevel(value: string | null): string | null {
+  if (!value?.trim()) return null;
+  const normalized = normalizeToken(value);
+  return DEGREE_LEVEL_LABELS[normalized] ?? value.trim();
+}
+
+function formatProgramme(value: string | null): string | null {
+  if (!value?.trim()) return null;
+  const normalized = normalizeToken(value);
+  return PROGRAMME_LABELS[normalized] ?? value.trim();
+}
 
 function groupThesesByYear(items: ThesisItem[]): GroupedYear[] {
   const grouped = new Map<string, ThesisItem[]>();
@@ -67,11 +116,36 @@ export function StudentThesesByYear({ items }: { items: ThesisItem[] }) {
               <div className="bg-white p-6">
                 <div className="space-y-4">
                   {group.items.map((thesis) => (
-                    <article key={thesis.id} className="border border-gray-200 p-4">
-                      <h3 className="font-semibold text-brand-navy">{thesis.title}</h3>
-                      <p className="mt-1 text-sm text-gray-600">
-                        {thesis.year} •{' '}
-                        {[thesis.degreeLevel, thesis.programme].filter(Boolean).join(' • ')}
+                    <article key={thesis.id} className="border border-gray-200 p-4 space-y-2">
+                      <p className="text-sm font-semibold uppercase tracking-wider text-gray-600">
+                        {formatThesisStatus(thesis.status)}
+                      </p>
+
+                      <h3 className="text-base font-semibold text-brand-navy">
+                        {thesis.externalUrl ? (
+                          <a
+                            href={thesis.externalUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="hover:underline"
+                          >
+                            {thesis.title}
+                          </a>
+                        ) : (
+                          thesis.title
+                        )}
+                      </h3>
+
+                      <p className="text-base text-gray-700">
+                        {thesis.studentName || 'Student name not provided'}
+                        {thesis.registrationNumber ? ` (${thesis.registrationNumber})` : ''}
+                      </p>
+
+                      <p className="text-base text-gray-700">
+                        {[formatDegreeLevel(thesis.degreeLevel), formatProgramme(thesis.programme)]
+                          .filter(Boolean)
+                          .join(' ') ||
+                          'Degree / programme not specified'}
                       </p>
                     </article>
                   ))}

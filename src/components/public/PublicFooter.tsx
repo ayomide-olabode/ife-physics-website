@@ -15,6 +15,7 @@ const aboutLinks = [
   { label: 'Strategy Document', href: '/about' },
   { label: 'Handbook', href: '/resources' },
   { label: 'Legacy Gallery', href: '/about' },
+  { label: 'Academic Calendar', href: '/under-construction' },
 ];
 
 const quickLinks = [
@@ -29,7 +30,8 @@ export function PublicFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative isolate overflow-hidden text-brand-white text-center md:text-left outline-[40px] outline outline-brand-navy mt-4">
+    <footer className="relative text-brand-white text-center md:text-left  mt-4">
+      <div className="absolute bg-brand-navy h-10 -top-10 right-0 left-0" />
       <div className="absolute inset-0 -z-20">
         <Image
           src="/assets/whitehouse-footer.png"
@@ -74,7 +76,7 @@ export function PublicFooter() {
 
             <Link
               href="/under-construction"
-              className="inline-block bg-brand-yellow text-brand-ink text-sm font-semibold px-6 py-2.5 hover:bg-yellow-500 transition-colors w-fit"
+              className="inline-block bg-brand-yellow text-brand-ink text-base font-semibold px-6 py-2.5 hover:bg-yellow-500 transition-colors w-fit"
             >
               GIVE TO PHYSICS
             </Link>
@@ -83,7 +85,7 @@ export function PublicFooter() {
           {/* ── Contact column ── */}
           <div className="md:w-1/5">
             <h3 className="font-serif font-semibold text-base text-brand-yellow mb-4">Contact</h3>
-            <address className="not-italic text-sm text-white/80 space-y-1.5">
+            <address className="not-italic text-base text-white/80 space-y-1.5">
               <p>Faculty of Science</p>
               <p>University Road 2</p>
               <p>Whitehouse Building</p>
@@ -115,7 +117,7 @@ export function PublicFooter() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/80 hover:text-white hover:underline underline-offset-4 transition-colors"
+                    className="text-base text-white/80 hover:text-white hover:underline underline-offset-4 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -134,7 +136,7 @@ export function PublicFooter() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/80 hover:text-white hover:underline underline-offset-4 transition-colors"
+                    className="text-base text-white/80 hover:text-white hover:underline underline-offset-4 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -145,7 +147,7 @@ export function PublicFooter() {
         </div>
 
         {/* ── Bottom divider + copyright ── */}
-        <div className="border-t border-white/20 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/75">
+        <div className="border-t border-white/20 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-base text-white/75">
           <p className="text-balance">
             &copy; {currentYear} Department of Physics and Engineering Physics. All rights reserved.
           </p>

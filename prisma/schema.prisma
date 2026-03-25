@@ -231,6 +231,7 @@ model Staff {
 
   // Relations
   researchMemberships   ResearchGroupMembership[]
+  focusAreaSelections   StaffFocusAreaSelection[]
   publicationAuthorship PublicationAuthor[]
 
   researchOutputs  ResearchOutput[]
@@ -378,7 +379,8 @@ model FocusArea {
   title           String
   description     String?
 
-  researchGroup ResearchGroup @relation(fields: [researchGroupId], references: [id], onDelete: Cascade)
+  researchGroup       ResearchGroup             @relation(fields: [researchGroupId], references: [id], onDelete: Cascade)
+  staffSelections     StaffFocusAreaSelection[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -386,6 +388,21 @@ model FocusArea {
 
   @@index([researchGroupId])
   @@index([deletedAt])
+}
+
+model StaffFocusAreaSelection {
+  id          String @id @default(cuid())
+  staffId     String
+  focusAreaId String
+
+  staff     Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  focusArea FocusArea @relation(fields: [focusAreaId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([staffId, focusAreaId])
+  @@index([staffId])
+  @@index([focusAreaId])
 }
 
 model ResearchGroupMembership {
@@ -750,6 +767,7 @@ model EventOpportunity {
   eventCategory       EventCategory?
   opportunityCategory OpportunityCategory?
   description         String?
+  duration            String?
   startDate           DateTime?
   endDate             DateTime?
   venue               String?

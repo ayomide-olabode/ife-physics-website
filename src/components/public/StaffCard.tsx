@@ -47,13 +47,13 @@ export function StaffCard({ item }: { item: PublicPeopleCardItem }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-xs font-semibold uppercase tracking-wider text-gray-500">
+          <div className="flex h-full items-center justify-center text-sm font-semibold uppercase tracking-wider text-gray-500">
             No Image
           </div>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-4 text-sm text-gray-700">
+      <div className="flex flex-1 flex-col gap-3 p-4 text-base text-gray-700">
         <h2 className="text-lg font-bold leading-snug text-brand-navy">
           {canOpenProfile ? (
             <Link
@@ -67,22 +67,22 @@ export function StaffCard({ item }: { item: PublicPeopleCardItem }) {
           )}
         </h2>
 
-        <p className="text-sm text-gray-600">
+        <p className="text-base text-gray-600">
           {isMemoriam
             ? item.academicRank || '—'
             : [item.academicRank, item.designation].filter(Boolean).join(', ') || '—'}
         </p>
 
         {memoriamLifespan ? (
-          <p className="mt-1 text-sm text-gray-600">{memoriamLifespan}</p>
+          <p className="mt-1 text-base text-gray-600">{memoriamLifespan}</p>
         ) : null}
 
-        <p className="text-sm text-gray-600">{item.primaryResearchGroup?.name ?? 'Research group not specified'}</p>
+        <p className="text-base text-gray-600">{item.primaryResearchGroup?.name ?? 'Research group not specified'}</p>
 
-        {affiliation ? <p className="text-sm text-gray-600">{affiliation}</p> : null}
+        {affiliation ? <p className="text-base text-gray-600">{affiliation}</p> : null}
 
         {!isMemoriam ? (
-          <p className="mt-auto flex items-start gap-2 text-sm text-gray-700">
+          <p className="mt-auto flex items-start gap-2 text-base text-gray-700">
             <Mail className="mt-0.5 h-4 w-4 shrink-0" />
             <a href={`mailto:${item.institutionalEmail}`} className="break-all hover:underline">
               {item.institutionalEmail}

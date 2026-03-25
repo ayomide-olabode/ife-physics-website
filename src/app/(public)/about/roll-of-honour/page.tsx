@@ -11,7 +11,7 @@ export default async function RollOfHonourPage() {
     <>
       <PageHero breadcrumbLabel="Our Department" title="Roll of Honour" />
 
-      <div className="py-16">
+      <div className="pb-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
           <p className="mb-8 max-w-2xl text-white/90">
             Celebrating our top-performing graduates across all programmes.

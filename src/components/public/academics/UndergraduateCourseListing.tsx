@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { CourseDetailsModal } from '@/components/public/CourseDetailsModal';
 
@@ -84,6 +85,12 @@ function displaySemester(value?: 'HARMATTAN' | 'RAIN' | null) {
   return '—';
 }
 
+function displaySemesterLine(value?: 'HARMATTAN' | 'RAIN' | null) {
+  if (value === 'HARMATTAN') return 'Harmattan Semester';
+  if (value === 'RAIN') return 'Rain Semester';
+  return 'Unknown Semester';
+}
+
 function displayLTPU(course: UndergraduateCourse) {
   const L = typeof course.L === 'number' ? course.L : 0;
   const T = typeof course.T === 'number' ? course.T : 0;
@@ -94,14 +101,35 @@ function displayLTPU(course: UndergraduateCourse) {
 
 export function UndergraduateCourseListing({ courses }: UndergraduateCourseListingProps) {
   const groups = useMemo(() => groupCoursesByYear(courses), [courses]);
-  const [openYear, setOpenYear] = useState<YearNumber>(getDefaultOpenYear(groups));
-  const [selectedCourse, setSelectedCourse] = useState<UndergraduateCourse | null>(null);
+  const searchParams = useSearchParams();
+  const deepLinkedCourseCode = searchParams.get('course')?.trim().toUpperCase() ?? null;
+  const initialDeepLinkedCourse = useMemo(() => {
+    if (!deepLinkedCourseCode) return null;
+    return (
+      courses.find((course) => course.code.trim().toUpperCase() === deepLinkedCourseCode) ?? null
+    );
+  }, [courses, deepLinkedCourseCode]);
+  const [openYear, setOpenYear] = useState<YearNumber>(() => {
+    if (
+      initialDeepLinkedCourse &&
+      typeof initialDeepLinkedCourse.year === 'number' &&
+      Number.isInteger(initialDeepLinkedCourse.year) &&
+      initialDeepLinkedCourse.year >= 1 &&
+      initialDeepLinkedCourse.year <= 4
+    ) {
+      return initialDeepLinkedCourse.year as YearNumber;
+    }
+    return getDefaultOpenYear(groups);
+  });
+  const [selectedCourse, setSelectedCourse] = useState<UndergraduateCourse | null>(
+    initialDeepLinkedCourse,
+  );
 
   if (courses.length === 0) {
     return (
       <div className="border border-brand-navy/20 bg-white px-4 py-3">
-        <p className="text-sm font-semibold text-brand-navy">No courses yet</p>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="text-base font-semibold text-brand-navy">No courses yet</p>
+        <p className="mt-1 text-base text-gray-600">
           Courses will appear here once added by an academic coordinator.
         </p>
       </div>
@@ -133,51 +161,73 @@ export function UndergraduateCourseListing({ courses }: UndergraduateCourseListi
             </h3>
 
             {isOpen ? (
-              <div className="overflow-x-auto border-t border-brand-navy/20">
+              <div className="border-t border-brand-navy/20">
                 {group.courses.length > 0 ? (
-                  <table className="min-w-full border-collapse text-sm">
-                    <thead>
-                      <tr className="bg-slate-50 text-left text-brand-navy">
-                        <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                          Course Code
-                        </th>
-                        <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                          Course Title
-                        </th>
-                        <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                          Semester Taken
-                        </th>
-                        <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
-                          L - T - P - U
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  <>
+                    <div className="md:hidden">
                       {group.courses.map((course) => (
-                        <tr
+                        <button
                           key={course.id || course.code}
-                          className="cursor-pointer bg-white transition-colors hover:bg-brand-navy/5"
+                          type="button"
                           onClick={() => setSelectedCourse(course)}
+                          className="block w-full border-b border-brand-navy/20 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-brand-navy/5"
                         >
-                          <td className="border border-brand-navy/20 px-4 py-3 font-medium text-brand-navy">
-                            {course.code}
-                          </td>
-                          <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                            {course.title}
-                          </td>
-                          <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                            {displaySemester(course.semesterTaken)}
-                          </td>
-                          <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
-                            {displayLTPU(course)}
-                          </td>
-                        </tr>
+                          <p className="text-base font-semibold text-brand-navy">
+                            {course.code} - {course.title}
+                          </p>
+                          <p className="mt-1 text-base text-gray-700">
+                            {displaySemesterLine(course.semesterTaken)} ({displayLTPU(course)})
+                          </p>
+                        </button>
                       ))}
-                    </tbody>
-                  </table>
+                    </div>
+
+                    <div className="hidden overflow-x-auto md:block">
+                      <table className="min-w-full border-collapse text-sm md:text-base">
+                        <thead>
+                          <tr className="bg-slate-50 text-left text-brand-navy">
+                            <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                              Course Code
+                            </th>
+                            <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                              Course Title
+                            </th>
+                            <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                              Semester Taken
+                            </th>
+                            <th className="border border-brand-navy/20 px-4 py-3 font-semibold">
+                              L - T - P - U
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {group.courses.map((course) => (
+                            <tr
+                              key={course.id || course.code}
+                              className="cursor-pointer bg-white transition-colors hover:bg-brand-navy/5"
+                              onClick={() => setSelectedCourse(course)}
+                            >
+                              <td className="border border-brand-navy/20 px-4 py-3 font-medium text-brand-navy">
+                                {course.code}
+                              </td>
+                              <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                                {course.title}
+                              </td>
+                              <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                                {displaySemester(course.semesterTaken)}
+                              </td>
+                              <td className="border border-brand-navy/20 px-4 py-3 text-gray-700">
+                                {displayLTPU(course)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
                 ) : (
                   <div className="px-4 py-4">
-                    <p className="text-sm text-gray-600">No courses for this year yet.</p>
+                    <p className="text-base text-gray-600">No courses for this year yet.</p>
                   </div>
                 )}
               </div>

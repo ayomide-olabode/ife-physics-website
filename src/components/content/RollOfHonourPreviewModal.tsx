@@ -68,31 +68,31 @@ export function RollOfHonourPreviewModal({
               <div className="w-full sm:w-2/3 space-y-4">
                 <div>
                   <h3 className="text-xl font-bold text-foreground">{data.name}</h3>
-                  <p className="text-sm text-muted-foreground">Reg No. {data.registrationNumber}</p>
+                  <p className="text-base text-muted-foreground">Reg No. {data.registrationNumber}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-muted-foreground font-semibold uppercase">
+                    <p className="text-sm text-muted-foreground font-semibold uppercase">
                       Programme
                     </p>
-                    <p className="text-sm text-foreground">{data.programme}</p>
+                    <p className="text-base text-foreground">{data.programme}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground font-semibold uppercase">CGPA</p>
-                    <p className="text-sm text-foreground">{data.cgpa}</p>
+                    <p className="text-sm text-muted-foreground font-semibold uppercase">CGPA</p>
+                    <p className="text-base text-foreground">{data.cgpa}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground font-semibold uppercase">
+                    <p className="text-sm text-muted-foreground font-semibold uppercase">
                       Graduating Year
                     </p>
-                    <p className="text-sm text-foreground">{data.graduatingYear}</p>
+                    <p className="text-base text-foreground">{data.graduatingYear}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="text-xs text-muted-foreground flex justify-between pt-4 border-t">
+            <div className="text-sm text-muted-foreground flex justify-between pt-4 border-t">
               <span>Added: {new Date(data.createdAt).toLocaleString()}</span>
             </div>
           </div>

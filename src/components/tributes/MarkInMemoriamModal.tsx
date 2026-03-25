@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
+import { YearGroupedSelect } from '@/components/forms/YearGroupedSelect';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,7 @@ import { formatPersonName } from '@/lib/name';
 import { toastError, toastSuccess } from '@/lib/toast';
 import { markStaffInMemoriam } from '@/server/actions/tributesAdmin';
 import { useRouter } from 'next/navigation';
+import { Plus } from 'lucide-react';
 
 type StaffSearchResult = {
   id: string;
@@ -26,6 +28,9 @@ type StaffSearchResult = {
   lastName: string | null;
   institutionalEmail: string;
 };
+
+const MIN_BIRTH_YEAR = 1900;
+const CURRENT_YEAR = new Date().getFullYear();
 
 export function MarkInMemoriamModal() {
   const router = useRouter();
@@ -38,7 +43,7 @@ export function MarkInMemoriamModal() {
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [yearOfBirth, setYearOfBirth] = useState<number | undefined>(undefined);
   const [dateOfDeath, setDateOfDeath] = useState('');
 
   async function handleSearch(e: FormEvent) {
@@ -66,7 +71,7 @@ export function MarkInMemoriamModal() {
     try {
       const result = await markStaffInMemoriam({
         staffId: selectedStaffId,
-        dateOfBirth: dateOfBirth || undefined,
+        yearOfBirth: typeof yearOfBirth === 'number' ? String(yearOfBirth) : undefined,
         dateOfDeath,
       });
 
@@ -93,7 +98,7 @@ export function MarkInMemoriamModal() {
     setSelectedStaffId('');
     setIsSearching(false);
     setHasSearched(false);
-    setDateOfBirth('');
+    setYearOfBirth(undefined);
     setDateOfDeath('');
     setIsSubmitting(false);
   }
@@ -109,12 +114,15 @@ export function MarkInMemoriamModal() {
       }}
     >
       <DialogTrigger asChild>
-        <Button>Add New</Button>
+        <Button>
+          <Plus className="h-4 w-4" />
+          Add New
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Mark Staff as In Memoriam</DialogTitle>
-          <DialogDescription>Select a staff member and capture memorial dates.</DialogDescription>
+          <DialogDescription>Select a staff member and capture memorial details.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -144,11 +152,11 @@ export function MarkInMemoriamModal() {
             </div>
 
             {!hasSearched && !isSearching && (
-              <p className="text-sm text-muted-foreground">Type at least 2 characters to search.</p>
+              <p className="text-base text-muted-foreground">Type at least 2 characters to search.</p>
             )}
 
             {hasSearched && searchResults.length === 0 && (
-              <p className="text-sm text-muted-foreground">No staff found.</p>
+              <p className="text-base text-muted-foreground">No staff found.</p>
             )}
 
             {searchResults.length > 0 && (
@@ -172,14 +180,14 @@ export function MarkInMemoriamModal() {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">
+                      <span className="text-base font-medium">
                         {formatPersonName({
                           firstName: staff.firstName,
                           middleName: staff.middleName,
                           lastName: staff.lastName,
                         }) || staff.institutionalEmail}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-sm text-muted-foreground">
                         {staff.institutionalEmail}
                       </span>
                     </div>
@@ -191,12 +199,14 @@ export function MarkInMemoriamModal() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <FieldLabel htmlFor="dateOfBirth">Date of Birth</FieldLabel>
-              <Input
-                id="dateOfBirth"
-                type="date"
-                value={dateOfBirth}
-                onChange={(e) => setDateOfBirth(e.target.value)}
+              <FieldLabel htmlFor="yearOfBirth">Year of Birth</FieldLabel>
+              <YearGroupedSelect
+                id="yearOfBirth"
+                value={yearOfBirth}
+                onChange={setYearOfBirth}
+                minYear={MIN_BIRTH_YEAR}
+                maxYear={CURRENT_YEAR}
+                placeholder="Select year"
               />
             </div>
             <div className="space-y-2">

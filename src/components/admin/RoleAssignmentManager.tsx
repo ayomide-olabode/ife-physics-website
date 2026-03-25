@@ -121,15 +121,15 @@ export function RoleAssignmentManager({
   const groupLookup = new Map(researchGroups.map((g) => [g.id, g]));
 
   const roleRows = assignments.map((ra) => [
-    <span key="role" className="font-medium text-sm">
+    <span key="role" className="font-medium text-base">
       {ra.role}
     </span>,
-    <span key="scope" className="text-sm">
+    <span key="scope" className="text-base">
       {ra.role === 'ACADEMIC_COORDINATOR'
         ? `${ra.programmeScope ?? '-'} / ${ra.degreeScope ?? '-'}`
         : `${ra.scopeType}${ra.scopeId ? ` (${groupLookup.get(ra.scopeId)?.name ?? ra.scopeId})` : ''}`}
     </span>,
-    <span key="status" className="text-sm">
+    <span key="status" className="text-base">
       {ra.deletedAt ? (
         <span className="text-red-600">Deleted</span>
       ) : ra.expiresAt && new Date(ra.expiresAt) < new Date() ? (
@@ -138,7 +138,7 @@ export function RoleAssignmentManager({
         <span className="text-green-600">Active</span>
       )}
     </span>,
-    <span key="expires" className="text-sm text-muted-foreground">
+    <span key="expires" className="text-base text-muted-foreground">
       {ra.expiresAt ? formatDate(ra.expiresAt) : 'Never'}
     </span>,
     <span key="actions">
@@ -173,7 +173,7 @@ export function RoleAssignmentManager({
                   setProgrammeScope('');
                   setDegreeScope('');
                 }}
-                className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 required
               >
                 <option value="" disabled>
@@ -191,7 +191,7 @@ export function RoleAssignmentManager({
               <div className="space-y-2">
                 <FieldLabel htmlFor="scopeId">Research Group</FieldLabel>
                 {researchGroups.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-2">
+                  <p className="text-base text-muted-foreground py-2">
                     No research groups yet. Create one in the Research module first.
                   </p>
                 ) : (
@@ -199,7 +199,7 @@ export function RoleAssignmentManager({
                     id="scopeId"
                     value={scopeId}
                     onChange={(e) => setScopeId(e.target.value)}
-                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     required
                   >
                     <option value="" disabled>
@@ -224,7 +224,7 @@ export function RoleAssignmentManager({
                     id="programmeScope"
                     value={programmeScope}
                     onChange={(e) => setProgrammeScope(e.target.value as ProgrammeScope)}
-                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     required
                   >
                     <option value="" disabled>
@@ -243,7 +243,7 @@ export function RoleAssignmentManager({
                     id="degreeScope"
                     value={degreeScope}
                     onChange={(e) => setDegreeScope(e.target.value as DegreeScope)}
-                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     required
                   >
                     <option value="" disabled>

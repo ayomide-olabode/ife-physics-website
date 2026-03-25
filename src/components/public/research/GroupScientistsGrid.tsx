@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { formatPublicStaffName } from '@/lib/publicName';
 
 type Scientist = {
@@ -6,16 +7,17 @@ type Scientist = {
   firstName: string | null;
   middleName: string | null;
   lastName: string | null;
-  academicRank: string | null;
-  designation: string | null;
   institutionalEmail: string;
   profileImageUrl: string | null;
+  computedStaffSlug: string | null;
+  focusAreas: string[];
+  isResearchGroupHead: boolean;
 };
 
 export function GroupScientistsGrid({ scientists }: { scientists: Scientist[] }) {
   if (scientists.length === 0) {
     return (
-      <div className="border border-gray-200 bg-white p-6 text-sm text-gray-500 rounded-none">
+      <div className="border border-gray-200 bg-white p-6 text-base text-gray-500 rounded-none">
         No scientists are currently listed for this group.
       </div>
     );
@@ -31,6 +33,11 @@ export function GroupScientistsGrid({ scientists }: { scientists: Scientist[] })
             className="border border-gray-200 bg-white rounded-none overflow-hidden"
           >
             <div className="relative h-56 bg-gray-100">
+              {scientist.isResearchGroupHead ? (
+                <span className="absolute left-3 top-3 z-10 bg-brand-navy px-2 py-1 text-sm font-semibold uppercase tracking-wide text-white">
+                  Research Group Head
+                </span>
+              ) : null}
               {scientist.profileImageUrl ? (
                 <Image
                   src={scientist.profileImageUrl}
@@ -40,25 +47,39 @@ export function GroupScientistsGrid({ scientists }: { scientists: Scientist[] })
                   className="object-cover"
                 />
               ) : (
-                <div className="h-full w-full bg-gray-100 flex items-center justify-center text-sm text-gray-400">
+                <div className="h-full w-full bg-gray-100 flex items-center justify-center text-base text-gray-400">
                   No image
                 </div>
               )}
             </div>
             <div className="p-4 space-y-1">
-              <h3 className="text-brand-navy font-semibold">{name}</h3>
-              {scientist.academicRank && (
-                <p className="text-sm text-gray-700 leading-snug">{scientist.academicRank}</p>
-              )}
-              {scientist.designation && (
-                <p className="text-sm text-gray-600 leading-snug">{scientist.designation}</p>
-              )}
+              <h3 className="text-brand-navy font-semibold">
+                {scientist.computedStaffSlug ? (
+                  <Link
+                    href={`/people/staff/${scientist.computedStaffSlug}`}
+                    className="hover:underline hover:underline-offset-2"
+                  >
+                    {name}
+                  </Link>
+                ) : (
+                  name
+                )}
+              </h3>
               <a
                 href={`mailto:${scientist.institutionalEmail}`}
-                className="inline-block text-sm text-brand-navy hover:underline break-all"
+                className="inline-block text-base text-brand-navy hover:underline break-all"
               >
                 {scientist.institutionalEmail}
               </a>
+              <hr className="my-2 border-gray-200" />
+              <p className="pt-1 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                Focus Areas
+              </p>
+              <p className="text-base text-gray-700 leading-snug">
+                {scientist.focusAreas.length > 0
+                  ? scientist.focusAreas.join(', ')
+                  : 'Not specified'}
+              </p>
             </div>
           </article>
         );

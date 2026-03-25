@@ -47,7 +47,7 @@ export function StaffPublicVisibilityManager({
 
   return (
     <div className="rounded-lg border p-4 space-y-3">
-      <h3 className="text-sm font-medium text-muted-foreground">Public Profile Visibility</h3>
+      <h3 className="text-base font-medium text-muted-foreground">Public Profile Visibility</h3>
       <div className="flex items-start gap-3">
         <Checkbox
           id="staff-public-visibility"
@@ -58,7 +58,7 @@ export function StaffPublicVisibilityManager({
           <FieldLabel htmlFor="staff-public-visibility" className="cursor-pointer">
             Show this staff profile on public pages
           </FieldLabel>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             When disabled, this person is removed from public staff listings, profile pages,
             leadership, and research group member displays.
           </p>

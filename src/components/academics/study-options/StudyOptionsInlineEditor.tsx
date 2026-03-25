@@ -219,7 +219,7 @@ export function StudyOptionsInlineEditor({
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 className="font-semibold">Study Options</h3>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Use the checkbox beside an option to make it available for this programme. Click an
                 option to edit its details.
               </p>
@@ -243,7 +243,7 @@ export function StudyOptionsInlineEditor({
 
         <div className="flex-1 space-y-1 overflow-y-auto p-2">
           {filteredOptions.length === 0 ? (
-            <div className="py-6 text-center text-sm text-muted-foreground">No options found.</div>
+            <div className="py-6 text-center text-base text-muted-foreground">No options found.</div>
           ) : (
             filteredOptions.map((option) => {
               const isSelected = selectedId === option.id && !isCreatingNew;
@@ -274,9 +274,9 @@ export function StudyOptionsInlineEditor({
                       className="mt-0.5 border-brand-navy data-[state=checked]:border-brand-navy data-[state=checked]:bg-brand-navy data-[state=checked]:text-white"
                     />
                     <div>
-                      <p className="text-sm font-medium">{option.name}</p>
+                      <p className="text-base font-medium">{option.name}</p>
                       {option.about ? (
-                        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                        <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
                           {option.about}
                         </p>
                       ) : null}

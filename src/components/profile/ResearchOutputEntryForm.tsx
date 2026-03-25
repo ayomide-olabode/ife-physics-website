@@ -515,7 +515,7 @@ export function ResearchOutputEntryForm({
           disabled={dis}
           className="rounded-none"
         />
-        <p className="text-xs text-muted-foreground">Kindly add a Url if DOI is not available.</p>
+        <p className="text-sm text-muted-foreground">Kindly add a Url if DOI is not available.</p>
       </div>
 
       {/* AUTHORS */}
@@ -531,7 +531,7 @@ export function ResearchOutputEntryForm({
         )}
 
         <div className="space-y-2 mt-2">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <UserPlus className="h-3.5 w-3.5" />
             <span>Add author from staff directory</span>
           </div>
@@ -540,10 +540,10 @@ export function ResearchOutputEntryForm({
 
         {showManualAuthor ? (
           <div className="border bg-muted/30 p-3 space-y-3 rounded-none mt-2">
-            <p className="text-xs font-medium text-muted-foreground">Add external author</p>
+            <p className="text-sm font-medium text-muted-foreground">Add external author</p>
             <div className="grid grid-cols-3 gap-3">
               <div className="grid gap-1">
-                <FieldLabel required htmlFor="manual-author-given" className="text-xs">
+                <FieldLabel required htmlFor="manual-author-given" className="text-sm">
                   First Name
                 </FieldLabel>
                 <Input
@@ -552,11 +552,11 @@ export function ResearchOutputEntryForm({
                   onChange={(e) => setManualAuthorGiven(e.target.value)}
                   disabled={dis}
                   placeholder="Firstname"
-                  className="h-8 text-sm rounded-none"
+                  className="h-8 text-base rounded-none"
                 />
               </div>
               <div className="grid gap-1">
-                <FieldLabel htmlFor="manual-author-middle" className="text-xs">
+                <FieldLabel htmlFor="manual-author-middle" className="text-sm">
                   Middle Name
                 </FieldLabel>
                 <Input
@@ -565,11 +565,11 @@ export function ResearchOutputEntryForm({
                   onChange={(e) => setManualAuthorMiddle(e.target.value)}
                   disabled={dis}
                   placeholder="Middlename"
-                  className="h-8 text-sm rounded-none"
+                  className="h-8 text-base rounded-none"
                 />
               </div>
               <div className="grid gap-1">
-                <FieldLabel htmlFor="manual-author-family" className="text-xs">
+                <FieldLabel htmlFor="manual-author-family" className="text-sm">
                   Last Name
                 </FieldLabel>
                 <Input
@@ -578,7 +578,7 @@ export function ResearchOutputEntryForm({
                   onChange={(e) => setManualAuthorFamily(e.target.value)}
                   disabled={dis}
                   placeholder="Lastname"
-                  className="h-8 text-sm rounded-none"
+                  className="h-8 text-base rounded-none"
                 />
               </div>
             </div>
@@ -614,7 +614,7 @@ export function ResearchOutputEntryForm({
             type="button"
             onClick={() => setShowManualAuthor(true)}
             disabled={dis}
-            className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors justify-start"
+            className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors justify-start"
           >
             <Plus className="h-3.5 w-3.5" />
             Add external author manually
@@ -622,7 +622,7 @@ export function ResearchOutputEntryForm({
         )}
 
         {/* <div className="grid gap-2 pt-2 border-t mt-2">
-          <FieldLabel htmlFor="groupAuthor" className="text-xs text-muted-foreground">
+          <FieldLabel htmlFor="groupAuthor" className="text-sm text-muted-foreground">
             Or Group / Corporate Author
           </FieldLabel>
           <Input
@@ -691,7 +691,7 @@ export function ResearchOutputEntryForm({
                 {formData.editorsJson.map((editor, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between border bg-card px-3 py-2 text-sm rounded-none"
+                    className="flex items-center justify-between border bg-card px-3 py-2 text-base rounded-none"
                   >
                     <div className="flex items-center gap-2">
                       {editor.staffId && (
@@ -719,7 +719,7 @@ export function ResearchOutputEntryForm({
             )}
 
             <div className="space-y-2 mt-2">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <UserPlus className="h-3.5 w-3.5" />
                 <span>Add editor from staff directory</span>
               </div>
@@ -728,10 +728,10 @@ export function ResearchOutputEntryForm({
 
             {showManualEditor ? (
               <div className="border bg-muted/30 p-3 space-y-3 rounded-none mt-2">
-                <p className="text-xs font-medium text-muted-foreground">Add external editor</p>
+                <p className="text-sm font-medium text-muted-foreground">Add external editor</p>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="grid gap-1">
-                    <FieldLabel htmlFor="manual-editor-given" className="text-xs">
+                    <FieldLabel htmlFor="manual-editor-given" className="text-sm">
                       First Name
                     </FieldLabel>
                     <Input
@@ -740,11 +740,11 @@ export function ResearchOutputEntryForm({
                       onChange={(e) => setManualEditorGiven(e.target.value)}
                       disabled={dis}
                       placeholder="Firstname"
-                      className="h-8 text-sm rounded-none"
+                      className="h-8 text-base rounded-none"
                     />
                   </div>
                   <div className="grid gap-1">
-                    <FieldLabel htmlFor="manual-editor-middle" className="text-xs">
+                    <FieldLabel htmlFor="manual-editor-middle" className="text-sm">
                       Middle Name
                     </FieldLabel>
                     <Input
@@ -753,11 +753,11 @@ export function ResearchOutputEntryForm({
                       onChange={(e) => setManualEditorMiddle(e.target.value)}
                       disabled={dis}
                       placeholder="Middlename"
-                      className="h-8 text-sm rounded-none"
+                      className="h-8 text-base rounded-none"
                     />
                   </div>
                   <div className="grid gap-1">
-                    <FieldLabel htmlFor="manual-editor-family" className="text-xs">
+                    <FieldLabel htmlFor="manual-editor-family" className="text-sm">
                       Last Name
                     </FieldLabel>
                     <Input
@@ -766,7 +766,7 @@ export function ResearchOutputEntryForm({
                       onChange={(e) => setManualEditorFamily(e.target.value)}
                       disabled={dis}
                       placeholder="Lastname"
-                      className="h-8 text-sm rounded-none"
+                      className="h-8 text-base rounded-none"
                     />
                   </div>
                 </div>
@@ -802,7 +802,7 @@ export function ResearchOutputEntryForm({
                 type="button"
                 onClick={() => setShowManualEditor(true)}
                 disabled={dis}
-                className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors justify-start"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors justify-start"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add external editor manually

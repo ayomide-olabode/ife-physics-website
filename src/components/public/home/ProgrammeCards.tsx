@@ -56,13 +56,13 @@ export function ProgrammeCards() {
                 <h3 className="text-xl font-serif font-semibold text-brand-navy mb-2">
                   {prog.title}
                 </h3>
-                <p className="text-sm text-gray-600 mb-4">{prog.description}</p>
+                <p className="text-base text-gray-600 mb-4">{prog.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {prog.degrees.map((d) => (
                     <Link
                       key={d.label}
                       href={d.href}
-                      className="text-xs font-medium text-brand-navy border border-brand-navy px-3 py-1 hover:bg-brand-navy hover:text-brand-white transition-colors"
+                      className="text-sm font-medium text-brand-navy border border-brand-navy px-3 py-1 hover:bg-brand-navy hover:text-brand-white transition-colors"
                     >
                       {d.label}
                     </Link>

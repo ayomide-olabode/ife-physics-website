@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ProgrammeCode, CourseStatus } from '@prisma/client';
+import { AddNewButton } from '@/components/dashboard/AddNewButton';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,23 +62,21 @@ export default async function PostgraduateCoursesPage({ params, searchParams }: 
         title={`${programmeCode} / Courses`}
         description={`Manage courses for ${programmeCode}.`}
         actions={
-          <Button asChild>
-            <Link href={`/dashboard/postgraduate/${code}/courses/new`}>Add New</Link>
-          </Button>
+          <AddNewButton href={`/dashboard/postgraduate/${code}/courses/new`} />
         }
       />
 
       {/* Filters */}
       <form className="flex flex-col sm:flex-row gap-4 items-end">
         <div className="space-y-1 w-full sm:w-64">
-          <label htmlFor="q" className="text-sm font-medium">
+          <label htmlFor="q" className="text-base font-medium">
             Search
           </label>
           <Input id="q" name="q" defaultValue={q} placeholder="Code or Title..." />
         </div>
 
         <div className="space-y-1 w-full sm:w-48">
-          <label htmlFor="status" className="text-sm font-medium">
+          <label htmlFor="status" className="text-base font-medium">
             Status
           </label>
           <Select name="status" defaultValue={status || 'ALL'}>
@@ -153,7 +152,7 @@ export default async function PostgraduateCoursesPage({ params, searchParams }: 
               <span>Previous</span>
             )}
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-base text-muted-foreground">
             Page {page} of {totalPages}
           </span>
           <Button

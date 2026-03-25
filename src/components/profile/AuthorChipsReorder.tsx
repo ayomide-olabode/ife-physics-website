@@ -76,7 +76,7 @@ function SortableAuthorRow({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="border bg-card px-3 py-2 text-sm rounded-none">
+    <div ref={setNodeRef} style={style} className="border bg-card px-3 py-2 text-base rounded-none">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <button
@@ -89,7 +89,7 @@ function SortableAuthorRow({
           >
             <GripVertical className="h-4 w-4" />
           </button>
-          <span className="inline-flex h-6 w-6 items-center justify-center border border-brand-navy text-brand-navy text-xs font-semibold rounded-none">
+          <span className="inline-flex h-6 w-6 items-center justify-center border border-brand-navy text-brand-navy text-sm font-semibold rounded-none">
             {index + 1}
           </span>
           {author.staffId && (

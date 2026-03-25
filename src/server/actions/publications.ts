@@ -24,7 +24,6 @@ const publicationSchema = z.object({
   doi: z.string().max(200).optional().nullable(),
   url: z.string().url('Must be a valid URL').max(2000).optional().nullable().or(z.literal('')),
   abstract: z.string().max(5000).optional().nullable(),
-  isFeatured: z.boolean().optional(),
 });
 
 type PublicationInput = z.infer<typeof publicationSchema>;
@@ -82,7 +81,6 @@ export async function createPublication(groupId: string, data: PublicationInput)
         doi: normalize(validated.doi),
         url: normalize(validated.url),
         abstract: normalize(validated.abstract),
-        isFeatured: validated.isFeatured ?? false,
         researchGroupId: groupId,
       },
     });
@@ -138,7 +136,6 @@ export async function updatePublication(groupId: string, id: string, data: Publi
         doi: normalize(validated.doi),
         url: normalize(validated.url),
         abstract: normalize(validated.abstract),
-        isFeatured: validated.isFeatured ?? false,
       },
     });
 
@@ -202,43 +199,5 @@ export async function deletePublication(groupId: string, id: string) {
       return { success: false, error: error.message };
     }
     return { success: false, error: 'Failed to delete research output' };
-  }
-}
-
-export async function toggleFeatured(groupId: string, id: string, isFeatured: boolean) {
-  try {
-    const session = await requireAuth();
-    await ensureAccessToGroup(session, groupId);
-
-    const existing = await prisma.publication.findFirst({
-      where: { id, researchGroupId: groupId, deletedAt: null },
-      select: { id: true },
-    });
-
-    if (!existing) {
-      return { success: false, error: 'Research output not found' };
-    }
-
-    await prisma.publication.update({
-      where: { id },
-      data: { isFeatured },
-    });
-
-    await logAudit({
-      actorId: session.user?.userId || '',
-      action: 'PUBLICATION_FEATURED_TOGGLED',
-      entityType: 'Publication',
-      entityId: id,
-      snapshot: { isFeatured },
-    });
-
-    await revalidatePublications(groupId);
-
-    return { success: true };
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return { success: false, error: error.message };
-    }
-    return { success: false, error: 'Failed to toggle featured status' };
   }
 }

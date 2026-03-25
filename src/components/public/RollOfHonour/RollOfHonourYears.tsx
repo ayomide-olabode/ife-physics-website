@@ -96,11 +96,11 @@ export function RollOfHonourYears({
             {isOpen ? (
               <div className="bg-white p-6">
                 {state?.status === 'loading' ? (
-                  <p className="text-sm text-gray-500">Loading class entries...</p>
+                  <p className="text-base text-gray-500">Loading class entries...</p>
                 ) : state?.status === 'error' ? (
-                  <p className="text-sm text-red-600">Unable to load this class year right now.</p>
+                  <p className="text-base text-red-600">Unable to load this class year right now.</p>
                 ) : (state?.entries?.length ?? 0) === 0 ? (
-                  <p className="text-sm text-gray-500">No honourees found for Class of {year}.</p>
+                  <p className="text-base text-gray-500">No honourees found for Class of {year}.</p>
                 ) : (
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {state?.entries.map((entry) => (
@@ -119,7 +119,7 @@ export function RollOfHonourYears({
           <button
             type="button"
             onClick={() => setVisibleCount((count) => Math.min(allYears.length, count + 5))}
-            className="border border-brand-navy px-6 py-2 text-sm font-semibold text-brand-navy transition-colors hover:bg-brand-navy hover:text-white"
+            className="border border-brand-navy px-6 py-2 text-base font-semibold text-brand-navy transition-colors hover:bg-brand-navy hover:text-white"
           >
             Load more years
           </button>

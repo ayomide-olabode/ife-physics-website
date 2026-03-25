@@ -132,7 +132,7 @@ export function ResearchGroupHeroImageUploader({
         ) : null}
       </div>
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         JPEG, PNG, or WebP. Max 2MB. Recommended: wide landscape image, optimized for web.
       </p>
     </div>

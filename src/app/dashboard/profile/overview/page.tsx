@@ -52,6 +52,12 @@ export default async function ProfileOverviewPage({
       profileImageUrl: true,
       updatedAt: true,
       researchMemberships: {
+        where: {
+          leftAt: null,
+          researchGroup: {
+            deletedAt: null,
+          },
+        },
         select: {
           researchGroupId: true,
         },
@@ -82,6 +88,42 @@ export default async function ProfileOverviewPage({
     canManageAcademicAffiliations && staff.researchMemberships[0]?.researchGroupId
       ? staff.researchMemberships[0].researchGroupId
       : null;
+  const [focusAreaOptions, currentFocusAreaRows] = canManageAcademicAffiliations
+    ? await Promise.all([
+        prisma.focusArea.findMany({
+          where: {
+            deletedAt: null,
+            researchGroup: {
+              deletedAt: null,
+            },
+          },
+          select: {
+            id: true,
+            title: true,
+            researchGroupId: true,
+          },
+          orderBy: [{ researchGroupId: 'asc' }, { title: 'asc' }],
+        }),
+        currentGroupId
+          ? prisma.staffFocusAreaSelection.findMany({
+              where: {
+                staffId,
+                focusArea: {
+                  deletedAt: null,
+                  researchGroupId: currentGroupId,
+                  researchGroup: {
+                    deletedAt: null,
+                  },
+                },
+              },
+              select: {
+                focusAreaId: true,
+              },
+            })
+          : Promise.resolve([]),
+      ])
+    : [[], []];
+  const initialFocusAreaIds = currentFocusAreaRows.map((row) => row.focusAreaId);
   const secondaryAffiliationOptions = canManageAcademicAffiliations
     ? await listSecondaryAffiliationOptions()
     : [];
@@ -136,7 +178,7 @@ export default async function ProfileOverviewPage({
           <div className="rounded-none border bg-card p-6">
             <div className="mb-6 border-b pb-2">
               <h2 className="text-xl font-semibold">Secondary Affiliation</h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-base text-muted-foreground mt-1">
                 Optional — select a centre/unit you&apos;re affiliated with.
               </p>
             </div>
@@ -152,6 +194,8 @@ export default async function ProfileOverviewPage({
           <ResearchGroupMembershipForm
             initialGroupId={currentGroupId}
             options={options}
+            focusAreaOptions={focusAreaOptions}
+            initialFocusAreaIds={initialFocusAreaIds}
             lastUpdatedAt={staff.updatedAt}
           />
         </>

@@ -75,18 +75,18 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
         headers={['Year', 'Type', 'Title', 'DOI / URL', 'Actions']}
         rows={data.items.map((item) => {
           return [
-            <span key="year" className="text-sm tabular-nums">
+            <span key="year" className="text-base tabular-nums">
               {item.year || '—'}
             </span>,
-            <span key="type" className="text-sm font-medium whitespace-nowrap">
+            <span key="type" className="text-base font-medium whitespace-nowrap">
               {item.type.replace(/_/g, ' ')}
             </span>,
             <div key="title" className="min-w-[250px]">
-              <span className="text-sm font-semibold block line-clamp-2">{item.title}</span>
+              <span className="text-base font-semibold block line-clamp-2">{item.title}</span>
             </div>,
             <div key="links" className="flex flex-col gap-1">
               {item.doi && (
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
                   DOI: {item.doi}
                 </span>
               )}
@@ -95,7 +95,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-xs text-blue-600 hover:underline"
+                  className="inline-flex items-center text-sm text-blue-600 hover:underline"
                 >
                   <ExternalLink className="mr-1 h-3 w-3" />
                   Link
@@ -105,14 +105,14 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
             <div key="actions" className="flex items-center gap-2">
               <Link
                 href={`/dashboard/profile/research-outputs/${item.id}`}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                className="text-base text-blue-600 hover:text-blue-800 font-medium"
               >
                 Edit
               </Link>
               <span className="text-muted-foreground">|</span>
               <button
                 onClick={() => handleDeleteRequest(item.id)}
-                className="text-sm text-destructive hover:text-red-800 font-medium"
+                className="text-base text-destructive hover:text-red-800 font-medium"
               >
                 Delete
               </button>
@@ -128,7 +128,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
       />
 
       {data.totalPages > 1 && (
-        <div className="flex justify-between items-center py-4 text-sm text-muted-foreground">
+        <div className="flex justify-between items-center py-4 text-base text-muted-foreground">
           <p>
             Showing page {data.page} of {data.totalPages} ({data.totalCount} total)
           </p>

@@ -74,7 +74,7 @@ export function UndergraduateRequirementsEditor({
       <div className="space-y-4">
         <div>
           <FieldLabel>Admission Requirements</FieldLabel>
-          <p className="text-sm text-muted-foreground mb-2">
+          <p className="text-base text-muted-foreground mb-2">
             Entry criteria and qualifications needed for prospective students.
           </p>
         </div>
@@ -84,7 +84,7 @@ export function UndergraduateRequirementsEditor({
       <div className="space-y-4">
         <div>
           <FieldLabel>Course Requirements</FieldLabel>
-          <p className="text-sm text-muted-foreground mb-2">
+          <p className="text-base text-muted-foreground mb-2">
             Required and elective courses that students must complete for this programme.
           </p>
         </div>

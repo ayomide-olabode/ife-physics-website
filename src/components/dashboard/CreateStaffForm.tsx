@@ -65,7 +65,7 @@ export function CreateStaffForm() {
     <form onSubmit={handleSubmit} className="space-y-8 w-full">
       <div className="space-y-4">
         <h3 className="text-lg font-medium border-b pb-2">1. Identity Information</h3>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-base text-muted-foreground mb-4">
           Personal identification attributes like names will be securely collected when the newly
           added staff completes their profile.
         </p>
@@ -92,7 +92,7 @@ export function CreateStaffForm() {
               id="staffType"
               value={staffType}
               onChange={(e) => setStaffType(e.target.value as StaffType)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               required
             >
               {STAFF_TYPE_OPTIONS.map((opt) => (
@@ -102,7 +102,7 @@ export function CreateStaffForm() {
               ))}
             </select>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             New staff records are created as <strong>Active</strong> by default. You can update
             lifecycle status later on the staff detail page.
           </p>
@@ -133,7 +133,7 @@ export function CreateStaffForm() {
 
       <div className="space-y-4">
         <h3 className="text-lg font-medium border-b pb-2">3. User System Integration</h3>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-base text-muted-foreground mb-4">
           A user shell is automatically provisioned for onboarding and an invite link is sent to the
           staff email.
         </p>
@@ -151,7 +151,7 @@ export function CreateStaffForm() {
             >
               Invite as SuperAdmin
             </FieldLabel>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-base text-muted-foreground mt-1">
               Grants this user absolute system-wide permissions across all data modules. Use with
               extreme caution.
             </p>
@@ -160,7 +160,7 @@ export function CreateStaffForm() {
       </div>
 
       {error && (
-        <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md border border-destructive/20">
+        <div className="p-3 text-base text-destructive bg-destructive/10 rounded-md border border-destructive/20">
           {error}
         </div>
       )}

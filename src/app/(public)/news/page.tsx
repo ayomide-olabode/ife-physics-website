@@ -1,13 +1,36 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { listPublicNews } from '@/server/public/queries/newsPublic';
+import { SearchMonthYearFilterBar } from '@/components/public/filters/SearchMonthYearFilterBar';
+import { NewsCard } from '@/components/public/news/NewsCard';
+import { listPublicNews, listPublicNewsMonthGroups } from '@/server/public/queries/newsPublic';
 
-export default async function NewsPage(props: { searchParams: Promise<{ page?: string }> }) {
+function readParam(
+  value: string | string[] | undefined,
+): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+function buildNewsHref(page: number, q?: string, month?: string) {
+  const params = new URLSearchParams();
+  if (q) params.set('q', q);
+  if (month) params.set('month', month);
+  params.set('page', String(page));
+  return `/news?${params.toString()}`;
+}
+
+export default async function NewsPage(props: {
+  searchParams: Promise<{ page?: string | string[]; q?: string | string[]; month?: string | string[] }>;
+}) {
   const searchParams = await props.searchParams;
-  const page = Math.max(1, Number(searchParams.page) || 1);
+  const page = Math.max(1, Number(readParam(searchParams.page)) || 1);
+  const q = (readParam(searchParams.q) || '').trim();
+  const month = (readParam(searchParams.month) || '').trim();
   const pageSize = 9;
 
-  const { items, totalPages } = await listPublicNews({ page, pageSize });
+  const [{ items, totalPages }, monthGroups] = await Promise.all([
+    listPublicNews({ page, pageSize, q, month }),
+    listPublicNewsMonthGroups(),
+  ]);
 
   return (
     <div className="py-16">
@@ -19,10 +42,19 @@ export default async function NewsPage(props: { searchParams: Promise<{ page?: s
           Engineering Physics.
         </p>
 
+        <SearchMonthYearFilterBar
+          initialQuery={q}
+          initialMonth={month}
+          monthGroups={monthGroups}
+          searchPlaceholder="Search news by title or content..."
+        />
+
         {items.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-gray-500 text-lg">
-              No news articles published yet. Check back soon.
+              {q || month
+                ? 'No news articles match your current search/filter.'
+                : 'No news articles published yet. Check back soon.'}
             </p>
           </div>
         ) : (
@@ -30,53 +62,7 @@ export default async function NewsPage(props: { searchParams: Promise<{ page?: s
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {items.map((item) => (
-                <article
-                  key={item.id}
-                  className="border border-gray-200 overflow-hidden flex flex-col"
-                >
-                  {/* Image */}
-                  <div className="relative h-48 bg-gray-100">
-                    {item.imageUrl ? (
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="h-full flex items-center justify-center text-gray-400 text-sm">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-1">
-                    {/* Date */}
-                    <p className="text-xs font-semibold text-brand-yellow uppercase tracking-wider mb-2">
-                      {new Date(item.date).toLocaleDateString('en-GB', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                      })}
-                    </p>
-
-                    {/* Title */}
-                    <h2 className="font-semibold text-brand-navy leading-snug mb-3 line-clamp-3">
-                      {item.title}
-                    </h2>
-
-                    {/* CTA */}
-                    <div className="mt-auto pt-2">
-                      <Link
-                        href={`/news/${item.slug}`}
-                        className="text-sm font-semibold text-brand-navy hover:text-brand-yellow transition-colors"
-                      >
-                        Learn More →
-                      </Link>
-                    </div>
-                  </div>
-                </article>
+                <NewsCard key={item.id} item={item} />
               ))}
             </div>
 
@@ -88,19 +74,19 @@ export default async function NewsPage(props: { searchParams: Promise<{ page?: s
               >
                 {page > 1 && (
                   <Link
-                    href={`/news?page=${page - 1}`}
-                    className="text-sm font-semibold text-brand-navy border border-brand-navy px-5 py-2 hover:bg-brand-navy hover:text-brand-white transition-colors"
+                    href={buildNewsHref(page - 1, q, month)}
+                    className="text-base font-semibold text-brand-navy border border-brand-navy px-5 py-2 hover:bg-brand-navy hover:text-brand-white transition-colors"
                   >
                     ← Previous
                   </Link>
                 )}
-                <span className="text-sm text-gray-500">
+                <span className="text-base text-gray-500">
                   Page {page} of {totalPages}
                 </span>
                 {page < totalPages && (
                   <Link
-                    href={`/news?page=${page + 1}`}
-                    className="text-sm font-semibold text-brand-navy border border-brand-navy px-5 py-2 hover:bg-brand-navy hover:text-brand-white transition-colors"
+                    href={buildNewsHref(page + 1, q, month)}
+                    className="text-base font-semibold text-brand-navy border border-brand-navy px-5 py-2 hover:bg-brand-navy hover:text-brand-white transition-colors"
                   >
                     Next →
                   </Link>

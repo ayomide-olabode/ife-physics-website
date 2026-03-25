@@ -6,6 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldLabel } from '@/components/forms/FieldLabel';
 import { RichTextEditor } from '@/components/editor/RichTextEditorLazy';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { submitTestimonial } from '@/server/actions/publicTributes';
 
 interface PublicTributeSubmissionFormProps {
@@ -14,19 +22,18 @@ interface PublicTributeSubmissionFormProps {
 
 export function PublicTributeSubmissionForm({ staffSlug }: PublicTributeSubmissionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [name, setName] = useState('');
   const [relationship, setRelationship] = useState('');
   const [tributeHtml, setTributeHtml] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (isSubmitting || isRedirecting) return;
+    if (isSubmitting || isReturning || isSuccessModalOpen) return;
 
     setErrorMessage(null);
-    setSuccessMessage(null);
     setIsSubmitting(true);
 
     try {
@@ -43,67 +50,86 @@ export function PublicTributeSubmissionForm({ staffSlug }: PublicTributeSubmissi
         return;
       }
 
-      setSuccessMessage('Tribute submitted successfully. Redirecting to tributes...');
-      setIsRedirecting(true);
-      window.location.assign(`/people/staff/${staffSlug}?tab=tributes&submitted=1`);
+      setIsSubmitting(false);
+      setIsSuccessModalOpen(true);
     } catch {
       setErrorMessage('Failed to submit tribute. Please try again.');
       setIsSubmitting(false);
     }
   }
 
+  function handleReturnToTributes() {
+    if (isReturning) return;
+    setIsReturning(true);
+    window.location.assign(`/people/staff/${staffSlug}?tab=tributes`);
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 rounded-md border bg-card p-6">
-      <div className="space-y-2">
-        <FieldLabel htmlFor="name">Name*</FieldLabel>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          maxLength={120}
-          placeholder="Your full name"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <FieldLabel htmlFor="relationship">Relationship*</FieldLabel>
-        <Input
-          id="relationship"
-          value={relationship}
-          onChange={(e) => setRelationship(e.target.value)}
-          required
-          maxLength={120}
-          placeholder="E.g., Former student, colleague, family friend"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <FieldLabel>Tribute*</FieldLabel>
-        <RichTextEditor value={tributeHtml} onChange={setTributeHtml} />
-      </div>
-
-      {errorMessage && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {errorMessage}
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-md border bg-card p-6">
+        <div className="space-y-2">
+          <FieldLabel htmlFor="name">Name*</FieldLabel>
+          <Input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            maxLength={120}
+            placeholder="Your full name"
+          />
         </div>
-      )}
-      {successMessage && (
-        <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-          {successMessage}
-        </div>
-      )}
 
-      <div className="flex items-center justify-end gap-2 border-t pt-4">
-        <Link href={`/people/staff/${staffSlug}?tab=tributes`}>
-          <Button type="button" variant="outline" disabled={isSubmitting || isRedirecting}>
-            Cancel
+        <div className="space-y-2">
+          <FieldLabel htmlFor="relationship">Relationship*</FieldLabel>
+          <Input
+            id="relationship"
+            value={relationship}
+            onChange={(e) => setRelationship(e.target.value)}
+            required
+            maxLength={120}
+            placeholder="E.g., Former student, colleague, family friend"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <FieldLabel>Tribute*</FieldLabel>
+          <RichTextEditor value={tributeHtml} onChange={setTributeHtml} />
+        </div>
+
+        {errorMessage && (
+          <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-base text-red-700">
+            {errorMessage}
+          </div>
+        )}
+
+        <div className="flex items-center justify-end gap-2 border-t pt-4">
+          <Link href={`/people/staff/${staffSlug}?tab=tributes`}>
+            <Button type="button" variant="outline" disabled={isSubmitting || isSuccessModalOpen}>
+              Cancel
+            </Button>
+          </Link>
+          <Button type="submit" disabled={isSubmitting || isSuccessModalOpen}>
+            {isSubmitting ? 'Submitting...' : 'Submit Tribute'}
           </Button>
-        </Link>
-        <Button type="submit" disabled={isSubmitting || isRedirecting}>
-          {isSubmitting || isRedirecting ? 'Submitting...' : 'Submit Tribute'}
-        </Button>
-      </div>
-    </form>
+        </div>
+      </form>
+
+      <Dialog open={isSuccessModalOpen} onOpenChange={setIsSuccessModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tribute Submitted</DialogTitle>
+            <DialogDescription>
+              Your tribute has been submitted successfully. It will be reviewed by our moderation
+              team before it appears publicly.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={handleReturnToTributes} disabled={isReturning}>
+              {isReturning ? 'Redirecting...' : 'Back to Tributes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

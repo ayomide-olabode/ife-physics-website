@@ -63,7 +63,7 @@ export function HodAddressClientForm({
   return (
     <div className="space-y-4 w-full">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Last updated: {formatShortDate(lastUpdatedAt ?? null)}
         </p>
         {!isEditing && (
@@ -76,15 +76,15 @@ export function HodAddressClientForm({
       {!isEditing ? (
         <div className="space-y-6">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Title</p>
-            <p className="text-sm">{title.trim() || 'Not provided.'}</p>
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Title</p>
+            <p className="text-base">{title.trim() || 'Not provided.'}</p>
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
               Message Body
             </p>
-            <p className="text-sm whitespace-pre-wrap">{body.trim() || 'Not provided.'}</p>
+            <p className="text-base whitespace-pre-wrap">{body.trim() || 'Not provided.'}</p>
           </div>
         </div>
       ) : (
@@ -102,7 +102,7 @@ export function HodAddressClientForm({
               maxLength={120}
               className="rounded-none"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Appears as the main heading. Max 120 chars.
             </p>
           </div>
@@ -121,7 +121,7 @@ export function HodAddressClientForm({
               maxLength={4000}
               className="rounded-none"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               The full welcoming message text. Max 4000 chars.
             </p>
           </div>

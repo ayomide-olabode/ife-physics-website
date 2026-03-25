@@ -33,7 +33,7 @@ export function PageHero({
 
         <div className="relative z-10 flex h-full items-end">
           <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 pb-20">
-            <p className="text-sm sm:text-base font-medium mb-2">
+            <p className="text-base sm:text-base font-medium mb-2">
               <span className="text-brand-yellow">{breadcrumbLabel}</span>
               <span className="text-white"> / </span>
             </p>

@@ -29,10 +29,10 @@ export function UserMenu({ user }: { user: TopbarUser }) {
           <AvatarFallback>{avatarFallback}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col space-y-1">
-          <p className="text-sm font-medium leading-none">
+          <p className="text-base font-medium leading-none">
             {user.name ? user.name : 'Complete Profile'}
           </p>
-          <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+          <p className="text-sm leading-none text-muted-foreground">{user.email}</p>
         </div>
       </Link>
     </>

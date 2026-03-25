@@ -1,24 +1,24 @@
 import Image from 'next/image';
-import { formatPublicStaffName } from '@/lib/publicName';
+import { formatPublicStaffDisplayName } from '@/lib/publicName';
 import { formatYearRange } from '@/lib/leadershipFormat';
 
 interface CurrentHodProps {
+  title: string | null;
   firstName: string | null;
   middleName: string | null;
   lastName: string | null;
-  academicRank: string | null;
   profileImageUrl: string | null;
   startYear: number;
   hodAddress: { title: string; body: string } | null;
 }
 
 export function CurrentHodSection({ hod }: { hod: CurrentHodProps }) {
-  const name = formatPublicStaffName({
+  const name = formatPublicStaffDisplayName({
+    title: hod.title,
     firstName: hod.firstName,
     middleName: hod.middleName,
     lastName: hod.lastName,
-  });
-  const fullName = [hod.academicRank, name].filter(Boolean).join(' ');
+  }) || 'Unknown Staff';
 
   return (
     <section className="mb-16">
@@ -35,15 +35,15 @@ export function CurrentHodSection({ hod }: { hod: CurrentHodProps }) {
                 className="object-cover"
               />
             ) : (
-              <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+              <div className="h-full flex items-center justify-center text-gray-400 text-base">
                 No Image
               </div>
             )}
           </div>
           {/* Caption under image */}
           <div className="mt-3">
-            <h3 className="text-lg font-semibold text-brand-navy">{fullName}</h3>
-            <p className="text-sm text-gray-500">Head, {formatYearRange(hod.startYear, null)}</p>
+            <h3 className="text-lg font-semibold text-brand-navy">{name}</h3>
+            <p className="text-base text-gray-500">Head, {formatYearRange(hod.startYear, null)}</p>
           </div>
         </div>
 

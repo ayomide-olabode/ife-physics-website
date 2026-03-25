@@ -67,7 +67,7 @@ export function AvatarUpload({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Last updated: {formatShortDate(lastUpdatedAt ?? null)}
         </p>
         {!isEditing && (
@@ -88,7 +88,7 @@ export function AvatarUpload({
         <div className="space-y-4">
           <div>
             <h3 className="font-medium">Profile Picture</h3>
-            <p className="text-sm text-muted-foreground">JPEG, PNG, or WebP. Max 2MB.</p>
+            <p className="text-base text-muted-foreground">JPEG, PNG, or WebP. Max 2MB.</p>
           </div>
 
           {isEditing && (

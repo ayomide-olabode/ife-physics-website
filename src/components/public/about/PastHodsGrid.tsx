@@ -68,7 +68,7 @@ export function PastHodsGrid({ hods }: { hods: PastHod[] }) {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+                  <div className="h-full flex items-center justify-center text-gray-400 text-base">
                     No Image
                   </div>
                 )}
@@ -77,11 +77,11 @@ export function PastHodsGrid({ hods }: { hods: PastHod[] }) {
               <div className="p-4">
                 <h3 className="font-semibold text-brand-navy">{name}</h3>
                 {/* Year range badge */}
-                <span className="inline-block mt-2 bg-brand-navy text-white text-xs font-semibold px-3 py-1">
+                <span className="inline-block mt-2 bg-brand-navy text-white text-sm font-semibold px-3 py-1">
                   {startYear} – {endYear}
                 </span>
                 {hasAddress && (
-                  <p className="text-xs text-brand-yellow mt-2 font-medium">View Address →</p>
+                  <p className="text-sm text-brand-yellow mt-2 font-medium">View Address →</p>
                 )}
               </div>
             </button>

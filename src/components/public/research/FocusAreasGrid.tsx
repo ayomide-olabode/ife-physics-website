@@ -7,7 +7,7 @@ type FocusAreaItem = {
 export function FocusAreasGrid({ items }: { items: FocusAreaItem[] }) {
   if (items.length === 0) {
     return (
-      <div className="border border-gray-200 bg-white p-6 text-sm text-gray-500 rounded-none">
+      <div className="border border-gray-200 bg-white p-6 text-base text-gray-500 rounded-none">
         No focus areas available for this group yet.
       </div>
     );
@@ -19,7 +19,7 @@ export function FocusAreasGrid({ items }: { items: FocusAreaItem[] }) {
         <article key={item.id} className="border border-gray-200 bg-white rounded-none p-5">
           <div className="space-y-2">
             <h3 className="text-brand-navy font-semibold leading-snug">{item.title}</h3>
-            <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">
+            <p className="text-base text-gray-600 leading-relaxed line-clamp-3">
               {item.description?.trim() ? item.description : 'No description available yet.'}
             </p>
           </div>

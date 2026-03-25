@@ -7,7 +7,7 @@ import { StaffStatus } from '@prisma/client';
 
 type MarkInMemoriamParams = {
   staffId: string;
-  dateOfBirth?: string;
+  yearOfBirth?: string;
   dateOfDeath: string;
 };
 
@@ -23,7 +23,7 @@ function startOfUtcDay(value: Date): Date {
 
 export async function markStaffInMemoriam({
   staffId,
-  dateOfBirth,
+  yearOfBirth,
   dateOfDeath,
 }: MarkInMemoriamParams) {
   const session = await requireTributesAccess();
@@ -46,13 +46,24 @@ export async function markStaffInMemoriam({
     return { error: 'Date of death cannot be in the future.' };
   }
 
-  const parsedDateOfBirth = dateOfBirth ? parseDateInput(dateOfBirth) : null;
-  if (dateOfBirth && !parsedDateOfBirth) {
-    return { error: 'Date of birth is invalid.' };
-  }
+  let parsedDateOfBirth: Date | null = null;
+  if (yearOfBirth) {
+    const normalizedYear = yearOfBirth.trim();
+    const birthYear = Number.parseInt(normalizedYear, 10);
+    const currentYear = today.getUTCFullYear();
+    const deathYear = parsedDateOfDeath.getUTCFullYear();
 
-  if (parsedDateOfBirth && parsedDateOfBirth >= parsedDateOfDeath) {
-    return { error: 'Date of birth must be before date of death.' };
+    if (!/^\d{4}$/.test(normalizedYear) || Number.isNaN(birthYear)) {
+      return { error: 'Year of birth is invalid.' };
+    }
+    if (birthYear < 1900 || birthYear > currentYear) {
+      return { error: `Year of birth must be between 1900 and ${currentYear}.` };
+    }
+    if (birthYear > deathYear) {
+      return { error: 'Year of birth must not be after year of death.' };
+    }
+
+    parsedDateOfBirth = new Date(Date.UTC(birthYear, 0, 1));
   }
 
   try {

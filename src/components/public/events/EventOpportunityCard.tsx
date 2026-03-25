@@ -1,36 +1,6 @@
 import { formatDay, formatMonthAbbrev, formatYear, formatShortDate } from '@/lib/format-date';
 import { Hourglass } from 'lucide-react';
 
-/** Category abbreviation mapping */
-const CATEGORY_ABBREV: Record<string, string> = {
-  SEMINAR: 'SEM',
-  LECTURE: 'LEC',
-  COLLOQUIUM: 'COL',
-  WORKSHOP: 'WKS',
-  TRAINING: 'TRN',
-  THESIS_DEFENSE: 'DEF',
-  CONFERENCE: 'CON',
-  SYMPOSIUM: 'SYM',
-  SCHOOL: 'SCH',
-  MEETING: 'MTG',
-  SOCIAL: 'SOC',
-  OUTREACH: 'OUT',
-  COMPETITION: 'CMP',
-  GRANT: 'GRN',
-  FUNDING: 'FND',
-  FELLOWSHIP: 'FEL',
-  SCHOLARSHIP: 'SCL',
-  JOBS: 'JOB',
-  INTERNSHIPS: 'INT',
-  EXCHANGE: 'EXC',
-  COLLABORATION: 'CLB',
-};
-
-function getCategoryAbbrev(category: string | null): string {
-  if (!category) return '—';
-  return CATEGORY_ABBREV[category] || category.slice(0, 3).toUpperCase();
-}
-
 function getCategoryLabel(category: string | null): string {
   if (!category) return '';
   return category
@@ -46,6 +16,7 @@ export interface EventOpportunityItem {
   eventCategory: string | null;
   opportunityCategory: string | null;
   description: string | null;
+  duration: string | null;
   startDate: Date | null;
   endDate: Date | null;
   venue: string | null;
@@ -56,14 +27,14 @@ export interface EventOpportunityItem {
 export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
   const isEvent = item.type === 'EVENT';
   const category = isEvent ? item.eventCategory : item.opportunityCategory;
-  const abbrev = getCategoryAbbrev(category);
   const categoryLabel = getCategoryLabel(category);
+  const duration = item.duration?.trim() || null;
 
   const cardContent = (
     <div className="border border-gray-50 bg-[hsl(220,16%,96%)] flex flex-col h-full min-h-[450px]">
       {/* Top: Type label */}
       <div className="px-5 pt-5 pb-3">
-        <span className="text-sm font-medium uppercase tracking-widest text-gray-500">
+        <span className="text-base font-medium uppercase tracking-widest text-gray-600">
           {isEvent ? 'EVENT' : 'OPPORTUNITY'}
         </span>
       </div>
@@ -86,27 +57,38 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
 
       {/* Type label below title */}
 
-      {/* Dates block */}
-      <div className="px-5 pt-3 space-y-1 text-base text-gray-500">
-        {isEvent && item.startDate && (
+      {/* Duration */}
+      {duration && (
+        <div className="px-5 pt-3 text-base text-gray-600">
           <p>
-            <span className="font-medium text-gray-600">Starting from: </span>
+            <span className="font-medium text-gray-700">Duration: </span>
+            {duration}
+          </p>
+        </div>
+      )}
+
+      {/* Dates block */}
+      <div className="px-5 pt-2 space-y-1 text-base text-gray-600">
+        {item.startDate && (
+          <p>
+            <span className="font-medium text-gray-700">Starting from: </span>
             {formatShortDate(item.startDate)}
           </p>
         )}
-        {isEvent && item.endDate && (
+        {item.endDate && (
           <p>
-            <span className="font-medium text-gray-600">Ending: </span>
+            <span className="font-medium text-gray-700">Ending on: </span>
             {formatShortDate(item.endDate)}
           </p>
         )}
-        {!isEvent && item.startDate && (
-          <p>
-            <span className="font-medium text-gray-600">Opens: </span>
-            {formatShortDate(item.startDate)}
-          </p>
-        )}
       </div>
+
+      {/* Venue / awarding body */}
+      {item.venue && (
+        <div className="px-5 pt-3 text-base text-gray-600">
+          <p>{item.venue}</p>
+        </div>
+      )}
 
       {/* Spacer to push "Apply before" to bottom */}
       <div className="grow" />
@@ -114,7 +96,7 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
       {/* Bottom "Apply before" block */}
       <hr className="border-gray-200 mx-5 mt-4" />
       <div className="px-5 py-4 flex items-center justify-between">
-        <div className="items-center space-y-2 text-gray-400">
+        <div className="items-center space-y-2 text-gray-500">
           <Hourglass className="w-6 h-6" />
           <span className="text-base font-medium">Apply before:</span>
         </div>
@@ -125,16 +107,16 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
               {formatDay(item.deadline)}
             </span>
             <div className="flex flex-col text-right leading-tight pb-1.5">
-              <span className="text-2xl font-bold leading-none text-gray-500 uppercase">
+              <span className="text-2xl font-bold leading-none text-gray-600 uppercase">
                 {formatMonthAbbrev(item.deadline)}
               </span>
-              <span className="text-2xl text-gray-400 leading-none">
+              <span className="text-2xl text-gray-500 leading-none">
                 {formatYear(item.deadline)}
               </span>
             </div>
           </div>
         ) : (
-          <span className="text-sm text-gray-400 italic">No deadline</span>
+          <span className="text-base text-gray-500 italic">No deadline</span>
         )}
       </div>
     </div>

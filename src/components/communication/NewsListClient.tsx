@@ -10,7 +10,7 @@ import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { deleteNews, toggleFeaturedNews } from '@/server/actions/news';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { Star, Pencil, Trash2 } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { formatDate } from '@/lib/format-date';
 
 type NewsItem = {
@@ -73,7 +73,7 @@ export function NewsListClient({
       {item.title}
     </Link>,
     <StatusBadge key={`s-${item.id}`} status={item.status} />,
-    <span key={`d-${item.id}`} className="text-sm text-muted-foreground">
+    <span key={`d-${item.id}`} className="text-base text-muted-foreground">
       {formatDate(item.date)}
     </span>,
     <button
@@ -87,19 +87,20 @@ export function NewsListClient({
       <Star className={`h-4 w-4 ${item.isFeatured ? 'fill-yellow-500 text-yellow-500' : ''}`} />
     </button>,
     <div key={`a-${item.id}`} className="flex items-center gap-2">
-      <Link href={`/dashboard/communication/news/${item.id}`}>
-        <Button variant="ghost" size="sm">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </Link>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setDeleteTarget(item.id)}
-        className="text-destructive hover:text-destructive"
+      <Link
+        href={`/dashboard/communication/news/${item.id}`}
+        className="text-base text-blue-600 hover:text-blue-800 font-medium"
       >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+        Edit
+      </Link>
+      <span className="text-muted-foreground">|</span>
+      <button
+        type="button"
+        onClick={() => setDeleteTarget(item.id)}
+        className="text-base text-destructive hover:text-red-800 font-medium"
+      >
+        Delete
+      </button>
     </div>,
   ]);
 
@@ -116,7 +117,7 @@ export function NewsListClient({
         }
         footer={
           pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-base text-muted-foreground">
               <span>
                 Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
               </span>

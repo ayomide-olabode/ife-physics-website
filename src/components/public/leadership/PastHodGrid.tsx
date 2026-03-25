@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { formatPublicStaffName } from '@/lib/publicName';
+import { formatPublicStaffDisplayName } from '@/lib/publicName';
 import { formatYearRange } from '@/lib/leadershipFormat';
 import { PastHodModal, type PastHodModalItem } from './PastHodModal';
 
@@ -29,12 +29,12 @@ export function PastHodGrid({ pastHods }: PastHodGridProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {itemsToShow.map((item) => {
-          const baseName = formatPublicStaffName({
+          const name = formatPublicStaffDisplayName({
+            title: item.staff.title,
             firstName: item.staff.firstName,
             middleName: item.staff.middleName,
             lastName: item.staff.lastName,
-          });
-          const name = [item.staff.title, baseName].filter(Boolean).join(' ') || 'Unknown Staff';
+          }) || 'Unknown Staff';
           const hasAddress = Boolean(item.hasHodAddress);
 
           const cardContent = (
@@ -49,7 +49,7 @@ export function PastHodGrid({ pastHods }: PastHodGridProps) {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="h-full flex items-center justify-center text-sm text-gray-400">
+                  <div className="h-full flex items-center justify-center text-base text-gray-400">
                     No Image
                   </div>
                 )}
@@ -57,7 +57,7 @@ export function PastHodGrid({ pastHods }: PastHodGridProps) {
 
               <div className="p-4">
                 <h3 className="font-semibold text-brand-navy">{name}</h3>
-                <span className="inline-block mt-2 bg-brand-navy text-white text-xs font-semibold px-3 py-1">
+                <span className="inline-block mt-2 bg-brand-navy text-white text-sm font-semibold px-3 py-1">
                   {formatYearRange(
                     Number(item.startYear),
                     item.endYear ? Number(item.endYear) : null,

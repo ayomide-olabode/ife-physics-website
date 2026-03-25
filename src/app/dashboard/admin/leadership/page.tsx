@@ -37,7 +37,7 @@ export default async function AdminLeadershipPage() {
                 <h3 className="text-lg font-semibold">
                   {formatFullName(currentHod.staff) || currentHod.staff.institutionalEmail}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-base text-muted-foreground">
                   Start: {formatDate(currentHod.startDate)}
                   {currentHod.endDate ? ` • End: ${formatDate(currentHod.endDate)}` : ' • Ongoing'}
                 </p>
@@ -60,7 +60,7 @@ export default async function AdminLeadershipPage() {
                 <h3 className="font-semibold">
                   {formatFullName(term.staff) || term.staff.institutionalEmail}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-base text-muted-foreground">
                   {formatDate(term.startDate)} -{' '}
                   {term.endDate ? formatDate(term.endDate) : 'Present'}
                 </p>

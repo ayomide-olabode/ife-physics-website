@@ -91,11 +91,11 @@ export function SpotlightImageUploader({ value, onChange, onRemove }: SpotlightI
                 <ImagePlus className="w-8 h-8 text-muted-foreground mb-2" />
               )}
               <p className="space-y-1 text-center">
-                <span className="text-sm font-semibold block">Click to upload image</span>
-                <span className="text-xs text-muted-foreground block">
+                <span className="text-base font-semibold block">Click to upload image</span>
+                <span className="text-sm text-muted-foreground block">
                   JPEG, PNG, WebP (max 2MB)
                 </span>
-                <span className="text-xs text-muted-foreground block">
+                <span className="text-sm text-muted-foreground block">
                   Recommended size: 1200x800
                 </span>
               </p>

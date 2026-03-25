@@ -91,11 +91,11 @@ export function LegacyMediaUploader({ value, onChange, onRemove }: LegacyMediaUp
                 <ImagePlus className="w-8 h-8 text-muted-foreground mb-2" />
               )}
               <p className="space-y-1 text-center">
-                <span className="text-sm font-semibold block">Click to upload photo</span>
-                <span className="text-xs text-muted-foreground block">
+                <span className="text-base font-semibold block">Click to upload photo</span>
+                <span className="text-sm text-muted-foreground block">
                   JPEG, PNG, WebP (max 2MB)
                 </span>
-                <span className="text-xs text-muted-foreground block">Recommended ratio: 4:3</span>
+                <span className="text-sm text-muted-foreground block">Recommended ratio: 4:3</span>
               </p>
             </div>
             <input

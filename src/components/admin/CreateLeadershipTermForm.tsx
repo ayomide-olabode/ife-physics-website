@@ -82,7 +82,7 @@ export function CreateLeadershipTermForm() {
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl">
       <div className="space-y-4 rounded-lg border p-4 bg-card text-card-foreground shadow-sm">
         <h3 className="text-lg font-medium">1. Select Staff Member</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Search for the staff member to assign as HOD.
         </p>
 
@@ -108,11 +108,11 @@ export function CreateLeadershipTermForm() {
         </div>
 
         {!hasSearched && !isSearching && (
-          <p className="mt-2 text-sm text-muted-foreground">Type to search by name or email.</p>
+          <p className="mt-2 text-base text-muted-foreground">Type to search by name or email.</p>
         )}
 
         {hasSearched && searchResults.length === 0 && (
-          <p className="mt-2 text-sm text-muted-foreground">No staff found.</p>
+          <p className="mt-2 text-base text-muted-foreground">No staff found.</p>
         )}
 
         {searchResults.length > 0 && (
@@ -136,14 +136,14 @@ export function CreateLeadershipTermForm() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium">
+                  <span className="text-base font-medium">
                     {formatPersonName({
                       firstName: staff.firstName,
                       middleName: staff.middleName,
                       lastName: staff.lastName,
                     })}
                   </span>
-                  <span className="text-xs text-muted-foreground">{staff.institutionalEmail}</span>
+                  <span className="text-sm text-muted-foreground">{staff.institutionalEmail}</span>
                 </div>
               </label>
             ))}
@@ -173,7 +173,7 @@ export function CreateLeadershipTermForm() {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">Leave blank for an ongoing HOD term.</p>
+            <p className="text-sm text-muted-foreground">Leave blank for an ongoing HOD term.</p>
           </div>
         </div>
       </div>

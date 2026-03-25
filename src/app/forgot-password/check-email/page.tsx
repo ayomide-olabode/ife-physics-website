@@ -12,7 +12,7 @@ export default async function ForgotPasswordCheckEmailPage({ searchParams }: Pro
   return (
     <AuthCardShell title="Check your mail">
       <div className="space-y-6 text-center">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           If an account exists for <span className="font-medium text-foreground">{email}</span>, we
           sent a link.
         </p>

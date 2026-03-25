@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ProgrammeCode, CourseStatus } from '@prisma/client';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { AddNewButton } from '@/components/dashboard/AddNewButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -22,7 +23,6 @@ import {
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { requireAcademicAccess } from '@/lib/guards';
 import { listUndergraduateCourses } from '@/server/queries/undergraduateCourses';
-import { BackToParent } from '@/components/dashboard/BackToParent';
 
 interface PageProps {
   params: Promise<{
@@ -67,25 +67,21 @@ export default async function UndergraduateCoursesPage({ params, searchParams }:
         title={`${programmeCode} / Courses`}
         description={`Manage courses for ${programmeCode}.`}
         actions={
-          <Button asChild>
-            <Link href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}/courses/new`}>
-              Add New
-            </Link>
-          </Button>
+          <AddNewButton href={`/dashboard/undergraduate/${programmeCode.toLowerCase()}/courses/new`} />
         }
       />
 
       {/* Filters */}
       <form className="flex flex-col sm:flex-row gap-4 items-end">
         <div className="space-y-1 w-full sm:w-64">
-          <label htmlFor="q" className="text-sm font-medium">
+          <label htmlFor="q" className="text-base font-medium">
             Search
           </label>
           <Input id="q" name="q" defaultValue={q} placeholder="Code or Title..." />
         </div>
 
         <div className="space-y-1 w-full sm:w-48">
-          <label htmlFor="status" className="text-sm font-medium">
+          <label htmlFor="status" className="text-base font-medium">
             Status
           </label>
           <Select name="status" defaultValue={status || 'ALL'}>
@@ -165,7 +161,7 @@ export default async function UndergraduateCoursesPage({ params, searchParams }:
               <span>Previous</span>
             )}
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-base text-muted-foreground">
             Page {page} of {totalPages}
           </span>
           <Button

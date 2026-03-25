@@ -18,16 +18,16 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
   }
 
   const leadershipRows = user.staff.leadershipTerms.map((term) => [
-    <span key="role" className="font-medium text-sm">
+    <span key="role" className="font-medium text-base">
       {term.role}
     </span>,
-    <span key="programme" className="text-sm">
+    <span key="programme" className="text-base">
       {term.programmeCode || '-'}
     </span>,
-    <span key="start" className="text-sm">
+    <span key="start" className="text-base">
       {formatDate(term.startDate)}
     </span>,
-    <span key="end" className="text-sm">
+    <span key="end" className="text-base">
       {term.endDate ? formatDate(term.endDate) : 'Present'}
     </span>,
   ]);
@@ -48,7 +48,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
           description="Manage this user account."
           actions={
             user.isSuperAdmin && (
-              <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">
+              <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-base font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">
                 Super Admin
               </span>
             )
@@ -58,37 +58,37 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-lg border p-4">
-          <h3 className="text-sm font-medium text-muted-foreground">Account Details</h3>
+          <h3 className="text-base font-medium text-muted-foreground">Account Details</h3>
           <div className="mt-4 space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm">User ID:</span>
-              <span className="text-sm font-medium">{user.id}</span>
+              <span className="text-base">User ID:</span>
+              <span className="text-base font-medium">{user.id}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm">Staff ID:</span>
-              <span className="text-sm font-medium">{user.staff.id}</span>
+              <span className="text-base">Staff ID:</span>
+              <span className="text-base font-medium">{user.staff.id}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm">Account Status:</span>
-              <span className="text-sm font-medium">
+              <span className="text-base">Account Status:</span>
+              <span className="text-base font-medium">
                 {user.passwordHash === '' ? (
-                  <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
+                  <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-sm font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
                     INVITED
                   </span>
                 ) : (
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-500">
+                  <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900/30 dark:text-green-500">
                     ACTIVE
                   </span>
                 )}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm">Joined:</span>
-              <span className="text-sm font-medium">{formatDate(user.createdAt)}</span>
+              <span className="text-base">Joined:</span>
+              <span className="text-base font-medium">{formatDate(user.createdAt)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm">Last Login:</span>
-              <span className="text-sm font-medium">
+              <span className="text-base">Last Login:</span>
+              <span className="text-base font-medium">
                 {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never'}
               </span>
             </div>

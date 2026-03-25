@@ -62,9 +62,9 @@ export default async function EditResearchGroupPage({ params }: PageProps) {
       <div className="space-y-4">
         <PageHeader
           title="Research Outputs"
-          description="Manage and feature research outputs authored by group members."
+          description="Manage research outputs authored by group members."
         />
-        <ResearchGroupOutputsTableClient groupId={group.id} items={researchOutputs.items} />
+        <ResearchGroupOutputsTableClient items={researchOutputs.items} />
       </div>
     </div>
   );

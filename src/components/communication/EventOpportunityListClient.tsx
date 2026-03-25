@@ -10,7 +10,6 @@ import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { deleteEventOpportunity } from '@/server/actions/eventsOpportunities';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { Pencil, Trash2 } from 'lucide-react';
 import { formatDate } from '@/lib/format-date';
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -98,35 +97,36 @@ export function EventOpportunityListClient({
     </Link>,
     <span
       key={`t-${item.id}`}
-      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+      className="inline-flex items-center rounded-full px-2 py-0.5 text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
     >
       {item.type === 'EVENT' ? 'Event' : 'Opportunity'}
     </span>,
-    <span key={`c-${item.id}`} className="text-sm">
+    <span key={`c-${item.id}`} className="text-base">
       {categoryLabel(item)}
     </span>,
-    <span key={`d-${item.id}`} className="text-sm text-muted-foreground">
+    <span key={`d-${item.id}`} className="text-base text-muted-foreground">
       {formatDate(item.startDate)}
       {item.endDate ? ` – ${formatDate(item.endDate)}` : ''}
     </span>,
-    <span key={`dl-${item.id}`} className="text-sm text-muted-foreground">
+    <span key={`dl-${item.id}`} className="text-base text-muted-foreground">
       {formatDate(item.deadline)}
     </span>,
     <StatusBadge key={`s-${item.id}`} status={item.status} />,
     <div key={`a-${item.id}`} className="flex items-center gap-2">
-      <Link href={`${basePath}/${item.id}`}>
-        <Button variant="ghost" size="sm">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </Link>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setDeleteTarget(item.id)}
-        className="text-destructive hover:text-destructive"
+      <Link
+        href={`${basePath}/${item.id}`}
+        className="text-base text-blue-600 hover:text-blue-800 font-medium"
       >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+        Edit
+      </Link>
+      <span className="text-muted-foreground">|</span>
+      <button
+        type="button"
+        onClick={() => setDeleteTarget(item.id)}
+        className="text-base text-destructive hover:text-red-800 font-medium"
+      >
+        Delete
+      </button>
     </div>,
   ]);
 
@@ -143,7 +143,7 @@ export function EventOpportunityListClient({
         }
         footer={
           pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-base text-muted-foreground">
               <span>
                 Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
               </span>

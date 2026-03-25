@@ -22,7 +22,7 @@ export function ModuleTabs({ tabs }: { tabs: TabItem[] }) {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${
+                className={`whitespace-nowrap border-b-2 py-4 px-1 text-base font-medium ${
                   isActive
                     ? 'border-primary text-primary'
                     : 'border-transparent text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground'

@@ -69,7 +69,7 @@ export function UndergraduateOverviewEditor({
       <div className="space-y-4">
         <div>
           <FieldLabel>Overview & Prospects</FieldLabel>
-          <p className="text-sm text-muted-foreground mb-2">
+          <p className="text-base text-muted-foreground mb-2">
             This content introduces the programme to prospective students. It appears on the public
             website.
           </p>

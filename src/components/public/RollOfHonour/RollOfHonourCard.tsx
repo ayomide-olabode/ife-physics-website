@@ -22,7 +22,7 @@ export function RollOfHonourCard({ entry }: { entry: PublicRohEntry }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-gray-400">
+          <div className="flex h-full items-center justify-center text-base text-gray-400">
             No Image
           </div>
         )}
@@ -30,11 +30,11 @@ export function RollOfHonourCard({ entry }: { entry: PublicRohEntry }) {
 
       <div className="space-y-2 p-4">
         <h3 className="text-xl font-semibold text-brand-navy leading-snug">{displayName}</h3>
-        <p className="text-sm text-gray-600">{entry.registrationNumber}</p>
-        <p className="text-sm text-gray-600">B.Sc. (Hons) {entry.programme}</p>
+        <p className="text-base text-gray-600">{entry.registrationNumber}</p>
+        <p className="text-base text-gray-600">B.Sc. (Hons) {entry.programme}</p>
 
         <div className="pt-1">
-          <div className="mb-2 flex items-center justify-between text-sm">
+          <div className="mb-2 flex items-center justify-between text-base">
             <span className="font-medium text-gray-600">CGPA</span>
             <span className="font-semibold text-brand-navy">
               <span className="text-[18px]">{entry.cgpa.toFixed(2)} </span> / 5.00

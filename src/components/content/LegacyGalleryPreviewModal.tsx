@@ -60,7 +60,7 @@ export function LegacyGalleryPreviewModal({
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-2xl font-bold text-foreground">{data.title}</h3>
-                <p className="text-sm text-muted-foreground font-medium mt-1">
+                <p className="text-base text-muted-foreground font-medium mt-1">
                   {data.datesText || (data.year ? data.year.toString() : 'No dates provided')}
                 </p>
               </div>
@@ -72,12 +72,12 @@ export function LegacyGalleryPreviewModal({
             </div>
 
             <div className="bg-muted p-4 rounded-md">
-              <p className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
+              <p className="whitespace-pre-wrap text-base text-foreground leading-relaxed">
                 {data.bioText}
               </p>
             </div>
 
-            <div className="text-xs text-muted-foreground flex justify-between pt-4 border-t">
+            <div className="text-sm text-muted-foreground flex justify-between pt-4 border-t">
               <span>Added: {new Date(data.createdAt).toLocaleString()}</span>
             </div>
           </div>

@@ -20,6 +20,7 @@ const baseSchema = z.object({
   eventCategory: z.nativeEnum(EventCategory).nullable().optional(),
   opportunityCategory: z.nativeEnum(OpportunityCategory).nullable().optional(),
   description: z.string().max(4000).optional().or(z.literal('')),
+  duration: z.string().max(120).optional().or(z.literal('')),
   startDate: z.string().optional().or(z.literal('')),
   endDate: z.string().optional().or(z.literal('')),
   venue: z.string().max(200).optional().or(z.literal('')),
@@ -55,6 +56,32 @@ type ActionResponse = {
   data?: { id: string };
 };
 
+function isMissingDurationColumn(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+
+  const err = error as {
+    code?: unknown;
+    message?: unknown;
+    meta?: { column?: unknown; modelName?: unknown };
+  };
+
+  if (err.code !== 'P2022') return false;
+
+  const column = String(err.meta?.column ?? '').toLowerCase();
+  const modelName = String(err.meta?.modelName ?? '').toLowerCase();
+  const message = String(err.message ?? '').toLowerCase();
+
+  return (
+    column.includes('duration') ||
+    message.includes('duration') ||
+    (modelName.includes('eventopportunity') && message.includes('does not exist'))
+  );
+}
+
+function hasDurationValue(duration: string | null | undefined): boolean {
+  return !!duration?.trim();
+}
+
 export async function createEventOpportunity(
   data: z.infer<typeof baseSchema>,
 ): Promise<ActionResponse> {
@@ -64,22 +91,58 @@ export async function createEventOpportunity(
   try {
     const v = eoSchema.parse(data);
 
-    const item = await prisma.eventOpportunity.create({
-      data: {
-        title: v.title,
-        type: v.type,
-        eventCategory: v.type === 'EVENT' ? (v.eventCategory ?? null) : null,
-        opportunityCategory: v.type === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
-        description: v.description || null,
-        startDate: v.startDate ? new Date(v.startDate) : null,
-        endDate: v.endDate ? new Date(v.endDate) : null,
-        venue: v.venue || null,
-        linkUrl: v.linkUrl || null,
-        deadline: v.deadline ? new Date(v.deadline) : null,
-        status: 'DRAFT',
-      },
-      select: { id: true },
-    });
+    const dataWithDuration = {
+      title: v.title,
+      type: v.type,
+      eventCategory: v.type === 'EVENT' ? (v.eventCategory ?? null) : null,
+      opportunityCategory: v.type === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
+      description: v.description || null,
+      duration: v.duration || null,
+      startDate: v.startDate ? new Date(v.startDate) : null,
+      endDate: v.endDate ? new Date(v.endDate) : null,
+      venue: v.venue || null,
+      linkUrl: v.linkUrl || null,
+      deadline: v.deadline ? new Date(v.deadline) : null,
+      status: 'DRAFT' as const,
+    };
+    const dataWithoutDuration = {
+      title: v.title,
+      type: v.type,
+      eventCategory: v.type === 'EVENT' ? (v.eventCategory ?? null) : null,
+      opportunityCategory: v.type === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
+      description: v.description || null,
+      startDate: v.startDate ? new Date(v.startDate) : null,
+      endDate: v.endDate ? new Date(v.endDate) : null,
+      venue: v.venue || null,
+      linkUrl: v.linkUrl || null,
+      deadline: v.deadline ? new Date(v.deadline) : null,
+      status: 'DRAFT' as const,
+    };
+
+    let item: { id: string };
+    try {
+      item = await prisma.eventOpportunity.create({
+        data: dataWithDuration,
+        select: { id: true },
+      });
+    } catch (error) {
+      if (!isMissingDurationColumn(error)) {
+        throw error;
+      }
+
+      if (hasDurationValue(v.duration)) {
+        return {
+          success: false,
+          error:
+            'Duration could not be saved because the database is missing the EventOpportunity.duration column. Run Prisma migrations, then try again.',
+        };
+      }
+
+      item = await prisma.eventOpportunity.create({
+        data: dataWithoutDuration,
+        select: { id: true },
+      });
+    }
 
     await logAudit({
       actorId: session.user.userId,
@@ -110,21 +173,57 @@ export async function updateEventOpportunity(
   try {
     const v = eoSchema.parse(data);
 
-    await prisma.eventOpportunity.update({
-      where: { id },
-      data: {
-        title: v.title,
-        type: v.type,
-        eventCategory: v.type === 'EVENT' ? (v.eventCategory ?? null) : null,
-        opportunityCategory: v.type === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
-        description: v.description || null,
-        startDate: v.startDate ? new Date(v.startDate) : null,
-        endDate: v.endDate ? new Date(v.endDate) : null,
-        venue: v.venue || null,
-        linkUrl: v.linkUrl || null,
-        deadline: v.deadline ? new Date(v.deadline) : null,
-      },
-    });
+    const dataWithDuration = {
+      title: v.title,
+      type: v.type,
+      eventCategory: v.type === 'EVENT' ? (v.eventCategory ?? null) : null,
+      opportunityCategory: v.type === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
+      description: v.description || null,
+      duration: v.duration || null,
+      startDate: v.startDate ? new Date(v.startDate) : null,
+      endDate: v.endDate ? new Date(v.endDate) : null,
+      venue: v.venue || null,
+      linkUrl: v.linkUrl || null,
+      deadline: v.deadline ? new Date(v.deadline) : null,
+    };
+    const dataWithoutDuration = {
+      title: v.title,
+      type: v.type,
+      eventCategory: v.type === 'EVENT' ? (v.eventCategory ?? null) : null,
+      opportunityCategory: v.type === 'OPPORTUNITY' ? (v.opportunityCategory ?? null) : null,
+      description: v.description || null,
+      startDate: v.startDate ? new Date(v.startDate) : null,
+      endDate: v.endDate ? new Date(v.endDate) : null,
+      venue: v.venue || null,
+      linkUrl: v.linkUrl || null,
+      deadline: v.deadline ? new Date(v.deadline) : null,
+    };
+
+    try {
+      await prisma.eventOpportunity.update({
+        where: { id },
+        data: dataWithDuration,
+        select: { id: true },
+      });
+    } catch (error) {
+      if (!isMissingDurationColumn(error)) {
+        throw error;
+      }
+
+      if (hasDurationValue(v.duration)) {
+        return {
+          success: false,
+          error:
+            'Duration could not be saved because the database is missing the EventOpportunity.duration column. Run Prisma migrations, then try again.',
+        };
+      }
+
+      await prisma.eventOpportunity.update({
+        where: { id },
+        data: dataWithoutDuration,
+        select: { id: true },
+      });
+    }
 
     await logAudit({
       actorId: session.user.userId,
@@ -154,6 +253,7 @@ export async function deleteEventOpportunity(id: string): Promise<ActionResponse
     await prisma.eventOpportunity.update({
       where: { id },
       data: { deletedAt: new Date() },
+      select: { id: true },
     });
     await logAudit({
       actorId: session.user.userId,
@@ -178,6 +278,7 @@ export async function publishEventOpportunity(id: string): Promise<ActionRespons
     await prisma.eventOpportunity.update({
       where: { id },
       data: { status: 'PUBLISHED', publishedAt: new Date() },
+      select: { id: true },
     });
     await logAudit({
       actorId: session.user.userId,
@@ -203,6 +304,7 @@ export async function unpublishEventOpportunity(id: string): Promise<ActionRespo
     await prisma.eventOpportunity.update({
       where: { id },
       data: { status: 'DRAFT', publishedAt: null },
+      select: { id: true },
     });
     await logAudit({
       actorId: session.user.userId,
@@ -228,6 +330,7 @@ export async function archiveEventOpportunity(id: string): Promise<ActionRespons
     await prisma.eventOpportunity.update({
       where: { id },
       data: { status: 'ARCHIVED', archivedAt: new Date() },
+      select: { id: true },
     });
     await logAudit({
       actorId: session.user.userId,

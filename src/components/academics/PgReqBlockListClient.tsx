@@ -100,7 +100,7 @@ export function PgReqBlockListClient({ programmeCode, degreeType, items }: Props
                 <TableRow key={item.id}>
                   <TableCell>{item.orderIndex}</TableCell>
                   <TableCell>
-                    <span className="text-xs font-medium uppercase tracking-wider">
+                    <span className="text-sm font-medium uppercase tracking-wider">
                       {item.requirementType}
                     </span>
                   </TableCell>

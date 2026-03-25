@@ -51,7 +51,7 @@ function MobileNavGroup({
               href={child.href}
               onClick={onClose}
               className={cn(
-                'block pl-6 pr-4 py-2.5 text-sm transition-colors',
+                'block pl-6 pr-4 py-2.5 text-base transition-colors',
                 pathname === child.href
                   ? 'text-brand-yellow'
                   : 'text-white/70 hover:text-brand-yellow',
@@ -103,7 +103,10 @@ export function RefMobileMenu({ researchGroups }: { researchGroups: ResearchGrou
             <Menu className="w-8 h-8" />
           </button>
         </SheetTrigger>
-        <SheetContent side="right" className="bg-brand-navy border-brand-navy w-[80vw] p-6">
+        <SheetContent
+          side="right"
+          className="w-[80vw] border-brand-navy bg-brand-navy p-6 [&>button]:text-brand-white [&>button]:opacity-100"
+        >
           <SheetTitle className="text-brand-white text-left mb-6">Menu</SheetTitle>
           <div className="flex flex-col h-full overflow-y-auto pb-20">
             {/* Main Links */}
@@ -142,14 +145,14 @@ export function RefMobileMenu({ researchGroups }: { researchGroups: ResearchGrou
 
             {/* Utility Links */}
             <nav className="flex flex-col gap-4 mt-auto">
-              <div className="text-brand-yellow text-xs font-bold uppercase tracking-wider mb-2">
+              <div className="text-brand-yellow text-sm font-bold uppercase tracking-wider mb-2">
                 Quick Links
               </div>
               {utilityLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-sm text-white/70 hover:text-brand-yellow transition-colors"
+                  className="text-base text-white/70 hover:text-brand-yellow transition-colors"
                 >
                   {link.name}
                 </Link>

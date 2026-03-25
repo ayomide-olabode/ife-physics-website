@@ -19,13 +19,13 @@ export function UnderConstructionPlaceholder() {
         <h1 className="mt-8 text-5xl font-bold tracking-tight text-black ">
           Quantum Superposition
         </h1>
-        <p className="mt-2 text-xl text-gray-600">Here and Not Here</p>
+        <p className="mt-2 text-xl text-gray-600">Here and There</p>
 
         <p className="mt-7 text-lg font-semibold text-orange-600">🚧 Under Construction</p>
 
         <p className="mx-auto mt-7 max-w-2xl text-base text-slate-600 text-balance">
-          This page is currently in a state of flux. It exists in our plans but has not yet
-          materialized in this dimension.
+          This page is currently in a state of flux. It exists in our plans, but has not yet
+          collapsed into its final form.
         </p>
 
         <div className="mt-10">

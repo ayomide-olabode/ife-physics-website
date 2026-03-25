@@ -1,8 +1,30 @@
-import { listPublicEventsOpportunities } from '@/server/public/queries/eventsPublic';
+import { SearchMonthYearFilterBar } from '@/components/public/filters/SearchMonthYearFilterBar';
+import {
+  listPublicEventOpportunityMonthGroups,
+  listPublicEventsOpportunities,
+} from '@/server/public/queries/eventsPublic';
 import { EventOpportunityGrid } from '@/components/public/events/EventOpportunityGrid';
 
-export default async function EventsPage() {
-  const items = await listPublicEventsOpportunities(12);
+function readParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+export default async function EventsPage(props: {
+  searchParams: Promise<{ q?: string | string[]; month?: string | string[] }>;
+}) {
+  const searchParams = await props.searchParams;
+  const q = (readParam(searchParams.q) || '').trim();
+  const month = (readParam(searchParams.month) || '').trim();
+
+  const [items, monthGroups] = await Promise.all([
+    listPublicEventsOpportunities({
+      limit: 60,
+      q,
+      month,
+    }),
+    listPublicEventOpportunityMonthGroups(),
+  ]);
 
   return (
     <div className="py-16">
@@ -15,6 +37,13 @@ export default async function EventsPage() {
           Upcoming events, seminars, workshops, funding opportunities, fellowships, and more from
           the Department of Physics and Engineering Physics.
         </p>
+
+        <SearchMonthYearFilterBar
+          initialQuery={q}
+          initialMonth={month}
+          monthGroups={monthGroups}
+          searchPlaceholder="Search events or opportunities..."
+        />
 
         <EventOpportunityGrid items={items} />
       </div>

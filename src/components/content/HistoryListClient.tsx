@@ -10,8 +10,7 @@ import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { deleteHistory } from '@/server/actions/history';
 import { toastSuccess } from '@/lib/toast';
-import { Pencil, Trash2, Eye, Search } from 'lucide-react';
-import { HistoryPreviewModal } from './HistoryPreviewModal';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -51,7 +50,6 @@ export function HistoryListClient({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [previewTarget, setPreviewTarget] = useState<string | null>(null);
 
   // Filters state
   const [q, setQ] = useState(searchQ || '');
@@ -77,7 +75,7 @@ export function HistoryListClient({
 
   const headers = ['Year / Date', 'Title', 'Status', 'Actions'];
   const rows = items.map((item) => [
-    <span key={`d-${item.id}`} className="text-sm font-medium">
+    <span key={`d-${item.id}`} className="text-base font-medium">
       {item.year}
     </span>,
     <span key={`t-${item.id}`} className="font-medium text-primary">
@@ -85,27 +83,20 @@ export function HistoryListClient({
     </span>,
     <StatusBadge key={`s-${item.id}`} status={item.status} />,
     <div key={`a-${item.id}`} className="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setPreviewTarget(item.id)}
-        className="text-muted-foreground hover:text-primary"
+      <Link
+        href={`/dashboard/content/history/${item.id}`}
+        className="text-base text-blue-600 hover:text-blue-800 font-medium"
       >
-        <Eye className="h-4 w-4" />
-      </Button>
-      <Link href={`/dashboard/content/history/${item.id}`}>
-        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-          <Pencil className="h-4 w-4" />
-        </Button>
+        Edit
       </Link>
-      <Button
-        variant="ghost"
-        size="sm"
+      <span className="text-muted-foreground">|</span>
+      <button
+        type="button"
         onClick={() => setDeleteTarget(item.id)}
-        className="text-destructive hover:text-destructive"
+        className="text-base text-destructive hover:text-red-800 font-medium"
       >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+        Delete
+      </button>
     </div>,
   ]);
 
@@ -152,7 +143,7 @@ export function HistoryListClient({
         }
         footer={
           pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-base text-muted-foreground">
               <span>
                 Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
               </span>
@@ -198,10 +189,6 @@ export function HistoryListClient({
         onConfirm={handleDelete}
         destructive
       />
-
-      {previewTarget && (
-        <HistoryPreviewModal historyId={previewTarget} onClose={() => setPreviewTarget(null)} />
-      )}
     </div>
   );
 }

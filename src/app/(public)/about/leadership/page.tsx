@@ -3,7 +3,7 @@ import { getPublicLeadership } from '@/server/public/queries/leadershipPublic';
 import { PageHero } from '@/components/public/PageHero';
 import { CurrentHodSection } from '@/components/public/about/CurrentHodSection';
 import { PastHodGrid } from '@/components/public/leadership/PastHodGrid';
-import { formatPublicStaffName } from '@/lib/publicName';
+import { formatPublicStaffDisplayName } from '@/lib/publicName';
 
 const DEGREE_SCOPE_LABELS = {
   GENERAL: 'General',
@@ -49,11 +49,12 @@ export default async function LeadershipPage() {
                     return null;
                   }
 
-                  const name = formatPublicStaffName({
+                  const name = formatPublicStaffDisplayName({
+                    title: term.staff.title,
                     firstName: term.staff.firstName,
                     middleName: term.staff.middleName,
                     lastName: term.staff.lastName,
-                  });
+                  }) || 'Unknown Staff';
                   const degreeLabel = DEGREE_SCOPE_LABELS[term.degreeScope];
                   const programmeLabel = PROGRAMME_SCOPE_LABELS[term.programmeScope];
                   const coordinatorTitle =
@@ -76,15 +77,15 @@ export default async function LeadershipPage() {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+                          <div className="h-full flex items-center justify-center text-gray-400 text-base">
                             No Image
                           </div>
                         )}
                       </div>
                       <div className="p-4">
                         <h3 className="font-semibold text-brand-navy">{name}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{coordinatorTitle}</p>
-                        <p className="text-sm text-gray-600 mt-1">{programmeLabel} Programme</p>
+                        <p className="text-base text-gray-600 mt-1">{coordinatorTitle}</p>
+                        <p className="text-base text-gray-600 mt-1">{programmeLabel} Programme</p>
                       </div>
                     </div>
                   );

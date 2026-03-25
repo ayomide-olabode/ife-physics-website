@@ -37,7 +37,6 @@ export default async function EditPublicationPage({ params }: PageProps) {
           doi: publication.doi,
           url: publication.url,
           abstract: publication.abstract,
-          isFeatured: publication.isFeatured,
         }}
       />
     </div>

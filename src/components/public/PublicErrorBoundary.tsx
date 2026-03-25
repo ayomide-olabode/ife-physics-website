@@ -22,7 +22,7 @@ export function PublicErrorBoundary({
       <button
         type="button"
         onClick={reset}
-        className="bg-brand-navy text-brand-white px-6 py-2.5 rounded font-medium text-sm hover:bg-brand-navy/90 transition-colors"
+        className="bg-brand-navy text-brand-white px-6 py-2.5 rounded font-medium text-base hover:bg-brand-navy/90 transition-colors"
       >
         Try again
       </button>

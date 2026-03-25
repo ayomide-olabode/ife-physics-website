@@ -23,12 +23,23 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
   const scientists = group.memberships
     .filter((membership) => membership.leftAt === null && membership.staff.staffStatus !== 'FORMER')
-    .map((membership) => membership.staff)
-    .sort((a, b) =>
-      `${a.lastName ?? ''} ${a.firstName ?? ''}`.localeCompare(
-        `${b.lastName ?? ''} ${b.firstName ?? ''}`,
+    .map((membership) => ({
+      ...membership.staff,
+      focusAreas: Array.from(
+        new Set(
+          membership.staff.focusAreaSelections
+            .map((selection) => selection.focusArea.title.trim())
+            .filter((title) => title.length > 0),
+        ),
       ),
-    );
+    }))
+    .sort((a, b) => {
+      if (a.isResearchGroupHead && !b.isResearchGroupHead) return -1;
+      if (!a.isResearchGroupHead && b.isResearchGroupHead) return 1;
+      return `${a.lastName ?? ''} ${a.firstName ?? ''}`.localeCompare(
+        `${b.lastName ?? ''} ${b.firstName ?? ''}`,
+      );
+    });
   const pastMembers = group.memberships
     .filter((membership) => membership.staff.staffStatus === 'FORMER')
     .map((membership) => membership.staff)
@@ -63,7 +74,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           {pastMembers.length > 0 ? (
             <div className="border border-gray-200 bg-white p-5">
               <h3 className="text-base font-semibold text-brand-navy">Past Members</h3>
-              <ul className="mt-3 space-y-2 text-sm text-gray-700">
+              <ul className="mt-3 space-y-2 text-base text-gray-700">
                 {pastMembers.map((member) => (
                   <li key={member.id}>
                     {[member.firstName, member.middleName, member.lastName]

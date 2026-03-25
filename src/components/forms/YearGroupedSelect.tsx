@@ -105,7 +105,7 @@ export function YearGroupedSelect({
                   <div key={decade.key} className="border-b border-border last:border-b-0">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium hover:bg-accent"
+                      className="flex w-full items-center justify-between px-3 py-2 text-left text-base font-medium hover:bg-accent"
                       onClick={() => setExpandedDecade(isExpanded ? null : decade.key)}
                       aria-expanded={isExpanded}
                     >
@@ -129,7 +129,7 @@ export function YearGroupedSelect({
                                 onChange(year);
                                 setOpen(false);
                               }}
-                              className="justify-between rounded-none px-2 py-1 text-sm"
+                              className="justify-between rounded-none px-2 py-1 text-base"
                             >
                               <span>{year}</span>
                               {isSelected ? <Check className="h-3.5 w-3.5 text-brand-navy" /> : null}

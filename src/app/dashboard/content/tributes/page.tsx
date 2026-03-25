@@ -36,22 +36,22 @@ export default async function TributesDashboardPage({
     const displayName = [staff.title, fullName].filter(Boolean).join(' ').trim() || 'Unnamed staff';
 
     return [
-      <div key="name" className="text-sm font-medium">
+      <div key="name" className="text-base font-medium">
         {displayName}
       </div>,
-      <span key="deathDate" className="text-sm">
+      <span key="deathDate" className="text-base">
         {formatDate(staff.dateOfDeath)}
       </span>,
       <span
         key="status"
-        className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800/50 dark:text-gray-300"
+        className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-sm font-medium text-gray-800 dark:bg-gray-800/50 dark:text-gray-300"
       >
         In Memoriam
       </span>,
       <Link
         key="actions"
         href={`/dashboard/content/tributes/${staff.id}`}
-        className="text-sm font-medium text-primary hover:underline"
+        className="text-base font-medium text-primary hover:underline"
       >
         View
       </Link>,
@@ -75,7 +75,7 @@ export default async function TributesDashboardPage({
                 name="q"
                 defaultValue={q}
                 placeholder="Search by name or email..."
-                className="h-9 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="h-9 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
               <Button type="submit" variant="secondary" size="sm">
                 Search
@@ -99,7 +99,7 @@ export default async function TributesDashboardPage({
         }
         footer={
           total > pageSize ? (
-            <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between pt-4 text-base text-muted-foreground">
               <div>
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total}{' '}
                 staff records

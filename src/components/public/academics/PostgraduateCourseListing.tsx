@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CourseDetailsModal } from '@/components/public/CourseDetailsModal';
 
 type PostgraduateCourse = {
@@ -22,6 +23,12 @@ function displaySemester(value?: 'HARMATTAN' | 'RAIN' | null) {
   return '—';
 }
 
+function displaySemesterLine(value?: 'HARMATTAN' | 'RAIN' | null) {
+  if (value === 'HARMATTAN') return 'Harmattan Semester';
+  if (value === 'RAIN') return 'Rain Semester';
+  return 'Unknown Semester';
+}
+
 function displayLTPU(course: PostgraduateCourse) {
   const L = typeof course.L === 'number' ? course.L : 0;
   const T = typeof course.T === 'number' ? course.T : 0;
@@ -35,13 +42,24 @@ export function PostgraduateCourseListing({ courses }: { courses: PostgraduateCo
     () => [...courses].sort((a, b) => a.code.localeCompare(b.code)),
     [courses],
   );
-  const [selectedCourse, setSelectedCourse] = useState<PostgraduateCourse | null>(null);
+  const searchParams = useSearchParams();
+  const deepLinkedCourseCode = searchParams.get('course')?.trim().toUpperCase() ?? null;
+  const initialDeepLinkedCourse = useMemo(() => {
+    if (!deepLinkedCourseCode) return null;
+    return (
+      sortedCourses.find((course) => course.code.trim().toUpperCase() === deepLinkedCourseCode) ??
+      null
+    );
+  }, [sortedCourses, deepLinkedCourseCode]);
+  const [selectedCourse, setSelectedCourse] = useState<PostgraduateCourse | null>(
+    initialDeepLinkedCourse,
+  );
 
   if (sortedCourses.length === 0) {
     return (
       <div className="border border-brand-navy/20 bg-white px-4 py-3">
-        <p className="text-sm font-semibold text-brand-navy">No courses yet</p>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="text-base font-semibold text-brand-navy">No courses yet</p>
+        <p className="mt-1 text-base text-gray-600">
           Courses will appear here once added by an academic coordinator.
         </p>
       </div>
@@ -50,8 +68,26 @@ export function PostgraduateCourseListing({ courses }: { courses: PostgraduateCo
 
   return (
     <>
-      <div className="overflow-x-auto border border-brand-navy/20 bg-white">
-        <table className="min-w-full border-collapse text-sm">
+      <div className="border border-brand-navy/20 bg-white md:hidden">
+        {sortedCourses.map((course) => (
+          <button
+            key={course.id}
+            type="button"
+            onClick={() => setSelectedCourse(course)}
+            className="block w-full border-b border-brand-navy/20 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-brand-navy/5"
+          >
+            <p className="text-base font-semibold text-brand-navy">
+              {course.code} - {course.title}
+            </p>
+            <p className="mt-1 text-base text-gray-700">
+              {displaySemesterLine(course.semesterTaken)} ({displayLTPU(course)})
+            </p>
+          </button>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto border border-brand-navy/20 bg-white md:block">
+        <table className="min-w-full border-collapse text-sm md:text-base">
           <thead>
             <tr className="bg-slate-50 text-left text-brand-navy">
               <th className="border border-brand-navy/20 px-4 py-3 font-semibold">Course Code</th>

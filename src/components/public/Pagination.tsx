@@ -28,18 +28,18 @@ export function Pagination({ page, totalPages, basePath, extraParams }: Paginati
       {page > 1 && (
         <Link
           href={buildHref(basePath, page - 1, extraParams)}
-          className="text-sm font-semibold text-brand-navy border border-brand-navy px-5 py-2 hover:bg-brand-navy hover:text-brand-white transition-colors"
+          className="text-base font-semibold text-brand-navy border border-brand-navy px-5 py-2 hover:bg-brand-navy hover:text-brand-white transition-colors"
         >
           ← Previous
         </Link>
       )}
-      <span className="text-sm text-gray-500">
+      <span className="text-base text-gray-500">
         Page {page} of {totalPages}
       </span>
       {page < totalPages && (
         <Link
           href={buildHref(basePath, page + 1, extraParams)}
-          className="text-sm font-semibold text-brand-navy border border-brand-navy px-5 py-2 hover:bg-brand-navy hover:text-brand-white transition-colors"
+          className="text-base font-semibold text-brand-navy border border-brand-navy px-5 py-2 hover:bg-brand-navy hover:text-brand-white transition-colors"
         >
           Next →
         </Link>

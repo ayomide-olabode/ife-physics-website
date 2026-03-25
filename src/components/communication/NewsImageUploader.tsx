@@ -106,7 +106,7 @@ export function NewsImageUploader({ value, onChange }: NewsImageUploaderProps) {
         </Button>
       </div>
 
-      <p className="text-xs text-muted-foreground">JPEG, PNG, or WebP. Max 2MB.</p>
+      <p className="text-sm text-muted-foreground">JPEG, PNG, or WebP. Max 2MB.</p>
     </div>
   );
 }

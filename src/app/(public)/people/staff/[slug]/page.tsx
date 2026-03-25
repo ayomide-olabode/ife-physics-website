@@ -38,7 +38,7 @@ export default async function StaffProfilePage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tab?: string; page?: string; submitted?: string }>;
+  searchParams: Promise<{ tab?: string; page?: string }>;
 }) {
   const { slug } = await params;
   const query = await searchParams;
@@ -52,7 +52,6 @@ export default async function StaffProfilePage({
     staffType: staff.staffType,
   });
   const page = parsePositiveInt(query.page);
-  const submitted = query.submitted === '1';
   const activeSidebarCategory = getActiveSidebarCategory(staff);
 
   return (
@@ -67,7 +66,7 @@ export default async function StaffProfilePage({
             <section className="space-y-5">
               <StaffProfileHeader staff={staff} />
 
-              <div className="space-y-4 border border-gray-200 bg-gray-50 p-4">
+              <div className="space-y-4 bg-gray-50 p-4">
                 <StaffProfileTabs
                   isInMemoriam={isInMemoriam}
                   staffType={staff.staffType}
@@ -86,7 +85,6 @@ export default async function StaffProfilePage({
                   membershipOfProfessionalOrganizations={
                     staff.membershipOfProfessionalOrganizations
                   }
-                  submitted={submitted}
                 />
               </div>
             </section>

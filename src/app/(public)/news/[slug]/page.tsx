@@ -33,7 +33,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
         {/* Back link */}
         <Link
           href="/news"
-          className="inline-flex items-center text-sm text-brand-navy hover:text-brand-yellow transition-colors mb-8"
+          className="inline-flex items-center text-base text-brand-navy hover:text-brand-yellow transition-colors mb-8"
         >
           ← Back to News
         </Link>
@@ -44,7 +44,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
         </h1>
 
         {/* Date */}
-        <p className="text-sm text-brand-yellow font-semibold uppercase tracking-wider mb-8">
+        <p className="text-base text-brand-yellow font-semibold uppercase tracking-wider mb-8">
           {new Date(article.date).toLocaleDateString('en-GB', {
             year: 'numeric',
             month: '2-digit',
@@ -74,7 +74,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
           <div className="mt-10">
             <Link
               href={article.buttonLink}
-              className="inline-block bg-brand-yellow text-brand-ink font-semibold px-8 py-3 text-sm hover:bg-yellow-500 transition-colors"
+              className="inline-block bg-brand-yellow text-brand-ink font-semibold px-8 py-3 text-base hover:bg-yellow-500 transition-colors"
             >
               {article.buttonLabel}
             </Link>

@@ -72,21 +72,21 @@ export function AuditLogViewer({ logs }: { logs: AuditLogRow[] }) {
       : log.actorId || 'System';
 
     return [
-      <span key={`date-${log.id}`} className="text-sm whitespace-nowrap">
+      <span key={`date-${log.id}`} className="text-base whitespace-nowrap">
         {new Date(log.createdAt).toLocaleString()}
       </span>,
-      <span key={`actor-${log.id}`} className="text-sm">
+      <span key={`actor-${log.id}`} className="text-base">
         {actorName}
       </span>,
-      <span key={`action-${log.id}`} className="text-sm font-medium">
+      <span key={`action-${log.id}`} className="text-base font-medium">
         {log.action}
       </span>,
-      <span key={`entityType-${log.id}`} className="text-sm">
+      <span key={`entityType-${log.id}`} className="text-base">
         {log.entityType}
       </span>,
       <span
         key={`entityId-${log.id}`}
-        className="text-sm font-mono text-muted-foreground truncate max-w-[150px] inline-block"
+        className="text-base font-mono text-muted-foreground truncate max-w-[150px] inline-block"
       >
         {log.entityId}
       </span>,
@@ -133,15 +133,15 @@ export function AuditLogViewer({ logs }: { logs: AuditLogRow[] }) {
 
           <div className="flex-1 overflow-y-auto p-4 bg-muted/50 rounded-md border mt-4">
             {isLoading ? (
-              <div className="text-sm text-muted-foreground animate-pulse">
+              <div className="text-base text-muted-foreground animate-pulse">
                 Loading snapshot data...
               </div>
             ) : snapshotData ? (
-              <pre className="text-xs whitespace-pre-wrap break-words font-mono">
+              <pre className="text-sm whitespace-pre-wrap break-words font-mono">
                 {JSON.stringify(snapshotData, null, 2)}
               </pre>
             ) : (
-              <div className="text-sm text-muted-foreground">No snapshot available.</div>
+              <div className="text-base text-muted-foreground">No snapshot available.</div>
             )}
           </div>
         </DialogContent>

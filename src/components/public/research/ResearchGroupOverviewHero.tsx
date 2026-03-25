@@ -36,14 +36,14 @@ export function ResearchGroupOverviewHero({
 
             {hasOverview ? (
               <>
-                <p className="text-sm md:text-base leading-relaxed text-gray-700 line-clamp-4">
+                <p className="text-base md:text-base leading-relaxed text-gray-700 line-clamp-4">
                   {overviewText}
                 </p>
                 {hasOverview ? (
                   <button
                     type="button"
                     onClick={() => setOpen(true)}
-                    className="text-brand-navy text-sm font-semibold hover:underline"
+                    className="text-brand-navy text-base font-semibold hover:underline"
                   >
                     Discover More →
                   </button>

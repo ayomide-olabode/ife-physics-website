@@ -5,6 +5,7 @@ import { DegreeScope, ProgrammeScope, ScopedRole, ScopeType } from '@prisma/clie
 import { logAudit } from '@/lib/audit';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function assignRole(params: {
   userId: string;
@@ -22,15 +23,22 @@ export async function assignRole(params: {
   const { userId, role, scopeId, programmeScope, degreeScope, expiresAt } = params;
 
   // Validate user exists
-  const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+  const targetUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, staffId: true },
+  });
   if (!targetUser) {
     return { error: 'User not found.' };
   }
 
+  const now = new Date();
+
   let scopeType: ScopeType;
   let finalScopeId: string | null = null;
+  let finalGroupSlug: string | null = null;
   let finalProgrammeScope: ProgrammeScope | null = null;
   let finalDegreeScope: DegreeScope | null = null;
+  let existingActiveLeadForScope = false;
 
   if (role === 'EDITOR') {
     scopeType = 'GLOBAL';
@@ -59,41 +67,134 @@ export async function assignRole(params: {
     }
 
     // Verify ResearchGroup exists
-    const group = await prisma.researchGroup.findUnique({ where: { id: scopeId } });
-    if (!group) {
+    const group = await prisma.researchGroup.findUnique({
+      where: { id: scopeId },
+      select: { id: true, slug: true, deletedAt: true },
+    });
+    if (!group || group.deletedAt) {
       return { error: 'Specified Research Group does not exist.' };
     }
     finalScopeId = scopeId;
+    finalGroupSlug = group.slug;
 
     // Enforce max 2 active RESEARCH_LEAD per group
-    const activeLeadsCount = await prisma.roleAssignment.count({
+    const existingLeadForScope = await prisma.roleAssignment.findFirst({
       where: {
+        userId,
         role: 'RESEARCH_LEAD',
         scopeType: 'RESEARCH_GROUP',
         scopeId: finalScopeId,
-        deletedAt: null,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+      select: {
+        deletedAt: true,
+        expiresAt: true,
       },
     });
+    existingActiveLeadForScope = Boolean(
+      existingLeadForScope &&
+        existingLeadForScope.deletedAt === null &&
+        (existingLeadForScope.expiresAt === null || existingLeadForScope.expiresAt > now),
+    );
 
-    if (activeLeadsCount >= 2) {
-      return { error: 'Maximum of 2 active Research Leads allowed per group.' };
+    if (!existingActiveLeadForScope) {
+      // Enforce max 2 active RESEARCH_LEAD per group (only when activating a new lead)
+      const activeLeadsCount = await prisma.roleAssignment.count({
+        where: {
+          role: 'RESEARCH_LEAD',
+          scopeType: 'RESEARCH_GROUP',
+          scopeId: finalScopeId,
+          deletedAt: null,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        },
+      });
+
+      if (activeLeadsCount >= 2) {
+        return { error: 'Maximum of 2 active Research Leads allowed per group.' };
+      }
     }
   } else {
     return { error: 'Invalid role specified.' };
   }
 
   try {
-    const assignment = await prisma.roleAssignment.create({
-      data: {
-        userId,
-        role,
-        scopeType,
-        scopeId: finalScopeId,
-        programmeScope: finalProgrammeScope,
-        degreeScope: finalDegreeScope,
-        expiresAt: expiresAt ?? null,
-      },
+    const assignment = await prisma.$transaction(async (tx) => {
+      const existingAssignment = await tx.roleAssignment.findFirst({
+        where: {
+          userId,
+          role,
+          scopeType,
+          scopeId: finalScopeId,
+          ...(role === 'ACADEMIC_COORDINATOR'
+            ? {
+                programmeScope: finalProgrammeScope,
+                degreeScope: finalDegreeScope,
+              }
+            : {}),
+        },
+        orderBy: [{ deletedAt: 'asc' }, { updatedAt: 'desc' }],
+      });
+
+      const createdAssignment = existingAssignment
+        ? await tx.roleAssignment.update({
+            where: { id: existingAssignment.id },
+            data: {
+              deletedAt: null,
+              programmeScope: finalProgrammeScope,
+              degreeScope: finalDegreeScope,
+              expiresAt: expiresAt ?? null,
+            },
+          })
+        : await tx.roleAssignment.create({
+            data: {
+              userId,
+              role,
+              scopeType,
+              scopeId: finalScopeId,
+              programmeScope: finalProgrammeScope,
+              degreeScope: finalDegreeScope,
+              expiresAt: expiresAt ?? null,
+            },
+          });
+
+      if (role === 'RESEARCH_LEAD' && finalScopeId) {
+        // Keep staff's primary research-group membership aligned with their lead group.
+        await tx.researchGroupMembership.deleteMany({
+          where: {
+            staffId: targetUser.staffId,
+            researchGroupId: { not: finalScopeId },
+          },
+        });
+
+        await tx.staffFocusAreaSelection.deleteMany({
+          where: {
+            staffId: targetUser.staffId,
+            focusArea: {
+              researchGroupId: { not: finalScopeId },
+            },
+          },
+        });
+
+        await tx.researchGroupMembership.upsert({
+          where: {
+            staffId_researchGroupId: {
+              staffId: targetUser.staffId,
+              researchGroupId: finalScopeId,
+            },
+          },
+          update: {
+            leftAt: null,
+            joinedAt: new Date(),
+          },
+          create: {
+            staffId: targetUser.staffId,
+            researchGroupId: finalScopeId,
+            joinedAt: new Date(),
+            leftAt: null,
+          },
+        });
+      }
+
+      return createdAssignment;
     });
 
     const snapshot = JSON.parse(JSON.stringify(assignment));
@@ -105,6 +206,20 @@ export async function assignRole(params: {
       entityId: assignment.id,
       snapshot,
     });
+
+    if (role === 'RESEARCH_LEAD') {
+      revalidatePath('/dashboard/profile/overview');
+      if (finalScopeId) {
+        revalidatePath(`/dashboard/research/groups/${finalScopeId}`);
+      }
+      if (finalGroupSlug) {
+        revalidatePath(`/research/${finalGroupSlug}`);
+      }
+      // @ts-expect-error Next Canary Type definition bug
+      revalidateTag('research-groups');
+      // @ts-expect-error Next Canary Type definition bug
+      revalidateTag('public:research-groups');
+    }
 
     return { success: true, roleAssignment: assignment };
   } catch (error: unknown) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
@@ -8,7 +9,7 @@ import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { deleteLegacyItem } from '@/server/actions/legacyGallery';
 import { toastSuccess, toastError } from '@/lib/toast';
-import { Pencil, Trash2, Eye, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/dashboard/StatusBadge';
 import { PublishStatus } from '@prisma/client';
@@ -21,7 +22,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PUBLISH_STATUS_OPTIONS_WITH_ALL } from '@/lib/options';
-import { LegacyGalleryPreviewModal } from './LegacyGalleryPreviewModal';
 
 type LegacyItem = {
   id: string;
@@ -60,7 +60,6 @@ export function LegacyGalleryListClient({
   );
 
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [previewTarget, setPreviewTarget] = useState<string | null>(null);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -132,24 +131,20 @@ export function LegacyGalleryListClient({
       header: 'Actions',
       accessor: (row: LegacyItem) => (
         <div className="flex items-center gap-2 justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setPreviewTarget(row.id)}
-            title="Preview Snapshot"
+          <Link
+            href={`/dashboard/content/legacy-gallery/${row.id}`}
+            className="text-base text-blue-600 hover:text-blue-800 font-medium"
           >
-            <Eye className="w-4 h-4 text-muted-foreground" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push(`/dashboard/content/legacy-gallery/${row.id}`)}
+            Edit
+          </Link>
+          <span className="text-muted-foreground">|</span>
+          <button
+            type="button"
+            onClick={() => setDeleteTarget(row.id)}
+            className="text-base text-destructive hover:text-red-800 font-medium"
           >
-            <Pencil className="w-4 h-4 text-muted-foreground" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(row.id)}>
-            <Trash2 className="w-4 h-4 text-destructive" />
-          </Button>
+            Delete
+          </button>
         </div>
       ),
     },
@@ -222,7 +217,7 @@ export function LegacyGalleryListClient({
           rows={data.map((row) => columns.map((col) => col.accessor(row)))}
           footer={
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-base text-muted-foreground">
                 Showing entries {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of{' '}
                 {total}
               </span>
@@ -247,10 +242,6 @@ export function LegacyGalleryListClient({
             </div>
           }
         />
-      )}
-
-      {previewTarget && (
-        <LegacyGalleryPreviewModal itemId={previewTarget} onClose={() => setPreviewTarget(null)} />
       )}
 
       <ConfirmDialog

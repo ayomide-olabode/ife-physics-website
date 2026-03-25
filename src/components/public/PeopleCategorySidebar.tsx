@@ -21,7 +21,7 @@ export function PeopleCategorySidebar({ activeKey }: { activeKey: string }) {
               key={category.key}
               href={category.href}
               className={[
-                'px-5 py-4 text-sm font-semibold transition-colors',
+                'px-5 py-4 text-base font-semibold transition-colors',
                 isActive
                   ? 'bg-brand-navy text-brand-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100 hover:text-brand-navy',

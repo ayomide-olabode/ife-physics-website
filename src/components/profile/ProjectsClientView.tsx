@@ -1,33 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { ProjectEditor } from './ProjectEditor';
 import { ConfirmDialog } from '@/components/dashboard/ConfirmDialog';
 import { deleteMyProject } from '@/server/actions/profileProjects';
-import { getMyProjectById } from '@/server/queries/profileProjects';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
-import { ExternalLink, Plus } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-
-type ProjectFormData = {
-  title: string;
-  acronym: string;
-  descriptionHtml: string;
-  url: string;
-  status: string;
-  isFunded: boolean;
-  startYear: string;
-  endYear: string;
-};
-
-type ProjectEditorProps = {
-  id: string;
-} & ProjectFormData;
+import { AddNewButton } from '@/components/dashboard/AddNewButton';
 
 type ProjectItem = {
   id: string;
@@ -49,44 +32,11 @@ type PaginatedData = {
   totalPages: number;
 };
 
-export function ProjectsClientView({ data, staffId }: { data: PaginatedData; staffId: string }) {
+export function ProjectsClientView({ data }: { data: PaginatedData }) {
   const router = useRouter();
-
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [editorData, setEditorData] = useState<ProjectEditorProps | undefined>();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-
-  const handleAdd = () => {
-    setEditorData(undefined);
-    setEditorOpen(true);
-  };
-
-  const handleEdit = async (id: string) => {
-    // Fetch full project logic since list API omits `description`
-    try {
-      const fullDoc = await getMyProjectById({ staffId, id });
-      if (!fullDoc) {
-        toastError('Project not found or inaccessible.');
-        return;
-      }
-      setEditorData({
-        id: fullDoc.id,
-        title: fullDoc.title,
-        acronym: fullDoc.acronym || '',
-        descriptionHtml: fullDoc.descriptionHtml || '',
-        url: fullDoc.url || '',
-        status: fullDoc.status,
-        isFunded: fullDoc.isFunded,
-        startYear: fullDoc.startYear.toString(),
-        endYear: fullDoc.endYear ? fullDoc.endYear.toString() : '',
-      });
-      setEditorOpen(true);
-    } catch {
-      toastError('Error fetching project details.');
-    }
-  };
 
   const handleDeleteRequest = (id: string) => {
     setDeleteId(id);
@@ -117,18 +67,13 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
       <PageHeader
         title="Projects"
         description="Manage your ongoing and completed projects."
-        actions={
-          <Button onClick={handleAdd} size="sm">
-            <Plus className="h-4 w-4" />
-            Add New Project
-          </Button>
-        }
+        actions={<AddNewButton href="/dashboard/profile/projects/new" label="Add New Project" />}
       />
 
       <DataTable
         headers={['Title', 'Status', 'Years', 'Link', 'Actions']}
         rows={data.items.map((item) => [
-          <div key="title" className="text-sm block min-w-[300px]">
+          <div key="title" className="text-base block min-w-[300px]">
             <span className="font-medium">{item.title}</span>
             {item.acronym && <span className="text-muted-foreground ml-2">({item.acronym})</span>}
             {item.isFunded && (
@@ -137,10 +82,10 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
               </span>
             )}
           </div>,
-          <span key="status" className="text-sm text-muted-foreground capitalize">
+          <span key="status" className="text-base text-muted-foreground capitalize">
             {item.status.toLowerCase()}
           </span>,
-          <span key="years" className="text-sm text-muted-foreground">
+          <span key="years" className="text-base text-muted-foreground">
             {item.startYear} - {item.endYear || 'Ongoing'}
           </span>,
           <div key="links" className="flex flex-col gap-1">
@@ -149,27 +94,27 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center text-xs text-blue-600 hover:underline"
+                className="inline-flex items-center text-sm text-blue-600 hover:underline"
               >
                 <ExternalLink className="mr-1 h-3 w-3" />
                 Link
               </a>
             ) : (
-              <span className="text-xs text-muted-foreground">-</span>
+              <span className="text-sm text-muted-foreground">-</span>
             )}
           </div>,
 
           <div key="actions" className="flex items-center gap-2">
-            <button
-              onClick={() => handleEdit(item.id)}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            <Link
+              href={`/dashboard/profile/projects/${item.id}`}
+              className="text-base text-blue-600 hover:text-blue-800 font-medium"
             >
               Edit
-            </button>
+            </Link>
             <span className="text-muted-foreground">|</span>
             <button
               onClick={() => handleDeleteRequest(item.id)}
-              className="text-sm text-destructive hover:text-red-800 font-medium"
+              className="text-base text-destructive hover:text-red-800 font-medium"
             >
               Delete
             </button>
@@ -184,7 +129,7 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
       />
 
       {data.totalPages > 1 && (
-        <div className="flex justify-between items-center py-4 text-sm text-muted-foreground">
+        <div className="flex justify-between items-center py-4 text-base text-muted-foreground">
           <p>
             Showing page {data.page} of {data.totalPages} ({data.totalCount} total)
           </p>
@@ -208,8 +153,6 @@ export function ProjectsClientView({ data, staffId }: { data: PaginatedData; sta
           </div>
         </div>
       )}
-
-      <ProjectEditor open={editorOpen} onOpenChange={setEditorOpen} initialData={editorData} />
 
       <ConfirmDialog
         open={deleteOpen}

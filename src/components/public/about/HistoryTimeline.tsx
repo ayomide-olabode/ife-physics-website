@@ -52,7 +52,7 @@ export function HistoryTimeline({ groups }: { groups: DecadeGroup[] }) {
               <div key={year}>
                 {/* Year pill */}
                 <div className="mb-4">
-                  <span className="inline-block bg-brand-navy text-white text-sm font-semibold px-4 py-1.5">
+                  <span className="inline-block bg-brand-navy text-white text-base font-semibold px-4 py-1.5">
                     {year}
                   </span>
                 </div>
@@ -64,7 +64,7 @@ export function HistoryTimeline({ groups }: { groups: DecadeGroup[] }) {
                       key={entry.id}
                       className="bg-white border border-gray-200 shadow-sm p-6"
                     >
-                      <time className="block text-xs font-semibold uppercase tracking-wider text-brand-yellow mb-2">
+                      <time className="block text-sm font-semibold uppercase tracking-wider text-brand-yellow mb-2">
                         {new Date(entry.date).toLocaleDateString('en-GB', {
                           year: 'numeric',
                           month: '2-digit',
@@ -74,7 +74,7 @@ export function HistoryTimeline({ groups }: { groups: DecadeGroup[] }) {
                       <h3 className="text-lg font-semibold text-brand-navy leading-snug">
                         {entry.title}
                       </h3>
-                      <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                      <p className="mt-2 text-base text-gray-600 leading-relaxed">
                         {entry.shortDesc}
                       </p>
                     </article>

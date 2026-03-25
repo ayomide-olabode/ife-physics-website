@@ -5,7 +5,7 @@ import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { getStaffById } from '@/server/queries/adminStaff';
 import { Button } from '@/components/ui/button';
-import { UserPlus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
@@ -27,16 +27,16 @@ export default async function AdminStaffDetailPage({
   }
 
   const leadershipRows = staff.leadershipTerms.map((term) => [
-    <span key="role" className="font-medium text-sm">
+    <span key="role" className="font-medium text-base">
       {term.role}
     </span>,
-    <span key="programme" className="text-sm">
+    <span key="programme" className="text-base">
       {term.programmeCode || '-'}
     </span>,
-    <span key="start" className="text-sm">
+    <span key="start" className="text-base">
       {formatDate(term.startDate)}
     </span>,
-    <span key="end" className="text-sm">
+    <span key="end" className="text-base">
       {term.endDate ? formatDate(term.endDate) : 'Present'}
     </span>,
   ]);
@@ -59,7 +59,7 @@ export default async function AdminStaffDetailPage({
               description="Manage this staff record."
               actions={
                 <span
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                  className={`inline-flex items-center rounded-full px-3 py-1 text-base font-medium ${
                     staff.staffStatus === 'ACTIVE'
                       ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500'
                       : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500'
@@ -70,7 +70,7 @@ export default async function AdminStaffDetailPage({
               }
             />
             {!hasName && (
-              <span className="inline-flex items-center rounded-sm bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive mt-1">
+              <span className="inline-flex items-center rounded-sm bg-destructive/10 px-2 py-1 text-sm font-medium text-destructive mt-1">
                 PROFILE INCOMPLETE
               </span>
             )}
@@ -80,23 +80,23 @@ export default async function AdminStaffDetailPage({
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-lg border p-4">
-          <h3 className="text-sm font-medium text-muted-foreground">Staff Details</h3>
+          <h3 className="text-base font-medium text-muted-foreground">Staff Details</h3>
           <div className="mt-4 space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm">Staff ID:</span>
-              <span className="text-sm font-medium">{staff.id}</span>
+              <span className="text-base">Staff ID:</span>
+              <span className="text-base font-medium">{staff.id}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm">Type:</span>
-              <span className="text-sm font-medium">{staff.staffType.replace(/_/g, ' ')}</span>
+              <span className="text-base">Type:</span>
+              <span className="text-base font-medium">{staff.staffType.replace(/_/g, ' ')}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm">Record Created:</span>
-              <span className="text-sm font-medium">{formatDate(staff.createdAt)}</span>
+              <span className="text-base">Record Created:</span>
+              <span className="text-base font-medium">{formatDate(staff.createdAt)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm">Public Profile:</span>
-              <span className="text-sm font-medium">
+              <span className="text-base">Public Profile:</span>
+              <span className="text-base font-medium">
                 {staff.isPublicProfile ? 'Visible' : 'Hidden'}
               </span>
             </div>
@@ -105,11 +105,11 @@ export default async function AdminStaffDetailPage({
 
         <div className="rounded-lg border p-4 space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-medium text-muted-foreground">User System Access</h3>
+            <h3 className="text-base font-medium text-muted-foreground">User System Access</h3>
             {!staff.user && (
               <Button size="sm" variant="outline" asChild>
                 <Link href={`/dashboard/admin/users/new?staffId=${staff.id}`}>
-                  <UserPlus className="h-4 w-4" />
+                  <Plus className="h-4 w-4" />
                   Create user shell
                 </Link>
               </Button>
@@ -119,28 +119,28 @@ export default async function AdminStaffDetailPage({
           {staff.user ? (
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm">Account Status:</span>
-                <span className="text-sm font-medium">
+                <span className="text-base">Account Status:</span>
+                <span className="text-base font-medium">
                   {staff.user.passwordHash === '' ? (
-                    <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
+                    <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-sm font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
                       INVITED
                     </span>
                   ) : (
-                    <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-500">
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900/30 dark:text-green-500">
                       ACTIVE
                     </span>
                   )}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm">Super Admin:</span>
-                <span className="text-sm font-medium">
+                <span className="text-base">Super Admin:</span>
+                <span className="text-base font-medium">
                   {staff.user.isSuperAdmin ? 'Yes' : 'No'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm">Last Login:</span>
-                <span className="text-sm font-medium text-muted-foreground">
+                <span className="text-base">Last Login:</span>
+                <span className="text-base font-medium text-muted-foreground">
                   {staff.user.lastLoginAt ? formatDate(staff.user.lastLoginAt) : 'Never'}
                 </span>
               </div>
@@ -151,7 +151,7 @@ export default async function AdminStaffDetailPage({
               ) : null}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               No system user account has been provisioned for this staff record yet.
             </p>
           )}
@@ -164,8 +164,8 @@ export default async function AdminStaffDetailPage({
         />
 
         <div className="rounded-lg border border-destructive p-4 space-y-3">
-          <h3 className="text-sm font-medium text-destructive">Danger Zone</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="text-base font-medium text-destructive">Danger Zone</h3>
+          <p className="text-base text-muted-foreground">
             Delete this staff record and its linked user account from the system.
           </p>
           <DeleteStaffButton

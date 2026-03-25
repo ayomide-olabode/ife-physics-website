@@ -22,7 +22,7 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   return (
     <Link
       href={item.href}
-      className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+      className={`block rounded-md px-3 py-2 text-base font-medium transition-colors ${
         isActive
           ? 'bg-primary/10 text-primary'
           : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -40,7 +40,7 @@ function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
   return (
     <div className="flex flex-col gap-1">
       <button
-        className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+        className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-base font-medium transition-colors ${
           isGroupActive
             ? 'text-foreground'
             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -57,7 +57,7 @@ function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
               <Link
                 key={child.href}
                 href={child.href}
-                className={`block rounded-md border border-transparent px-3 py-1.5 text-sm transition-colors ${
+                className={`block rounded-md border border-transparent px-3 py-1.5 text-base transition-colors ${
                   isChildActive
                     ? 'bg-primary/10 text-primary font-medium'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -89,8 +89,8 @@ export function DashboardSidebar({ items }: { items: NavItem[] }) {
       </nav>
       <div className="mt-auto pt-6 flex flex-col gap-2">
         <LogoutButton
-          variant="ghost"
-          className="w-full justify-start text-muted-foreground hover:bg-muted hover:text-foreground"
+          variant="outline"
+          className="w-full justify-start border-destructive/35 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
         >
           <LogOut className="h-4 w-4" />
           Log Out
@@ -140,8 +140,8 @@ export function MobileSidebar({ items }: { items: NavItem[] }) {
         </nav>
         <div className="mt-auto pt-6 flex flex-col gap-2">
           <LogoutButton
-            variant="ghost"
-            className="w-full justify-start text-muted-foreground hover:bg-muted hover:text-foreground"
+            variant="outline"
+            className="w-full justify-start border-destructive/35 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
           >
             <LogOut className="h-4 w-4" />
             Log Out

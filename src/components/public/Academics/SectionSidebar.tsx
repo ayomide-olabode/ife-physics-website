@@ -84,7 +84,7 @@ export function SectionSidebar({ items, title = 'Table of content' }: SectionSid
       aria-label={title}
     >
       <div className="border-b border-black/10 p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{title}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">{title}</h2>
       </div>
 
       <ul className="space-y-1 p-2">
@@ -97,7 +97,7 @@ export function SectionSidebar({ items, title = 'Table of content' }: SectionSid
                 href={`#${item.id}`}
                 onClick={(event) => handleClick(event, item.id)}
                 className={cn(
-                  'block w-full px-3 py-2 text-left text-sm font-semibold transition-colors duration-200 ',
+                  'block w-full px-3 py-2 text-left text-base font-semibold transition-colors duration-200 ',
                   isActive
                     ? 'bg-brand-navy text-white'
                     : 'text-gray-500 hover:bg-gray-50 hover:text-brand-navy',

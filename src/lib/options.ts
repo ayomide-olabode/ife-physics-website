@@ -19,15 +19,15 @@ import {
 } from '@prisma/client';
 
 export const PROGRAMME_OPTIONS = [
-  { value: ProgrammeCode.EPH, label: 'Engineering Physics' },
   { value: ProgrammeCode.PHY, label: 'Physics' },
+  { value: ProgrammeCode.EPH, label: 'Engineering Physics' },
   { value: ProgrammeCode.SLT, label: 'Science Laboratory Technology' },
 ];
 
 export const PROGRAMME_SCOPE_OPTIONS = [
   { value: ProgrammeScope.GENERAL, label: 'General' },
-  { value: ProgrammeScope.EPH, label: 'Engineering Physics' },
   { value: ProgrammeScope.PHY, label: 'Physics' },
+  { value: ProgrammeScope.EPH, label: 'Engineering Physics' },
   { value: ProgrammeScope.SLT, label: 'Science Laboratory Technology' },
 ];
 
@@ -39,8 +39,8 @@ export const DEGREE_SCOPE_OPTIONS = [
 
 /** Roll-of-Honour programme options – stored as display strings, not enum codes */
 export const ROH_PROGRAMME_OPTIONS = [
-  { value: 'Engineering Physics', label: 'Engineering Physics' },
   { value: 'Physics', label: 'Physics' },
+  { value: 'Engineering Physics', label: 'Engineering Physics' },
   { value: 'Science Laboratory Technology', label: 'Science Laboratory Technology' },
 ] as const;
 

@@ -60,14 +60,14 @@ export function SecondaryAffiliationStaffList({ staff }: SecondaryAffiliationSta
                 className="h-10 w-10 border object-cover rounded-none"
               />
             ) : (
-              <div className="h-10 w-10 border bg-muted flex items-center justify-center text-xs font-semibold rounded-none">
+              <div className="h-10 w-10 border bg-muted flex items-center justify-center text-sm font-semibold rounded-none">
                 {initials}
               </div>
             )}
             <div className="min-w-0">
-              <p className="text-sm font-medium truncate">{fullName}</p>
-              <p className="text-xs text-muted-foreground truncate">{roleText}</p>
-              <p className="text-xs text-muted-foreground truncate">{member.institutionalEmail}</p>
+              <p className="text-base font-medium truncate">{fullName}</p>
+              <p className="text-sm text-muted-foreground truncate">{roleText}</p>
+              <p className="text-sm text-muted-foreground truncate">{member.institutionalEmail}</p>
             </div>
           </Link>
         );

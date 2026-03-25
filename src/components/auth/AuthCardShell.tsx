@@ -33,14 +33,14 @@ export function AuthCardShell({ title, subtitle, children, footer }: AuthCardShe
           <header>
             <h1 className="text-center font-serif text-3xl text-brand-navy">{title}</h1>
             {subtitle ? (
-              <p className="mt-2 text-center text-sm text-muted-foreground">{subtitle}</p>
+              <p className="mt-2 text-center text-base text-muted-foreground">{subtitle}</p>
             ) : null}
           </header>
 
           <div className="mt-6">{children}</div>
 
           {footer ? (
-            <footer className="mt-6 text-center text-sm text-muted-foreground">{footer}</footer>
+            <footer className="mt-6 text-center text-base text-muted-foreground">{footer}</footer>
           ) : null}
         </section>
       </div>

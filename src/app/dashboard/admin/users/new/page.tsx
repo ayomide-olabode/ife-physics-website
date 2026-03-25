@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { Button } from '@/components/ui/button';
-import { UserPlus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { CreateUserForm } from '@/components/dashboard/CreateUserForm';
 
@@ -16,7 +16,7 @@ export default function CreateUserPage() {
           actions={
             <Button size="sm" variant="outline" asChild>
               <Link href="/dashboard/admin/staff/new">
-                <UserPlus className="h-4 w-4" />
+                <Plus className="h-4 w-4" />
                 Create New Staff
               </Link>
             </Button>

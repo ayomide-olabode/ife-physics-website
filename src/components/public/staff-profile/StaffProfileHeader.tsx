@@ -20,56 +20,61 @@ export function StaffProfileHeader({ staff }: { staff: PublicStaffProfile }) {
   const deathYear = isInMemoriam ? formatYear(staff.dateOfDeath) : null;
   const memorialYears =
     birthYear && deathYear ? `${birthYear} – ${deathYear}` : deathYear ?? birthYear ?? null;
+  const rank = staff.academicRank?.trim() || null;
+  const designation = staff.designation?.trim() || null;
+  const hasProfileMeta = Boolean(rank || designation || staff.primaryResearchGroup);
 
   return (
     <section className="grid grid-cols-1 gap-6 border border-gray-200 bg-white p-6 lg:grid-cols-[1fr_260px]">
       <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">
           {isInMemoriam ? 'In Memoriam' : 'Faculty Profile'}
         </p>
         <h1 className="text-3xl font-serif font-bold text-brand-navy">{heading}</h1>
 
         {isInMemoriam ? (
           <>
-            {memorialYears ? <p className="text-sm text-gray-600">{memorialYears}</p> : null}
+            {memorialYears ? <p className="text-base text-gray-600">{memorialYears}</p> : null}
 
-            <div className="mt-2 border-t border-gray-200 pt-3 space-y-2">
-              {staff.academicRank ? <p className="text-sm text-gray-700">{staff.academicRank}</p> : null}
-
-              {staff.primaryResearchGroup && (
-                <p className="text-sm text-gray-700">
-                  Research Group:{' '}
-                  <Link
-                    href={`/research/${staff.primaryResearchGroup.slug}`}
-                    className="font-semibold text-brand-navy hover:underline"
-                  >
-                    {staff.primaryResearchGroup.name}
-                  </Link>
-                </p>
-              )}
-            </div>
+            {hasProfileMeta ? (
+              <div className="mt-2 border-t border-gray-200 pt-3 space-y-2">
+                {rank ? <p className="text-base text-gray-700">Rank: {rank}</p> : null}
+                {designation ? <p className="text-base text-gray-700">Designation: {designation}</p> : null}
+                {staff.primaryResearchGroup ? (
+                  <p className="text-base text-gray-700">
+                    Research Group:{' '}
+                    <Link
+                      href={`/research/${staff.primaryResearchGroup.slug}`}
+                      className="font-semibold text-brand-navy hover:underline"
+                    >
+                      {staff.primaryResearchGroup.name}
+                    </Link>
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </>
         ) : (
           <>
-            {(staff.academicRank || staff.designation) && (
-              <p className="text-sm text-gray-700">
-                {[staff.academicRank, staff.designation].filter(Boolean).join(', ')}
-              </p>
-            )}
+            {hasProfileMeta ? (
+              <div className="space-y-2">
+                {rank ? <p className="text-base text-gray-700">Rank: {rank}</p> : null}
+                {designation ? <p className="text-base text-gray-700">Designation: {designation}</p> : null}
+                {staff.primaryResearchGroup ? (
+                  <p className="text-base text-gray-700">
+                    Research Group:{' '}
+                    <Link
+                      href={`/research/${staff.primaryResearchGroup.slug}`}
+                      className="font-semibold text-brand-navy hover:underline"
+                    >
+                      {staff.primaryResearchGroup.name}
+                    </Link>
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
 
-            {staff.primaryResearchGroup && (
-              <p className="text-sm text-gray-700">
-                Research Group:{' '}
-                <Link
-                  href={`/research/${staff.primaryResearchGroup.slug}`}
-                  className="font-semibold text-brand-navy hover:underline"
-                >
-                  {staff.primaryResearchGroup.name}
-                </Link>
-              </p>
-            )}
-
-            <p className="flex items-center gap-2 text-sm text-gray-700">
+            <p className="flex items-center gap-2 text-base text-gray-700">
               <Mail className="h-4 w-4 shrink-0" />
               <a href={`mailto:${staff.institutionalEmail}`} className="break-all hover:underline">
                 {staff.institutionalEmail}
@@ -80,7 +85,7 @@ export function StaffProfileHeader({ staff }: { staff: PublicStaffProfile }) {
 
         {(staff.googleScholarUrl || staff.orcidUrl) && (
           <div
-            className={`flex flex-wrap items-center gap-3 text-sm text-gray-700 ${isInMemoriam ? 'mt-2 border-t border-gray-200 pt-3' : 'pt-1'}`}
+            className={`flex flex-wrap items-center gap-3 text-base text-gray-700 ${isInMemoriam ? 'mt-2 border-t border-gray-200 pt-3' : 'pt-1'}`}
           >
             {staff.googleScholarUrl && (
               <a
@@ -119,7 +124,7 @@ export function StaffProfileHeader({ staff }: { staff: PublicStaffProfile }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex aspect-square items-center justify-center text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <div className="flex aspect-square items-center justify-center text-base font-semibold uppercase tracking-wide text-gray-500">
             No Image
           </div>
         )}

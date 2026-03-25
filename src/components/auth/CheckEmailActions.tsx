@@ -89,7 +89,7 @@ export function CheckEmailActions({ onResend, backHref }: CheckEmailActionsProps
       </div>
 
       {cooldownSeconds > 0 ? (
-        <p className="text-xs text-muted-foreground text-right">
+        <p className="text-sm text-muted-foreground text-right">
           Resend available in {formatCountdown(cooldownSeconds)}
         </p>
       ) : null}

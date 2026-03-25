@@ -110,23 +110,23 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
       <DataTable
         headers={['Course Code', 'Title', 'Actions']}
         rows={data.items.map((item) => [
-          <span key="code" className="text-sm font-medium">
+          <span key="code" className="text-base font-medium">
             {item.courseCode || '-'}
           </span>,
-          <span key="title" className="text-sm text-muted-foreground block min-w-[200px]">
+          <span key="title" className="text-base text-muted-foreground block min-w-[200px]">
             {item.title}
           </span>,
           <div key="actions" className="flex items-center gap-2">
             <button
               onClick={() => handleEdit(item.id)}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              className="text-base text-blue-600 hover:text-blue-800 font-medium"
             >
               Edit
             </button>
             <span className="text-muted-foreground">|</span>
             <button
               onClick={() => handleDeleteRequest(item.id)}
-              className="text-sm text-destructive hover:text-red-800 font-medium"
+              className="text-base text-destructive hover:text-red-800 font-medium"
             >
               Delete
             </button>
@@ -141,7 +141,7 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
       />
 
       {data.totalPages > 1 && (
-        <div className="flex justify-between items-center py-4 text-sm text-muted-foreground">
+        <div className="flex justify-between items-center py-4 text-base text-muted-foreground">
           <p>
             Showing page {data.page} of {data.totalPages} ({data.totalCount} total)
           </p>

@@ -37,6 +37,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             eventCategory: item.eventCategory,
             opportunityCategory: item.opportunityCategory,
             description: item.description,
+            duration: item.duration,
             startDate: item.startDate?.toISOString() ?? null,
             endDate: item.endDate?.toISOString() ?? null,
             venue: item.venue,

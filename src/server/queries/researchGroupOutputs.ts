@@ -11,31 +11,7 @@ export type ResearchGroupOutputRow = {
   authorsDisplay: string;
   year: number | null;
   doi: string | null;
-  isFeatured: boolean;
 };
-
-export async function isResearchOutputEligibleForGroup({
-  groupId,
-  outputId,
-}: {
-  groupId: string;
-  outputId: string;
-}): Promise<boolean> {
-  const staffIds = await getResearchGroupMemberStaffIds(groupId);
-  if (staffIds.length === 0) return false;
-
-  const match = await prisma.$queryRaw<{ id: string }[]>`
-    SELECT r.id
-    FROM "ResearchOutput" r,
-         jsonb_array_elements(COALESCE(r."authorsJson", '[]'::jsonb)) as a
-    WHERE r.id = ${outputId}
-      AND r."deletedAt" IS NULL
-      AND (a->>'staffId' IN (${Prisma.join(staffIds)}))
-    LIMIT 1;
-  `;
-
-  return match.length > 0;
-}
 
 export async function listResearchOutputsForGroupMembers({
   groupId,
@@ -55,13 +31,11 @@ export async function listResearchOutputsForGroupMembers({
   const offset = (normalizedPage - 1) * effectivePageSize;
   const query = q?.trim() ?? '';
 
-  const [group, staffIds] = await Promise.all([
-    prisma.researchGroup.findFirst({
-      where: { id: groupId, deletedAt: null },
-      select: { featuredResearchOutputId: true },
-    }),
-    getResearchGroupMemberStaffIds(groupId),
-  ]);
+  const group = await prisma.researchGroup.findFirst({
+    where: { id: groupId, deletedAt: null },
+    select: { id: true },
+  });
+  const staffIds = await getResearchGroupMemberStaffIds(groupId);
 
   if (!group || staffIds.length === 0) {
     return {
@@ -149,7 +123,6 @@ export async function listResearchOutputsForGroupMembers({
       authorsDisplay: item.authorsDisplay,
       year: item.year,
       doi: item.doi,
-      isFeatured: group.featuredResearchOutputId === item.id,
     })),
     totalCount,
     page: normalizedPage,

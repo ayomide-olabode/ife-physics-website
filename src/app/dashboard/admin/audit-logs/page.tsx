@@ -74,7 +74,7 @@ export default async function AuditLogsPage({
 
       {/* Pagination Controls */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Showing {Math.min((page - 1) * pageSize + 1, total)} to {Math.min(page * pageSize, total)}{' '}
           of {total} results
         </p>

@@ -82,7 +82,7 @@ export function CreateUserForm() {
     <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl">
       <div className="space-y-4 rounded-lg border p-4 bg-card text-card-foreground shadow-sm">
         <h3 className="text-lg font-medium">1. Select Staff Member</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Users must be mapped to an existing staff record. Search by name or email.
         </p>
 
@@ -108,11 +108,11 @@ export function CreateUserForm() {
         </div>
 
         {!hasSearched && !isSearching && (
-          <p className="mt-2 text-sm text-muted-foreground">Type to search by name or email.</p>
+          <p className="mt-2 text-base text-muted-foreground">Type to search by name or email.</p>
         )}
 
         {hasSearched && searchResults.length === 0 && (
-          <p className="mt-2 text-sm text-muted-foreground">No staff found.</p>
+          <p className="mt-2 text-base text-muted-foreground">No staff found.</p>
         )}
 
         {searchResults.length > 0 && (
@@ -136,14 +136,14 @@ export function CreateUserForm() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium">
+                  <span className="text-base font-medium">
                     {formatPersonName({
                       firstName: staff.firstName,
                       middleName: staff.middleName,
                       lastName: staff.lastName,
                     })}
                   </span>
-                  <span className="text-xs text-muted-foreground">{staff.institutionalEmail}</span>
+                  <span className="text-sm text-muted-foreground">{staff.institutionalEmail}</span>
                 </div>
               </label>
             ))}
@@ -164,7 +164,7 @@ export function CreateUserForm() {
             <FieldLabel htmlFor="superadmin" className="font-medium">
               Grant Super Admin Access
             </FieldLabel>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               Super Admins have unrestricted access to all dashboard modules and configurations.
             </p>
           </div>

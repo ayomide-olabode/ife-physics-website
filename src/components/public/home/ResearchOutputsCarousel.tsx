@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ResearchOutputCard } from './ResearchOutputCard';
-import type { FeaturedResearchOutputItem } from '@/server/public/queries/featuredResearchOutputs';
+import type { RecentResearchOutputItem } from '@/server/public/queries/recentResearchOutputs';
 
 function getScrollStep(track: HTMLDivElement): number {
   const firstCard = track.firstElementChild as HTMLDivElement | null;
@@ -14,7 +14,7 @@ function getScrollStep(track: HTMLDivElement): number {
   return firstCard.offsetWidth + gap;
 }
 
-export function ResearchOutputsCarousel({ items }: { items: FeaturedResearchOutputItem[] }) {
+export function ResearchOutputsCarousel({ items }: { items: RecentResearchOutputItem[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(items.length > 1);

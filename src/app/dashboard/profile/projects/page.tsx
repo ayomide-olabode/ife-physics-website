@@ -25,7 +25,7 @@ export default async function ProfileProjectsPage({
 
   return (
     <div className="space-y-6">
-      <ProjectsClientView data={data} staffId={staffId} />
+      <ProjectsClientView data={data} />
     </div>
   );
 }

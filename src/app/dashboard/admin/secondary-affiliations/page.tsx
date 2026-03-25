@@ -29,20 +29,20 @@ export default async function SecondaryAffiliationsIndexPage({
     <Link
       key="name"
       href={`/dashboard/admin/secondary-affiliations/${item.id}`}
-      className="text-sm font-medium text-primary hover:underline"
+      className="text-base font-medium text-primary hover:underline"
     >
       {item.name}
     </Link>,
-    <span key="acronym" className="text-sm text-muted-foreground">
+    <span key="acronym" className="text-base text-muted-foreground">
       {item.acronym || '-'}
     </span>,
-    <span key="updatedAt" className="text-sm">
+    <span key="updatedAt" className="text-base">
       {formatDate(item.updatedAt)}
     </span>,
     <Link
       key="action"
       href={`/dashboard/admin/secondary-affiliations/${item.id}`}
-      className="text-sm font-medium text-primary hover:underline"
+      className="text-base font-medium text-primary hover:underline"
     >
       Edit
     </Link>,
@@ -65,7 +65,7 @@ export default async function SecondaryAffiliationsIndexPage({
                 name="q"
                 defaultValue={q}
                 placeholder="Search affiliations..."
-                className="h-9 w-64 rounded-none border border-input bg-transparent px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="h-9 w-64 rounded-none border border-input bg-transparent px-3 py-1 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
               <Button type="submit" variant="secondary" size="sm" className="rounded-none">
                 Search
@@ -94,7 +94,7 @@ export default async function SecondaryAffiliationsIndexPage({
         }
         footer={
           total > pageSize ? (
-            <div className="flex items-center justify-between text-sm text-muted-foreground pt-4">
+            <div className="flex items-center justify-between text-base text-muted-foreground pt-4">
               <div>
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total}{' '}
                 affiliations

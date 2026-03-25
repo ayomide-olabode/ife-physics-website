@@ -33,7 +33,7 @@ export function StaffProfileTabs({
               <button
                 type="button"
                 className={[
-                  'border-b-2 px-3 py-3 text-sm font-semibold transition-colors',
+                  'border-b-2 px-3 py-3 text-base font-semibold transition-colors',
                   isActive
                     ? 'border-brand-navy text-brand-navy'
                     : 'border-transparent text-gray-500 hover:text-brand-navy',

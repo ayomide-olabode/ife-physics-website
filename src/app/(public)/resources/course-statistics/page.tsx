@@ -5,7 +5,12 @@ import { COURSE_STATISTICS_INSTITUTION } from '@/lib/course-statistics/config';
 export default function CourseStatisticsPage() {
   return (
     <>
-      <PageHero breadcrumbLabel="Resources" title="Course Statistics" />
+      <PageHero
+        breadcrumbLabel="Resources"
+        title="Course Statistics"
+        backgroundImageSrc="/assets/whitehouse.png"
+        backgroundImageAlt="White House, Obafemi Awolow University"
+      />
 
       <section className="py-14 md:py-16">
         <div className="mx-auto max-w-[1440px] space-y-8 px-4 sm:px-6 lg:px-8">

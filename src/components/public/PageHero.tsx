@@ -29,7 +29,7 @@ export function PageHero({
           <div className="absolute inset-0 bg-gradient-to-br from-brand-navy via-brand-navy/90 to-brand-navy/70" />
         )}
 
-        <div className="absolute inset-0 bg-brand-navy/70" />
+        {backgroundImageSrc && <div className="absolute inset-0 bg-black/60" />}
 
         <div className="relative z-10 flex h-full items-end">
           <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 pb-20">

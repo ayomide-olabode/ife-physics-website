@@ -46,7 +46,12 @@ export default async function HistoryPage() {
 
   return (
     <>
-      <PageHero breadcrumbLabel="Our Department" title="Our History" />
+      <PageHero
+        breadcrumbLabel="Our Department"
+        title="Our History"
+        backgroundImageSrc="/assets/whitehouse.png"
+        backgroundImageAlt="White House, Obafemi Awolow University"
+      />
 
       <div className="py-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">

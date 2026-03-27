@@ -98,7 +98,12 @@ export async function PeopleCategoryPage({
 
   return (
     <>
-      <PageHero breadcrumbLabel="People" title={title} />
+      <PageHero
+        breadcrumbLabel="People"
+        title={title}
+        backgroundImageSrc="/assets/whitehouse.png"
+        backgroundImageAlt="White House, Obafemi Awolow University"
+      />
 
       <main className="py-14 md:py-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">

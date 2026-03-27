@@ -56,7 +56,12 @@ export default async function StaffProfilePage({
 
   return (
     <>
-      <PageHero breadcrumbLabel="People" title="Faculty Profile" />
+      <PageHero
+        breadcrumbLabel="People"
+        title="Faculty Profile"
+        backgroundImageSrc="/assets/whitehouse.png"
+        backgroundImageAlt="White House, Obafemi Awolow University"
+      />
 
       <main className="bg-gray-100 py-14 md:py-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">

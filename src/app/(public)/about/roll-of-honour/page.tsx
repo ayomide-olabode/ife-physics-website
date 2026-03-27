@@ -9,7 +9,12 @@ export default async function RollOfHonourPage() {
 
   return (
     <>
-      <PageHero breadcrumbLabel="Our Department" title="Roll of Honour" />
+      <PageHero
+        breadcrumbLabel="Our Department"
+        title="Roll of Honour"
+        backgroundImageSrc="/assets/whitehouse.png"
+        backgroundImageAlt="White House, Obafemi Awolow University"
+      />
 
       <div className="pb-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">

@@ -355,7 +355,7 @@ export function CourseStatisticsForm() {
               Submission Confirmed
             </DialogTitle>
             <DialogDescription className="text-base text-gray-700">
-              {successMessage || 'Your course statistics were submitted successfully.'}
+              {successMessage || 'Your course statistics submitted successfully.'}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="p-6 pt-0">

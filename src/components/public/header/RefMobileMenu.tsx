@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { Menu, ChevronDown } from 'lucide-react';
+import { Sheet, SheetClose, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { Menu, ChevronDown, UserRound, X } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { buildRefNavItems } from '@/components/public/header/RefNavbar';
@@ -105,8 +105,26 @@ export function RefMobileMenu({ researchGroups }: { researchGroups: ResearchGrou
         </SheetTrigger>
         <SheetContent
           side="right"
-          className="w-[80vw] border-brand-navy bg-brand-navy p-6 [&>button]:text-brand-white [&>button]:opacity-100"
+          className="w-[80vw] border-brand-navy bg-brand-navy p-6 [&>button]:hidden"
         >
+          <div className="absolute right-4 top-4 flex items-center gap-3">
+            <Link
+              href="/login"
+              onClick={close}
+              aria-label="Staff Portal"
+              className="inline-flex h-10 w-10 items-center justify-center text-brand-white/85 transition-colors hover:text-brand-yellow"
+            >
+              <UserRound className="h-6 w-6" strokeWidth={1.8} />
+            </Link>
+            <div className="h-8 w-px bg-brand-white/30" aria-hidden="true" />
+            <SheetClose
+              aria-label="Close menu"
+              className="inline-flex h-10 w-10 items-center justify-center text-brand-white/85 transition-colors hover:text-brand-yellow"
+            >
+              <X className="h-6 w-6" />
+            </SheetClose>
+          </div>
+
           <SheetTitle className="text-brand-white text-left mb-6">Menu</SheetTitle>
           <div className="flex flex-col h-full overflow-y-auto pb-20">
             {/* Main Links */}

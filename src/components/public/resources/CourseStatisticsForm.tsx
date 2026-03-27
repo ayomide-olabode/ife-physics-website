@@ -194,6 +194,13 @@ export function CourseStatisticsForm() {
           </Select>
         </div>
 
+        <div className="space-y-1 text-sm text-gray-600 py-2">
+          <p className="md text-gray-800 font-medium">NOTE</p>
+          <p>Physics Students: Students in Physics, Engineering Physics, or SLT.</p>
+          <p>Faculty Students: Students in other departments within the Faculty of Science.</p>
+          <p>Other Students: Students from faculties outside the Faculty of Science.</p>
+        </div>
+
         {coordinatorName && courses.length > 0 && (
           <div className="space-y-4">
             {courses.map((course) => {
@@ -307,13 +314,6 @@ export function CourseStatisticsForm() {
             Select a course coordinator to load assigned courses.
           </p>
         )}
-        <div className="space-y-1 text-sm text-gray-600">
-          <p>Physics Students: Students in Physics, Engineering Physics, or SLT.</p>
-          <p>
-            Faculty Students: Students in other departments within the Faculty of Science.
-          </p>
-          <p>Other Students: Students from faculties outside the Faculty of Science.</p>
-        </div>
 
         {!isReadyForSubmit && coordinatorName && (
           <p id={statusMessageId} className="text-sm text-gray-600">

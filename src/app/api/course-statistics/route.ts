@@ -12,6 +12,8 @@ const APPS_SCRIPT_URL =
 const INVALID_REQUEST_MESSAGE = 'Invalid submission data.';
 const SUBMIT_FAILURE_MESSAGE =
   'Course statistics could not be submitted right now. Please try again shortly.';
+const INTEGRATION_NOT_READY_MESSAGE =
+  'Course statistics submission is temporarily unavailable. Please contact the website administrator.';
 
 function failureResponse(message: string, status: number) {
   return NextResponse.json({ success: false, message }, { status });
@@ -88,6 +90,13 @@ export async function POST(request: Request) {
       });
 
       return failureResponse(SUBMIT_FAILURE_MESSAGE, 502);
+    }
+
+    if (upstreamText.includes('Script function not found: doPost')) {
+      console.error('Course statistics Apps Script missing doPost handler', {
+        bodyPreview: upstreamText.slice(0, 600),
+      });
+      return failureResponse(INTEGRATION_NOT_READY_MESSAGE, 502);
     }
 
     let upstreamJson: AppsScriptResponse | null = null;

@@ -25,14 +25,15 @@ export function StaffCard({ item }: { item: PublicPeopleCardItem }) {
     lastName: item.lastName,
   });
 
-  const heading = [item.title, personName].filter(Boolean).join(' ').trim() || item.institutionalEmail;
+  const heading =
+    [item.title, personName].filter(Boolean).join(' ').trim() || item.institutionalEmail;
   const affiliation = formatAffiliation(item);
   const isMemoriam = item.isInMemoriam || item.staffStatus === 'IN_MEMORIAM';
   const canOpenProfile = item.staffStatus !== 'FORMER';
   const birthDate = isMemoriam ? formatYearForCard(item.dateOfBirth) : null;
   const deathDate = isMemoriam ? formatYearForCard(item.dateOfDeath) : null;
   const memoriamLifespan =
-    birthDate && deathDate ? `${birthDate} – ${deathDate}` : deathDate ?? birthDate;
+    birthDate && deathDate ? `${birthDate} – ${deathDate}` : (deathDate ?? birthDate);
 
   return (
     <article className="group flex h-full flex-col border border-gray-200 bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
@@ -77,7 +78,11 @@ export function StaffCard({ item }: { item: PublicPeopleCardItem }) {
           <p className="mt-1 text-base text-gray-600">{memoriamLifespan}</p>
         ) : null}
 
-        <p className="text-base text-gray-600">{item.primaryResearchGroup?.name ?? 'Research group not specified'}</p>
+        <p className="text-base text-gray-600">
+          {item.primaryResearchGroup?.name
+            ? `${item.primaryResearchGroup.name} Research Group`
+            : 'Research group not specified'}
+        </p>
 
         {affiliation ? <p className="text-base text-gray-600">{affiliation}</p> : null}
 

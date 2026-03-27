@@ -17,8 +17,7 @@ export default function CourseStatisticsPage() {
               Course coordinators should enter current student counts by classification for each
               assigned course. This includes students from{' '}
               {COURSE_STATISTICS_INSTITUTION.department}, other departments in the{' '}
-              {COURSE_STATISTICS_INSTITUTION.faculty}, and other faculties in{' '}
-              {COURSE_STATISTICS_INSTITUTION.university}.
+              {COURSE_STATISTICS_INSTITUTION.faculty}, and other faculties in the university.
             </p>
           </header>
 

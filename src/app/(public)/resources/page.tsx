@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { CalendarDays, ChartColumnBig } from 'lucide-react';
 import { PageHero } from '@/components/public/PageHero';
 
 const resourceCards = [
@@ -9,7 +8,6 @@ const resourceCards = [
       'View semester schedules, examination windows, breaks, and key dates for the academic session.',
     href: '/resources/academic-calendar',
     ctaLabel: 'Open Academic Calendar',
-    Icon: CalendarDays,
   },
   {
     title: 'Course Statistics',
@@ -17,7 +15,6 @@ const resourceCards = [
       'Submit student counts for coordinated courses by departmental, faculty, and other-student categories.',
     href: '/resources/course-statistics',
     ctaLabel: 'Open Course Statistics',
-    Icon: ChartColumnBig,
   },
 ];
 
@@ -34,26 +31,21 @@ export default function ResourcesPage() {
 
           <div className="grid gap-6 md:grid-cols-2">
             {resourceCards.map((card) => {
-              const Icon = card.Icon;
-
               return (
                 <article
                   key={card.title}
-                  className="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+                  className="group flex h-full flex-col border border-gray-200 bg-white p-8 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.08)]"
                 >
-                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-navy/10 text-brand-navy">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  </div>
-
                   <h2 className="text-2xl font-serif font-semibold text-brand-navy">
                     {card.title}
                   </h2>
+                  <div className="mt-3 border-t border-gray-200" />
                   <p className="mt-3 flex-1 text-base text-gray-700">{card.description}</p>
 
                   <div className="mt-6">
                     <Link
                       href={card.href}
-                      className="inline-flex items-center text-base font-semibold text-brand-navy underline underline-offset-4 transition-colors hover:text-brand-navy/80"
+                      className="inline-flex w-fit items-center border border-brand-navy px-4 py-2 text-base font-semibold text-brand-navy transition-colors duration-300 hover:bg-brand-navy/5"
                     >
                       {card.ctaLabel}
                     </Link>

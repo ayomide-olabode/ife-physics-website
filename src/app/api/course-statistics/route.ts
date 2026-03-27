@@ -8,6 +8,18 @@ import { courseStatisticsSubmissionPayloadSchema } from '@/lib/course-statistics
 
 const APPS_SCRIPT_URL =
   process.env.COURSE_STATISTICS_APPS_SCRIPT_URL?.trim() || COURSE_STATISTICS_APPS_SCRIPT_URL;
+const APPS_SCRIPT_TIMEOUT_MS = Math.max(
+  5000,
+  Number(process.env.COURSE_STATISTICS_APPS_SCRIPT_TIMEOUT_MS || 12000) || 12000,
+);
+const APPS_SCRIPT_MAX_ATTEMPTS = Math.max(
+  1,
+  Number(process.env.COURSE_STATISTICS_APPS_SCRIPT_MAX_ATTEMPTS || 2) || 2,
+);
+const APPS_SCRIPT_RETRY_DELAY_MS = Math.max(
+  0,
+  Number(process.env.COURSE_STATISTICS_APPS_SCRIPT_RETRY_DELAY_MS || 300) || 300,
+);
 
 const INVALID_REQUEST_MESSAGE = 'Invalid submission data.';
 const SUBMIT_FAILURE_MESSAGE =
@@ -23,6 +35,49 @@ interface AppsScriptResponse {
   success?: boolean;
   ok?: boolean;
   message?: string;
+}
+
+function delay(ms: number): Promise<void> {
+  if (ms <= 0) return Promise.resolve();
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getErrorCode(error: unknown): string | null {
+  if (typeof error !== 'object' || error === null) return null;
+  if ('code' in error && typeof (error as { code?: unknown }).code === 'string') {
+    return (error as { code: string }).code;
+  }
+  if (
+    'cause' in error &&
+    typeof (error as { cause?: unknown }).cause === 'object' &&
+    (error as { cause: { code?: unknown } }).cause !== null &&
+    typeof (error as { cause: { code?: unknown } }).cause.code === 'string'
+  ) {
+    return (error as { cause: { code: string } }).cause.code;
+  }
+  return null;
+}
+
+function isTimeoutError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    (error as { name: string }).name === 'TimeoutError'
+  );
+}
+
+function isRetryableUpstreamError(error: unknown): boolean {
+  const code = getErrorCode(error);
+
+  return (
+    isTimeoutError(error) ||
+    code === 'ETIMEDOUT' ||
+    code === 'ECONNRESET' ||
+    code === 'EAI_AGAIN' ||
+    code === 'ENETUNREACH' ||
+    code === 'UND_ERR_CONNECT_TIMEOUT'
+  );
 }
 
 export async function POST(request: Request) {
@@ -70,17 +125,57 @@ export async function POST(request: Request) {
      * 3. Insert the incoming rows as the fresh snapshot.
      * 4. Persist the submission timestamp ("Time and Date") for each written row.
      */
-    const upstreamResponse = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(appsScriptPayload),
-      cache: 'no-store',
-      signal: AbortSignal.timeout(15000),
-    });
+    let upstreamResponse: Response | null = null;
+    let upstreamText = '';
 
-    const upstreamText = await upstreamResponse.text();
+    for (let attempt = 1; attempt <= APPS_SCRIPT_MAX_ATTEMPTS; attempt += 1) {
+      try {
+        upstreamResponse = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(appsScriptPayload),
+          cache: 'no-store',
+          signal: AbortSignal.timeout(APPS_SCRIPT_TIMEOUT_MS),
+        });
+        upstreamText = await upstreamResponse.text();
+      } catch (error) {
+        if (isRetryableUpstreamError(error) && attempt < APPS_SCRIPT_MAX_ATTEMPTS) {
+          console.warn('Course statistics upstream request failed; retrying', {
+            attempt,
+            maxAttempts: APPS_SCRIPT_MAX_ATTEMPTS,
+            code: getErrorCode(error),
+            timeoutMs: APPS_SCRIPT_TIMEOUT_MS,
+          });
+          await delay(APPS_SCRIPT_RETRY_DELAY_MS);
+          continue;
+        }
+
+        throw error;
+      }
+
+      if (
+        upstreamResponse.status >= 500 &&
+        attempt < APPS_SCRIPT_MAX_ATTEMPTS &&
+        !upstreamText.includes('Script function not found: doPost')
+      ) {
+        console.warn('Course statistics upstream returned 5xx; retrying', {
+          attempt,
+          maxAttempts: APPS_SCRIPT_MAX_ATTEMPTS,
+          status: upstreamResponse.status,
+          statusText: upstreamResponse.statusText,
+        });
+        await delay(APPS_SCRIPT_RETRY_DELAY_MS);
+        continue;
+      }
+
+      break;
+    }
+
+    if (!upstreamResponse) {
+      return failureResponse(SUBMIT_FAILURE_MESSAGE, 502);
+    }
 
     if (!upstreamResponse.ok) {
       console.error('Course statistics Apps Script HTTP failure', {
@@ -123,6 +218,26 @@ export async function POST(request: Request) {
       message: 'Course statistics submitted successfully.',
     });
   } catch (error) {
+    if (isTimeoutError(error)) {
+      console.error('Course statistics submission timed out waiting for Apps Script response', {
+        timeoutMs: APPS_SCRIPT_TIMEOUT_MS,
+        maxAttempts: APPS_SCRIPT_MAX_ATTEMPTS,
+      });
+      return failureResponse(
+        'We could not confirm submission in time. Please try again to receive a confirmed response.',
+        504,
+      );
+    }
+
+    if (isRetryableUpstreamError(error)) {
+      console.error('Course statistics upstream connection failed after retries', {
+        maxAttempts: APPS_SCRIPT_MAX_ATTEMPTS,
+        timeoutMs: APPS_SCRIPT_TIMEOUT_MS,
+        code: getErrorCode(error),
+      });
+      return failureResponse(SUBMIT_FAILURE_MESSAGE, 502);
+    }
+
     console.error('Course statistics submission forwarding error', error);
     return failureResponse(SUBMIT_FAILURE_MESSAGE, 502);
   }

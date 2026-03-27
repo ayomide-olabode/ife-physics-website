@@ -7,12 +7,7 @@ const CALENDAR_EMBED_URL =
 export default function AcademicCalendarPage() {
   return (
     <>
-      <PageHero
-        breadcrumbLabel="Resources"
-        title="Academic Calendar"
-        backgroundImageSrc="/assets/whitehouse.png"
-        backgroundImageAlt="White House, Obafemi Awolow University"
-      />
+      <PageHero breadcrumbLabel="Resources" title="Academic Calendar" />
 
       <section className="py-14 md:py-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">

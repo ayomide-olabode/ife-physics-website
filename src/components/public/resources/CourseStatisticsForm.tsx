@@ -182,7 +182,7 @@ export function CourseStatisticsForm() {
             }}
           >
             <SelectTrigger id="coordinator-select" className="h-11 rounded-none bg-white">
-              <SelectValue placeholder="Select a coordinator" />
+              <SelectValue placeholder="Select a Course Coordinator" />
             </SelectTrigger>
             <SelectContent className="rounded-none">
               {COURSE_STATISTICS_COORDINATORS.map((coordinator) => (
@@ -307,11 +307,13 @@ export function CourseStatisticsForm() {
             Select a course coordinator to load assigned courses.
           </p>
         )}
-
-        <p className="text-sm text-gray-600">
-          Faculty Students and Other Students are optional. Empty optional fields are treated as
-          zero.
-        </p>
+        <div className="space-y-1 text-sm text-gray-600">
+          <p>Physics Students: Students in Physics, Engineering Physics, or SLT.</p>
+          <p>
+            Faculty Students: Students in other departments within the Faculty of Science.
+          </p>
+          <p>Other Students: Students from faculties outside the Faculty of Science.</p>
+        </div>
 
         {!isReadyForSubmit && coordinatorName && (
           <p id={statusMessageId} className="text-sm text-gray-600">
@@ -353,7 +355,7 @@ export function CourseStatisticsForm() {
               Submission Confirmed
             </DialogTitle>
             <DialogDescription className="text-base text-gray-700">
-              Your course statistics were submitted successfully.
+              {successMessage || 'Your course statistics were submitted successfully.'}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="p-6 pt-0">

@@ -29,12 +29,7 @@ export default async function LeadershipPage() {
 
   return (
     <>
-      <PageHero
-        breadcrumbLabel="Our Department"
-        title="Our Leadership"
-        backgroundImageSrc="/assets/whitehouse.png"
-        backgroundImageAlt="White House, Obafemi Awolow University"
-      />
+      <PageHero breadcrumbLabel="Our Department" title="Our Leadership" />
 
       <div className="py-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">

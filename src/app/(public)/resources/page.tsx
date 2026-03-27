@@ -21,12 +21,7 @@ const resourceCards = [
 export default function ResourcesPage() {
   return (
     <>
-      <PageHero
-        breadcrumbLabel="Resources"
-        title="Resources"
-        backgroundImageSrc="/assets/whitehouse.png"
-        backgroundImageAlt="White House, Obafemi Awolow University"
-      />
+      <PageHero breadcrumbLabel="Resources" title="Resources" />
 
       <section className="py-14 md:py-16">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">

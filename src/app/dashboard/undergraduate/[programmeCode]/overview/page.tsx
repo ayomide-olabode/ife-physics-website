@@ -36,15 +36,13 @@ export default async function UndergraduateProgrammeOverviewPage({
     }),
   ]);
 
-  if (!programMeta) {
-    notFound();
-  }
-
-  const initialOptions = await listAllStudyOptions({
-    academicProgramId: programMeta.id,
-    page: 1,
-    pageSize: 500,
-  });
+  const initialOptions = programMeta
+    ? await listAllStudyOptions({
+        academicProgramId: programMeta.id,
+        page: 1,
+        pageSize: 500,
+      })
+    : [];
 
   return (
     <div className="space-y-6">
@@ -57,12 +55,21 @@ export default async function UndergraduateProgrammeOverviewPage({
         <UndergraduateOverviewEditor programmeCode={programmeCode} initialData={programData} />
       </div>
 
-      <div className="rounded-lg border bg-card p-6">
-        <StudyOptionsInlineEditor
-          academicProgramId={programMeta.id}
-          initialOptions={initialOptions}
-        />
-      </div>
+      {programMeta ? (
+        <div className="rounded-lg border bg-card p-6">
+          <StudyOptionsInlineEditor
+            academicProgramId={programMeta.id}
+            initialOptions={initialOptions}
+          />
+        </div>
+      ) : (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-6">
+          <p className="text-base text-amber-900">
+            Study options are unavailable until this programme is initialized. Save the overview
+            content once, then refresh this page.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

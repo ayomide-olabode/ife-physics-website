@@ -32,7 +32,7 @@ const COURSE_STATISTICS_COORDINATOR_COURSES_MAP_RAW: CoordinatorCoursesMap = {
     { code: 'PHY405', title: 'General Solid State Physics' },
     { code: 'EPH201', title: 'Properties of Materials' },
   ],
-  'Amosun, C. K.': [{ code: 'PHY401', title: 'Mathematical Methods of Physics II' }],
+  'Amosun, A. A.': [{ code: 'PHY401', title: 'Mathematical Methods of Physics II' }],
   'Ayoola, M. A.': [{ code: 'PHY303', title: 'Electromagnetic Theory I' }],
   'Eleruja, M. A.': [{ code: 'EPH405', title: 'Physical Electronics' }],
   'Fadodun, G. O.': [{ code: 'EPH303', title: 'Intro to Nuclear Reactor Theory' }],

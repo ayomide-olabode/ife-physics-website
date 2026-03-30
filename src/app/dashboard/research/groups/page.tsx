@@ -14,6 +14,7 @@ import {
 import { requireAuth, requireAnyResearchLead } from '@/lib/guards';
 import { isSuperAdmin } from '@/lib/rbac';
 import { listResearchGroupsForUser } from '@/server/queries/researchGroups';
+import { DeleteResearchGroupButton } from '@/components/research/DeleteResearchGroupButton';
 
 interface PageProps {
   searchParams: Promise<{ q?: string; page?: string }>;
@@ -85,9 +86,18 @@ export default async function ResearchGroupsListPage({ searchParams }: PageProps
                   <TableCell>{group.name}</TableCell>
                   <TableCell className="text-muted-foreground">{group.slug}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/dashboard/research/groups/${group.id}`}>Edit</Link>
-                    </Button>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/dashboard/research/groups/${group.id}`}
+                        className="text-base font-medium text-blue-600 hover:text-blue-800"
+                      >
+                        Edit
+                      </Link>
+                      {isAdmin ? <span className="text-muted-foreground">|</span> : null}
+                      {isAdmin ? (
+                        <DeleteResearchGroupButton groupId={group.id} groupName={group.name} />
+                      ) : null}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

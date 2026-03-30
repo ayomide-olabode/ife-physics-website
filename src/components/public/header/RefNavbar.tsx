@@ -133,24 +133,18 @@ export function RefNavbar({ researchGroups }: { researchGroups: ResearchGroupNav
                   {hasDropdown && (
                     <div
                       className={cn(
-                        'absolute top-full left-0 w-full min-w-[220px] bg-white text-left shadow-xl  transform transition-all duration-200 origin-top z-50',
+                        'absolute left-1/2 top-full z-50 w-max min-w-[240px] max-w-[min(90vw,36rem)] -translate-x-1/2 bg-white text-left shadow-xl transition-all duration-200 origin-top',
                         isOpen
                           ? 'opacity-100 scale-y-100 visible'
                           : 'opacity-0 scale-y-95 invisible',
                       )}
-                      style={{
-                        left: '50%',
-                        transform: isOpen
-                          ? 'translateX(-50%) scaleY(1)'
-                          : 'translateX(-50%) scaleY(0.95)',
-                      }}
                     >
                       <ul className="py-2">
                         {link.dropdown?.map((dropItem) => (
                           <li key={dropItem.href}>
                             <Link
                               href={dropItem.href}
-                              className="block px-4 py-3 text-base font-semibold text-brand-navy hover:bg-gray-100 hover:text-brand-yellow transition-colors whitespace-nowrap text-center"
+                              className="block px-4 py-3 text-base font-semibold text-brand-navy transition-colors hover:bg-gray-100 hover:text-brand-yellow whitespace-normal break-words text-center"
                             >
                               {dropItem.name}
                             </Link>

@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { Prisma } from '@prisma/client';
+import { Prisma, ScopedRole, ScopeType } from '@prisma/client';
 import { requireAuth, requireSuperAdmin, requireResearchLeadForGroup } from '@/lib/guards';
 import { isSuperAdmin } from '@/lib/rbac';
 import { logAudit } from '@/lib/audit';
@@ -162,6 +162,78 @@ export async function updateResearchGroup(groupId: string, data: ResearchGroupIn
       return { success: false, error: error.message };
     }
     return { success: false, error: 'Failed to update research group' };
+  }
+}
+
+export async function deleteResearchGroup(groupId: string) {
+  try {
+    const session = await requireAuth();
+    await requireSuperAdmin(session);
+
+    if (!groupId) {
+      return { success: false, error: 'Research group id is required.' };
+    }
+
+    const existing = await prisma.researchGroup.findFirst({
+      where: { id: groupId, deletedAt: null },
+      select: { id: true, name: true, slug: true },
+    });
+
+    if (!existing) {
+      return { success: false, error: 'Research group not found.' };
+    }
+
+    const deletedAt = new Date();
+
+    await prisma.$transaction([
+      prisma.researchGroup.update({
+        where: { id: groupId },
+        data: { deletedAt },
+      }),
+      prisma.focusArea.updateMany({
+        where: { researchGroupId: groupId, deletedAt: null },
+        data: { deletedAt },
+      }),
+      prisma.publication.updateMany({
+        where: { researchGroupId: groupId, deletedAt: null },
+        data: { deletedAt },
+      }),
+      prisma.roleAssignment.updateMany({
+        where: {
+          role: ScopedRole.RESEARCH_LEAD,
+          scopeType: ScopeType.RESEARCH_GROUP,
+          scopeId: groupId,
+          deletedAt: null,
+        },
+        data: { deletedAt },
+      }),
+    ]);
+
+    await logAudit({
+      actorId: session.user?.userId || '',
+      action: 'RESEARCH_GROUP_DELETED',
+      entityType: 'ResearchGroup',
+      entityId: groupId,
+      snapshot: {
+        name: existing.name,
+        slug: existing.slug,
+      },
+    });
+
+    // @ts-expect-error Next Canary Type definition bug
+    revalidateTag('research-groups');
+    // @ts-expect-error Next Canary Type definition bug
+    revalidateTag('public:research-groups');
+    revalidatePath('/dashboard/research/groups');
+    revalidatePath('/research');
+    revalidatePath(`/research/${existing.slug}`);
+
+    return { success: true };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: 'Failed to delete research group.' };
   }
 }
 

@@ -19,6 +19,11 @@ const RESOURCE_ITEMS = [
     href: '/under-construction',
     key: 'timetable',
   },
+  {
+    label: 'Whitehouse LMS',
+    href: '/under-construction',
+    key: 'whitehouse-lms',
+  },
 ] as const;
 
 export function ResourcesSidebar({ activeKey }: { activeKey: string }) {

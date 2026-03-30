@@ -28,6 +28,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (isAdmin || (await hasGlobalRole(session, 'EDITOR'))) {
     navItems.push({ label: 'Communication', href: '/dashboard/communication' });
     navItems.push({ label: 'Content', href: '/dashboard/content' });
+    navItems.push({ label: 'Resources', href: '/dashboard/resources' });
   }
 
   const undergraduateProgrammes = await getAccessibleProgrammesForLevel(session, 'UNDERGRADUATE');

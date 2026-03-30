@@ -21,7 +21,6 @@ export default async function ContentLayout({ children }: { children: React.Reac
           { label: 'Roll of Honour', href: '/dashboard/content/roll-of-honour' },
           { label: 'Tributes', href: '/dashboard/content/tributes' },
           { label: 'Legacy Gallery', href: '/dashboard/content/legacy-gallery' },
-          { label: 'Resources', href: '/dashboard/content/resources' },
         ]}
       />
       {children}

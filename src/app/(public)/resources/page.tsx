@@ -36,6 +36,12 @@ const resourceCards = [
     href: '/under-construction',
     ctaLabel: 'Open Timetable',
   },
+  {
+    title: 'Whitehouse LMS',
+    description: 'Access the departmental learning management platform and course materials.',
+    href: '/under-construction',
+    ctaLabel: 'Open Whitehouse LMS',
+  },
 ];
 
 export default function ResourcesPage() {

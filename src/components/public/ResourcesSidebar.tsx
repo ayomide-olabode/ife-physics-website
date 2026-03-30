@@ -4,11 +4,26 @@ const RESOURCE_ITEMS = [
   { label: 'All Resources', href: '/resources', key: 'resources-home' },
   { label: 'Academic Calendar', href: '/resources/academic-calendar', key: 'academic-calendar' },
   { label: 'Course Statistics', href: '/resources/course-statistics', key: 'course-statistics' },
+  {
+    label: 'Departmental Library',
+    href: '/under-construction',
+    key: 'departmental-library',
+  },
+  {
+    label: 'Newsletter',
+    href: '/under-construction',
+    key: 'newsletter',
+  },
+  {
+    label: 'Timetable',
+    href: '/under-construction',
+    key: 'timetable',
+  },
 ] as const;
 
 export function ResourcesSidebar({ activeKey }: { activeKey: string }) {
   return (
-    <aside className="h-fit border border-gray-200 bg-white">
+    <aside className="h-fit border border-gray-200 bg-white lg:sticky lg:top-[120px]">
       <nav aria-label="Resources navigation" className="flex flex-col divide-y divide-gray-200">
         {RESOURCE_ITEMS.map((item) => {
           const isActive = item.key === activeKey;

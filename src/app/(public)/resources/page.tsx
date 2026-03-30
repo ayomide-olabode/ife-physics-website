@@ -17,6 +17,25 @@ const resourceCards = [
     href: '/resources/course-statistics',
     ctaLabel: 'Open Course Statistics',
   },
+  {
+    title: 'Departmental Library',
+    description:
+      'Browse departmental library services and materials for teaching, learning, and research support.',
+    href: '/under-construction',
+    ctaLabel: 'Open Departmental Library',
+  },
+  {
+    title: 'Newsletter',
+    description: 'Read departmental updates, announcements, and featured highlights.',
+    href: '/under-construction',
+    ctaLabel: 'Open Newsletter',
+  },
+  {
+    title: 'Timetable',
+    description: 'Check lecture, lab, and other departmental timetable schedules.',
+    href: '/under-construction',
+    ctaLabel: 'Open Timetable',
+  },
 ];
 
 export default function ResourcesPage() {
@@ -30,13 +49,10 @@ export default function ResourcesPage() {
             <ResourcesSidebar activeKey="resources-home" />
 
             <section className="space-y-8">
-              <div className="space-y-4">
-                <h1 className="text-3xl font-serif font-bold text-brand-navy">Resources</h1>
-                <div className="h-px w-full bg-gray-300" aria-hidden="true" />
-                <p className="max-w-3xl text-base text-gray-700 sm:text-lg">
-                  Access department resources, tools, and reference information in one place.
-                </p>
-              </div>
+              <p className="max-w-3xl text-base text-gray-700 sm:text-lg">
+                Access department resources, tools, and reference information in one place.
+              </p>
+              <div className="h-px w-full bg-gray-300" aria-hidden="true" />
 
               <div className="grid gap-6 md:grid-cols-2">
                 {resourceCards.map((card) => {

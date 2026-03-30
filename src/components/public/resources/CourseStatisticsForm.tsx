@@ -182,7 +182,7 @@ export function CourseStatisticsForm() {
             }}
           >
             <SelectTrigger id="coordinator-select" className="h-11 rounded-none bg-white">
-              <SelectValue placeholder="Select a Course Coordinator" />
+              <SelectValue placeholder="Select a Course Coordinator to load course(s)" />
             </SelectTrigger>
             <SelectContent className="rounded-none">
               {COURSE_STATISTICS_COORDINATORS.map((coordinator) => (
@@ -194,11 +194,15 @@ export function CourseStatisticsForm() {
           </Select>
         </div>
 
-        <div className="space-y-1 text-sm text-gray-600 py-2">
-          <p className="md text-gray-800 font-medium">NOTE</p>
-          <p>Physics Students: Students in Physics, Engineering Physics, or SLT.</p>
-          <p>Faculty Students: Students in other departments within the Faculty of Science.</p>
-          <p>Other Students: Students from faculties outside the Faculty of Science.</p>
+        <div className="space-y-1 border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800">
+          <p className="font-semibold">NOTE:</p>
+          <p>
+            <strong>"Physics Students"</strong> are students in Physics (PHY), Engineering Physics
+            (EPH), or Science Laboratory Technology (SLT); <strong>"Faculty Students"</strong> are
+            students in other departments within the Faculty of Science; and{' '}
+            <strong>"Other Students"</strong> are students from faculties outside the Faculty of
+            Science.
+          </p>
         </div>
 
         {coordinatorName && courses.length > 0 && (
@@ -307,18 +311,6 @@ export function CourseStatisticsForm() {
               );
             })}
           </div>
-        )}
-
-        {!coordinatorName && (
-          <p className="border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800">
-            Select a course coordinator to load assigned courses.
-          </p>
-        )}
-
-        {!isReadyForSubmit && coordinatorName && (
-          <p id={statusMessageId} className="text-sm text-gray-600">
-            Complete all required Physics Students fields to enable submission.
-          </p>
         )}
 
         {errorMessage && (

@@ -18,10 +18,7 @@ export default async function NewProjectPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
         <BackToParent href="/dashboard/profile/projects" label="Back to Projects" />
-        <PageHeader
-          title="New Project"
-          description="Add a new project or significant initiative to your profile."
-        />
+        <PageHeader title="New Project" description="Add a new project to your profile." />
       </div>
 
       <ProjectEntryForm

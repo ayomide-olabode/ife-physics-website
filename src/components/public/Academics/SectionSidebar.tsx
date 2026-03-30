@@ -11,9 +11,14 @@ interface SidebarItem {
 interface SectionSidebarProps {
   items: SidebarItem[];
   title?: string;
+  stickyClassName?: string;
 }
 
-export function SectionSidebar({ items, title = 'Table of content' }: SectionSidebarProps) {
+export function SectionSidebar({
+  items,
+  title = 'Table of content',
+  stickyClassName = 'top-[120px] max-h-[calc(100vh-8rem)]',
+}: SectionSidebarProps) {
   const [activeId, setActiveId] = useState<string>(items[0]?.id ?? '');
   const ratiosRef = useRef<Record<string, number>>({});
 
@@ -80,7 +85,10 @@ export function SectionSidebar({ items, title = 'Table of content' }: SectionSid
 
   return (
     <nav
-      className="sticky top-[120px] max-h-[calc(100vh-8rem)] overflow-y-auto border border-black/10 bg-white"
+      className={cn(
+        'sticky overflow-y-auto border border-black/10 bg-white',
+        stickyClassName,
+      )}
       aria-label={title}
     >
       <div className="border-b border-black/10 p-4">

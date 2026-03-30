@@ -93,14 +93,14 @@ export default async function UndergraduateProgrammePage({ params }: PageProps) 
     <>
       <PageHero breadcrumbLabel="Academics" title="Undergraduate" />
 
-      <section className="py-8 sm:py-10">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <ProgrammeTabs activeProgrammeCode={programmeCode as UndergraduateProgrammeCode} />
-        </div>
-      </section>
-
       <section className="pb-20 sm:pb-24">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        <div className="sticky top-[84px] z-40 bg-gray-100 md:top-[144px]">
+          <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6 lg:px-8">
+            <ProgrammeTabs activeProgrammeCode={programmeCode as UndergraduateProgrammeCode} />
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-[1440px] px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_260px]">
             <main className="space-y-10">
               <SectionBlock
@@ -175,7 +175,10 @@ export default async function UndergraduateProgrammePage({ params }: PageProps) 
             </main>
 
             <aside className="hidden lg:block">
-              <SectionSidebar items={sidebarItems} />
+              <SectionSidebar
+                items={sidebarItems}
+                stickyClassName="top-[240px] max-h-[calc(100vh-16rem)]"
+              />
             </aside>
           </div>
         </div>

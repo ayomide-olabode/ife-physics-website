@@ -24,9 +24,7 @@ export function ProjectEditor({ open, onOpenChange, initialData }: ProjectEditor
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Project' : 'Add New Project'}</DialogTitle>
           <DialogDescription>
-            {isEdit
-              ? 'Update the details of your project.'
-              : 'Add a new project or significant initiative to your profile.'}
+            {isEdit ? 'Update the details of your project.' : 'Add a new project to your profile.'}
           </DialogDescription>
         </DialogHeader>
 

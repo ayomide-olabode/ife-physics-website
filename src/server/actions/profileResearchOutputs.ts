@@ -10,6 +10,16 @@ import { FIELD_MAP } from '@/lib/researchOutputFieldMap';
 import { buildMetaForType } from '@/lib/researchOutputMeta';
 
 const DOI_REGEX = /^10\.\d{4,9}\/\S+$/i;
+const PROFILE_OUTPUTS_PATH = '/dashboard/profile/research-outputs';
+const PUBLIC_HOME_PATH = '/';
+
+function revalidateResearchOutputPaths(id?: string) {
+  revalidatePath(PROFILE_OUTPUTS_PATH);
+  if (id) {
+    revalidatePath(`${PROFILE_OUTPUTS_PATH}/${id}`);
+  }
+  revalidatePath(PUBLIC_HOME_PATH);
+}
 
 /* ── sub-schemas ── */
 
@@ -176,8 +186,7 @@ export async function createMyResearchOutput(data: z.infer<typeof researchOutput
       select: { id: true },
     });
 
-    revalidatePath('/dashboard/profile/research-outputs');
-    revalidatePath(`/dashboard/profile/research-outputs/${created.id}`);
+    revalidateResearchOutputPaths(created.id);
     return { success: true };
   } catch (error) {
     console.error('Create Research Output Error:', error);
@@ -225,8 +234,7 @@ export async function updateMyResearchOutput(
       data: persistData,
     });
 
-    revalidatePath('/dashboard/profile/research-outputs');
-    revalidatePath(`/dashboard/profile/research-outputs/${id}`);
+    revalidateResearchOutputPaths(id);
     return { success: true };
   } catch (error) {
     console.error('Update Research Output Error:', error);
@@ -256,7 +264,7 @@ export async function deleteMyResearchOutput(id: string) {
       data: { deletedAt: new Date() },
     });
 
-    revalidatePath('/dashboard/profile/research-outputs');
+    revalidateResearchOutputPaths();
     return { success: true };
   } catch (error) {
     console.error('Delete Research Output Error:', error);

@@ -13,6 +13,17 @@ import {
 } from '.prisma/client';
 
 const EO_PATH = '/dashboard/communication/events-opportunities';
+const PUBLIC_HOME_PATH = '/';
+const PUBLIC_EVENTS_PATH = '/events';
+
+function revalidateEventOpportunityPaths(id?: string) {
+  revalidatePath(EO_PATH);
+  if (id) {
+    revalidatePath(`${EO_PATH}/${id}`);
+  }
+  revalidatePath(PUBLIC_HOME_PATH);
+  revalidatePath(PUBLIC_EVENTS_PATH);
+}
 
 const baseSchema = z.object({
   title: z.string().min(1, 'Title is required.').max(200),
@@ -152,7 +163,7 @@ export async function createEventOpportunity(
       snapshot: { title: v.title, type: v.type },
     });
 
-    revalidatePath(EO_PATH);
+    revalidateEventOpportunityPaths();
     return { success: true, data: { id: item.id } };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -233,8 +244,7 @@ export async function updateEventOpportunity(
       snapshot: { title: v.title, type: v.type },
     });
 
-    revalidatePath(EO_PATH);
-    revalidatePath(`${EO_PATH}/${id}`);
+    revalidateEventOpportunityPaths(id);
     return { success: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -262,7 +272,7 @@ export async function deleteEventOpportunity(id: string): Promise<ActionResponse
       entityId: id,
       snapshot: {},
     });
-    revalidatePath(EO_PATH);
+    revalidateEventOpportunityPaths();
     return { success: true };
   } catch (error) {
     console.error('Failed to delete:', error);
@@ -287,8 +297,7 @@ export async function publishEventOpportunity(id: string): Promise<ActionRespons
       entityId: id,
       snapshot: {},
     });
-    revalidatePath(EO_PATH);
-    revalidatePath(`${EO_PATH}/${id}`);
+    revalidateEventOpportunityPaths(id);
     return { success: true };
   } catch (error) {
     console.error('Failed to publish:', error);
@@ -313,8 +322,7 @@ export async function unpublishEventOpportunity(id: string): Promise<ActionRespo
       entityId: id,
       snapshot: {},
     });
-    revalidatePath(EO_PATH);
-    revalidatePath(`${EO_PATH}/${id}`);
+    revalidateEventOpportunityPaths(id);
     return { success: true };
   } catch (error) {
     console.error('Failed to unpublish:', error);
@@ -339,8 +347,7 @@ export async function archiveEventOpportunity(id: string): Promise<ActionRespons
       entityId: id,
       snapshot: {},
     });
-    revalidatePath(EO_PATH);
-    revalidatePath(`${EO_PATH}/${id}`);
+    revalidateEventOpportunityPaths(id);
     return { success: true };
   } catch (error) {
     console.error('Failed to archive:', error);

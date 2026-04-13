@@ -17,7 +17,7 @@ export function StatsStrip() {
             className={[
               index % 2 === 0 ? 'border-r border-gray-200 md:border-r-0' : '',
               index < 2 ? 'border-b border-gray-200 md:border-b-0' : '',
-              index < stats.length - 1 ? 'md:border-r md:border-gray-200' : '',
+              index < stats.length - 1 && index !== 1 ? 'md:border-r md:border-gray-200' : '',
             ]
               .filter(Boolean)
               .join(' ')}

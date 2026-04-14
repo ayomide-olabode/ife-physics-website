@@ -8,6 +8,25 @@ import { z } from 'zod';
 import { ScopedRole } from '.prisma/client';
 
 const NEWS_PATH = '/dashboard/communication/news';
+const PUBLIC_HOME_PATH = '/';
+const PUBLIC_NEWS_PATH = '/news';
+
+function revalidateDashboardNewsPaths(id?: string) {
+  revalidatePath(NEWS_PATH);
+  if (id) {
+    revalidatePath(`${NEWS_PATH}/${id}`);
+  }
+}
+
+function revalidatePublicNewsPaths(slugs: string[] = []) {
+  revalidatePath(PUBLIC_HOME_PATH);
+  revalidatePath(PUBLIC_NEWS_PATH);
+
+  const uniqueSlugs = Array.from(new Set(slugs.map((slug) => slug.trim()).filter(Boolean)));
+  for (const slug of uniqueSlugs) {
+    revalidatePath(`${PUBLIC_NEWS_PATH}/${slug}`);
+  }
+}
 
 const newsSchema = z.object({
   title: z.string().min(1, 'Title is required.').max(200),
@@ -69,7 +88,7 @@ export async function createNews(data: z.infer<typeof newsSchema>): Promise<Acti
       snapshot: { title: v.title, slug: v.slug },
     });
 
-    revalidatePath(NEWS_PATH);
+    revalidateDashboardNewsPaths();
     return { success: true, data: { id: article.id } };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -89,6 +108,13 @@ export async function updateNews(
 
   try {
     const v = newsSchema.parse(data);
+    const existingArticle = await prisma.news.findUnique({
+      where: { id },
+      select: { slug: true },
+    });
+    if (!existingArticle) {
+      return { success: false, error: 'Article not found.' };
+    }
 
     const existingSlug = await prisma.news.findFirst({
       where: { slug: v.slug, id: { not: id }, deletedAt: null },
@@ -119,8 +145,8 @@ export async function updateNews(
       snapshot: { title: v.title, slug: v.slug },
     });
 
-    revalidatePath(NEWS_PATH);
-    revalidatePath(`${NEWS_PATH}/${id}`);
+    revalidateDashboardNewsPaths(id);
+    revalidatePublicNewsPaths([existingArticle.slug, v.slug]);
     return { success: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -136,9 +162,10 @@ export async function deleteNews(id: string): Promise<ActionResponse> {
   await requireGlobalRole(session, ScopedRole.EDITOR);
 
   try {
-    await prisma.news.update({
+    const article = await prisma.news.update({
       where: { id },
       data: { deletedAt: new Date() },
+      select: { slug: true },
     });
 
     await logAudit({
@@ -149,7 +176,8 @@ export async function deleteNews(id: string): Promise<ActionResponse> {
       snapshot: {},
     });
 
-    revalidatePath(NEWS_PATH);
+    revalidateDashboardNewsPaths();
+    revalidatePublicNewsPaths([article.slug]);
     return { success: true };
   } catch (error) {
     console.error('Failed to delete news:', error);
@@ -162,9 +190,10 @@ export async function publishNews(id: string): Promise<ActionResponse> {
   await requireGlobalRole(session, ScopedRole.EDITOR);
 
   try {
-    await prisma.news.update({
+    const article = await prisma.news.update({
       where: { id },
       data: { status: 'PUBLISHED', publishedAt: new Date() },
+      select: { slug: true },
     });
 
     await logAudit({
@@ -175,8 +204,8 @@ export async function publishNews(id: string): Promise<ActionResponse> {
       snapshot: {},
     });
 
-    revalidatePath(NEWS_PATH);
-    revalidatePath(`${NEWS_PATH}/${id}`);
+    revalidateDashboardNewsPaths(id);
+    revalidatePublicNewsPaths([article.slug]);
     return { success: true };
   } catch (error) {
     console.error('Failed to publish news:', error);
@@ -189,9 +218,10 @@ export async function unpublishNews(id: string): Promise<ActionResponse> {
   await requireGlobalRole(session, ScopedRole.EDITOR);
 
   try {
-    await prisma.news.update({
+    const article = await prisma.news.update({
       where: { id },
       data: { status: 'DRAFT', publishedAt: null },
+      select: { slug: true },
     });
 
     await logAudit({
@@ -202,8 +232,8 @@ export async function unpublishNews(id: string): Promise<ActionResponse> {
       snapshot: {},
     });
 
-    revalidatePath(NEWS_PATH);
-    revalidatePath(`${NEWS_PATH}/${id}`);
+    revalidateDashboardNewsPaths(id);
+    revalidatePublicNewsPaths([article.slug]);
     return { success: true };
   } catch (error) {
     console.error('Failed to unpublish news:', error);
@@ -216,9 +246,10 @@ export async function archiveNews(id: string): Promise<ActionResponse> {
   await requireGlobalRole(session, ScopedRole.EDITOR);
 
   try {
-    await prisma.news.update({
+    const article = await prisma.news.update({
       where: { id },
       data: { status: 'ARCHIVED', archivedAt: new Date() },
+      select: { slug: true },
     });
 
     await logAudit({
@@ -229,8 +260,8 @@ export async function archiveNews(id: string): Promise<ActionResponse> {
       snapshot: {},
     });
 
-    revalidatePath(NEWS_PATH);
-    revalidatePath(`${NEWS_PATH}/${id}`);
+    revalidateDashboardNewsPaths(id);
+    revalidatePublicNewsPaths([article.slug]);
     return { success: true };
   } catch (error) {
     console.error('Failed to archive news:', error);
@@ -245,7 +276,7 @@ export async function toggleFeaturedNews(id: string): Promise<ActionResponse> {
   try {
     const article = await prisma.news.findUnique({
       where: { id },
-      select: { isFeatured: true },
+      select: { isFeatured: true, slug: true },
     });
     if (!article) {
       return { success: false, error: 'Article not found.' };
@@ -264,7 +295,8 @@ export async function toggleFeaturedNews(id: string): Promise<ActionResponse> {
       snapshot: { isFeatured: !article.isFeatured },
     });
 
-    revalidatePath(NEWS_PATH);
+    revalidateDashboardNewsPaths();
+    revalidatePublicNewsPaths([article.slug]);
     return { success: true };
   } catch (error) {
     console.error('Failed to toggle featured:', error);

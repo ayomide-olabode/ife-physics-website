@@ -19,6 +19,7 @@ export function Prose({ html, className = '' }: ProseProps) {
         prose-a:text-brand-navy prose-a:underline
         prose-img:rounded-none
         prose-strong:text-brand-navy
+        whitespace-pre-wrap [&_pre]:whitespace-pre
         ${className}`}
       dangerouslySetInnerHTML={{ __html: sanitized }}
     />

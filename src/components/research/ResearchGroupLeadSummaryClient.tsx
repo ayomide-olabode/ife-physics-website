@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { sanitizeRichHtml } from '@/lib/security/sanitizeHtml';
+import { Prose } from '@/components/public/Prose';
 import { ResearchGroupFormClient, type ResearchGroupFormData } from './ResearchGroupFormClient';
 
 interface ResearchGroupLeadSummaryClientProps {
@@ -11,7 +11,10 @@ interface ResearchGroupLeadSummaryClientProps {
 
 export function ResearchGroupLeadSummaryClient({ group }: ResearchGroupLeadSummaryClientProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const sanitizedOverview = useMemo(() => sanitizeRichHtml(group.overview || ''), [group.overview]);
+  const hasOverview = useMemo(() => {
+    const stripped = (group.overview || '').replace(/<[^>]*>/g, '').trim();
+    return stripped.length > 0;
+  }, [group.overview]);
 
   return (
     <div className="rounded-lg border bg-card p-6 space-y-6">
@@ -54,11 +57,8 @@ export function ResearchGroupLeadSummaryClient({ group }: ResearchGroupLeadSumma
             <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-2">
               Overview
             </p>
-            {sanitizedOverview ? (
-              <div
-                className="prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: sanitizedOverview }}
-              />
+            {hasOverview ? (
+              <Prose html={group.overview || ''} className="prose-sm" />
             ) : (
               <p className="text-base text-muted-foreground">No overview provided yet.</p>
             )}

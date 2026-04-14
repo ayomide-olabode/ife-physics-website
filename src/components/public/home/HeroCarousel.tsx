@@ -57,7 +57,7 @@ export function HeroCarousel({ items }: { items: FeaturedNewsItem[] }) {
   const slides = useMemo<HeroSlide[]>(() => {
     const welcomeSlide: HeroSlide = {
       key: 'welcome',
-      title: `Welcome, class of ${classYear}!`,
+      title: `Welcome to the Great If\u1EB9\u0300 legacy ${classYear}!`,
       subtitle:
         'Welcome to the Great If\u1EB9\u0300 legacy. You have now joined a long and proud legacy of excellence, character and distinction. Are you ready for the future?',
       buttonLabel: 'Get started here',

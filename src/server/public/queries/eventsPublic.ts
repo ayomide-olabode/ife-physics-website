@@ -16,7 +16,7 @@ type ListPublicEventOpportunitiesParams = {
   month?: string;
 };
 
-function isMissingDurationColumn(error: unknown): boolean {
+function isMissingOptionalColumns(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
 
   const err = error as {
@@ -28,13 +28,19 @@ function isMissingDurationColumn(error: unknown): boolean {
   if (err.code !== 'P2022') return false;
 
   const column = String(err.meta?.column ?? '').toLowerCase();
-  const modelName = String(err.meta?.modelName ?? '').toLowerCase();
   const message = String(err.message ?? '').toLowerCase();
 
   return (
     column.includes('duration') ||
+    column.includes('starttime') ||
+    column.includes('start_time') ||
+    column.includes('endtime') ||
+    column.includes('end_time') ||
     message.includes('duration') ||
-    (modelName.includes('eventopportunity') && message.includes('does not exist'))
+    message.includes('starttime') ||
+    message.includes('start_time') ||
+    message.includes('endtime') ||
+    message.includes('end_time')
   );
 }
 
@@ -104,7 +110,9 @@ export async function listPublicEventOpportunities({
         description: true,
         duration: true,
         startDate: true,
+        startTime: true,
         endDate: true,
+        endTime: true,
         venue: true,
         deadline: true,
         linkUrl: true,
@@ -114,7 +122,7 @@ export async function listPublicEventOpportunities({
       take,
     });
   } catch (error) {
-    if (!isMissingDurationColumn(error)) {
+    if (!isMissingOptionalColumns(error)) {
       throw error;
     }
 
@@ -138,7 +146,12 @@ export async function listPublicEventOpportunities({
       take,
     });
 
-    return rows.map((row) => ({ ...row, duration: null }));
+    return rows.map((row) => ({
+      ...row,
+      duration: null,
+      startTime: null,
+      endTime: null,
+    }));
   }
 }
 

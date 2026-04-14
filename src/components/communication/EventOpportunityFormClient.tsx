@@ -29,7 +29,9 @@ type FormInitial = {
   description?: string | null;
   duration?: string | null;
   startDate?: string | null;
+  startTime?: string | null;
   endDate?: string | null;
+  endTime?: string | null;
   venue?: string | null;
   linkUrl?: string | null;
   deadline?: string | null;
@@ -55,7 +57,9 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
   const [description, setDescription] = useState(initial?.description || '');
   const [duration, setDuration] = useState(initial?.duration || '');
   const [startDate, setStartDate] = useState(toDateInput(initial?.startDate));
+  const [startTime, setStartTime] = useState(initial?.startTime ?? '');
   const [endDate, setEndDate] = useState(toDateInput(initial?.endDate));
+  const [endTime, setEndTime] = useState(initial?.endTime ?? '');
   const [venue, setVenue] = useState(initial?.venue || '');
   const [linkUrl, setLinkUrl] = useState(initial?.linkUrl || '');
   const [deadline, setDeadline] = useState(toDateInput(initial?.deadline));
@@ -88,7 +92,9 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
         description: description || '',
         duration: duration.trim(),
         startDate: startDate || '',
+        startTime: startTime.trim(),
         endDate: endDate || '',
+        endTime: endTime.trim(),
         venue: venue || '',
         linkUrl: linkUrl || '',
         deadline: deadline || '',
@@ -186,16 +192,6 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <div className="space-y-2">
-          <FieldLabel htmlFor="duration">Duration</FieldLabel>
-          <Input
-            id="duration"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            placeholder="e.g. 3 days, 6 weeks, ongoing"
-            maxLength={120}
-          />
-        </div>
-        <div className="space-y-2">
           <FieldLabel htmlFor="startDate">Start Date</FieldLabel>
           <Input
             id="startDate"
@@ -205,12 +201,47 @@ export function EventOpportunityFormClient({ initial }: { initial?: FormInitial 
           />
         </div>
         <div className="space-y-2">
+          <FieldLabel htmlFor="startTime">Start Time</FieldLabel>
+          <Input
+            id="startTime"
+            type="text"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            placeholder="e.g. 10:00 AM"
+            maxLength={80}
+          />
+        </div>
+        <div className="space-y-2">
           <FieldLabel htmlFor="endDate">End Date</FieldLabel>
           <Input
             id="endDate"
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <FieldLabel htmlFor="endTime">End Time</FieldLabel>
+          <Input
+            id="endTime"
+            type="text"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            placeholder="e.g. 2:30 PM"
+            maxLength={80}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <FieldLabel htmlFor="duration">Duration</FieldLabel>
+          <Input
+            id="duration"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            placeholder="e.g. 3 days, 6 weeks, ongoing"
+            maxLength={120}
           />
         </div>
         <div className="space-y-2">

@@ -7,7 +7,7 @@ import {
   PublishStatus,
 } from '.prisma/client';
 
-function isMissingDurationColumn(error: unknown): boolean {
+function isMissingOptionalColumns(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
 
   const err = error as {
@@ -19,13 +19,19 @@ function isMissingDurationColumn(error: unknown): boolean {
   if (err.code !== 'P2022') return false;
 
   const column = String(err.meta?.column ?? '').toLowerCase();
-  const modelName = String(err.meta?.modelName ?? '').toLowerCase();
   const message = String(err.message ?? '').toLowerCase();
 
   return (
     column.includes('duration') ||
+    column.includes('starttime') ||
+    column.includes('start_time') ||
+    column.includes('endtime') ||
+    column.includes('end_time') ||
     message.includes('duration') ||
-    (modelName.includes('eventopportunity') && message.includes('does not exist'))
+    message.includes('starttime') ||
+    message.includes('start_time') ||
+    message.includes('endtime') ||
+    message.includes('end_time')
   );
 }
 
@@ -75,7 +81,9 @@ export async function listEventsOpportunities({
     opportunityCategory: OpportunityCategory | null;
     duration: string | null;
     startDate: Date | null;
+    startTime: string | null;
     endDate: Date | null;
+    endTime: string | null;
     venue: string | null;
     deadline: Date | null;
     status: PublishStatus;
@@ -96,7 +104,9 @@ export async function listEventsOpportunities({
           opportunityCategory: true,
           duration: true,
           startDate: true,
+          startTime: true,
           endDate: true,
+          endTime: true,
           venue: true,
           deadline: true,
           status: true,
@@ -109,7 +119,7 @@ export async function listEventsOpportunities({
       prisma.eventOpportunity.count({ where }),
     ]);
   } catch (error) {
-    if (!isMissingDurationColumn(error)) {
+    if (!isMissingOptionalColumns(error)) {
       throw error;
     }
 
@@ -137,7 +147,12 @@ export async function listEventsOpportunities({
       prisma.eventOpportunity.count({ where }),
     ]);
 
-    items = fallbackItems.map((item) => ({ ...item, duration: null }));
+    items = fallbackItems.map((item) => ({
+      ...item,
+      duration: null,
+      startTime: null,
+      endTime: null,
+    }));
     total = fallbackTotal;
   }
 
@@ -165,7 +180,9 @@ export async function getEventOpportunityById(id: string) {
         description: true,
         duration: true,
         startDate: true,
+        startTime: true,
         endDate: true,
+        endTime: true,
         venue: true,
         linkUrl: true,
         deadline: true,
@@ -178,7 +195,7 @@ export async function getEventOpportunityById(id: string) {
       },
     });
   } catch (error) {
-    if (!isMissingDurationColumn(error)) {
+    if (!isMissingOptionalColumns(error)) {
       throw error;
     }
 
@@ -205,6 +222,13 @@ export async function getEventOpportunityById(id: string) {
       },
     });
 
-    return row ? { ...row, duration: null } : null;
+    return row
+      ? {
+          ...row,
+          duration: null,
+          startTime: null,
+          endTime: null,
+        }
+      : null;
   }
 }

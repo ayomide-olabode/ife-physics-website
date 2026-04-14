@@ -18,7 +18,9 @@ export interface EventOpportunityItem {
   description: string | null;
   duration: string | null;
   startDate: Date | null;
+  startTime: string | null;
   endDate: Date | null;
+  endTime: string | null;
   venue: string | null;
   deadline: Date | null;
   linkUrl: string | null;
@@ -29,6 +31,14 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
   const category = isEvent ? item.eventCategory : item.opportunityCategory;
   const categoryLabel = getCategoryLabel(category);
   const duration = item.duration?.trim() || null;
+  const startTime = item.startTime?.trim() || null;
+  const endTime = item.endTime?.trim() || null;
+  const startingFrom = [item.startDate ? formatShortDate(item.startDate) : null, startTime]
+    .filter(Boolean)
+    .join(', ');
+  const endingOn = [item.endDate ? formatShortDate(item.endDate) : null, endTime]
+    .filter(Boolean)
+    .join(', ');
 
   const cardContent = (
     <div className="border border-gray-50 bg-[hsl(220,16%,96%)] flex flex-col h-full min-h-[450px]">
@@ -69,16 +79,16 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
 
       {/* Dates block */}
       <div className="px-5 pt-2 space-y-1 text-base text-gray-600">
-        {item.startDate && (
+        {startingFrom && (
           <p>
             <span className="font-medium text-gray-700">Starting from: </span>
-            {formatShortDate(item.startDate)}
+            {startingFrom}
           </p>
         )}
-        {item.endDate && (
+        {endingOn && (
           <p>
             <span className="font-medium text-gray-700">Ending on: </span>
-            {formatShortDate(item.endDate)}
+            {endingOn}
           </p>
         )}
       </div>

@@ -33,7 +33,9 @@ const baseSchema = z.object({
   description: z.string().max(4000).optional().or(z.literal('')),
   duration: z.string().max(120).optional().or(z.literal('')),
   startDate: z.string().optional().or(z.literal('')),
+  startTime: z.string().max(80).optional().or(z.literal('')),
   endDate: z.string().optional().or(z.literal('')),
+  endTime: z.string().max(80).optional().or(z.literal('')),
   venue: z.string().max(200).optional().or(z.literal('')),
   linkUrl: z.string().url().optional().or(z.literal('')),
   deadline: z.string().optional().or(z.literal('')),
@@ -67,7 +69,7 @@ type ActionResponse = {
   data?: { id: string };
 };
 
-function isMissingDurationColumn(error: unknown): boolean {
+function isMissingOptionalColumn(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
 
   const err = error as {
@@ -79,18 +81,28 @@ function isMissingDurationColumn(error: unknown): boolean {
   if (err.code !== 'P2022') return false;
 
   const column = String(err.meta?.column ?? '').toLowerCase();
-  const modelName = String(err.meta?.modelName ?? '').toLowerCase();
   const message = String(err.message ?? '').toLowerCase();
 
   return (
     column.includes('duration') ||
+    column.includes('starttime') ||
+    column.includes('start_time') ||
+    column.includes('endtime') ||
+    column.includes('end_time') ||
     message.includes('duration') ||
-    (modelName.includes('eventopportunity') && message.includes('does not exist'))
+    message.includes('starttime') ||
+    message.includes('start_time') ||
+    message.includes('endtime') ||
+    message.includes('end_time')
   );
 }
 
-function hasDurationValue(duration: string | null | undefined): boolean {
-  return !!duration?.trim();
+function hasOptionalColumnValue(data: {
+  duration?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+}): boolean {
+  return !!data.duration?.trim() || !!data.startTime?.trim() || !!data.endTime?.trim();
 }
 
 export async function createEventOpportunity(
@@ -110,7 +122,9 @@ export async function createEventOpportunity(
       description: v.description || null,
       duration: v.duration || null,
       startDate: v.startDate ? new Date(v.startDate) : null,
+      startTime: v.startTime?.trim() || null,
       endDate: v.endDate ? new Date(v.endDate) : null,
+      endTime: v.endTime?.trim() || null,
       venue: v.venue || null,
       linkUrl: v.linkUrl || null,
       deadline: v.deadline ? new Date(v.deadline) : null,
@@ -137,15 +151,15 @@ export async function createEventOpportunity(
         select: { id: true },
       });
     } catch (error) {
-      if (!isMissingDurationColumn(error)) {
+      if (!isMissingOptionalColumn(error)) {
         throw error;
       }
 
-      if (hasDurationValue(v.duration)) {
+      if (hasOptionalColumnValue(v)) {
         return {
           success: false,
           error:
-            'Duration could not be saved because the database is missing the EventOpportunity.duration column. Run Prisma migrations, then try again.',
+            'Duration/start time/end time could not be saved because the database is missing one or more EventOpportunity columns. Run Prisma migrations, then try again.',
         };
       }
 
@@ -192,7 +206,9 @@ export async function updateEventOpportunity(
       description: v.description || null,
       duration: v.duration || null,
       startDate: v.startDate ? new Date(v.startDate) : null,
+      startTime: v.startTime?.trim() || null,
       endDate: v.endDate ? new Date(v.endDate) : null,
+      endTime: v.endTime?.trim() || null,
       venue: v.venue || null,
       linkUrl: v.linkUrl || null,
       deadline: v.deadline ? new Date(v.deadline) : null,
@@ -217,15 +233,15 @@ export async function updateEventOpportunity(
         select: { id: true },
       });
     } catch (error) {
-      if (!isMissingDurationColumn(error)) {
+      if (!isMissingOptionalColumn(error)) {
         throw error;
       }
 
-      if (hasDurationValue(v.duration)) {
+      if (hasOptionalColumnValue(v)) {
         return {
           success: false,
           error:
-            'Duration could not be saved because the database is missing the EventOpportunity.duration column. Run Prisma migrations, then try again.',
+            'Duration/start time/end time could not be saved because the database is missing one or more EventOpportunity columns. Run Prisma migrations, then try again.',
         };
       }
 

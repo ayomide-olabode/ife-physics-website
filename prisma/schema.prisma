@@ -770,7 +770,9 @@ model EventOpportunity {
   description         String?
   duration            String?
   startDate           DateTime?
+  startTime           String?
   endDate             DateTime?
+  endTime             String?
   venue               String?
   linkUrl             String?
   deadline            DateTime?

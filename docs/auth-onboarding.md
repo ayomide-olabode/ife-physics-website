@@ -28,3 +28,9 @@ Required SMTP env vars:
 - Invite link token (`INVITE`) expires after 60 minutes.
 - Password reset token (`PASSWORD_RESET`) expires after 30 minutes.
 - Resend throttling: a new email for the same token context can only be sent after 5 minutes.
+
+## Deployment Note (Server Actions)
+
+- If users see `Failed to find Server Action ... older or newer deployment`, it indicates a stale page/client bundle vs current deployment.
+- Auth flows now auto-refresh once when this is detected.
+- Operationally, prefer atomic deploys (avoid mixed old/new app versions behind the same load balancer).

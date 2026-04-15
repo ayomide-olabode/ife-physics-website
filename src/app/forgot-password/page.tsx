@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { AuthCardShell } from '@/components/auth/AuthCardShell';
 import { Button } from '@/components/ui/button';
+import { recoverFromStaleServerActionError } from '@/lib/serverActionErrors';
 import { Input } from '@/components/ui/input';
 import { toastError } from '@/lib/toast';
 import { requestPasswordResetLink } from '@/server/actions/passwordReset';
@@ -29,7 +30,11 @@ export default function ForgotPasswordPage() {
       }
 
       router.push(`/forgot-password/check-email?email=${encodeURIComponent(normalizedEmail)}`);
-    } catch {
+    } catch (error) {
+      if (recoverFromStaleServerActionError(error)) {
+        toastError('App was updated. Refreshing to continue...');
+        return;
+      }
       toastError('An unexpected error occurred.');
       setIsSubmitting(false);
     }

@@ -7,6 +7,7 @@ import { AuthCardShell } from '@/components/auth/AuthCardShell';
 import { PasswordInput } from '@/components/forms/PasswordInput';
 import { PasswordStrength } from '@/components/forms/PasswordStrength';
 import { Button } from '@/components/ui/button';
+import { recoverFromStaleServerActionError } from '@/lib/serverActionErrors';
 import { toastError } from '@/lib/toast';
 import { completePasswordReset } from '@/server/actions/passwordReset';
 
@@ -48,7 +49,11 @@ export function ResetPasswordClient({ token }: Props) {
       }
 
       router.push('/login?new=1');
-    } catch {
+    } catch (error) {
+      if (recoverFromStaleServerActionError(error)) {
+        toastError('App was updated. Refreshing to continue...');
+        return;
+      }
       toastError('An unexpected error occurred.');
       setIsSubmitting(false);
     }

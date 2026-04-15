@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { recoverFromStaleServerActionError } from '@/lib/serverActionErrors';
 import { toastError, toastSuccess } from '@/lib/toast';
 
 type ResendResult = {
@@ -58,6 +59,10 @@ export function CheckEmailActions({ onResend, backHref }: CheckEmailActionsProps
       setCooldownSeconds(DEFAULT_COOLDOWN_SECONDS);
       toastSuccess('Email link sent. Check your inbox.');
     } catch (error) {
+      if (recoverFromStaleServerActionError(error)) {
+        toastError('App was updated. Refreshing to continue...');
+        return;
+      }
       toastError(error instanceof Error ? error.message : 'Unable to resend email right now.');
     } finally {
       setIsSending(false);

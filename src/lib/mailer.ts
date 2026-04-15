@@ -103,11 +103,8 @@ function getSmtpConfig(): SmtpConfig | null {
 }
 
 async function loadNodeMailer(): Promise<NodeMailerLike> {
-  // Runtime-only import prevents Turbopack from trying to resolve nodemailer in Option D mode.
-  const runtimeImport = new Function('specifier', 'return import(specifier)') as (
-    specifier: string,
-  ) => Promise<NodeMailerLike>;
-  return runtimeImport('nodemailer');
+  // Keep this import statically analyzable so Next's server trace includes nodemailer in prod.
+  return import('nodemailer') as Promise<NodeMailerLike>;
 }
 
 export async function sendMail({

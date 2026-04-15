@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Command, CommandItem, CommandList } from '@/components/ui/command';
@@ -34,18 +34,8 @@ export function MonthYearGroupedSelect({
 }: MonthYearGroupedSelectProps) {
   const [open, setOpen] = useState(false);
   const selected = parseYearMonth(value);
-  const initialYear = selected?.year ?? groups[0]?.year ?? null;
-  const [expandedYear, setExpandedYear] = useState<number | null>(initialYear);
-
-  useEffect(() => {
-    if (selected?.year) {
-      setExpandedYear(selected.year);
-      return;
-    }
-    if (!expandedYear && groups[0]?.year) {
-      setExpandedYear(groups[0].year);
-    }
-  }, [expandedYear, groups, selected?.year]);
+  const [expandedYearChoice, setExpandedYearChoice] = useState<number | null>(null);
+  const expandedYear = selected?.year ?? expandedYearChoice ?? groups[0]?.year ?? null;
 
   const selectedLabel = useMemo(() => {
     if (!value) return allLabel;
@@ -92,7 +82,7 @@ export function MonthYearGroupedSelect({
                   <button
                     type="button"
                     className="flex w-full items-center justify-between px-3 py-2 text-left text-base font-medium hover:bg-accent"
-                    onClick={() => setExpandedYear(isExpanded ? null : group.year)}
+                    onClick={() => setExpandedYearChoice(isExpanded ? null : group.year)}
                     aria-expanded={isExpanded}
                   >
                     <span>{group.year}</span>

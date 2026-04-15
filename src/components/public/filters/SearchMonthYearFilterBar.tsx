@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,22 +32,17 @@ export function SearchMonthYearFilterBar({
 }: SearchMonthYearFilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryInputRef = useRef<HTMLInputElement>(null);
+  const inputResetKey = `${pathname}::${initialQuery}::${initialMonth}`;
 
-  const [queryInput, setQueryInput] = useState(initialQuery);
-  const [monthInput, setMonthInput] = useState(initialMonth);
-
-  useEffect(() => {
-    setQueryInput(initialQuery);
-    setMonthInput(initialMonth);
-  }, [initialMonth, initialQuery]);
+  const getQueryValue = () => queryInputRef.current?.value ?? initialQuery;
 
   const applyFilterValue = (nextMonth: string) => {
-    setMonthInput(nextMonth);
-    router.push(buildHref(pathname, queryInput, nextMonth));
+    router.push(buildHref(pathname, getQueryValue(), nextMonth));
   };
 
   const runSearch = () => {
-    router.push(buildHref(pathname, queryInput, monthInput));
+    router.push(buildHref(pathname, getQueryValue(), initialMonth));
   };
 
   return (
@@ -56,7 +51,7 @@ export function SearchMonthYearFilterBar({
         <div className="flex w-full items-center gap-2 rounded-none border border-input px-3 md:w-auto md:min-w-[240px]">
           <SlidersHorizontal className="h-4 w-4 text-gray-500" />
           <MonthYearGroupedSelect
-            value={monthInput}
+            value={initialMonth}
             onChange={applyFilterValue}
             groups={monthGroups}
             allLabel="All Months"
@@ -69,8 +64,9 @@ export function SearchMonthYearFilterBar({
           <div className="relative min-w-0 flex-1">
             <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
-              value={queryInput}
-              onChange={(e) => setQueryInput(e.target.value)}
+              key={inputResetKey}
+              ref={queryInputRef}
+              defaultValue={initialQuery}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') runSearch();
               }}

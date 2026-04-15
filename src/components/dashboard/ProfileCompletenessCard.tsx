@@ -1,6 +1,3 @@
-import Link from 'next/link';
-import { ShieldAlert, ShieldCheck } from 'lucide-react';
-
 type CompletenessResult = {
   isComplete: boolean;
   missingRequired: string[];

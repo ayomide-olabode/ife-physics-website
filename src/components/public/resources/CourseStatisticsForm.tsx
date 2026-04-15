@@ -197,10 +197,10 @@ export function CourseStatisticsForm() {
         <div className="space-y-1 border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800">
           <p className="font-semibold">NOTE:</p>
           <p>
-            <strong>"Physics Students"</strong> are students in Physics (PHY), Engineering Physics
-            (EPH), or Science Laboratory Technology (SLT); <strong>"Faculty Students"</strong> are
+            <strong>&quot;Physics Students&quot;</strong> are students in Physics (PHY), Engineering Physics
+            (EPH), or Science Laboratory Technology (SLT); <strong>&quot;Faculty Students&quot;</strong> are
             students in other departments within the Faculty of Science; and{' '}
-            <strong>"Other Students"</strong> are students from faculties outside the Faculty of
+            <strong>&quot;Other Students&quot;</strong> are students from faculties outside the Faculty of
             Science.
           </p>
         </div>

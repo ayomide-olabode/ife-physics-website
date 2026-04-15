@@ -145,7 +145,7 @@ export async function requestRegistrationLink(email: string): Promise<RequestReg
     const tokenType = EmailTokenType.INVITE;
     const expiresMinutes = getExpiryMinutes(tokenType);
 
-    await prisma.emailToken.create({
+    const createdInviteToken = await prisma.emailToken.create({
       data: {
         type: tokenType,
         email: normalizedEmail,
@@ -161,13 +161,26 @@ export async function requestRegistrationLink(email: string): Promise<RequestReg
     const link = `${getAppUrl()}/register/confirm?token=${rawToken}`;
     const template = buildInviteEmail({ link, expiresMinutes });
 
-    await sendMail({
+    const mailResult = await sendMail({
       to: normalizedEmail,
       fromName: INVITE_FROM_NAME,
       subject: template.subject,
       text: template.text,
       html: template.html,
     });
+
+    if (!mailResult.ok) {
+      console.error('requestRegistrationLink mail delivery failed:', mailResult.error);
+
+      await prisma.emailToken.delete({ where: { id: createdInviteToken.id } }).catch((cleanupError) => {
+        console.error('requestRegistrationLink token cleanup failed:', cleanupError);
+      });
+
+      return {
+        success: false,
+        error: 'Unable to send registration email right now. Please try again later.',
+      };
+    }
 
     return { success: true, status: 'SENT' };
   } catch (error) {

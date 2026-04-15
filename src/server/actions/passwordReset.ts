@@ -87,7 +87,7 @@ export async function requestPasswordResetLink(email: string) {
     const tokenType = EmailTokenType.PASSWORD_RESET;
     const expiresMinutes = getExpiryMinutes(tokenType);
 
-    await prisma.emailToken.create({
+    const createdResetToken = await prisma.emailToken.create({
       data: {
         type: tokenType,
         email: normalizedEmail,
@@ -103,12 +103,23 @@ export async function requestPasswordResetLink(email: string) {
     const link = `${getAppUrl()}/reset-password?token=${rawToken}`;
     const template = buildResetEmail({ link, expiresMinutes });
 
-    await sendMail({
+    const mailResult = await sendMail({
       to: normalizedEmail,
       subject: template.subject,
       text: template.text,
       html: template.html,
     });
+
+    if (!mailResult.ok) {
+      console.error('requestPasswordResetLink mail delivery failed:', mailResult.error);
+
+      await prisma.emailToken.delete({ where: { id: createdResetToken.id } }).catch((cleanupError) => {
+        console.error('requestPasswordResetLink token cleanup failed:', cleanupError);
+      });
+
+      // Keep response generic to avoid revealing whether an account exists.
+      return { success: true, status: 'SENT' as const };
+    }
 
     return { success: true, status: 'SENT' as const };
   } catch (error) {

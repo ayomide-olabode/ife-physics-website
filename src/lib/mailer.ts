@@ -9,9 +9,8 @@ type SendMailInput = {
 };
 
 type SendMailResult =
-  | { ok: true; mode: 'console' }
-  | { ok: true; mode: 'smtp' }
-  | { ok: false; mode: 'smtp'; error: string };
+  | { ok: true; mode: 'console' | 'smtp' }
+  | { ok: false; mode: 'console' | 'smtp'; error: string };
 
 type NodeMailerLike = {
   default?: {
@@ -121,6 +120,12 @@ export async function sendMail({
   const smtpConfig = getSmtpConfig();
 
   if (!smtpConfig) {
+    if (process.env.NODE_ENV === 'production') {
+      const error = 'SMTP is not configured in production environment.';
+      console.error(error);
+      return { ok: false, mode: 'console', error };
+    }
+
     const urls = Array.from(new Set([...extractUrls(text), ...extractUrls(html)]));
 
     console.log('================ DEV MAIL FALLBACK ================');

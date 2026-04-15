@@ -1,10 +1,20 @@
 # Auth Onboarding and Password Reset
 
-## Delivery Mode (Option D)
+## Email Delivery
 
-- SMTP is currently not configured.
-- Email links are logged by the server mailer fallback (`src/lib/mailer.ts`) instead of being sent.
-- For invite/reset flows, check the server console for the logged link block.
+- Development: if SMTP is not configured, email links are logged by the server mailer fallback (`src/lib/mailer.ts`).
+- Production: SMTP must be configured. If SMTP is missing or sending fails:
+  - Registration now returns an error to the user.
+  - Created invite/reset tokens are cleaned up to avoid resend-throttle lockouts.
+
+Required SMTP env vars:
+
+- `SMTP_HOST`
+- `SMTP_PORT` (e.g. `587`)
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM` (sender address, e.g. `noreply@your-domain.com`)
+- `SMTP_SECURE` (`true` for implicit TLS/465, otherwise `false`)
 
 ## APP_URL
 

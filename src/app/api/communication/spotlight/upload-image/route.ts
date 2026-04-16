@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth, requireGlobalRole } from '@/lib/guards';
 import { validateImageUpload } from '@/lib/security/imageUpload';
+import { saveUpload } from '@/lib/uploadStorage';
 import { ScopedRole } from '.prisma/client';
-import fs from 'fs/promises';
-import path from 'path';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,20 +21,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validated.error }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), 'public/uploads/spotlight');
-    await fs.mkdir(uploadDir, { recursive: true });
-
     const ext = validated.format.ext;
     const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
-    const filePath = path.join(uploadDir, filename);
-
-    await fs.writeFile(filePath, validated.buffer);
-
-    const fileUrl = `/uploads/spotlight/${filename}`;
+    const { url: fileUrl } = await saveUpload({
+      folder: 'spotlight',
+      filename,
+      buffer: validated.buffer,
+    });
 
     return NextResponse.json({ ok: true, url: fileUrl });
   } catch (err: unknown) {
     console.error('Spotlight image upload error:', err);
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') {
+      return NextResponse.json(
+        {
+          error:
+            'Upload storage is not writable on this server. Set UPLOADS_DIR to a writable persistent directory.',
+        },
+        { status: 500 },
+      );
+    }
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }

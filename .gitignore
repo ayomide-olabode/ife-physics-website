@@ -48,5 +48,6 @@ next-env.d.ts
 # additional ignored dirs
 uploads/
 public/uploads/
+!src/app/uploads/
+!src/app/uploads/**
 prisma/*.db
-

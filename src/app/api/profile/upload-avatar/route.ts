@@ -3,8 +3,7 @@ import { requireAuth } from '@/lib/guards';
 import prisma from '@/lib/prisma';
 import { validateImageUpload } from '@/lib/security/imageUpload';
 import { revalidatePath } from 'next/cache';
-import { mkdir, writeFile } from 'fs/promises';
-import path from 'path';
+import { saveUpload } from '@/lib/uploadStorage';
 
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
@@ -37,18 +36,11 @@ export async function POST(request: Request) {
     // Sanitize filename: use staffId + timestamp
     const filename = `${staffId}-${Date.now()}.${ext}`;
 
-    // Save to public/uploads/avatars
-    const uploadsDir = path.join(process.cwd(), 'public/uploads/avatars');
-
-    // Ensure directory exists just in case
-    await mkdir(uploadsDir, { recursive: true });
-
-    const filePath = path.join(uploadsDir, filename);
-
-    await writeFile(filePath, validated.buffer);
-
-    // Update database
-    const publicUrl = `/uploads/avatars/${filename}`;
+    const { url: publicUrl } = await saveUpload({
+      folder: 'avatars',
+      filename,
+      buffer: validated.buffer,
+    });
 
     await prisma.staff.update({
       where: { id: staffId },
@@ -61,6 +53,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, url: publicUrl });
   } catch (error) {
     console.error('Avatar upload error:', error);
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') {
+      return NextResponse.json(
+        {
+          error:
+            'Upload storage is not writable on this server. Set UPLOADS_DIR to a writable persistent directory.',
+        },
+        { status: 500 },
+      );
+    }
     return NextResponse.json(
       { error: 'An unexpected error occurred during upload.' },
       { status: 500 },

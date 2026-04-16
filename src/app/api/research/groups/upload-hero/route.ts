@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/guards';
 import { isResearchLeadForGroup, isSuperAdmin } from '@/lib/rbac';
 import { validateImageUpload } from '@/lib/security/imageUpload';
-import { mkdir, writeFile } from 'fs/promises';
-import path from 'path';
+import { saveUpload } from '@/lib/uploadStorage';
 
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
@@ -44,14 +43,26 @@ export async function POST(request: Request) {
 
     const safeGroupId = (groupId || 'new').replace(/[^a-zA-Z0-9_-]/g, '');
     const filename = `${safeGroupId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${validated.format.ext}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'research-groups');
-    await mkdir(uploadDir, { recursive: true });
+    const { url } = await saveUpload({
+      folder: 'research-groups',
+      filename,
+      buffer: validated.buffer,
+    });
 
-    await writeFile(path.join(uploadDir, filename), validated.buffer);
-
-    return NextResponse.json({ ok: true, url: `/uploads/research-groups/${filename}` });
+    return NextResponse.json({ ok: true, url });
   } catch (error) {
     console.error('Research group hero upload error:', error);
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            'Upload storage is not writable on this server. Set UPLOADS_DIR to a writable persistent directory.',
+        },
+        { status: 500 },
+      );
+    }
     return NextResponse.json({ ok: false, error: 'Upload failed.' }, { status: 500 });
   }
 }

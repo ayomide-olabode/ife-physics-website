@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import path from 'path';
 import {
-  legacyPublicUploadsRootDir,
+  getUploadReadRootDirs,
   mimeTypeForUploadPath,
-  resolveUploadDiskPath,
   sanitizeUploadSegments,
 } from '@/lib/uploadStorage';
 
@@ -12,13 +11,7 @@ export const runtime = 'nodejs';
 
 async function readFromCandidates(segments: string[]) {
   const safeSegments = sanitizeUploadSegments(segments);
-  const primaryPath = resolveUploadDiskPath(...safeSegments);
-  const legacyPath = path.join(legacyPublicUploadsRootDir(), ...safeSegments);
-  const candidates = [primaryPath];
-
-  if (legacyPath !== primaryPath) {
-    candidates.push(legacyPath);
-  }
+  const candidates = getUploadReadRootDirs().map((root) => path.join(root, ...safeSegments));
 
   for (const candidate of candidates) {
     try {

@@ -204,4 +204,6 @@ Some routes are intentionally placeholder at the moment (for example parts of Sp
   - `APP_URL` (used for invite/reset link generation)
   - `UPLOADS_DIR` (filesystem directory for uploaded images; default `public/uploads`)
 
-For production deployments, ensure `UPLOADS_DIR` points to a writable persistent directory on the host.
+In production, if `UPLOADS_DIR` is not set, uploads fall back to `/tmp/uploads` (writable in many
+serverless runtimes, but ephemeral). For durable uploads, set `UPLOADS_DIR` to a writable
+persistent directory on the host.

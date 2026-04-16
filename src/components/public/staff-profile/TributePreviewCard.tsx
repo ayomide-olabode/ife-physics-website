@@ -105,8 +105,8 @@ export function TributePreviewCard({
       </article>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-2xl sm:rounded-none">
-          <DialogHeader className="pr-12 text-left sm:pr-0">
+        <DialogContent className="max-h-[90vh] !flex !flex-col overflow-hidden p-0 sm:max-w-2xl sm:rounded-none">
+          <DialogHeader className="sticky top-0 z-10 shrink-0 border-b bg-background px-6 py-4 pr-12 text-left sm:pr-12">
             <DialogTitle className="text-lg text-brand-navy">Tribute</DialogTitle>
             <DialogDescription className="text-base text-gray-600">
               <span className="font-semibold text-gray-800">{name}</span>
@@ -114,7 +114,9 @@ export function TributePreviewCard({
               {` • ${submittedAtLabel}`}
             </DialogDescription>
           </DialogHeader>
-          <p className="whitespace-pre-line text-base leading-7 text-gray-700">{tributeText}</p>
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+            <p className="whitespace-pre-line text-base leading-7 text-gray-700">{tributeText}</p>
+          </div>
         </DialogContent>
       </Dialog>
     </>

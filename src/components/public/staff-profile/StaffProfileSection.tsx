@@ -6,6 +6,7 @@ import { StaffProjectsByYear } from '@/components/public/staff-profile/StaffProj
 import { StaffResearchOutputsByYear } from '@/components/public/staff-profile/StaffResearchOutputsByYear';
 import { StudentThesesByYear } from '@/components/public/staff-profile/StudentThesesByYear';
 import { StaffTeachingList } from '@/components/public/staff-profile/StaffTeachingList';
+import { TributePreviewCard } from '@/components/public/staff-profile/TributePreviewCard';
 import {
   getPublicTributesForStaff,
   listPublicProjectsForStaff,
@@ -32,11 +33,13 @@ function looksLikeHtml(value: string): boolean {
 
 function hasVisibleContent(value: string | null | undefined): value is string {
   if (!value) return false;
-  return value
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim().length > 0;
+  return (
+    value
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim().length > 0
+  );
 }
 
 function ProfileTextBlock({ value }: { value: string }) {
@@ -261,16 +264,13 @@ export async function StaffProfileSection({
         ) : (
           <div className="space-y-4">
             {data.items.map((testimonial) => (
-              <article key={testimonial.id} className="border border-gray-200 p-4">
-                <header className="mb-2 text-base text-gray-600">
-                  <span className="font-semibold text-gray-800">{testimonial.name}</span>
-                  {testimonial.relationship ? ` (${testimonial.relationship})` : ''}
-                  {` • ${formatDate(testimonial.submittedAt)}`}
-                </header>
-                <p className="line-clamp-3 text-base text-gray-700">
-                  {stripHtml(testimonial.tributeHtml)}
-                </p>
-              </article>
+              <TributePreviewCard
+                key={testimonial.id}
+                name={testimonial.name}
+                relationship={testimonial.relationship}
+                submittedAtLabel={formatDate(testimonial.submittedAt)}
+                tributeText={stripHtml(testimonial.tributeHtml)}
+              />
             ))}
             <SectionPager
               staffSlug={staffSlug}

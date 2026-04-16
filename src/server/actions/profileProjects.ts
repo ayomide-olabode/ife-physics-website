@@ -38,22 +38,23 @@ type ActionResponse = {
 
 export async function createMyProject(
   data: z.infer<typeof projectSchema>,
+  options?: { staffId?: string; basePath?: string },
 ): Promise<ActionResponse> {
   const session = await requireAuth();
 
   try {
     const validated = projectSchema.parse(data);
 
-    const staffId = session.user.staffId;
-    if (!staffId) {
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
+    if (!targetStaffId) {
       return { success: false, error: 'No associated staff record found.' };
     }
 
-    await requireStaffOwnership(session, staffId);
+    await requireStaffOwnership(session, targetStaffId);
 
     const newDoc = await prisma.project.create({
       data: {
-        staffId,
+        staffId: targetStaffId,
         title: validated.title,
         acronym: validated.acronym || null,
         descriptionHtml: validated.descriptionHtml || null,
@@ -67,6 +68,7 @@ export async function createMyProject(
     });
 
     revalidatePath('/dashboard/profile/projects');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/projects`);
     return { success: true, data: newDoc };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -80,24 +82,25 @@ export async function createMyProject(
 export async function updateMyProject(
   id: string,
   data: z.infer<typeof projectSchema>,
+  options?: { staffId?: string; basePath?: string },
 ): Promise<ActionResponse> {
   const session = await requireAuth();
 
   try {
     const validated = projectSchema.parse(data);
 
-    const staffId = session.user.staffId;
-    if (!staffId) {
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
+    if (!targetStaffId) {
       return { success: false, error: 'No associated staff record found.' };
     }
 
-    await requireStaffOwnership(session, staffId);
+    await requireStaffOwnership(session, targetStaffId);
 
     // Verify it exists AND belongs to the user
     const existing = await prisma.project.findFirst({
       where: {
         id,
-        staffId,
+        staffId: targetStaffId,
         deletedAt: null,
       },
       select: { id: true },
@@ -125,6 +128,7 @@ export async function updateMyProject(
     });
 
     revalidatePath('/dashboard/profile/projects');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/projects`);
     return { success: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -135,21 +139,24 @@ export async function updateMyProject(
   }
 }
 
-export async function deleteMyProject(id: string): Promise<ActionResponse> {
+export async function deleteMyProject(
+  id: string,
+  options?: { staffId?: string; basePath?: string },
+): Promise<ActionResponse> {
   const session = await requireAuth();
 
   try {
-    const staffId = session.user.staffId;
-    if (!staffId) {
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
+    if (!targetStaffId) {
       return { success: false, error: 'Invalid profile identity tracking bounds.' };
     }
 
-    await requireStaffOwnership(session, staffId);
+    await requireStaffOwnership(session, targetStaffId);
 
     const existing = await prisma.project.findFirst({
       where: {
         id,
-        staffId,
+        staffId: targetStaffId,
         deletedAt: null,
       },
       select: { id: true },
@@ -167,6 +174,7 @@ export async function deleteMyProject(id: string): Promise<ActionResponse> {
     });
 
     revalidatePath('/dashboard/profile/projects');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/projects`);
     return { success: true };
   } catch (error) {
     console.error('Failed to delete project:', error);

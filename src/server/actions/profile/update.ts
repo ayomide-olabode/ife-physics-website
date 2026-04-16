@@ -2,7 +2,7 @@
 
 import { getStaffRankValuesByType, STAFF_TITLE_OPTIONS } from '@/lib/options';
 import prisma from '@/lib/prisma';
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireStaffOwnership } from '@/lib/guards';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
@@ -45,29 +45,34 @@ const updateProfileSchema = z.object({
     .optional(),
 });
 
-export async function updateStaffProfile(data: {
-  title?: string;
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  academicRank?: string;
-  designation?: string;
-  roomNumber?: string;
-  bio?: string;
-  education?: string;
-  researchInterests?: string;
-  membershipOfProfessionalOrganizations?: string;
-}) {
+export async function updateStaffProfile(
+  data: {
+    title?: string;
+    firstName: string;
+    middleName?: string;
+    lastName: string;
+    academicRank?: string;
+    designation?: string;
+    roomNumber?: string;
+    bio?: string;
+    education?: string;
+    researchInterests?: string;
+    membershipOfProfessionalOrganizations?: string;
+  },
+  options?: { staffId?: string },
+) {
   try {
     const session = await requireAuth();
-    const staffId = session.user?.staffId;
+    const targetStaffId = options?.staffId?.trim() || session.user?.staffId;
 
-    if (!staffId) {
+    if (!targetStaffId) {
       return { error: 'No associated staff record found for your account.' };
     }
 
+    requireStaffOwnership(session, targetStaffId);
+
     const staff = await prisma.staff.findUnique({
-      where: { id: staffId },
+      where: { id: targetStaffId },
       select: { staffType: true },
     });
 
@@ -102,7 +107,7 @@ export async function updateStaffProfile(data: {
     }
 
     await prisma.staff.update({
-      where: { id: staffId },
+      where: { id: targetStaffId },
       data: {
         title: normalizedTitle || null,
         firstName: firstName.trim(),
@@ -121,6 +126,7 @@ export async function updateStaffProfile(data: {
     });
 
     revalidatePath('/dashboard/profile/overview');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/profile`);
     revalidatePath('/dashboard/admin/staff');
     revalidatePath('/people');
 

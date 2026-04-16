@@ -20,7 +20,15 @@ type PaginatedData = {
   totalPages: number;
 };
 
-export function ThesesClientView({ data }: { data: PaginatedData }) {
+export function ThesesClientView({
+  data,
+  staffId,
+  basePath = '/dashboard/profile',
+}: {
+  data: PaginatedData;
+  staffId?: string;
+  basePath?: string;
+}) {
   const router = useRouter();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -35,7 +43,7 @@ export function ThesesClientView({ data }: { data: PaginatedData }) {
     if (!deleteId) return;
 
     try {
-      const res = await deleteMyThesis(deleteId);
+      const res = await deleteMyThesis(deleteId, { staffId });
       if (res.error) {
         toastError(res.error);
       } else {
@@ -86,10 +94,7 @@ export function ThesesClientView({ data }: { data: PaginatedData }) {
         title="Student Theses"
         description="Manage the theses you supervise."
         actions={
-          <AddNewButton
-            href="/dashboard/profile/thesis-supervision/new"
-            label="Add New Thesis"
-          />
+          <AddNewButton href={`${basePath}/thesis-supervision/new`} label="Add New Thesis" />
         }
       />
 
@@ -108,7 +113,7 @@ export function ThesesClientView({ data }: { data: PaginatedData }) {
           <div key="status">{getStatusBadge(item.status)}</div>,
           <div key="actions" className="flex items-center gap-2">
             <Link
-              href={`/dashboard/profile/thesis-supervision/${item.id}`}
+              href={`${basePath}/thesis-supervision/${item.id}`}
               className="text-base text-blue-600 hover:text-blue-800 font-medium"
             >
               Edit
@@ -138,7 +143,7 @@ export function ThesesClientView({ data }: { data: PaginatedData }) {
           <div className="flex space-x-2">
             {data.page > 1 && (
               <Link
-                href={`/dashboard/profile/thesis-supervision?page=${data.page - 1}`}
+                href={`${basePath}/thesis-supervision?page=${data.page - 1}`}
                 className="px-3 py-1 border rounded hover:bg-muted"
               >
                 Previous
@@ -146,7 +151,7 @@ export function ThesesClientView({ data }: { data: PaginatedData }) {
             )}
             {data.page < data.totalPages && (
               <Link
-                href={`/dashboard/profile/thesis-supervision?page=${data.page + 1}`}
+                href={`${basePath}/thesis-supervision?page=${data.page + 1}`}
                 className="px-3 py-1 border rounded hover:bg-muted"
               >
                 Next

@@ -12,10 +12,12 @@ export function AvatarUpload({
   currentImageUrl,
   fallbackText,
   lastUpdatedAt,
+  staffId,
 }: {
   currentImageUrl?: string | null;
   fallbackText: string;
   lastUpdatedAt?: Date | string | null;
+  staffId?: string;
 }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,6 +39,9 @@ export function AvatarUpload({
     try {
       const formData = new FormData();
       formData.append('file', file);
+      if (staffId) {
+        formData.append('staffId', staffId);
+      }
 
       const res = await fetch('/api/profile/upload-avatar', {
         method: 'POST',

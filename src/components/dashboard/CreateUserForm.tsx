@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FieldLabel } from '@/components/forms/FieldLabel';
-import { Checkbox } from '@/components/ui/checkbox';
 import { searchStaff } from '@/server/queries/staffSearch';
 import { createUser } from '@/server/actions/adminUsers';
 import { toastSuccess, toastError } from '@/lib/toast';
@@ -16,7 +14,6 @@ export function CreateUserForm() {
 
   // Form state
   const [selectedStaffId, setSelectedStaffId] = useState<string>('');
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,7 +59,6 @@ export function CreateUserForm() {
     try {
       const res = await createUser({
         staffId: selectedStaffId,
-        isSuperAdmin,
       });
 
       if (res.error) {
@@ -149,26 +145,6 @@ export function CreateUserForm() {
             ))}
           </div>
         )}
-      </div>
-
-      <div className="space-y-4 rounded-lg border p-4 bg-card text-card-foreground shadow-sm">
-        <h3 className="text-lg font-medium">2. Global Permissions</h3>
-
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="superadmin"
-            checked={isSuperAdmin}
-            onCheckedChange={(checked) => setIsSuperAdmin(checked as boolean)}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <FieldLabel htmlFor="superadmin" className="font-medium">
-              Grant Super Admin Access
-            </FieldLabel>
-            <p className="text-base text-muted-foreground">
-              Super Admins have unrestricted access to all dashboard modules and configurations.
-            </p>
-          </div>
-        </div>
       </div>
 
       <div className="flex justify-end gap-4">

@@ -18,12 +18,14 @@ interface SecondaryAffiliationSelectorProps {
   initialSecondaryAffiliationId: string | null;
   options: SecondaryAffiliationOption[];
   lastUpdatedAt?: Date | string | null;
+  staffId?: string;
 }
 
 export function SecondaryAffiliationSelector({
   initialSecondaryAffiliationId,
   options,
   lastUpdatedAt,
+  staffId,
 }: SecondaryAffiliationSelectorProps) {
   const router = useRouter();
   const initialValue = initialSecondaryAffiliationId ?? 'none';
@@ -46,7 +48,10 @@ export function SecondaryAffiliationSelector({
     setIsSubmitting(true);
     try {
       const nextId = selectedId === 'none' ? null : selectedId;
-      const result = await updateMySecondaryAffiliation({ secondaryAffiliationId: nextId });
+      const result = await updateMySecondaryAffiliation(
+        { secondaryAffiliationId: nextId },
+        { staffId },
+      );
       if (result.error) {
         toastError(result.error);
       } else {

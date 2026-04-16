@@ -42,6 +42,7 @@ type ThesisEntryFormProps = {
   onSuccess?: () => void;
   redirectTo?: string;
   className?: string;
+  staffId?: string;
 };
 
 function buildInitialState(initialData?: ThesisEntryData): FormDataState {
@@ -63,6 +64,7 @@ export function ThesisEntryForm({
   onSuccess,
   redirectTo,
   className,
+  staffId,
 }: ThesisEntryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -123,9 +125,9 @@ export function ThesisEntryForm({
     try {
       let res;
       if (isEdit && initialData?.id) {
-        res = await updateMyThesis(initialData.id, payload);
+        res = await updateMyThesis(initialData.id, payload, { staffId });
       } else {
-        res = await createMyThesis(payload);
+        res = await createMyThesis(payload, { staffId });
       }
 
       if (res.success) {

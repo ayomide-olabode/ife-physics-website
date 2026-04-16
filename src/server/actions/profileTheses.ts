@@ -58,24 +58,27 @@ function isMissingRegistrationNumberColumn(error: unknown): boolean {
   );
 }
 
-export async function createMyThesis(data: z.infer<typeof thesisSchema>): Promise<ActionResponse> {
+export async function createMyThesis(
+  data: z.infer<typeof thesisSchema>,
+  options?: { staffId?: string; basePath?: string },
+): Promise<ActionResponse> {
   const session = await requireAuth();
 
   try {
     const validated = thesisSchema.parse(data);
 
-    const staffId = session.user.staffId;
-    if (!staffId) {
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
+    if (!targetStaffId) {
       return { success: false, error: 'No associated staff record found.' };
     }
 
-    await requireStaffOwnership(session, staffId);
+    await requireStaffOwnership(session, targetStaffId);
 
     let newDoc: { id: string };
     try {
       newDoc = await prisma.studentThesis.create({
         data: {
-          staffId,
+          staffId: targetStaffId,
           year: validated.year,
           title: validated.title,
           studentName: validated.studentName || null,
@@ -94,7 +97,7 @@ export async function createMyThesis(data: z.infer<typeof thesisSchema>): Promis
 
       newDoc = await prisma.studentThesis.create({
         data: {
-          staffId,
+          staffId: targetStaffId,
           year: validated.year,
           title: validated.title,
           studentName: validated.studentName || null,
@@ -108,6 +111,7 @@ export async function createMyThesis(data: z.infer<typeof thesisSchema>): Promis
     }
 
     revalidatePath('/dashboard/profile/thesis-supervision');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/thesis-supervision`);
     return { success: true, data: newDoc };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -121,23 +125,24 @@ export async function createMyThesis(data: z.infer<typeof thesisSchema>): Promis
 export async function updateMyThesis(
   id: string,
   data: z.infer<typeof thesisSchema>,
+  options?: { staffId?: string; basePath?: string },
 ): Promise<ActionResponse> {
   const session = await requireAuth();
 
   try {
     const validated = thesisSchema.parse(data);
 
-    const staffId = session.user.staffId;
-    if (!staffId) {
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
+    if (!targetStaffId) {
       return { success: false, error: 'No associated staff record found.' };
     }
 
-    await requireStaffOwnership(session, staffId);
+    await requireStaffOwnership(session, targetStaffId);
 
     const existing = await prisma.studentThesis.findFirst({
       where: {
         id,
-        staffId,
+        staffId: targetStaffId,
         deletedAt: null,
       },
       select: { id: true },
@@ -186,6 +191,7 @@ export async function updateMyThesis(
     }
 
     revalidatePath('/dashboard/profile/thesis-supervision');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/thesis-supervision`);
     return { success: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -196,22 +202,24 @@ export async function updateMyThesis(
   }
 }
 
-export async function deleteMyThesis(id: string): Promise<ActionResponse> {
+export async function deleteMyThesis(
+  id: string,
+  options?: { staffId?: string; basePath?: string },
+): Promise<ActionResponse> {
   const session = await requireAuth();
 
   try {
-    const staffId = session.user.staffId;
-    if (!staffId) {
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
+    if (!targetStaffId) {
       return { success: false, error: 'Invalid profile identity tracking bounds.' };
     }
 
-    // You could also verify if they are super admin, but profile actions usually require being the owner
-    await requireStaffOwnership(session, staffId);
+    await requireStaffOwnership(session, targetStaffId);
 
     const existing = await prisma.studentThesis.findFirst({
       where: {
         id,
-        staffId,
+        staffId: targetStaffId,
         deletedAt: null,
       },
       select: { id: true },
@@ -230,6 +238,7 @@ export async function deleteMyThesis(id: string): Promise<ActionResponse> {
     });
 
     revalidatePath('/dashboard/profile/thesis-supervision');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/thesis-supervision`);
     return { success: true };
   } catch (error) {
     console.error('Failed to delete thesis:', error);

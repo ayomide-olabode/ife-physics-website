@@ -12,7 +12,7 @@ export default function CreateUserPage() {
         <BackToParent href="/dashboard/admin/users" label="Back to Users" />
         <PageHeader
           title="Create User"
-          description="Create a user account."
+          description="Create a user account. Super Admin access is managed from the user details page."
           actions={
             <Button size="sm" variant="outline" asChild>
               <Link href="/dashboard/admin/staff/new">

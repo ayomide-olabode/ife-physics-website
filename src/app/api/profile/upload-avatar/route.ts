@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireStaffOwnership } from '@/lib/guards';
 import prisma from '@/lib/prisma';
 import { validateImageUpload } from '@/lib/security/imageUpload';
 import { revalidatePath } from 'next/cache';
@@ -10,16 +10,23 @@ const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 export async function POST(request: Request) {
   try {
     const session = await requireAuth();
-    const staffId = session.user?.staffId;
 
-    if (!staffId) {
+    const formData = await request.formData();
+    const requestedStaffId = formData.get('staffId');
+    const targetStaffId =
+      typeof requestedStaffId === 'string' && requestedStaffId.trim().length > 0
+        ? requestedStaffId.trim()
+        : session.user?.staffId;
+
+    if (!targetStaffId) {
       return NextResponse.json(
         { error: 'No staff record found for this session.' },
         { status: 403 },
       );
     }
 
-    const formData = await request.formData();
+    requireStaffOwnership(session, targetStaffId);
+
     const file = formData.get('file') as File | null;
 
     if (!file) {
@@ -34,7 +41,7 @@ export async function POST(request: Request) {
     const ext = validated.format.ext;
 
     // Sanitize filename: use staffId + timestamp
-    const filename = `${staffId}-${Date.now()}.${ext}`;
+    const filename = `${targetStaffId}-${Date.now()}.${ext}`;
 
     const { url: publicUrl } = await saveUpload({
       folder: 'avatars',
@@ -43,12 +50,13 @@ export async function POST(request: Request) {
     });
 
     await prisma.staff.update({
-      where: { id: staffId },
+      where: { id: targetStaffId },
       data: { profileImageUrl: publicUrl },
     });
 
     revalidatePath('/dashboard/profile/overview');
     revalidatePath('/dashboard/admin/staff');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/profile`);
 
     return NextResponse.json({ ok: true, url: publicUrl });
   } catch (error) {

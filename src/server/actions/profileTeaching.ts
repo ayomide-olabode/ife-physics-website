@@ -18,18 +18,19 @@ type ActionResponse = {
 
 export async function createMyTeaching(
   data: z.input<typeof teachingSchema>,
+  options?: { staffId?: string; basePath?: string },
 ): Promise<ActionResponse> {
   const session = await requireAuth();
 
   try {
     const validated = teachingSchema.parse(data);
 
-    const staffId = session.user.staffId;
-    if (!staffId) {
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
+    if (!targetStaffId) {
       return { success: false, error: 'No associated staff record found.' };
     }
 
-    await requireStaffOwnership(session, staffId);
+    await requireStaffOwnership(session, targetStaffId);
 
     const course = await prisma.course.findFirst({
       where: { code: validated.courseCode, deletedAt: null },
@@ -45,7 +46,7 @@ export async function createMyTeaching(
 
     const newDoc = await prisma.teachingResponsibility.create({
       data: {
-        staffId,
+        staffId: targetStaffId,
         title: course.title,
         courseCode: course.code,
       },
@@ -53,6 +54,7 @@ export async function createMyTeaching(
     });
 
     revalidatePath('/dashboard/profile/teaching');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/teaching`);
     return { success: true, data: newDoc };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -66,23 +68,24 @@ export async function createMyTeaching(
 export async function updateMyTeaching(
   id: string,
   data: z.input<typeof teachingSchema>,
+  options?: { staffId?: string; basePath?: string },
 ): Promise<ActionResponse> {
   const session = await requireAuth();
 
   try {
     const validated = teachingSchema.parse(data);
 
-    const staffId = session.user.staffId;
-    if (!staffId) {
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
+    if (!targetStaffId) {
       return { success: false, error: 'No associated staff record found.' };
     }
 
-    await requireStaffOwnership(session, staffId);
+    await requireStaffOwnership(session, targetStaffId);
 
     const existing = await prisma.teachingResponsibility.findFirst({
       where: {
         id,
-        staffId,
+        staffId: targetStaffId,
         deletedAt: null,
       },
       select: { id: true },
@@ -113,6 +116,7 @@ export async function updateMyTeaching(
     });
 
     revalidatePath('/dashboard/profile/teaching');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/teaching`);
     return { success: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -123,21 +127,24 @@ export async function updateMyTeaching(
   }
 }
 
-export async function deleteMyTeaching(id: string): Promise<ActionResponse> {
+export async function deleteMyTeaching(
+  id: string,
+  options?: { staffId?: string; basePath?: string },
+): Promise<ActionResponse> {
   const session = await requireAuth();
 
   try {
-    const staffId = session.user.staffId;
-    if (!staffId) {
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
+    if (!targetStaffId) {
       return { success: false, error: 'No associated staff record found.' };
     }
 
-    await requireStaffOwnership(session, staffId);
+    await requireStaffOwnership(session, targetStaffId);
 
     const existing = await prisma.teachingResponsibility.findFirst({
       where: {
         id,
-        staffId,
+        staffId: targetStaffId,
         deletedAt: null,
       },
       select: { id: true },
@@ -155,6 +162,7 @@ export async function deleteMyTeaching(id: string): Promise<ActionResponse> {
     });
 
     revalidatePath('/dashboard/profile/teaching');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/teaching`);
     return { success: true };
   } catch (error) {
     console.error('Failed to delete teaching record:', error);

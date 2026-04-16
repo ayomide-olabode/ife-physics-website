@@ -31,9 +31,10 @@ type TeachingEditorProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialData?: { id: string } & Partial<FormDataState>;
+  staffId?: string;
 };
 
-export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEditorProps) {
+export function TeachingEditor({ open, onOpenChange, initialData, staffId }: TeachingEditorProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -85,9 +86,9 @@ export function TeachingEditor({ open, onOpenChange, initialData }: TeachingEdit
     try {
       let res;
       if (isEdit && initialData?.id) {
-        res = await updateMyTeaching(initialData.id, payload);
+        res = await updateMyTeaching(initialData.id, payload, { staffId });
       } else {
-        res = await createMyTeaching(payload);
+        res = await createMyTeaching(payload, { staffId });
       }
 
       if (res.success) {

@@ -3,13 +3,16 @@ import { PageHeader } from '@/components/dashboard/PageHeader';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { RoleAssignmentManager } from '@/components/admin/RoleAssignmentManager';
+import { SuperAdminAssignmentManager } from '@/components/admin/SuperAdminAssignmentManager';
 import { getUserById } from '@/server/queries/adminUsers';
 import { listResearchGroupOptions } from '@/server/queries/researchGroupOptions';
 import { BackToParent } from '@/components/dashboard/BackToParent';
 import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
+import { requireAuth } from '@/lib/guards';
 
 export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const session = await requireAuth();
   const { id } = await params;
   const [user, researchGroups] = await Promise.all([getUserById(id), listResearchGroupOptions()]);
 
@@ -94,6 +97,12 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
             </div>
           </div>
         </div>
+
+        <SuperAdminAssignmentManager
+          userId={user.id}
+          isSuperAdmin={user.isSuperAdmin}
+          canManage={user.id !== session.user.userId}
+        />
       </div>
 
       <div className="space-y-4">

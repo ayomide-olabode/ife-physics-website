@@ -1,20 +1,25 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireStaffOwnership } from '@/lib/guards';
 import { logAudit } from '@/lib/audit';
 import { revalidatePath } from 'next/cache';
 
-export async function updateMySecondaryAffiliation(input: {
-  secondaryAffiliationId: string | null;
-}) {
+export async function updateMySecondaryAffiliation(
+  input: {
+    secondaryAffiliationId: string | null;
+  },
+  options?: { staffId?: string },
+) {
   try {
     const session = await requireAuth();
-    const staffId = session.user.staffId;
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
 
-    if (!staffId) {
+    if (!targetStaffId) {
       return { error: 'No staff record linked to this user.' };
     }
+
+    requireStaffOwnership(session, targetStaffId);
 
     const nextAffiliationId = input.secondaryAffiliationId;
 
@@ -29,12 +34,12 @@ export async function updateMySecondaryAffiliation(input: {
     }
 
     const existing = await prisma.staff.findUnique({
-      where: { id: staffId },
+      where: { id: targetStaffId },
       select: { secondaryAffiliationId: true },
     });
 
     await prisma.staff.update({
-      where: { id: staffId },
+      where: { id: targetStaffId },
       data: {
         secondaryAffiliationId: nextAffiliationId,
       },
@@ -44,11 +49,11 @@ export async function updateMySecondaryAffiliation(input: {
       actorId: session.user.userId,
       action: 'SECONDARY_AFFILIATION_UPDATED',
       entityType: 'Staff',
-      entityId: staffId,
+      entityId: targetStaffId,
       snapshot: {
         actorUserId: session.user.userId,
         actorStaffId: session.user.staffId,
-        targetStaffId: staffId,
+        targetStaffId,
         previousSecondaryAffiliationId: existing?.secondaryAffiliationId ?? null,
         secondaryAffiliationId: nextAffiliationId,
       },
@@ -56,6 +61,7 @@ export async function updateMySecondaryAffiliation(input: {
 
     revalidatePath('/dashboard/profile');
     revalidatePath('/dashboard/profile/overview');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/profile`);
     revalidatePath('/dashboard/admin/secondary-affiliations');
 
     if (existing?.secondaryAffiliationId) {

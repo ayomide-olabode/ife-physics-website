@@ -35,6 +35,7 @@ interface Props {
   focusAreaOptions: FocusAreaOption[];
   initialFocusAreaIds: string[];
   lastUpdatedAt?: Date | string | null;
+  staffId?: string;
 }
 
 function hasSameIds(a: string[], b: string[]) {
@@ -50,6 +51,7 @@ export function ResearchGroupMembershipForm({
   focusAreaOptions,
   initialFocusAreaIds,
   lastUpdatedAt,
+  staffId,
 }: Props) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string>(initialGroupId || 'none');
@@ -95,10 +97,13 @@ export function ResearchGroupMembershipForm({
     setIsSubmitting(true);
     try {
       const pubId = selectedId === 'none' ? null : selectedId;
-      const res = await updateMyResearchGroupMembership({
-        researchGroupId: pubId,
-        focusAreaIds: pubId ? selectedFocusAreaIdsForGroup : [],
-      });
+      const res = await updateMyResearchGroupMembership(
+        {
+          researchGroupId: pubId,
+          focusAreaIds: pubId ? selectedFocusAreaIdsForGroup : [],
+        },
+        { staffId },
+      );
       if (res.error) {
         toastError(res.error);
       } else {
@@ -245,10 +250,7 @@ export function ResearchGroupMembershipForm({
               >
                 Cancel
               </Button>
-              <Button
-                onClick={handleSave}
-                disabled={isSubmitting || !hasChanges}
-              >
+              <Button onClick={handleSave} disabled={isSubmitting || !hasChanges}>
                 {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
                 Save Selection
               </Button>

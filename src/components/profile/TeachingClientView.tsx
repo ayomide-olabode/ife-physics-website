@@ -38,7 +38,15 @@ type PaginatedData = {
   totalPages: number;
 };
 
-export function TeachingClientView({ data, staffId }: { data: PaginatedData; staffId: string }) {
+export function TeachingClientView({
+  data,
+  staffId,
+  basePath = '/dashboard/profile',
+}: {
+  data: PaginatedData;
+  staffId: string;
+  basePath?: string;
+}) {
   const router = useRouter();
 
   const [editorOpen, setEditorOpen] = useState(false);
@@ -79,7 +87,7 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
     if (!deleteId) return;
 
     try {
-      const res = await deleteMyTeaching(deleteId);
+      const res = await deleteMyTeaching(deleteId, { staffId });
       if (res.error) {
         toastError(res.error);
       } else {
@@ -148,7 +156,7 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
           <div className="flex space-x-2">
             {data.page > 1 && (
               <Link
-                href={`/dashboard/profile/teaching?page=${data.page - 1}`}
+                href={`${basePath}/teaching?page=${data.page - 1}`}
                 className="px-3 py-1 border rounded hover:bg-muted"
               >
                 Previous
@@ -156,7 +164,7 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
             )}
             {data.page < data.totalPages && (
               <Link
-                href={`/dashboard/profile/teaching?page=${data.page + 1}`}
+                href={`${basePath}/teaching?page=${data.page + 1}`}
                 className="px-3 py-1 border rounded hover:bg-muted"
               >
                 Next
@@ -166,7 +174,12 @@ export function TeachingClientView({ data, staffId }: { data: PaginatedData; sta
         </div>
       )}
 
-      <TeachingEditor open={editorOpen} onOpenChange={setEditorOpen} initialData={editorData} />
+      <TeachingEditor
+        open={editorOpen}
+        onOpenChange={setEditorOpen}
+        initialData={editorData}
+        staffId={staffId}
+      />
 
       <ConfirmDialog
         open={deleteOpen}

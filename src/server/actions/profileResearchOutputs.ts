@@ -13,10 +13,12 @@ const DOI_REGEX = /^10\.\d{4,9}\/\S+$/i;
 const PROFILE_OUTPUTS_PATH = '/dashboard/profile/research-outputs';
 const PUBLIC_HOME_PATH = '/';
 
-function revalidateResearchOutputPaths(id?: string) {
+function revalidateResearchOutputPaths({ id, staffId }: { id?: string; staffId: string }) {
   revalidatePath(PROFILE_OUTPUTS_PATH);
+  revalidatePath(`/dashboard/admin/staff/${staffId}/research-outputs`);
   if (id) {
     revalidatePath(`${PROFILE_OUTPUTS_PATH}/${id}`);
+    revalidatePath(`/dashboard/admin/staff/${staffId}/research-outputs/${id}`);
   }
   revalidatePath(PUBLIC_HOME_PATH);
 }
@@ -165,13 +167,16 @@ function buildPersistData(
 
 /* ── Actions ── */
 
-export async function createMyResearchOutput(data: z.infer<typeof researchOutputSchema>) {
+export async function createMyResearchOutput(
+  data: z.infer<typeof researchOutputSchema>,
+  options?: { staffId?: string; basePath?: string },
+) {
   try {
     const session = await requireAuth();
-    const staffId = session.user?.staffId;
-    if (!staffId) return { error: 'No associated staff record found.' };
+    const targetStaffId = options?.staffId?.trim() || session.user?.staffId;
+    if (!targetStaffId) return { error: 'No associated staff record found.' };
 
-    requireStaffOwnership(session, staffId);
+    requireStaffOwnership(session, targetStaffId);
 
     const parsed = researchOutputSchema.safeParse(data);
     if (!parsed.success) {
@@ -180,13 +185,13 @@ export async function createMyResearchOutput(data: z.infer<typeof researchOutput
 
     const created = await prisma.researchOutput.create({
       data: {
-        staffId,
+        staffId: targetStaffId,
         ...buildPersistData(parsed.data),
       },
       select: { id: true },
     });
 
-    revalidateResearchOutputPaths(created.id);
+    revalidateResearchOutputPaths({ id: created.id, staffId: targetStaffId });
     return { success: true };
   } catch (error) {
     console.error('Create Research Output Error:', error);
@@ -197,20 +202,21 @@ export async function createMyResearchOutput(data: z.infer<typeof researchOutput
 export async function updateMyResearchOutput(
   id: string,
   data: z.infer<typeof researchOutputSchema>,
+  options?: { staffId?: string; basePath?: string },
 ) {
   try {
     const session = await requireAuth();
-    const staffId = session.user?.staffId;
-    if (!staffId) return { error: 'No associated staff record found.' };
+    const targetStaffId = options?.staffId?.trim() || session.user?.staffId;
+    if (!targetStaffId) return { error: 'No associated staff record found.' };
 
-    requireStaffOwnership(session, staffId);
+    requireStaffOwnership(session, targetStaffId);
 
     const existing = await prisma.researchOutput.findUnique({
       where: { id },
       select: { staffId: true, metaJson: true },
     });
 
-    if (!existing || existing.staffId !== staffId) {
+    if (!existing || existing.staffId !== targetStaffId) {
       return { error: 'Record not found or access denied.' };
     }
 
@@ -234,7 +240,7 @@ export async function updateMyResearchOutput(
       data: persistData,
     });
 
-    revalidateResearchOutputPaths(id);
+    revalidateResearchOutputPaths({ id, staffId: targetStaffId });
     return { success: true };
   } catch (error) {
     console.error('Update Research Output Error:', error);
@@ -242,20 +248,23 @@ export async function updateMyResearchOutput(
   }
 }
 
-export async function deleteMyResearchOutput(id: string) {
+export async function deleteMyResearchOutput(
+  id: string,
+  options?: { staffId?: string; basePath?: string },
+) {
   try {
     const session = await requireAuth();
-    const staffId = session.user?.staffId;
-    if (!staffId) return { error: 'No associated staff record found.' };
+    const targetStaffId = options?.staffId?.trim() || session.user?.staffId;
+    if (!targetStaffId) return { error: 'No associated staff record found.' };
 
-    requireStaffOwnership(session, staffId);
+    requireStaffOwnership(session, targetStaffId);
 
     const existing = await prisma.researchOutput.findUnique({
       where: { id },
       select: { staffId: true },
     });
 
-    if (!existing || existing.staffId !== staffId) {
+    if (!existing || existing.staffId !== targetStaffId) {
       return { error: 'Record not found or access denied.' };
     }
 
@@ -264,7 +273,7 @@ export async function deleteMyResearchOutput(id: string) {
       data: { deletedAt: new Date() },
     });
 
-    revalidateResearchOutputPaths();
+    revalidateResearchOutputPaths({ staffId: targetStaffId });
     return { success: true };
   } catch (error) {
     console.error('Delete Research Output Error:', error);

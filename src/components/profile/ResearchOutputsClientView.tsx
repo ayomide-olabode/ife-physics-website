@@ -34,7 +34,15 @@ type PaginatedData = {
   totalPages: number;
 };
 
-export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
+export function ResearchOutputsClientView({
+  data,
+  staffId,
+  basePath = '/dashboard/profile',
+}: {
+  data: PaginatedData;
+  staffId?: string;
+  basePath?: string;
+}) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -47,7 +55,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
     if (!deleteId) return;
 
     try {
-      const res = await deleteMyResearchOutput(deleteId);
+      const res = await deleteMyResearchOutput(deleteId, { staffId });
       if (res.error) {
         toastError(res.error);
       } else {
@@ -66,9 +74,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
       <PageHeader
         title="Research Outputs"
         description="Manage your publications and reports."
-        actions={
-          <AddNewButton href="/dashboard/profile/research-outputs/new" label="Add New Output" />
-        }
+        actions={<AddNewButton href={`${basePath}/research-outputs/new`} label="Add New Output" />}
       />
 
       <DataTable
@@ -104,7 +110,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
             </div>,
             <div key="actions" className="flex items-center gap-2">
               <Link
-                href={`/dashboard/profile/research-outputs/${item.id}`}
+                href={`${basePath}/research-outputs/${item.id}`}
                 className="text-base text-blue-600 hover:text-blue-800 font-medium"
               >
                 Edit
@@ -135,7 +141,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
           <div className="flex space-x-2">
             {data.page > 1 && (
               <Link
-                href={`/dashboard/profile/research-outputs?page=${data.page - 1}`}
+                href={`${basePath}/research-outputs?page=${data.page - 1}`}
                 className="px-3 py-1 border rounded hover:bg-muted"
               >
                 Previous
@@ -143,7 +149,7 @@ export function ResearchOutputsClientView({ data }: { data: PaginatedData }) {
             )}
             {data.page < data.totalPages && (
               <Link
-                href={`/dashboard/profile/research-outputs?page=${data.page + 1}`}
+                href={`${basePath}/research-outputs?page=${data.page + 1}`}
                 className="px-3 py-1 border rounded hover:bg-muted"
               >
                 Next

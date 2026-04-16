@@ -22,6 +22,7 @@ function RichTextPreview({ html }: { html: string }) {
 
 export function EditProfileForm({
   staffType,
+  staffId,
   initialTitle,
   initialFirstName,
   initialMiddleName,
@@ -36,6 +37,7 @@ export function EditProfileForm({
   lastUpdatedAt,
 }: {
   staffType: StaffType;
+  staffId?: string;
   initialTitle?: string | null;
   initialFirstName?: string | null;
   initialMiddleName?: string | null;
@@ -111,19 +113,22 @@ export function EditProfileForm({
 
     setIsSubmitting(true);
     try {
-      const res = await updateStaffProfile({
-        title: title.trim(),
-        firstName: firstName.trim(),
-        middleName: middleName.trim(),
-        lastName: lastName.trim(),
-        academicRank,
-        designation: designation.trim(),
-        roomNumber: roomNumber.trim(),
-        bio,
-        education,
-        researchInterests,
-        membershipOfProfessionalOrganizations: professionalMemberships,
-      });
+      const res = await updateStaffProfile(
+        {
+          title: title.trim(),
+          firstName: firstName.trim(),
+          middleName: middleName.trim(),
+          lastName: lastName.trim(),
+          academicRank,
+          designation: designation.trim(),
+          roomNumber: roomNumber.trim(),
+          bio,
+          education,
+          researchInterests,
+          membershipOfProfessionalOrganizations: professionalMemberships,
+        },
+        { staffId },
+      );
 
       if (res.error) {
         toastError(res.error);
@@ -232,9 +237,7 @@ export function EditProfileForm({
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <FieldLabel htmlFor="title">
-                  Title
-                </FieldLabel>
+                <FieldLabel htmlFor="title">Title</FieldLabel>
                 <select
                   id="title"
                   value={title}

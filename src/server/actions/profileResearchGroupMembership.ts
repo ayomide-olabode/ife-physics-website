@@ -1,30 +1,31 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { requireAuth } from '@/lib/guards';
+import { requireAuth, requireStaffOwnership } from '@/lib/guards';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
-export async function updateMyResearchGroupMembership({
-  researchGroupId,
-  focusAreaIds = [],
-}: {
-  researchGroupId: string | null;
-  focusAreaIds?: string[];
-}) {
+export async function updateMyResearchGroupMembership(
+  {
+    researchGroupId,
+    focusAreaIds = [],
+  }: {
+    researchGroupId: string | null;
+    focusAreaIds?: string[];
+  },
+  options?: { staffId?: string },
+) {
   try {
     const session = await requireAuth();
-    const staffId = session.user.staffId;
+    const targetStaffId = options?.staffId?.trim() || session.user.staffId;
 
-    if (!staffId) {
+    if (!targetStaffId) {
       return { error: 'No staff record linked to this user.' };
     }
 
+    requireStaffOwnership(session, targetStaffId);
+
     const normalizedFocusAreaIds = Array.from(
-      new Set(
-        focusAreaIds
-          .map((id) => id.trim())
-          .filter((id) => id.length > 0),
-      ),
+      new Set(focusAreaIds.map((id) => id.trim()).filter((id) => id.length > 0)),
     );
 
     if (!researchGroupId && normalizedFocusAreaIds.length > 0) {
@@ -62,18 +63,18 @@ export async function updateMyResearchGroupMembership({
     await prisma.$transaction(async (tx) => {
       // Remove all current memberships to enforce a single primary group
       await tx.researchGroupMembership.deleteMany({
-        where: { staffId },
+        where: { staffId: targetStaffId },
       });
 
       await tx.staffFocusAreaSelection.deleteMany({
-        where: { staffId },
+        where: { staffId: targetStaffId },
       });
 
       if (researchGroupId) {
         // Create new membership
         await tx.researchGroupMembership.create({
           data: {
-            staffId,
+            staffId: targetStaffId,
             researchGroupId,
             joinedAt: new Date(),
           },
@@ -82,7 +83,7 @@ export async function updateMyResearchGroupMembership({
         if (normalizedFocusAreaIds.length > 0) {
           await tx.staffFocusAreaSelection.createMany({
             data: normalizedFocusAreaIds.map((focusAreaId) => ({
-              staffId,
+              staffId: targetStaffId,
               focusAreaId,
             })),
           });
@@ -94,13 +95,14 @@ export async function updateMyResearchGroupMembership({
           actorId: session.user.userId,
           action: 'STAFF_RESEARCH_GROUP_UPDATED',
           entityType: 'Staff',
-          entityId: staffId,
+          entityId: targetStaffId,
           snapshot: { researchGroupId, focusAreaIds: normalizedFocusAreaIds },
         },
       });
     });
 
     revalidatePath('/dashboard/profile/overview');
+    revalidatePath(`/dashboard/admin/staff/${targetStaffId}/profile`);
     // @ts-expect-error Next Canary Type definition bug
     revalidateTag('research-groups');
 

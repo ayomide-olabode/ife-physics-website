@@ -32,7 +32,15 @@ type PaginatedData = {
   totalPages: number;
 };
 
-export function ProjectsClientView({ data }: { data: PaginatedData }) {
+export function ProjectsClientView({
+  data,
+  staffId,
+  basePath = '/dashboard/profile',
+}: {
+  data: PaginatedData;
+  staffId?: string;
+  basePath?: string;
+}) {
   const router = useRouter();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -47,7 +55,7 @@ export function ProjectsClientView({ data }: { data: PaginatedData }) {
     if (!deleteId) return;
 
     try {
-      const res = await deleteMyProject(deleteId);
+      const res = await deleteMyProject(deleteId, { staffId });
       if (res.error) {
         toastError(res.error);
       } else {
@@ -67,7 +75,7 @@ export function ProjectsClientView({ data }: { data: PaginatedData }) {
       <PageHeader
         title="Projects"
         description="Manage your ongoing and completed projects."
-        actions={<AddNewButton href="/dashboard/profile/projects/new" label="Add New Project" />}
+        actions={<AddNewButton href={`${basePath}/projects/new`} label="Add New Project" />}
       />
 
       <DataTable
@@ -106,7 +114,7 @@ export function ProjectsClientView({ data }: { data: PaginatedData }) {
 
           <div key="actions" className="flex items-center gap-2">
             <Link
-              href={`/dashboard/profile/projects/${item.id}`}
+              href={`${basePath}/projects/${item.id}`}
               className="text-base text-blue-600 hover:text-blue-800 font-medium"
             >
               Edit
@@ -136,7 +144,7 @@ export function ProjectsClientView({ data }: { data: PaginatedData }) {
           <div className="flex space-x-2">
             {data.page > 1 && (
               <Link
-                href={`/dashboard/profile/projects?page=${data.page - 1}`}
+                href={`${basePath}/projects?page=${data.page - 1}`}
                 className="px-3 py-1 border rounded hover:bg-muted"
               >
                 Previous
@@ -144,7 +152,7 @@ export function ProjectsClientView({ data }: { data: PaginatedData }) {
             )}
             {data.page < data.totalPages && (
               <Link
-                href={`/dashboard/profile/projects?page=${data.page + 1}`}
+                href={`${basePath}/projects?page=${data.page + 1}`}
                 className="px-3 py-1 border rounded hover:bg-muted"
               >
                 Next

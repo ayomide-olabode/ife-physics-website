@@ -43,6 +43,7 @@ type ProjectEntryFormProps = {
   onSuccess?: () => void;
   redirectTo?: string;
   className?: string;
+  staffId?: string;
 };
 
 function buildInitialState(initialData?: ProjectEntryData): FormDataState {
@@ -64,6 +65,7 @@ export function ProjectEntryForm({
   onSuccess,
   redirectTo,
   className,
+  staffId,
 }: ProjectEntryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -115,9 +117,9 @@ export function ProjectEntryForm({
     try {
       let res;
       if (isEdit && initialData?.id) {
-        res = await updateMyProject(initialData.id, payload);
+        res = await updateMyProject(initialData.id, payload, { staffId });
       } else {
-        res = await createMyProject(payload);
+        res = await createMyProject(payload, { staffId });
       }
 
       if (res.success) {

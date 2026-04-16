@@ -78,8 +78,12 @@ function setMeta(prev: FormDataState, key: string, value: string): FormDataState
 
 export function ResearchOutputEntryForm({
   initialData,
+  staffId,
+  basePath = '/dashboard/profile',
 }: {
   initialData?: { id: string } & Partial<FormDataState>;
+  staffId?: string;
+  basePath?: string;
 }) {
   const router = useRouter();
   const isEditing = !!initialData?.id;
@@ -346,9 +350,9 @@ export function ResearchOutputEntryForm({
     try {
       let res;
       if (isEditing && initialData?.id) {
-        res = await updateMyResearchOutput(initialData.id, payload);
+        res = await updateMyResearchOutput(initialData.id, payload, { staffId });
       } else {
-        res = await createMyResearchOutput(payload);
+        res = await createMyResearchOutput(payload, { staffId });
       }
 
       if (res.error) {
@@ -358,7 +362,7 @@ export function ResearchOutputEntryForm({
           toastSuccess('Changes saved');
         } else {
           toastSuccess('Research output created');
-          router.push('/dashboard/profile/research-outputs');
+          router.push(`${basePath}/research-outputs`);
           router.refresh();
         }
       }
@@ -821,7 +825,7 @@ export function ResearchOutputEntryForm({
         <Button
           type="button"
           variant="outline"
-          onClick={() => router.push('/dashboard/profile/research-outputs')}
+          onClick={() => router.push(`${basePath}/research-outputs`)}
           disabled={dis}
           className="rounded-none"
         >

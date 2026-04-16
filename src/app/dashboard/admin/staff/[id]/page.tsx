@@ -56,7 +56,7 @@ export default async function AdminStaffDetailPage({
           <div className="flex items-center gap-3">
             <PageHeader
               title={fullName || staff.institutionalEmail}
-              description="Manage this staff record."
+              description="Overview for this staff record."
               actions={
                 <span
                   className={`inline-flex items-center rounded-full px-3 py-1 text-base font-medium ${

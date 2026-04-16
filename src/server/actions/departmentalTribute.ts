@@ -13,7 +13,7 @@ const departmentalTributeSchema = z.object({
     .trim()
     .min(1, 'Title is required.')
     .max(180, 'Title cannot exceed 180 characters.'),
-  bodyHtml: z.string().trim().min(1, 'Tribute body is required.'),
+  bodyHtml: z.string().min(1, 'Tribute body is required.'),
 });
 
 type UpsertDepartmentalTributeInput = z.infer<typeof departmentalTributeSchema>;

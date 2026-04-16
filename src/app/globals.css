@@ -100,10 +100,3 @@
   border: 2px solid transparent;
   background-clip: content-box;
 }
-
-@layer components {
-  .prose :where(p):not(:where([class~='not-prose'] *)) {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-}

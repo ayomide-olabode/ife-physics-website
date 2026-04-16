@@ -8,13 +8,12 @@ import { z } from 'zod';
 
 function normalizeRichText(value?: string): string | null {
   if (!value) return null;
-  const trimmed = value.trim();
-  const textOnly = trimmed
+  const textOnly = value
     .replace(/<[^>]*>/g, ' ')
     .replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-  return textOnly ? trimmed : null;
+  return textOnly ? value : null;
 }
 
 const updateProfileSchema = z.object({

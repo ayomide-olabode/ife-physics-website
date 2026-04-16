@@ -119,10 +119,10 @@ export function EditProfileForm({
         academicRank,
         designation: designation.trim(),
         roomNumber: roomNumber.trim(),
-        bio: bio.trim(),
-        education: education.trim(),
-        researchInterests: researchInterests.trim(),
-        membershipOfProfessionalOrganizations: professionalMemberships.trim(),
+        bio,
+        education,
+        researchInterests,
+        membershipOfProfessionalOrganizations: professionalMemberships,
       });
 
       if (res.error) {

@@ -12,7 +12,7 @@ const submitTestimonialSchema = z.object({
     .trim()
     .min(1, 'Relationship is required.')
     .max(120, 'Relationship is too long.'),
-  tributeHtml: z.string().trim().min(1, 'Tribute is required.'),
+  tributeHtml: z.string().min(1, 'Tribute is required.'),
 });
 
 type SubmitTestimonialInput = z.infer<typeof submitTestimonialSchema>;

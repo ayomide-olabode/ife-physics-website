@@ -30,6 +30,15 @@ function looksLikeHtml(value: string): boolean {
   return /<[^>]+>/.test(value);
 }
 
+function hasVisibleContent(value: string | null | undefined): value is string {
+  if (!value) return false;
+  return value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim().length > 0;
+}
+
 function ProfileTextBlock({ value }: { value: string }) {
   if (looksLikeHtml(value)) {
     return <Prose html={value} />;
@@ -122,7 +131,7 @@ export async function StaffProfileSection({
         title: 'Membership of Professional Organizations',
         content: membershipOfProfessionalOrganizations,
       },
-    ].filter((section) => Boolean(section.content?.trim()));
+    ].filter((section) => hasVisibleContent(section.content));
 
     return (
       <section className="bg-white p-6">
@@ -132,7 +141,7 @@ export async function StaffProfileSection({
               <div key={section.title}>
                 <article className="space-y-3">
                   <h3 className="text-lg font-semibold text-brand-navy">{section.title}</h3>
-                  <ProfileTextBlock value={section.content!.trim()} />
+                  <ProfileTextBlock value={section.content!} />
                 </article>
                 {index < sections.length - 1 && <hr className="mt-8 border-gray-200" />}
               </div>

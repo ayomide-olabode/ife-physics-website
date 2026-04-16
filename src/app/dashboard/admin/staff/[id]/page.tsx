@@ -13,6 +13,7 @@ import { StaffInviteControls } from '@/components/admin/StaffInviteControls';
 import { StaffStatusManager } from '@/components/admin/StaffStatusManager';
 import { StaffPublicVisibilityManager } from '@/components/admin/StaffPublicVisibilityManager';
 import { DeleteStaffButton } from '@/components/admin/DeleteStaffButton';
+import { displayStaffEmail, hasDeliverableStaffEmail } from '@/lib/staffEmail';
 
 export default async function AdminStaffDetailPage({
   params,
@@ -47,6 +48,8 @@ export default async function AdminStaffDetailPage({
     lastName: staff.lastName,
   });
   const hasName = Boolean(fullName);
+  const hasDeliverableEmail = hasDeliverableStaffEmail(staff.institutionalEmail);
+  const emailLabel = displayStaffEmail(staff.institutionalEmail);
 
   return (
     <div className="space-y-6">
@@ -55,7 +58,7 @@ export default async function AdminStaffDetailPage({
           <BackToParent href="/dashboard/admin/staff" label="Back to Staff" />
           <div className="flex items-center gap-3">
             <PageHeader
-              title={fullName || staff.institutionalEmail}
+              title={fullName || emailLabel}
               description="Overview for this staff record."
               actions={
                 <span
@@ -91,6 +94,10 @@ export default async function AdminStaffDetailPage({
               <span className="text-base font-medium">{staff.staffType.replace(/_/g, ' ')}</span>
             </div>
             <div className="flex justify-between">
+              <span className="text-base">Email:</span>
+              <span className="text-base font-medium">{emailLabel}</span>
+            </div>
+            <div className="flex justify-between">
               <span className="text-base">Record Created:</span>
               <span className="text-base font-medium">{formatDate(staff.createdAt)}</span>
             </div>
@@ -106,7 +113,7 @@ export default async function AdminStaffDetailPage({
         <div className="rounded-lg border p-4 space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-base font-medium text-muted-foreground">User System Access</h3>
-            {!staff.user && (
+            {!staff.user && hasDeliverableEmail && (
               <Button size="sm" variant="outline" asChild>
                 <Link href={`/dashboard/admin/users/new?staffId=${staff.id}`}>
                   <Plus className="h-4 w-4" />
@@ -144,16 +151,29 @@ export default async function AdminStaffDetailPage({
                   {staff.user.lastLoginAt ? formatDate(staff.user.lastLoginAt) : 'Never'}
                 </span>
               </div>
-              {staff.user.passwordHash === '' ? (
+              {staff.user.passwordHash === '' && hasDeliverableEmail ? (
                 <div className="pt-2">
                   <StaffInviteControls staffId={staff.id} />
                 </div>
               ) : null}
+              {staff.user.passwordHash === '' && !hasDeliverableEmail ? (
+                <p className="text-sm text-muted-foreground">
+                  Invite cannot be sent because no deliverable email is recorded for this staff
+                  profile.
+                </p>
+              ) : null}
             </div>
           ) : (
-            <p className="text-base text-muted-foreground">
-              No system user account has been provisioned for this staff record yet.
-            </p>
+            <>
+              <p className="text-base text-muted-foreground">
+                No system user account has been provisioned for this staff record yet.
+              </p>
+              {!hasDeliverableEmail ? (
+                <p className="text-sm text-muted-foreground">
+                  Add a valid email to this staff record before creating a user shell.
+                </p>
+              ) : null}
+            </>
           )}
         </div>
 
@@ -168,10 +188,7 @@ export default async function AdminStaffDetailPage({
           <p className="text-base text-muted-foreground">
             Delete this staff record and its linked user account from the system.
           </p>
-          <DeleteStaffButton
-            staffId={staff.id}
-            staffDisplayName={fullName || staff.institutionalEmail}
-          />
+          <DeleteStaffButton staffId={staff.id} staffDisplayName={fullName || emailLabel} />
         </div>
       </div>
 

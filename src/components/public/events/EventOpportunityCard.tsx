@@ -94,31 +94,35 @@ export function EventOpportunityCard({ item }: { item: EventOpportunityItem }) {
       <div className="grow" />
 
       {/* Bottom "Apply before" block */}
-      <hr className="border-gray-200 mx-5 mt-4" />
-      <div className="px-5 py-4 flex items-center justify-between">
-        <div className="items-center space-y-2 text-gray-500">
-          <Hourglass className="w-6 h-6" />
-          <span className="text-base font-medium">Apply before:</span>
-        </div>
-
-        {item.deadline ? (
-          <div className="flex items-end gap-2">
-            <span className="text-6xl font-bold text-gray-700 leading-none">
-              {formatDay(item.deadline)}
-            </span>
-            <div className="flex flex-col text-right leading-tight pb-1.5">
-              <span className="text-2xl font-bold leading-none text-gray-600 uppercase">
-                {formatMonthAbbrev(item.deadline)}
-              </span>
-              <span className="text-2xl text-gray-500 leading-none">
-                {formatYear(item.deadline)}
-              </span>
+      {item.deadline && (
+        <>
+          <hr className="border-gray-200 mx-5 mt-4" />
+          <div className="px-5 py-4 flex items-center justify-between">
+            <div className="items-center space-y-2 text-gray-500">
+              <Hourglass className="w-6 h-6" />
+              <span className="text-base font-medium">Apply before:</span>
             </div>
+
+            {item.deadline ? (
+              <div className="flex items-end gap-2">
+                <span className="text-6xl font-bold text-gray-700 leading-none">
+                  {formatDay(item.deadline)}
+                </span>
+                <div className="flex flex-col text-right leading-tight pb-1.5">
+                  <span className="text-2xl font-bold leading-none text-gray-600 uppercase">
+                    {formatMonthAbbrev(item.deadline)}
+                  </span>
+                  <span className="text-2xl text-gray-500 leading-none">
+                    {formatYear(item.deadline)}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <span className="text-base text-gray-500 italic">No deadline</span>
+            )}
           </div>
-        ) : (
-          <span className="text-base text-gray-500 italic">No deadline</span>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 

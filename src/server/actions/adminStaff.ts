@@ -6,7 +6,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
 import { StaffType, StaffStatus } from '@prisma/client';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { z } from 'zod';
+import { generateNoEmailPlaceholder, isNoEmailPlaceholder } from '@/lib/staffEmail';
 
 export async function createStaff({
   institutionalEmail,
@@ -15,7 +17,7 @@ export async function createStaff({
   lastName,
   staffType,
 }: {
-  institutionalEmail: string;
+  institutionalEmail?: string;
   firstName: string;
   middleName?: string;
   lastName: string;
@@ -28,10 +30,11 @@ export async function createStaff({
   await requireSuperAdmin(session);
   const adminUserId = session.user.userId;
 
-  const emailLower = institutionalEmail.toLowerCase().trim();
+  const rawEmail = institutionalEmail?.trim() ?? '';
   const normalizedFirstName = firstName.trim();
   const normalizedMiddleName = middleName?.trim() || null;
   const normalizedLastName = lastName.trim();
+  const emailLower = rawEmail ? rawEmail.toLowerCase() : generateNoEmailPlaceholder();
 
   if (!normalizedFirstName) {
     throw new Error('First name is required.');
@@ -41,13 +44,19 @@ export async function createStaff({
     throw new Error('Last name is required.');
   }
 
-  // Validate unique email
-  const existingStaff = await prisma.staff.findUnique({
-    where: { institutionalEmail: emailLower },
-  });
+  if (rawEmail) {
+    const parsedEmail = z.string().email().safeParse(rawEmail);
+    if (!parsedEmail.success) {
+      throw new Error('Please provide a valid email address or leave it blank.');
+    }
 
-  if (existingStaff) {
-    throw new Error('A staff member with this institutional email already exists.');
+    const existingStaff = await prisma.staff.findUnique({
+      where: { institutionalEmail: emailLower },
+    });
+
+    if (existingStaff) {
+      throw new Error('A staff member with this email already exists.');
+    }
   }
 
   const result = await prisma.staff.create({
@@ -76,7 +85,7 @@ export async function createStaff({
     entityType: 'Staff',
     entityId: result.id,
     snapshot: {
-      email: result.institutionalEmail,
+      email: isNoEmailPlaceholder(result.institutionalEmail) ? null : result.institutionalEmail,
       firstName: result.firstName,
       middleName: result.middleName,
       lastName: result.lastName,
@@ -87,6 +96,9 @@ export async function createStaff({
 
   revalidatePath('/dashboard/admin/staff');
   revalidatePath(`/dashboard/admin/staff/${result.id}`);
+  // @ts-expect-error Next Canary Type definition bug
+  revalidateTag('public:staff-slug-index');
+  revalidatePath('/people');
 
   return {
     staffId: result.id,
@@ -150,6 +162,8 @@ export async function updateStaffStatus({
   revalidatePath('/dashboard/admin/staff');
   revalidatePath(`/dashboard/admin/staff/${staffId}`);
   revalidatePath('/people');
+  // @ts-expect-error Next Canary Type definition bug
+  revalidateTag('public:staff-slug-index');
 
   return { success: true, unchanged: false };
 }
@@ -201,6 +215,8 @@ export async function updateStaffPublicVisibility({
   revalidatePath('/people');
   revalidatePath('/about/leadership');
   revalidatePath('/research');
+  // @ts-expect-error Next Canary Type definition bug
+  revalidateTag('public:staff-slug-index');
 
   return { success: true, unchanged: false };
 }
@@ -249,6 +265,8 @@ export async function deleteStaff({ staffId }: { staffId: string }) {
   revalidatePath('/dashboard/admin/staff');
   revalidatePath('/dashboard/admin/users');
   revalidatePath('/people');
+  // @ts-expect-error Next Canary Type definition bug
+  revalidateTag('public:staff-slug-index');
 
   return { success: true };
 }

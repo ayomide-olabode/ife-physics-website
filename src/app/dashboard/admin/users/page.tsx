@@ -8,6 +8,7 @@ import { listResearchGroupOptions } from '@/server/queries/researchGroupOptions'
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
+import { displayStaffEmail } from '@/lib/staffEmail';
 
 const DEGREE_SCOPE_LABELS = {
   GENERAL: 'General',
@@ -44,6 +45,7 @@ export default async function AdminUsersPage({
   const hasPrevPage = page > 1;
 
   const rows = users.map((user) => {
+    const emailLabel = displayStaffEmail(user.staff.institutionalEmail);
     const roleLabels = user.roleAssignments.map((assignment) => {
       if (assignment.role === 'EDITOR') {
         return 'EDITOR';
@@ -80,7 +82,7 @@ export default async function AdminUsersPage({
             firstName: user.staff.firstName,
             middleName: user.staff.middleName,
             lastName: user.staff.lastName,
-          }) || user.staff.institutionalEmail}
+          }) || emailLabel}
         </p>
         {user.isSuperAdmin && (
           <span className="mt-1 inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-sm font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-500">
@@ -89,7 +91,7 @@ export default async function AdminUsersPage({
         )}
       </div>,
       <div key="email" className="text-base text-muted-foreground">
-        {user.staff.institutionalEmail}
+        {emailLabel}
       </div>,
       <span key="roles" className="text-base flex flex-wrap gap-1">
         {uniqueRoleLabels.length > 0 ? (

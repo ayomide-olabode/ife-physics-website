@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { requireAuth, requireSuperAdmin } from '@/lib/guards';
 import { logAudit } from '@/lib/audit';
 import { revalidatePath } from 'next/cache';
+import { hasDeliverableStaffEmail } from '@/lib/staffEmail';
 
 export async function createUser({ staffId }: { staffId: string }) {
   const session = await requireAuth();
@@ -19,6 +20,13 @@ export async function createUser({ staffId }: { staffId: string }) {
     });
     if (!staff) {
       return { error: 'The specified staff record does not exist.' };
+    }
+
+    if (!hasDeliverableStaffEmail(staff.institutionalEmail)) {
+      return {
+        error:
+          'This staff profile has no deliverable email. Add a valid email before creating a user account.',
+      };
     }
 
     const existingUser = await prisma.user.findUnique({

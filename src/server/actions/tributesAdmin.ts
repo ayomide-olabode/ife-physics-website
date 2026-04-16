@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { requireTributesAccess } from '@/lib/guards';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { StaffStatus } from '@prisma/client';
 
 type MarkInMemoriamParams = {
@@ -145,6 +145,9 @@ export async function markStaffInMemoriam({
 
     revalidatePath('/dashboard/content/tributes');
     revalidatePath(`/dashboard/content/tributes/${staffId}`);
+    revalidatePath('/people');
+    // @ts-expect-error Next Canary Type definition bug
+    revalidateTag('public:staff-slug-index');
 
     return { success: true, staffId, ...result };
   } catch (error) {

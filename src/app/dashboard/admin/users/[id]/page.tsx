@@ -10,6 +10,7 @@ import { BackToParent } from '@/components/dashboard/BackToParent';
 import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
 import { requireAuth } from '@/lib/guards';
+import { displayStaffEmail } from '@/lib/staffEmail';
 
 export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireAuth();
@@ -35,12 +36,13 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
     </span>,
   ]);
 
+  const emailLabel = displayStaffEmail(user.staff.institutionalEmail);
   const fullName =
     formatFullName({
       firstName: user.staff.firstName,
       middleName: user.staff.middleName,
       lastName: user.staff.lastName,
-    }) || user.staff.institutionalEmail;
+    }) || emailLabel;
 
   return (
     <div className="space-y-6">

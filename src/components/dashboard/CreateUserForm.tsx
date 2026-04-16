@@ -8,6 +8,7 @@ import { searchStaff } from '@/server/queries/staffSearch';
 import { createUser } from '@/server/actions/adminUsers';
 import { toastSuccess, toastError } from '@/lib/toast';
 import { formatPersonName } from '@/lib/name';
+import { displayStaffEmail } from '@/lib/staffEmail';
 
 export function CreateUserForm() {
   const router = useRouter();
@@ -79,7 +80,8 @@ export function CreateUserForm() {
       <div className="space-y-4 rounded-lg border p-4 bg-card text-card-foreground shadow-sm">
         <h3 className="text-lg font-medium">1. Select Staff Member</h3>
         <p className="text-base text-muted-foreground">
-          Users must be mapped to an existing staff record. Search by name or email.
+          Users must be mapped to an existing staff record. Only records with valid email can be
+          turned into user accounts.
         </p>
 
         <div className="flex gap-2">
@@ -139,7 +141,9 @@ export function CreateUserForm() {
                       lastName: staff.lastName,
                     })}
                   </span>
-                  <span className="text-sm text-muted-foreground">{staff.institutionalEmail}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {displayStaffEmail(staff.institutionalEmail)}
+                  </span>
                 </div>
               </label>
             ))}

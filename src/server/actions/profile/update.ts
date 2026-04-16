@@ -3,7 +3,7 @@
 import { getStaffRankValuesByType, STAFF_TITLE_OPTIONS } from '@/lib/options';
 import prisma from '@/lib/prisma';
 import { requireAuth, requireStaffOwnership } from '@/lib/guards';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { z } from 'zod';
 
 function normalizeRichText(value?: string): string | null {
@@ -129,6 +129,9 @@ export async function updateStaffProfile(
     revalidatePath(`/dashboard/admin/staff/${targetStaffId}/profile`);
     revalidatePath('/dashboard/admin/staff');
     revalidatePath('/people');
+    // Staff name changes affect public staff slug resolution.
+    // @ts-expect-error Next Canary Type definition bug
+    revalidateTag('public:staff-slug-index');
 
     return { success: true };
   } catch (error) {

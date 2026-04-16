@@ -54,17 +54,18 @@ export function CreateStaffForm() {
     <form onSubmit={handleSubmit} className="space-y-8 w-full">
       <div className="space-y-4">
         <h3 className="text-lg font-medium border-b pb-2">1. Identity Information</h3>
-        <p className="text-base text-muted-foreground mb-4">Provide core profile identity data.</p>
+        <p className="text-base text-muted-foreground mb-4">
+          Provide core profile identity data. Email is optional for in-memoriam staff records.
+        </p>
 
         <div className="space-y-2">
-          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <FieldLabel htmlFor="email">Email (Optional)</FieldLabel>
           <Input
             id="email"
             type="email"
             placeholder="staff@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
         </div>
 

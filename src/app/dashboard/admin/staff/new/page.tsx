@@ -8,7 +8,7 @@ export default function NewStaffPage() {
       <BackToParent href="/dashboard/admin/staff" label="Back to Staff" />
       <PageHeader
         title="Add New Staff"
-        description="Create a staff profile record without requiring a user account."
+        description="Create a staff profile record. Email is optional for in-memoriam entries."
       />
       <div className="rounded-lg border p-8 bg-card">
         <CreateStaffForm />

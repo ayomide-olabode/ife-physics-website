@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { requireSuperAdmin } from '@/lib/guards';
 import prisma from '@/lib/prisma';
 import { requestRegistrationLink } from '@/server/actions/onboardingRegister';
+import { hasDeliverableStaffEmail } from '@/lib/staffEmail';
 
 type InviteStatus = 'SENT' | 'THROTTLED' | 'ALREADY_ACTIVE' | 'NO_STAFF';
 
@@ -39,6 +40,13 @@ export async function sendInviteForStaff(
 
   if (staff.user?.passwordHash && staff.user.passwordHash !== '') {
     return { success: true, status: 'ALREADY_ACTIVE' };
+  }
+
+  if (!hasDeliverableStaffEmail(staff.institutionalEmail)) {
+    return {
+      success: false,
+      error: 'This staff profile has no deliverable email address for invitations.',
+    };
   }
 
   const result = await requestRegistrationLink(staff.institutionalEmail);

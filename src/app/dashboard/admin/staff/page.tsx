@@ -7,6 +7,7 @@ import { listStaff } from '@/server/queries/adminStaff';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format-date';
 import { formatFullName } from '@/lib/name';
+import { displayStaffEmail } from '@/lib/staffEmail';
 
 export default async function AdminStaffPage({
   searchParams,
@@ -29,10 +30,10 @@ export default async function AdminStaffPage({
         firstName: staff.firstName,
         middleName: staff.middleName,
         lastName: staff.lastName,
-      }) || staff.institutionalEmail}
+      }) || 'Unnamed Staff'}
     </div>,
     <div key="email" className="text-base text-muted-foreground">
-      {staff.institutionalEmail}
+      {displayStaffEmail(staff.institutionalEmail)}
     </div>,
     <span key="type" className="text-base">
       {staff.staffType.replace(/_/g, ' ')}
